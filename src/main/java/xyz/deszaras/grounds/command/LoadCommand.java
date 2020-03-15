@@ -19,7 +19,7 @@ public class LoadCommand extends Command {
   public boolean execute() {
     try {
       Multiverse.load(f);
-      actor.sendMessage("Loaded multiverse");
+      actor.sendMessage("Loaded multiverse from " + f.getName());
       return true;
     } catch (IOException e) {
       e.printStackTrace();

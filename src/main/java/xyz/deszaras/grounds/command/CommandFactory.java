@@ -49,6 +49,13 @@ public class CommandFactory {
     switch (commandName) {
       case "LOOK":
         return Optional.of(new LookCommand(actor, player));
+      case "INSPECT":
+        ensureMinArgs(commandArgs, 1);
+        Optional<Thing> thing = Multiverse.MULTIVERSE.findThing(commandArgs.get(0));
+        if (!thing.isPresent()) {
+          throw new CommandException("Failed to find thing in universe");
+        }
+        return Optional.of(new InspectCommand(actor, player, thing.get()));
       case "TELEPORT":
       case "TP":
         ensureMinArgs(commandArgs, 1);

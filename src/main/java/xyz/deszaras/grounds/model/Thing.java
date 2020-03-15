@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
@@ -439,4 +442,17 @@ public class Thing {
   public int hashCode() {
     return id.hashCode();
   }
+
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+      .enable(SerializationFeature.INDENT_OUTPUT);
+
+  @JsonIgnore
+  public String toJson() {
+    try {
+      return OBJECT_MAPPER.writeValueAsString(this);
+    } catch (JsonProcessingException e) {
+      throw new IllegalStateException("Failed to convert thing to JSON", e);
+    }
+  }
+
 }
