@@ -6,6 +6,7 @@ import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.Command;
 import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandFactory;
+import xyz.deszaras.grounds.command.ExitCommand;
 import xyz.deszaras.grounds.model.Player;
 
 public class SingleUser {
@@ -21,7 +22,7 @@ public class SingleUser {
     CommandFactory commandFactory = new CommandFactory();
 
     console.printf("Welcome to Grounds.\n");
-    console.printf("This is single-user mode. Use ^D to quit.\n\n");
+    console.printf("This is single-user mode. Use ^D or 'exit' to quit.\n\n");
 
     while (true) {
       console.printf("# ");
@@ -35,6 +36,9 @@ public class SingleUser {
         if (!command.isPresent()) {
           console.printf("What?\n");
         } else {
+          if (command instanceof ExitCommand) {
+            break;
+          }
           boolean result = command.get().execute();
           console.printf("Command result: " + result + "\n");
         }

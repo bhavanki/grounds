@@ -68,6 +68,8 @@ public class CommandFactory {
       case "SAVE":
         ensureMinArgs(commandArgs, 1);
         return Optional.of(new SaveCommand(actor, player, new File(commandArgs.get(0))));
+      case "EXIT":
+        return Optional.of(new ExitCommand(actor, player));
       default:
         return Optional.empty();
     }
