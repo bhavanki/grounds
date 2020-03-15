@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Objects;
@@ -290,7 +291,7 @@ public final class Attr {
    */
   public static List<Attr> listFromJson(String s) {
     try {
-      return OBJECT_MAPPER.readValue(s, List.class);
+      return OBJECT_MAPPER.readValue(s, new TypeReference<List<Attr>>(){});
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException("Failed to create attribute list from JSON", e);
     }

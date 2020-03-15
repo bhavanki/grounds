@@ -30,6 +30,9 @@ public class TeleportCommand extends Command {
     player.setAttr(AttrNames.LOCATION, destination);
     player.setUniverse(destination.getUniverse());
     destination.getUniverse().addThing(player);
+
+    new LookCommand(actor, player).execute();
+
     return true;
   }
 }

@@ -64,6 +64,9 @@ public class CommandFactory {
           throw new CommandException("Failed to find destination in universe");
         }
         return Optional.of(new TeleportCommand(actor, player, destination.get()));
+      case "MOVE":
+        ensureMinArgs(commandArgs, 1);
+        return Optional.of(new MoveCommand(actor, player, commandArgs.get(0)));
       case "BUILD":
         ensureMinArgs(commandArgs, 2);
         String type = commandArgs.get(0);

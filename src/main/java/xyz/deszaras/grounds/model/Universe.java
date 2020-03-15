@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * A world full of things. The universe is stored in memory.
@@ -79,6 +80,20 @@ public class Universe {
   @JsonProperty
   public Collection<Thing> getThings() {
     return Collections.unmodifiableCollection(things.values());
+  }
+
+  /**
+   * Gets all the things in this universe of a specific type.
+   *
+   * @param thingClass thing class
+   * @return things
+   */
+  @JsonIgnore
+  public <T extends Thing> Collection<T> getThings(Class<T> thingClass) {
+    return things.values().stream()
+        .filter(t -> thingClass.equals(t.getClass()))
+        .map(t -> thingClass.cast(t))
+        .collect(Collectors.toUnmodifiableSet());
   }
 
   /**

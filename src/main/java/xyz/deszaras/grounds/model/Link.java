@@ -1,5 +1,7 @@
 package xyz.deszaras.grounds.model;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,15 +19,15 @@ import java.util.stream.Collectors;
  */
 public class Link extends Thing {
 
-  public static final String DESTINATIONS = "destinations";
+  public static final String SOURCE = "source";
+  public static final String DESTINATION = "destination";
 
-  public Link(String name, Universe universe, List<Place> places) {
+  public Link(String name, Universe universe, Place source, String sourceName,
+              Place destination, String destinationName) {
     super(name, universe);
 
-    List<Attr> destList = new ArrayList<>();
-    places.forEach(place -> destList.add(new Attr(place.getName(), place)));
-
-    setAttr(DESTINATIONS, destList);
+    setAttr(SOURCE, new Attr(sourceName, source));
+    setAttr(DESTINATION, new Attr(destinationName, destination));
   }
 
   /**
@@ -45,39 +47,62 @@ public class Link extends Thing {
       @JsonProperty("contents") Set<UUID> contents) {
     super(id, attrs, contents);
 
-    if (!getAttr(DESTINATIONS).isPresent()) {
-      throw new IllegalArgumentException("Link is missing destinations");
+    if (!getAttr(SOURCE).isPresent()) {
+      throw new IllegalArgumentException("Link is missing destination");
+    }
+    if (!getAttr(DESTINATION).isPresent()) {
+      throw new IllegalArgumentException("Link is missing destination");
     }
   }
 
   @JsonIgnore
-  public List<Place> getPlaces() {
-    return ImmutableList.copyOf(
-      getAttr(DESTINATIONS).get().getAttrListValue().stream()
-        .map(a -> {
-          Optional<Place> place = a.getThingValue(Place.class);
-          if (place.isPresent()) {
-            return place.get();
-          } else {
-            return (Place) null;
-          }
-        })
-        .filter(p -> p != null)
-        .collect(Collectors.toList())
-    );
+  public Optional<Place> getSource() {
+    return getAttr(SOURCE).get().getAttrValue().getThingValue(Place.class);
+  }
+
+  @JsonIgnore
+  public Optional<Place> getDestination() {
+    return getAttr(DESTINATION).get().getAttrValue().getThingValue(Place.class);
+  }
+
+  @JsonIgnore
+  public List<Optional<Place>> getPlaces() {
+    return ImmutableList.of(getSource(), getDestination());
+  }
+
+  public boolean linksTo(Place place) {
+    Optional<Place> placeOptional = Optional.of(place);
+    return placeOptional.equals(getSource()) ||
+        placeOptional.equals(getDestination());
+  }
+
+  public Optional<Attr> getOtherPlace(Place location) {
+    Optional<Place> source = getSource();
+    if (source.isPresent() && location.equals(source.get())) {
+      return Optional.of(getAttr(DESTINATION).get().getAttrValue());
+    }
+    Optional<Place> destination = getDestination();
+    if (destination.isPresent() && location.equals(destination.get())) {
+      return Optional.of(getAttr(SOURCE).get().getAttrValue());
+    }
+    return Optional.empty();
   }
 
   // TBD: make changing its universe impossible
 
   public static Link build(String name, Universe universe, List<String> buildArgs) {
-    List<Place> places = new ArrayList<>();
-    for (String buildArg : buildArgs) {
-      Optional<Place> place = Multiverse.MULTIVERSE.findThing(buildArg, Place.class);
-      if (!place.isPresent()) {
-        throw new IllegalArgumentException("Cannot find place " + buildArg);
-      }
-      places.add(place.get());
+    checkArgument(buildArgs.size() == 4, "Expected 4 build arguments, got " + buildArgs.size());
+    Optional<Place> source = Multiverse.MULTIVERSE.findThing(buildArgs.get(0), Place.class);
+    if (!source.isPresent()) {
+      throw new IllegalArgumentException("Cannot find source " + buildArgs.get(0));
     }
-    return new Link(name, universe, places);
+    String sourceName = Objects.requireNonNull(buildArgs.get(1));
+    Optional<Place> destination = Multiverse.MULTIVERSE.findThing(buildArgs.get(2), Place.class);
+    if (!destination.isPresent()) {
+      throw new IllegalArgumentException("Cannot find destination " + buildArgs.get(2));
+    }
+    String destinationName = Objects.requireNonNull(buildArgs.get(3));
+    return new Link(name, universe, source.get(), sourceName,
+                    destination.get(), destinationName);
   }
 }

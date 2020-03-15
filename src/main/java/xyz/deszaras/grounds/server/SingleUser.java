@@ -23,8 +23,10 @@ public class SingleUser {
 
     console.printf("Welcome to Grounds.\n");
     console.printf("This is single-user mode. Use ^D or 'exit' to quit.\n\n");
+    boolean lastCommandResult = true;
 
     while (true) {
+      console.printf(lastCommandResult ? "√ " : "X ");
       console.printf("# ");
       String line = console.readLine();
       if (line == null) {
@@ -35,20 +37,26 @@ public class SingleUser {
         Optional<Command> command = commandFactory.getCommand(actor, player, line);
         if (!command.isPresent()) {
           console.printf("What?\n");
+          lastCommandResult = false;
         } else {
           if (command.get() instanceof ExitCommand) {
             break;
           }
-          boolean result = command.get().execute();
-          console.printf("Command result: " + result + "\n");
+          lastCommandResult = command.get().execute();
         }
       } catch (CommandException e) {
         console.printf("ERROR: %s\n", e.getMessage());
+        lastCommandResult = false;
       }
 
       String message;
+      boolean wroteSeparator = false;
       while ((message = actor.getNextMessage()) != null) {
-        console.printf("Message: %s\n", message);
+        if (!wroteSeparator) {
+          console.printf("========================================\n");
+          wroteSeparator = true;
+        }
+        console.printf("%s\n", message);
       }
     }
 

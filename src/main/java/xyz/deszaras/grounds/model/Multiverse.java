@@ -5,11 +5,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * A set of universes. Each instance of the game is a single
@@ -78,5 +80,21 @@ public class Multiverse {
       throw new IllegalStateException("Thing " + thingSpec + " not of expected type " +
                                       thingClass.getName(), e);
     }
+  }
+
+  public Collection<Link> findLinks(Place place) {
+    // this is dreadfully inefficient
+    return universes.values().stream()
+        .flatMap(u -> u.getThings(Link.class).stream())
+        .filter(l -> l.linksTo(place))
+        .collect(Collectors.toUnmodifiableSet());
+  }
+
+  public Optional<Link> findLink(Place source, Place destination) {
+    // this is dreadfully inefficient
+    return universes.values().stream()
+        .flatMap(u -> u.getThings(Link.class).stream())
+        .filter(l -> l.linksTo(source) && l.linksTo(destination))
+        .findFirst();
   }
 }
