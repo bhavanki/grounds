@@ -1,10 +1,15 @@
 package xyz.deszaras.grounds.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -23,8 +28,29 @@ public class Link extends Thing {
     setAttr(DESTINATIONS, destList);
   }
 
-  // TBD JSON creator constructor
+  /**
+   * Creates a new link.
+   *
+   * @param id ID
+   * @param attrs attributes
+   * @param contents contents
+   * @throws NullPointerException if any argument is null
+   * @throws IllegalArgumentException if the link has no
+   * destinations attribute
+   */
+  @JsonCreator
+  public Link(
+      @JsonProperty("id") UUID id,
+      @JsonProperty("attrs") Set<Attr> attrs,
+      @JsonProperty("contents") Set<UUID> contents) {
+    super(id, attrs, contents);
 
+    if (!getAttr(DESTINATIONS).isPresent()) {
+      throw new IllegalArgumentException("Link is missing destinations");
+    }
+  }
+
+  @JsonIgnore
   public List<Place> getPlaces() {
     return ImmutableList.copyOf(
       getAttr(DESTINATIONS).get().getAttrListValue().stream()
