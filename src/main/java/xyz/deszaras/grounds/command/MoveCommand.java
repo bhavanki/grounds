@@ -23,11 +23,13 @@ public class MoveCommand extends Command {
       Optional<Place> source = locationAttr.get().getThingValue(Place.class);
       if (source.isPresent()) {
         source.get().take(player);
+        source.get().getUniverse().removeThing(player);
       }
     }
     destination.give(player);
     player.setAttr(AttrNames.LOCATION, destination);
     player.setUniverse(destination.getUniverse());
+    destination.getUniverse().addThing(player);
     return true;
   }
 }
