@@ -36,7 +36,7 @@ public class SingleUser {
         if (!command.isPresent()) {
           console.printf("What?\n");
         } else {
-          if (command instanceof ExitCommand) {
+          if (command.get() instanceof ExitCommand) {
             break;
           }
           boolean result = command.get().execute();
