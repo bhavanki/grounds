@@ -49,13 +49,14 @@ public class CommandFactory {
     switch (commandName) {
       case "LOOK":
         return Optional.of(new LookCommand(actor, player));
-      case "MOVE":
+      case "TELEPORT":
+      case "TP":
         ensureMinArgs(commandArgs, 1);
         Optional<Place> destination = Multiverse.MULTIVERSE.findThing(commandArgs.get(0), Place.class);
         if (!destination.isPresent()) {
           throw new CommandException("Failed to find destination in universe");
         }
-        return Optional.of(new MoveCommand(actor, player, destination.get()));
+        return Optional.of(new TeleportCommand(actor, player, destination.get()));
       case "BUILD":
         ensureMinArgs(commandArgs, 2);
         String type = commandArgs.get(0);

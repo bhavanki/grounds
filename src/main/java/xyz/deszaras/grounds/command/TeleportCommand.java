@@ -7,11 +7,11 @@ import xyz.deszaras.grounds.model.AttrNames;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 
-public class MoveCommand extends Command {
+public class TeleportCommand extends Command {
 
   private final Place destination;
 
-  public MoveCommand(Actor actor, Player player, Place destination) {
+  public TeleportCommand(Actor actor, Player player, Place destination) {
     super(actor, player);
     this.destination = Objects.requireNonNull(destination);
   }
