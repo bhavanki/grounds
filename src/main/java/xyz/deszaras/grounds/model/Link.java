@@ -29,9 +29,9 @@ public class Link extends Thing {
     return ImmutableList.copyOf(
       getAttr(DESTINATIONS).get().getAttrListValue().stream()
         .map(a -> {
-          Optional<Thing> place = a.getThingValue();
+          Optional<Place> place = a.getThingValue(Place.class);
           if (place.isPresent()) {
-            return (Place) place.get();
+            return place.get();
           } else {
             return (Place) null;
           }

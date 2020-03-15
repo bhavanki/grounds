@@ -175,6 +175,24 @@ public final class Attr {
   }
 
   /**
+   * Gets the value of this attribute as a thing of a particular class.
+   *
+   * @param thingClass expected class of thing
+   * @return attribute value as a thing of a particular class
+   * @throws IllegalStateException if this attribute is not a thing type,
+   * or if the value is not of the expected thing class
+   */
+  @JsonIgnore
+  public <T extends Thing> Optional<T> getThingValue(Class<T> thingClass) {
+    try {
+      return getThingValue().map(t -> thingClass.cast(t));
+    } catch (ClassCastException e) {
+      throw new IllegalStateException("Attribute " + name + " not of expected type " +
+                                      thingClass.getName(), e);
+    }
+  }
+
+  /**
    * Gets the value of this attribute as another attribute.
    *
    * @return attribute value as another attribute

@@ -6,7 +6,6 @@ import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.AttrNames;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
-import xyz.deszaras.grounds.model.Thing;
 
 public class MoveCommand extends Command {
 
@@ -21,9 +20,9 @@ public class MoveCommand extends Command {
   public boolean execute() {
     Optional<Attr> locationAttr = player.getAttr(AttrNames.LOCATION);
     if (locationAttr.isPresent()) {
-      Optional<Thing> source = locationAttr.get().getThingValue();
+      Optional<Place> source = locationAttr.get().getThingValue(Place.class);
       if (source.isPresent()) {
-        ((Place) source.get()).take(player);
+        source.get().take(player);
       }
     }
     destination.give(player);
