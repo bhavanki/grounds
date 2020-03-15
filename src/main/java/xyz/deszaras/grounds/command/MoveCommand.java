@@ -27,6 +27,7 @@ public class MoveCommand extends Command {
       }
     }
     destination.give(player);
+    player.setAttr(AttrNames.LOCATION, destination);
     player.setUniverse(destination.getUniverse());
     return true;
   }
