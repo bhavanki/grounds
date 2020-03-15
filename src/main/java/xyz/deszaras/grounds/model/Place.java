@@ -14,10 +14,8 @@ import java.util.UUID;
  */
 public class Place extends Thing {
 
-  public Place(Universe universe, String name) {
-    super(universe);
-
-    setAttr(AttrNames.NAME, Objects.requireNonNull(name));
+  public Place(String name, Universe universe) {
+    super(name, universe);
   }
 
   /**
@@ -36,15 +34,10 @@ public class Place extends Thing {
     super(id, attrs, contents);
   }
 
-  @Override
-  public String getName() {
-    return getAttr(AttrNames.NAME).get().getValue();
-  }
-
   // TBD: make changing its universe impossible
 
-  public static Place build(Universe universe, List<String> buildArgs) {
-    checkArgument(buildArgs.size() == 1, "Expected 1 build argument, got " + buildArgs.size());
-    return new Place(universe, buildArgs.get(0));
+  public static Place build(String name, Universe universe, List<String> buildArgs) {
+    checkArgument(buildArgs.size() == 0, "Expected 0 build arguments, got " + buildArgs.size());
+    return new Place(name, universe);
   }
 }

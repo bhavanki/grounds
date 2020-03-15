@@ -14,8 +14,8 @@ public class Link extends Thing {
 
   public static final String DESTINATIONS = "destinations";
 
-  public Link(Universe universe, List<Place> places) {
-    super(universe);
+  public Link(String name, Universe universe, List<Place> places) {
+    super(name, universe);
 
     List<Attr> destList = new ArrayList<>();
     places.forEach(place -> destList.add(new Attr(place.getName(), place)));
@@ -43,13 +43,13 @@ public class Link extends Thing {
 
   // TBD: make changing its universe impossible
 
-  public static Link build(Universe universe, List<String> buildArgs) {
+  public static Link build(String name, Universe universe, List<String> buildArgs) {
     List<Place> places = new ArrayList<>();
     for (String buildArg : buildArgs) {
       String[] parts = buildArg.split("::", 2);
-      places.add(new Place(Multiverse.MULTIVERSE.getUniverse(parts[0]),
-                           parts[1]));
+      places.add(new Place(parts[1],
+                           Multiverse.MULTIVERSE.getUniverse(parts[0])));
     }
-    return new Link(universe, places);
+    return new Link(name, universe, places);
   }
 }

@@ -57,10 +57,11 @@ public class CommandFactory {
         }
         return Optional.of(new MoveCommand(actor, player, (Place) destination.get()));
       case "BUILD":
-        ensureMinArgs(commandArgs, 1);
+        ensureMinArgs(commandArgs, 2);
         String type = commandArgs.get(0);
-        List<String> buildArgs = commandArgs.subList(1, commandArgs.size());
-        return Optional.of(new BuildCommand(actor, player, type, buildArgs));
+        String name = commandArgs.get(1);
+        List<String> buildArgs = commandArgs.subList(2, commandArgs.size());
+        return Optional.of(new BuildCommand(actor, player, type, name, buildArgs));
       case "LOAD":
         ensureMinArgs(commandArgs, 1);
         return Optional.of(new LoadCommand(actor, player, new File(commandArgs.get(0))));

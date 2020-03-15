@@ -20,12 +20,14 @@ public class BuildCommand extends Command {
   }
 
   private final String type;
+  private final String name;
   private final List<String> buildArgs;
 
   public BuildCommand(Actor actor, Player player, String type,
-                      List<String> buildArgs) {
+                      String name, List<String> buildArgs) {
     super(actor, player);
     this.type = Objects.requireNonNull(type);
+    this.name = Objects.requireNonNull(name);
     this.buildArgs = ImmutableList.copyOf(Objects.requireNonNull(buildArgs));
   }
 
@@ -37,21 +39,21 @@ public class BuildCommand extends Command {
     try {
       switch (BuiltInType.valueOf(type.toUpperCase())) {
         case PLAYER:
-          built = Player.build(universe, buildArgs);
+          built = Player.build(name, universe, buildArgs);
           break;
         case PLACE:
-          built = Place.build(universe, buildArgs);
+          built = Place.build(name, universe, buildArgs);
           break;
         case LINK:
-          built = Link.build(universe, buildArgs);
+          built = Link.build(name, universe, buildArgs);
           break;
         case UNIVERSE:
           // special case
-          universe = Universe.build(buildArgs);
+          universe = Universe.build(name, buildArgs);
           Multiverse.MULTIVERSE.putUniverse(universe);
           actor.sendMessage("Created universe " + universe.getName());
 
-          Place origin = new Place(universe, "origin");
+          Place origin = new Place("ORIGIN", universe);
           universe.addThing(origin);
           actor.sendMessage("Created origin place " + origin.getId());
           return true;

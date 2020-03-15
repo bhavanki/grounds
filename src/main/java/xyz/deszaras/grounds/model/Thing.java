@@ -30,7 +30,8 @@ public class Thing {
   /**
    * The special thing NOTHING.
    */
-  public static final Thing NOTHING = new Thing(Universe.VOID, NOTHING_ID) {};
+  public static final Thing NOTHING =
+      new Thing("NOTHING", Universe.VOID, NOTHING_ID) {};
 
   /**
    * The ID of the special thing EVERYTHING.
@@ -39,7 +40,8 @@ public class Thing {
   /**
    * The special thing EVERYTHING.
    */
-  public static final Thing EVERYTHING = new Thing(Universe.VOID, EVERYTHING_ID) {};
+  public static final Thing EVERYTHING =
+      new Thing("EVERYTHING", Universe.VOID, EVERYTHING_ID) {};
 
   static {
     Universe.VOID.addThing(NOTHING);
@@ -54,22 +56,28 @@ public class Thing {
   /**
    * Creates a new thing with a random ID.
    *
+   * @param name name
    * @param universe starting universe
+   * @throws NullPointerException if any argument is null
    */
-  public Thing(Universe universe) {
-    this(universe, UUID.randomUUID());
+  public Thing(String name, Universe universe) {
+    this(name, universe, UUID.randomUUID());
   }
 
   /**
    * Creates a new thing.
    *
+   * @param name name
    * @param universe starting universe
    * @param id ID
-   * @throws NullPointerException if id is null
+   * @throws NullPointerException if any argument is null
    */
-  public Thing(Universe universe, UUID id) {
+  public Thing(String name, Universe universe, UUID id) {
     this.id = Objects.requireNonNull(id);
     attrs = new HashMap<>();
+    attrs.put(AttrNames.NAME,
+              new Attr(AttrNames.NAME,
+                       Objects.requireNonNull(name)));
     attrs.put(AttrNames.UNIVERSE,
               new Attr(AttrNames.UNIVERSE,
                        Objects.requireNonNull(universe).getName()));
@@ -84,6 +92,8 @@ public class Thing {
    * @param attrs attributes
    * @param contents contents
    * @throws NullPointerException if any argument is null
+   * @throws IllegalArgumentException if there is no attribute for
+   * name or universe name
    */
   @JsonCreator
   public Thing(
@@ -94,6 +104,12 @@ public class Thing {
     this.attrs = new HashMap<>();
     Objects.requireNonNull(attrs).stream()
         .forEach(a -> this.attrs.put(a.getName(), a));
+    if (!this.attrs.containsKey(AttrNames.NAME)) {
+      throw new IllegalArgumentException("Name not defined for thing with ID " + id);
+    }
+    if (!this.attrs.containsKey(AttrNames.UNIVERSE)) {
+      throw new IllegalArgumentException("Universe name not defined for thing with ID " + id);
+    }
     this.contents = new HashSet<>(Objects.requireNonNull(contents));
   }
 
@@ -108,13 +124,13 @@ public class Thing {
   }
 
   /**
-   * Gets this thing's name. Subclasses should override this.
+   * Gets this thing's name.
    *
    * @return name
    */
   @JsonIgnore
   public String getName() {
-    return "[" + id.toString() + "]";
+    return getAttr(AttrNames.NAME).get().getValue();
   }
 
   /**

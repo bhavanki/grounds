@@ -145,8 +145,8 @@ public class Universe {
     }
   }
 
-  public static Universe build(List<String> buildArgs) {
-    checkArgument(buildArgs.size() == 1, "Expected 1 build argument, got " + buildArgs.size());
-    return new Universe(buildArgs.get(0));
+  public static Universe build(String name, List<String> buildArgs) {
+    checkArgument(buildArgs.size() == 0, "Expected 0 build arguments, got " + buildArgs.size());
+    return new Universe(name);
   }
 }

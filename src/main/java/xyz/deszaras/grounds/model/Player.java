@@ -15,18 +15,24 @@ import java.util.UUID;
 public class Player extends Thing {
 
   /**
-   * The god player.
+   * The ID of the special player GOD.
    */
-  public static final Player GOD = new Player(Universe.VOID, "GOD");
+  public static final UUID GOD_ID = new UUID(1L, 0L);
+  /**
+   * The special player GOD.
+   */
+  public static final Player GOD = new Player("GOD", Universe.VOID, GOD_ID);
 
   static {
     Universe.VOID.addThing(GOD);
   }
 
-  public Player(Universe universe, String name) {
-    super(universe);
+  public Player(String name, Universe universe) {
+    super(name, universe);
+  }
 
-    setAttr(AttrNames.NAME, Objects.requireNonNull(name));
+  private Player(String name, Universe universe, UUID id) {
+    super(name, universe, id);
   }
 
   /**
@@ -45,13 +51,8 @@ public class Player extends Thing {
     super(id, attrs, contents);
   }
 
-  @Override
-  public String getName() {
-    return getAttr(AttrNames.NAME).get().getValue();
-  }
-
-  public static Player build(Universe universe, List<String> buildArgs) {
-    checkArgument(buildArgs.size() == 1, "Expected 1 build argument, got " + buildArgs.size());
-    return new Player(universe, buildArgs.get(0));
+  public static Player build(String name, Universe universe, List<String> buildArgs) {
+    checkArgument(buildArgs.size() == 0, "Expected 0 build arguments, got " + buildArgs.size());
+    return new Player(name, universe);
   }
 }
