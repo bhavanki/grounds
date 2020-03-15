@@ -51,11 +51,11 @@ public class CommandFactory {
         return Optional.of(new LookCommand(actor, player));
       case "MOVE":
         ensureMinArgs(commandArgs, 1);
-        Optional<Thing> destination = Multiverse.MULTIVERSE.findThing(commandArgs.get(0));
+        Optional<Place> destination = Multiverse.MULTIVERSE.findThing(commandArgs.get(0), Place.class);
         if (!destination.isPresent()) {
           throw new CommandException("Failed to find destination in universe");
         }
-        return Optional.of(new MoveCommand(actor, player, (Place) destination.get()));
+        return Optional.of(new MoveCommand(actor, player, destination.get()));
       case "BUILD":
         ensureMinArgs(commandArgs, 2);
         String type = commandArgs.get(0);

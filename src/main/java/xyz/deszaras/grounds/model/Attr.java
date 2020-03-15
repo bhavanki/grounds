@@ -184,12 +184,10 @@ public final class Attr {
    */
   @JsonIgnore
   public <T extends Thing> Optional<T> getThingValue(Class<T> thingClass) {
-    try {
-      return getThingValue().map(t -> thingClass.cast(t));
-    } catch (ClassCastException e) {
-      throw new IllegalStateException("Attribute " + name + " not of expected type " +
-                                      thingClass.getName(), e);
+    if (type != Type.THING) {
+      throw new IllegalStateException("Attribute " + name + " is type " + type);
     }
+    return Multiverse.MULTIVERSE.findThing(value, thingClass);
   }
 
   /**

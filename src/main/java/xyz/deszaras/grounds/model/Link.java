@@ -46,9 +46,11 @@ public class Link extends Thing {
   public static Link build(String name, Universe universe, List<String> buildArgs) {
     List<Place> places = new ArrayList<>();
     for (String buildArg : buildArgs) {
-      String[] parts = buildArg.split("::", 2);
-      places.add(new Place(parts[1],
-                           Multiverse.MULTIVERSE.getUniverse(parts[0])));
+      Optional<Place> place = Multiverse.MULTIVERSE.findThing(buildArg, Place.class);
+      if (!place.isPresent()) {
+        throw new IllegalArgumentException("Cannot find place " + buildArg);
+      }
+      places.add(place.get());
     }
     return new Link(name, universe, places);
   }

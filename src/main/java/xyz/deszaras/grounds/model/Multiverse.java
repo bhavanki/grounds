@@ -71,4 +71,12 @@ public class Multiverse {
     return universes.get(parts[0]).getThing(id);
   }
 
+  public <T extends Thing> Optional<T> findThing(String thingSpec, Class<T> thingClass) {
+    try {
+      return findThing(thingSpec).map(t -> thingClass.cast(t));
+    } catch (ClassCastException e) {
+      throw new IllegalStateException("Thing " + thingSpec + " not of expected type " +
+                                      thingClass.getName(), e);
+    }
+  }
 }
