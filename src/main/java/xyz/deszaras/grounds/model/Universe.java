@@ -23,10 +23,10 @@ import java.util.UUID;
 public class Universe {
 
   /**
-   * The void universe, where there is nothing and everything, and
+   * The VOID universe, where there is NOTHING and EVERYTHING, and
    * where GOD lives.
    */
-  public static final Universe VOID = new Universe("void");
+  public static final Universe VOID = new Universe("VOID");
 
   static {
     Multiverse.MULTIVERSE.putUniverse(VOID);
