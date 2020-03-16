@@ -40,10 +40,10 @@ public class CommandFactory {
     return tokens;
   }
 
-  public Optional<Command> getCommand(Actor actor, Player player, String line)
+  public Command getCommand(Actor actor, Player player, String line)
       throws CommandException {
     if (line.trim().equals("")) {
-      return Optional.of(new NoOpCommand(actor, player));
+      return new NoOpCommand(actor, player);
     }
     List<String> tokens = tokenize(line);
     String commandName = tokens.get(0).toUpperCase();
@@ -51,14 +51,14 @@ public class CommandFactory {
 
     switch (commandName) {
       case "LOOK":
-        return Optional.of(new LookCommand(actor, player));
+        return new LookCommand(actor, player);
       case "INSPECT":
         ensureMinArgs(commandArgs, 1);
         Optional<Thing> thing = Multiverse.MULTIVERSE.findThing(commandArgs.get(0));
         if (!thing.isPresent()) {
           throw new CommandException("Failed to find thing in universe");
         }
-        return Optional.of(new InspectCommand(actor, player, thing.get()));
+        return new InspectCommand(actor, player, thing.get());
       case "TELEPORT":
       case "TP":
         ensureMinArgs(commandArgs, 1);
@@ -66,16 +66,17 @@ public class CommandFactory {
         if (!destination.isPresent()) {
           throw new CommandException("Failed to find destination in universe");
         }
-        return Optional.of(new TeleportCommand(actor, player, destination.get()));
+        return new TeleportCommand(actor, player, destination.get());
       case "MOVE":
+      case "GO":
         ensureMinArgs(commandArgs, 1);
-        return Optional.of(new MoveCommand(actor, player, commandArgs.get(0)));
+        return new MoveCommand(actor, player, commandArgs.get(0));
       case "BUILD":
         ensureMinArgs(commandArgs, 2);
         String type = commandArgs.get(0);
         String name = commandArgs.get(1);
         List<String> buildArgs = commandArgs.subList(2, commandArgs.size());
-        return Optional.of(new BuildCommand(actor, player, type, name, buildArgs));
+        return new BuildCommand(actor, player, type, name, buildArgs);
       case "SET_ATTR":
         ensureMinArgs(commandArgs, 2);
         Optional<Thing> setThing = Multiverse.MULTIVERSE.findThing(commandArgs.get(0));
@@ -84,20 +85,20 @@ public class CommandFactory {
         }
         try {
           Attr attr = Attr.fromAttrSpec(commandArgs.get(1));
-          return Optional.of(new SetAttrCommand(actor, player, setThing.get(), attr));
+          return new SetAttrCommand(actor, player, setThing.get(), attr);
         } catch (IllegalArgumentException e) {
           throw new CommandException("Failed to build attr from spec |" + commandArgs.get(1) + "|: " + e.getMessage());
         }
       case "LOAD":
         ensureMinArgs(commandArgs, 1);
-        return Optional.of(new LoadCommand(actor, player, new File(commandArgs.get(0))));
+        return new LoadCommand(actor, player, new File(commandArgs.get(0)));
       case "SAVE":
         ensureMinArgs(commandArgs, 1);
-        return Optional.of(new SaveCommand(actor, player, new File(commandArgs.get(0))));
+        return new SaveCommand(actor, player, new File(commandArgs.get(0)));
       case "EXIT":
-        return Optional.of(new ExitCommand(actor, player));
+        return new ExitCommand(actor, player);
       default:
-        return Optional.empty();
+        throw new CommandException("Unrecognized command " + commandName);
     }
   }
 
