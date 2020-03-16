@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * An attribute, which is a name/value pair. The value has a specific
@@ -79,7 +81,7 @@ public final class Attr {
    * @param thing attribute value
    */
   public Attr(String name, Thing thing) {
-    this(name, thing.getUniverse().getName() + "::" + thing.getId().toString(), Type.THING);
+    this(name, thing.getThingSpec(), Type.THING);
   }
 
   /**
@@ -234,6 +236,20 @@ public final class Attr {
   @Override
   public int hashCode() {
     return Objects.hash(name, type, value);
+  }
+
+  private static final Pattern ATTR_SPEC_PATTERN =
+      Pattern.compile("([^\\[]+)\\[([^]]+)\\]=(.*)");
+
+  public static Attr fromAttrSpec(String attrSpec) {
+    Matcher m = ATTR_SPEC_PATTERN.matcher(attrSpec);
+    if (!m.matches()) {
+      throw new IllegalArgumentException("Invalid attrSpec " + attrSpec);
+    }
+    String name = m.group(1);
+    Type type = Type.valueOf(m.group(2));
+    String value = m.group(3);
+    return new Attr(name, value, type);
   }
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

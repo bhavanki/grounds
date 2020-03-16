@@ -6,6 +6,7 @@ public final class AttrNames {
   }
 
   public static final String NAME = "name";
+  public static final String DESCRIPTION = "description";
   public static final String UNIVERSE = "universe";
   public static final String LOCATION = "location";
 }

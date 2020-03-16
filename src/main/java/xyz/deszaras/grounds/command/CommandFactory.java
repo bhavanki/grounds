@@ -1,5 +1,6 @@
 package xyz.deszaras.grounds.command;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import java.io.File;
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
@@ -20,7 +22,8 @@ public class CommandFactory {
   private static final Pattern TOKENIZE_PATTERN =
       Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
 
-  private static List<String> tokenize(String line) {
+  @VisibleForTesting
+  static List<String> tokenize(String line) {
     List<String> tokens = new ArrayList<>();
     Matcher m = TOKENIZE_PATTERN.matcher(line);
     while (m.find()) {
@@ -73,6 +76,18 @@ public class CommandFactory {
         String name = commandArgs.get(1);
         List<String> buildArgs = commandArgs.subList(2, commandArgs.size());
         return Optional.of(new BuildCommand(actor, player, type, name, buildArgs));
+      case "SET_ATTR":
+        ensureMinArgs(commandArgs, 2);
+        Optional<Thing> setThing = Multiverse.MULTIVERSE.findThing(commandArgs.get(0));
+        if (!setThing.isPresent()) {
+          throw new CommandException("Failed to find thing in universe");
+        }
+        try {
+          Attr attr = Attr.fromAttrSpec(commandArgs.get(1));
+          return Optional.of(new SetAttrCommand(actor, player, setThing.get(), attr));
+        } catch (IllegalArgumentException e) {
+          throw new CommandException("Failed to build attr from spec |" + commandArgs.get(1) + "|: " + e.getMessage());
+        }
       case "LOAD":
         ensureMinArgs(commandArgs, 1);
         return Optional.of(new LoadCommand(actor, player, new File(commandArgs.get(0))));

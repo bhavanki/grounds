@@ -35,6 +35,10 @@ public class LookCommand extends Command {
 
   private String buildMessage(Place location) {
     StringBuilder b = new StringBuilder(location.getName());
+    Optional<String> description = location.getDescription();
+    if (description.isPresent()) {
+      b.append("\n\n").append(description.get());
+    }
     Collection<Link> links = Multiverse.MULTIVERSE.findLinks(location);
     if (!links.isEmpty()) {
       b.append("\n\nEXITS:");

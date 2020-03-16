@@ -127,6 +127,16 @@ public class Thing {
   }
 
   /**
+   * Gets this thing's thingspec.
+   *
+   * @return thingspec
+   */
+  @JsonIgnore
+  public String getThingSpec() {
+    return getUniverse().getName() + "::" + getId().toString();
+  }
+
+  /**
    * Gets this thing's name.
    *
    * @return name
@@ -134,6 +144,16 @@ public class Thing {
   @JsonIgnore
   public String getName() {
     return getAttr(AttrNames.NAME).get().getValue();
+  }
+
+  /**
+   * Gets this thing's description.
+   *
+   * @return description
+   */
+  @JsonIgnore
+  public Optional<String> getDescription() {
+    return getAttr(AttrNames.DESCRIPTION).map(a -> a.getValue());
   }
 
   /**
@@ -175,6 +195,18 @@ public class Thing {
   public final Optional<Attr> getAttr(String name) {
     synchronized (attrMonitor) {
       return Optional.ofNullable(attrs.get(name));
+    }
+  }
+
+  /**
+   * Sets an attribute for this thing. If an attribute already
+   * exists with the same name, it is replaced.
+   *
+   * @param attr attribute to set
+   */
+  public final void setAttr(Attr attr) {
+    synchronized (attrMonitor) {
+      attrs.put(attr.getName(), attr);
     }
   }
 
