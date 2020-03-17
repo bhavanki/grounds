@@ -2,6 +2,7 @@ package xyz.deszaras.grounds.command;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import xyz.deszaras.grounds.model.Attr;
@@ -56,5 +57,10 @@ public class LookCommand extends Command {
       }
     }
     return b.toString();
+  }
+
+  public static LookCommand newCommand(Actor actor, Player player,
+                                       List<String> commandArgs) {
+    return new LookCommand(actor, player);
   }
 }

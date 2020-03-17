@@ -70,4 +70,13 @@ public class BuildCommand extends Command {
     return false;
   }
 
+  public static BuildCommand newCommand(Actor actor, Player player,
+                                        List<String> commandArgs)
+      throws CommandException {
+    ensureMinArgs(commandArgs, 2);
+    String type = commandArgs.get(0);
+    String name = commandArgs.get(1);
+    List<String> buildArgs = commandArgs.subList(2, commandArgs.size());
+    return new BuildCommand(actor, player, type, name, buildArgs);
+  }
 }

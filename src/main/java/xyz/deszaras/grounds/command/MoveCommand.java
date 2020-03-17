@@ -1,5 +1,6 @@
 package xyz.deszaras.grounds.command;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import xyz.deszaras.grounds.model.Attr;
@@ -51,5 +52,12 @@ public class MoveCommand extends Command {
     }
 
     return new TeleportCommand(actor, player, moveDestination.get()).execute();
+  }
+
+  public static MoveCommand newCommand(Actor actor, Player player,
+                                       List<String> commandArgs)
+      throws CommandException {
+    ensureMinArgs(commandArgs, 1);
+    return new MoveCommand(actor, player, commandArgs.get(0));
   }
 }

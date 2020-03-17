@@ -2,18 +2,17 @@ package xyz.deszaras.grounds.command;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableMap;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import xyz.deszaras.grounds.model.Attr;
-import xyz.deszaras.grounds.model.Multiverse;
-import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
-import xyz.deszaras.grounds.model.Thing;
-import xyz.deszaras.grounds.model.Universe;
 
 public class CommandFactory {
 
@@ -40,6 +39,24 @@ public class CommandFactory {
     return tokens;
   }
 
+  private static final Map<String, Class<? extends Command>> COMMANDS;
+
+  static {
+    COMMANDS = ImmutableMap.<String, Class<? extends Command>>builder()
+        .put("LOOK", LookCommand.class)
+        .put("INSPECT", InspectCommand.class)
+        .put("TELEPORT", TeleportCommand.class)
+        .put("TP", TeleportCommand.class)
+        .put("MOVE", MoveCommand.class)
+        .put("GO", MoveCommand.class)
+        .put("BUILD", BuildCommand.class)
+        .put("SET_ATTR", SetAttrCommand.class)
+        .put("LOAD", LoadCommand.class)
+        .put("SAVE", SaveCommand.class)
+        .put("EXIT", ExitCommand.class)
+        .build();
+  }
+
   public Command getCommand(Actor actor, Player player, String line)
       throws CommandException {
     if (line.trim().equals("")) {
@@ -49,62 +66,20 @@ public class CommandFactory {
     String commandName = tokens.get(0).toUpperCase();
     List<String> commandArgs = tokens.subList(1, tokens.size());
 
-    switch (commandName) {
-      case "LOOK":
-        return new LookCommand(actor, player);
-      case "INSPECT":
-        ensureMinArgs(commandArgs, 1);
-        Optional<Thing> thing = Multiverse.MULTIVERSE.findThing(commandArgs.get(0));
-        if (!thing.isPresent()) {
-          throw new CommandException("Failed to find thing in universe");
-        }
-        return new InspectCommand(actor, player, thing.get());
-      case "TELEPORT":
-      case "TP":
-        ensureMinArgs(commandArgs, 1);
-        Optional<Place> destination = Multiverse.MULTIVERSE.findThing(commandArgs.get(0), Place.class);
-        if (!destination.isPresent()) {
-          throw new CommandException("Failed to find destination in universe");
-        }
-        return new TeleportCommand(actor, player, destination.get());
-      case "MOVE":
-      case "GO":
-        ensureMinArgs(commandArgs, 1);
-        return new MoveCommand(actor, player, commandArgs.get(0));
-      case "BUILD":
-        ensureMinArgs(commandArgs, 2);
-        String type = commandArgs.get(0);
-        String name = commandArgs.get(1);
-        List<String> buildArgs = commandArgs.subList(2, commandArgs.size());
-        return new BuildCommand(actor, player, type, name, buildArgs);
-      case "SET_ATTR":
-        ensureMinArgs(commandArgs, 2);
-        Optional<Thing> setThing = Multiverse.MULTIVERSE.findThing(commandArgs.get(0));
-        if (!setThing.isPresent()) {
-          throw new CommandException("Failed to find thing in universe");
-        }
-        try {
-          Attr attr = Attr.fromAttrSpec(commandArgs.get(1));
-          return new SetAttrCommand(actor, player, setThing.get(), attr);
-        } catch (IllegalArgumentException e) {
-          throw new CommandException("Failed to build attr from spec |" + commandArgs.get(1) + "|: " + e.getMessage());
-        }
-      case "LOAD":
-        ensureMinArgs(commandArgs, 1);
-        return new LoadCommand(actor, player, new File(commandArgs.get(0)));
-      case "SAVE":
-        ensureMinArgs(commandArgs, 1);
-        return new SaveCommand(actor, player, new File(commandArgs.get(0)));
-      case "EXIT":
-        return new ExitCommand(actor, player);
-      default:
-        throw new CommandException("Unrecognized command " + commandName);
+    Class<? extends Command> commandClass = COMMANDS.get(commandName);
+    if (commandClass == null) {
+      throw new CommandException("Unrecognized command " + commandName);
     }
-  }
 
-  private static void ensureMinArgs(List<String> l, int n) throws CommandException {
-    if (l.size() < n) {
-      throw new CommandException("Need at least " + n + " arguments, got " + l.size());
+    try {
+      Method newCommandMethod =
+          commandClass.getMethod("newCommand", Actor.class, Player.class, List.class);
+      return (Command) newCommandMethod.invoke(null, actor, player, commandArgs);
+    } catch (NoSuchMethodException e) {
+      throw new CommandException("Command class " + commandClass.getName() +
+                                 " lacks a static newCommand method!");
+    } catch (IllegalAccessException | InvocationTargetException e) {
+      throw new CommandException("Failed to create new command", e);
     }
   }
 }

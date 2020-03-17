@@ -1,5 +1,6 @@
 package xyz.deszaras.grounds.command;
 
+import java.util.List;
 import xyz.deszaras.grounds.model.Player;
 
 public class ExitCommand extends Command {
@@ -11,5 +12,10 @@ public class ExitCommand extends Command {
   @Override
   public boolean execute() {
     return true;
+  }
+
+  public static ExitCommand newCommand(Actor actor, Player player,
+                                       List<String> commandArgs) {
+    return new ExitCommand(actor, player);
   }
 }

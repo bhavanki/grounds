@@ -1,9 +1,11 @@
 package xyz.deszaras.grounds.command;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.AttrNames;
+import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 
@@ -34,5 +36,16 @@ public class TeleportCommand extends Command {
     new LookCommand(actor, player).execute();
 
     return true;
+  }
+
+  public static TeleportCommand newCommand(Actor actor, Player player,
+                                           List<String> commandArgs)
+      throws CommandException {
+    ensureMinArgs(commandArgs, 1);
+    Optional<Place> destination = Multiverse.MULTIVERSE.findThing(commandArgs.get(0), Place.class);
+    if (!destination.isPresent()) {
+      throw new CommandException("Failed to find destination in universe");
+    }
+    return new TeleportCommand(actor, player, destination.get());
   }
 }

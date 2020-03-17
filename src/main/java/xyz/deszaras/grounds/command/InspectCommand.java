@@ -1,5 +1,8 @@
 package xyz.deszaras.grounds.command;
 
+import java.util.List;
+import java.util.Optional;
+import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
@@ -18,4 +21,14 @@ public class InspectCommand extends Command {
     return true;
   }
 
+  public static InspectCommand newCommand(Actor actor, Player player,
+                                          List<String> commandArgs)
+      throws CommandException {
+    ensureMinArgs(commandArgs, 1);
+    Optional<Thing> thing = Multiverse.MULTIVERSE.findThing(commandArgs.get(0));
+    if (!thing.isPresent()) {
+      throw new CommandException("Failed to find thing in universe");
+    }
+    return new InspectCommand(actor, player, thing.get());
+  }
 }

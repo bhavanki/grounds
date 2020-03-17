@@ -2,6 +2,7 @@ package xyz.deszaras.grounds.command;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
@@ -26,5 +27,12 @@ public class LoadCommand extends Command {
       actor.sendMessage("Failed to load multiverse: " + e.getMessage());
     }
     return false;
+  }
+
+  public static LoadCommand newCommand(Actor actor, Player player,
+                                       List<String> commandArgs)
+      throws CommandException {
+    ensureMinArgs(commandArgs, 1);
+    return new LoadCommand(actor, player, new File(commandArgs.get(0)));
   }
 }
