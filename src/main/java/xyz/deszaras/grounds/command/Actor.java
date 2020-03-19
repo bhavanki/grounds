@@ -5,10 +5,16 @@ import java.util.Objects;
 
 public class Actor {
 
+  private final String username;
   private final LinkedList<String> messages;
 
-  public Actor() {
+  public Actor(String username) {
+    this.username = username;
     messages = new LinkedList<>();
+  }
+
+  public String getUsername() {
+    return username;
   }
 
   public void sendMessage(String message) {

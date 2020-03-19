@@ -14,11 +14,11 @@ public class SingleUser {
     console.printf("Welcome to Grounds.\n");
     console.printf("This is single-user mode. Use ^D or 'exit' to quit.\n\n");
 
-    Actor actor = new Actor();
-    Shell shell = new Shell(console.reader(),
-                            console.writer(),
-                            console.writer(),
-                            actor);
+    Actor actor = new Actor("root");
+    Shell shell = new Shell(actor);
+    shell.setIn(console.reader());
+    shell.setOut(console.writer());
+    shell.setErr(console.writer());
     shell.setPlayer(Player.GOD);
 
     shell.run();

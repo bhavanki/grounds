@@ -18,30 +18,51 @@ import xyz.deszaras.grounds.model.Player;
 
 public class Shell implements Runnable {
 
-  private final BufferedReader in;
-  private final PrintWriter out;
-  private final PrintWriter err;
-  private final Actor actor;
   private final CommandExecutor commandExecutor;
 
+  private BufferedReader in = null;
+  private PrintWriter out = null;
+  private PrintWriter err = null;
+  private Actor actor = null;
   private Player player = null;
+  private int exitCode = 0;
 
-  public Shell(Reader in, Writer out, Writer err, Actor actor) {
-    this.in = new BufferedReader(in);
-    this.out = new PrintWriter(out);
-    this.err = new PrintWriter(err);
+  public Shell(Actor actor) {
     this.actor = actor;
 
     CommandFactory commandFactory = new CommandFactory();
     commandExecutor = new CommandExecutor(commandFactory);
   }
 
+  public void setIn(Reader in) {
+    this.in = new BufferedReader(in);
+  }
+  public void setOut(Writer out) {
+    this.out = new PrintWriter(out);
+  }
+  public void setErr(Writer err) {
+    this.err = new PrintWriter(err);
+  }
+
+  public void setActor(Actor actor) {
+    this.actor = actor;
+  }
   public void setPlayer(Player player) {
     this.player = player;
   }
 
+  public int getExitCode() {
+    return exitCode;
+  }
+
   @Override
   public void run() {
+    if (in == null || out == null || err == null) {
+      throw new IllegalStateException("I/O is not connected!");
+    }
+    if (actor == null) {
+      throw new IllegalStateException("The actor is not set!");
+    }
     if (player == null) {
       throw new IllegalStateException("The current player is not set!");
     }
@@ -93,6 +114,7 @@ public class Shell implements Runnable {
     } catch (IOException e) {
       e.printStackTrace(err);
       out.println("I/O exception! Exiting");
+      exitCode = 1;
     } catch (InterruptedException e) {
       e.printStackTrace(err);
       out.println("Interrupted! Exiting");
