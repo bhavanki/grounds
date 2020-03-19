@@ -38,7 +38,8 @@ public class MoveCommand extends Command {
     Optional<Place> moveDestination = null;
     for (Link link : Multiverse.MULTIVERSE.findLinks(source.get())) {
       Optional<Attr> otherPlace = link.getOtherPlace(source.get());
-      if (otherPlace.isPresent() && otherPlace.get().getName().equals(exitName)) {
+      if (otherPlace.isPresent() &&
+          otherPlace.get().getName().equalsIgnoreCase(exitName)) {
         moveDestination = otherPlace.get().getThingValue(Place.class);
       }
     }

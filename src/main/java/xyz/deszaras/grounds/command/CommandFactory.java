@@ -44,11 +44,13 @@ public class CommandFactory {
   static {
     COMMANDS = ImmutableMap.<String, Class<? extends Command>>builder()
         .put("LOOK", LookCommand.class)
+        .put("L", LookCommand.class)
         .put("INSPECT", InspectCommand.class)
         .put("TELEPORT", TeleportCommand.class)
         .put("TP", TeleportCommand.class)
         .put("MOVE", MoveCommand.class)
         .put("GO", MoveCommand.class)
+        .put("G", MoveCommand.class)
         .put("BUILD", BuildCommand.class)
         .put("SET_ATTR", SetAttrCommand.class)
         .put("LOAD", LoadCommand.class)
