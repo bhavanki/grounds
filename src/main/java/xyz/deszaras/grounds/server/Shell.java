@@ -14,6 +14,7 @@ import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.command.CommandExecutor.CommandResult;
 import xyz.deszaras.grounds.command.CommandFactory;
 import xyz.deszaras.grounds.command.ExitCommand;
+import xyz.deszaras.grounds.command.ShutdownCommand;
 import xyz.deszaras.grounds.model.Player;
 
 public class Shell implements Runnable {
@@ -26,6 +27,7 @@ public class Shell implements Runnable {
   private Actor actor = null;
   private Player player = null;
   private int exitCode = 0;
+  private boolean exitedWithShutdown = false;
 
   public Shell(Actor actor) {
     this.actor = actor;
@@ -53,6 +55,10 @@ public class Shell implements Runnable {
 
   public int getExitCode() {
     return exitCode;
+  }
+
+  public boolean exitedWithShutdown() {
+    return exitedWithShutdown;
   }
 
   @Override
@@ -94,7 +100,11 @@ public class Shell implements Runnable {
 
         if (commandResult.isSuccessful() &&
             commandResult.getCommandClass().isPresent() &&
-            commandResult.getCommandClass().get().equals(ExitCommand.class)) {
+            (commandResult.getCommandClass().get().equals(ExitCommand.class) ||
+             commandResult.getCommandClass().get().equals(ShutdownCommand.class))) {
+          if (commandResult.getCommandClass().get().equals(ShutdownCommand.class)) {
+            exitedWithShutdown = true;
+          }
           break;
         }
 

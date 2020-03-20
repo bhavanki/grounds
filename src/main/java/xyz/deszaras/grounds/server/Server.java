@@ -1,5 +1,6 @@
 package xyz.deszaras.grounds.server;
 
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -7,6 +8,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -18,6 +20,7 @@ import org.apache.sshd.server.command.Command;
 import org.apache.sshd.server.shell.ShellFactory;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import xyz.deszaras.grounds.command.Actor;
+import xyz.deszaras.grounds.model.Player;
 
 public class Server {
 
@@ -26,10 +29,12 @@ public class Server {
 
   private final SshServer sshServer;
   private final ExecutorService shellExecutorService;
+  private final CountDownLatch shutdownLatch;
 
   public Server(Properties serverProperties) {
     sshServer = buildSshServer(serverProperties);
     shellExecutorService = Executors.newCachedThreadPool();
+    shutdownLatch = new CountDownLatch(1);
   }
 
   private SshServer buildSshServer(Properties serverProperties) {
@@ -38,25 +43,22 @@ public class Server {
     s.setPort(Integer.valueOf(serverProperties.getProperty("port", DEFAULT_PORT)));
     s.setKeyPairProvider(new SimpleGeneratorHostKeyProvider()); // yuck
     s.setPasswordAuthenticator((username, password, session) -> true); // double yuck
-    s.setShellFactory(new ServerShellFactory(shellExecutorService));
+    s.setShellFactory(new ServerShellFactory());
     return s;
   }
 
-  private static class ServerShellFactory implements ShellFactory {
+  private class ServerShellFactory implements ShellFactory {
 
-    private final ExecutorService shellExecutorService;
-
-    private ServerShellFactory(ExecutorService shellExecutorService) {
-      this.shellExecutorService = shellExecutorService;
+    private ServerShellFactory() {
     }
 
     @Override
     public Command createShell(ChannelSession session) {
       Actor actor = buildActor(session);
-      return new ServerShellCommand(shellExecutorService, actor);
+      return new ServerShellCommand(actor);
     }
 
-    private static Actor buildActor(ChannelSession session) {
+    private Actor buildActor(ChannelSession session) {
       if (!session.getSessionContext().isAuthenticated()) {
         throw new IllegalArgumentException("Session is not authenticated");
       }
@@ -64,16 +66,14 @@ public class Server {
     }
   }
 
-  private static class ServerShellCommand implements Command {
+  private class ServerShellCommand implements Command {
 
-    private final ExecutorService shellExecutorService;
     private final Shell shell;
 
     private ExitCallback exitCallback;
     private Future<?> shellFuture;
 
-    private ServerShellCommand(ExecutorService shellExecutorService, Actor actor) {
-      this.shellExecutorService = shellExecutorService;
+    private ServerShellCommand(Actor actor) {
       shell = new Shell(actor);
       shellFuture = null;
     }
@@ -86,11 +86,13 @@ public class Server {
     @Override
     public void setOutputStream(OutputStream out) {
       shell.setOut(new OutputStreamWriter(out, StandardCharsets.UTF_8));
+      // shell.setOut(new OutputStreamWriter(new NlCorrectingOutputStream(out), StandardCharsets.UTF_8));
     }
 
     @Override
-    public void setErrorStream(OutputStream out) {
-      shell.setErr(new OutputStreamWriter(out, StandardCharsets.UTF_8));
+    public void setErrorStream(OutputStream err) {
+      shell.setErr(new OutputStreamWriter(err, StandardCharsets.UTF_8));
+      // shell.setErr(new OutputStreamWriter(new NlCorrectingOutputStream(err), StandardCharsets.UTF_8));
     }
 
     @Override
@@ -104,8 +106,12 @@ public class Server {
         @Override
         public void run() {
           try {
+            shell.setPlayer(Player.GOD);  // temporary
             shell.run();
             exitCallback.onExit(shell.getExitCode());
+            if (shell.exitedWithShutdown()) {
+              shutdownLatch.countDown();
+            }
           } catch (Exception e) {
             exitCallback.onExit(255, e.getMessage());
           }
@@ -126,5 +132,30 @@ public class Server {
 
   public void shutdown() throws IOException {
     sshServer.stop();
+    shellExecutorService.shutdown();
+  }
+
+  public void shutdownOnCommand() throws IOException, InterruptedException {
+    shutdownLatch.await();
+    shutdown();
+  }
+
+  // https://github.com/bigpuritz/javaforge-blog/blob/master/sshd-daemon-demo/src/main/java/net/javaforge/blog/sshd/InAppShellFactory.java
+  private static class NlCorrectingOutputStream extends FilterOutputStream {
+
+    private static final boolean MAC = System.getProperty("os.name").startsWith("Mac OS X");
+
+    private NlCorrectingOutputStream(OutputStream out) {
+      super(out);
+    }
+
+    @Override
+    public void write(int i) throws IOException {
+      if (MAC && i == '\n') {
+        super.write('\r');
+      }
+
+      super.write(i);
+    }
   }
 }

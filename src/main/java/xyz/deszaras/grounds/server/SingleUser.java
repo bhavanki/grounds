@@ -4,9 +4,10 @@ import java.io.Console;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.model.Player;
 
-public class SingleUser {
+public class SingleUser implements Runnable {
 
-  public static void main(String[] args) throws Exception {
+  @Override
+  public void run() {
     Console console = System.console();
     if (console == null) {
       throw new IllegalStateException("No console!");
