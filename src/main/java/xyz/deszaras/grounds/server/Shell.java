@@ -1,5 +1,6 @@
 package xyz.deszaras.grounds.server;
 
+import com.google.common.base.Throwables;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -8,6 +9,7 @@ import java.io.Writer;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandExecutor;
@@ -90,13 +92,14 @@ public class Shell implements Runnable {
           if (!commandResult.isSuccessful()) {
             Optional<CommandException> commandException = commandResult.getCommandException();
             if (commandException.isPresent()) {
-              err.printf("ERROR: %s\n", commandException.get().getMessage());
+              err.printf("ERROR: %s\n", joinMessages(commandException.get()));
             }
           }
         } catch (ExecutionException e) {
-          err.printf("ERROR: %s\n", e.getCause().getMessage());
+          err.printf("ERROR: %s\n", joinMessages(e.getCause()));
           commandResult = new CommandResult(false, null);
         }
+        err.flush();
 
         if (commandResult.isSuccessful() &&
             commandResult.getCommandClass().isPresent() &&
@@ -133,4 +136,9 @@ public class Shell implements Runnable {
     }
   }
 
+  private static String joinMessages(Throwable e) {
+    return Throwables.getCausalChain(e).stream()
+        .map(t -> t.getMessage())
+        .collect(Collectors.joining(": "));
+  }
 }
