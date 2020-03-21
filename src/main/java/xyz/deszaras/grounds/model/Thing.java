@@ -1,5 +1,6 @@
 package xyz.deszaras.grounds.model;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -495,4 +496,8 @@ public class Thing {
     }
   }
 
+  public static Thing build(String name, Universe universe, List<String> buildArgs) {
+    checkArgument(buildArgs.size() == 0, "Expected 0 build arguments, got " + buildArgs.size());
+    return new Thing(name, universe);
+  }
 }

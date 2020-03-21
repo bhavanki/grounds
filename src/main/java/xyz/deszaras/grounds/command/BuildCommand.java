@@ -13,6 +13,7 @@ import xyz.deszaras.grounds.model.Universe;
 public class BuildCommand extends Command {
 
   public enum BuiltInType {
+    THING,
     PLAYER,
     PLACE,
     LINK,
@@ -44,6 +45,9 @@ public class BuildCommand extends Command {
 
     try {
       switch (thingType) {
+        case THING:
+          built = Thing.build(name, universe, buildArgs);
+          break;
         case PLAYER:
           built = Player.build(name, universe, buildArgs);
           break;
