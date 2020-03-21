@@ -34,10 +34,16 @@ public class BuildCommand extends Command {
   @Override
   public boolean execute() {
     Universe universe = player.getUniverse();
+    BuiltInType thingType = BuiltInType.valueOf(type.toUpperCase());
+    if (thingType != BuiltInType.UNIVERSE &&
+        universe.getName().equals(Universe.VOID.getName())) {
+      actor.sendMessage("Building of anything except universes is not permitted in the VOID universe");
+      return false;
+    }
     Thing built;
 
     try {
-      switch (BuiltInType.valueOf(type.toUpperCase())) {
+      switch (thingType) {
         case PLAYER:
           built = Player.build(name, universe, buildArgs);
           break;
