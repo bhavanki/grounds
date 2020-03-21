@@ -8,11 +8,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 
+/**
+ * The entry point for the application.
+ */
 public class Main {
 
   public static class Args {
     @Parameter(names = { "-p", "--properties" },
-               description = "Server properties",
+               description = "Server properties (for multi-user mode)",
                converter = FileConverter.class)
     private File propertiesFile = null;
     @Parameter(names = { "-s", "--single-user" },

@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -31,18 +33,27 @@ public class Server {
   private final ExecutorService shellExecutorService;
   private final CountDownLatch shutdownLatch;
 
-  public Server(Properties serverProperties) {
+  public Server(Properties serverProperties) throws IOException {
     sshServer = buildSshServer(serverProperties);
     shellExecutorService = Executors.newCachedThreadPool();
     shutdownLatch = new CountDownLatch(1);
   }
 
-  private SshServer buildSshServer(Properties serverProperties) {
+  private SshServer buildSshServer(Properties serverProperties) throws IOException {
     SshServer s = SshServer.setUpDefaultServer();
+
     s.setHost(serverProperties.getProperty("host", DEFAULT_HOST));
     s.setPort(Integer.valueOf(serverProperties.getProperty("port", DEFAULT_PORT)));
+
     s.setKeyPairProvider(new SimpleGeneratorHostKeyProvider()); // yuck
-    s.setPasswordAuthenticator((username, password, session) -> true); // double yuck
+
+    String passwordFileProperty = serverProperties.getProperty("passwordFile");
+    if (passwordFileProperty == null) {
+      throw new IllegalStateException("No passwordFile specified");
+    }
+    Path passwordFile = FileSystems.getDefault().getPath(passwordFileProperty);
+    s.setPasswordAuthenticator(new HashedPasswordAuthenticator(passwordFile));
+
     s.setShellFactory(new ServerShellFactory());
     return s;
   }

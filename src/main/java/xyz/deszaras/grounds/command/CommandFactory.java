@@ -56,6 +56,7 @@ public class CommandFactory {
         .put("LOAD", LoadCommand.class)
         .put("SAVE", SaveCommand.class)
         .put("EXIT", ExitCommand.class)
+        .put("HASH_PASSWORD", HashPasswordCommand.class)
         .put("SHUTDOWN", ShutdownCommand.class)
         .build();
   }
