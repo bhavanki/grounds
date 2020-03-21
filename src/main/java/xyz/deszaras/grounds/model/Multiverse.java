@@ -61,42 +61,72 @@ public class Multiverse {
   }
 
   /**
-   * Finds a thing in this multiverse.
+   * Finds a thing in this multiverse by its ID.
    *
-   * @param id spec of thing to find
+   * @param idString ID of thing to find
    * @return thing
    * @throws IllegalArgumentException if the thing is not of the expected type
    */
-  public Optional<Thing> findThing(String thingSpec) {
-    if (thingSpec == null || thingSpec.trim().equals("")) {
+  public Optional<Thing> findThing(String idString) {
+    if (idString == null || idString.trim().equals("")) {
       return Optional.empty();
     }
-    String[] parts = thingSpec.split("::", 2);
-    if (parts.length < 2 || !universes.containsKey(parts[0])) {
-      return Optional.empty();
-    }
-    UUID id;
     try {
-      id = UUID.fromString(parts[1]);
+      return findThing(UUID.fromString(idString));
     } catch (IllegalArgumentException e) {
       return Optional.empty();
     }
-    return universes.get(parts[0]).getThing(id);
+  }
+
+  /**
+   * Finds a thing in this multiverse by its ID.
+   *
+   * @param id ID of thing to find
+   * @return thing
+   */
+  public Optional<Thing> findThing(UUID id) {
+    if (id == null) {
+      return Optional.empty();
+    }
+    for (Universe universe : universes.values()) {
+      Optional<Thing> foundThing = universe.getThing(id);
+      if (foundThing.isPresent()) {
+        return foundThing;
+      }
+    }
+    return Optional.empty();
   }
 
   /**
    * Finds a thing in this multiverse, with an expected type.
    *
-   * @param id spec of thing to find
+   * @param idString ID of thing to find
    * @param thingClass expected type of thing
    * @return thing
    * @throws IllegalArgumentException if the thing is not of the expected type
    */
-  public <T extends Thing> Optional<T> findThing(String thingSpec, Class<T> thingClass) {
+  public <T extends Thing> Optional<T> findThing(String idString, Class<T> thingClass) {
     try {
-      return findThing(thingSpec).map(t -> thingClass.cast(t));
+      return findThing(idString).map(t -> thingClass.cast(t));
     } catch (ClassCastException e) {
-      throw new IllegalArgumentException("Thing " + thingSpec + " not of expected type " +
+      throw new IllegalArgumentException("Thing " + idString + " not of expected type " +
+                                         thingClass.getName(), e);
+    }
+  }
+
+  /**
+   * Finds a thing in this multiverse, with an expected type.
+   *
+   * @param id ID of thing to find
+   * @param thingClass expected type of thing
+   * @return thing
+   * @throws IllegalArgumentException if the thing is not of the expected type
+   */
+  public <T extends Thing> Optional<T> findThing(UUID id, Class<T> thingClass) {
+    try {
+      return findThing(id).map(t -> thingClass.cast(t));
+    } catch (ClassCastException e) {
+      throw new IllegalArgumentException("Thing " + id.toString() + " not of expected type " +
                                          thingClass.getName(), e);
     }
   }

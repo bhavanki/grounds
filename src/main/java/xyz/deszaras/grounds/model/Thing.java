@@ -136,16 +136,6 @@ public class Thing {
   }
 
   /**
-   * Gets this thing's thingspec.
-   *
-   * @return thingspec
-   */
-  @JsonIgnore
-  public String getThingSpec() {
-    return getUniverse().getName() + "::" + getId().toString();
-  }
-
-  /**
    * Gets this thing's name.
    *
    * @return name

@@ -81,7 +81,7 @@ public final class Attr {
    * @param thing attribute value
    */
   public Attr(String name, Thing thing) {
-    this(name, thing.getThingSpec(), Type.THING);
+    this(name, thing.getId().toString(), Type.THING);
   }
 
   /**
