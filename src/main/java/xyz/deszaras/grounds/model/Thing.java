@@ -398,30 +398,6 @@ public class Thing {
     }
   }
 
-  // public Map<UUID, Set<AccessRule>> getAccessRules() {
-  //   return accessRuleKeeper.getAccessRules();
-  // }
-
-  // public synchronized void addAccessRule(AccessRule accessRule) {
-  //   accessRuleKeeper.addAccessRule(accessRule);
-  // }
-
-  // public void removeAccessRule(AccessRule accessRule) {
-  //   accessRuleKeeper.removeAccessRule(accessRule);
-  // }
-
-  // public boolean grantsReadAccess(Thing accessor, Attr targetAttr) {
-  //   return grantsAccess(accessor, targetAttr, AccessRule.Permission.READ);
-  // }
-
-  // public boolean grantsWriteAccess(Thing accessor, Attr targetAttr) {
-  //   return grantsAccess(accessor, targetAttr, AccessRule.Permission.WRITE);
-  // }
-
-  // public boolean grantsAccess(Thing accessor, Attr targetAttr, AccessRule.Permission permission) {
-  //   return accessRuleKeeper.grantsAccess(accessor, targetAttr, permission);
-  // }
-
   private final Object contentsMonitor = new Object();
 
   /**
