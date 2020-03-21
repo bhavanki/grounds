@@ -27,7 +27,10 @@ public class TeleportCommand extends Command {
         source.get().take(player);
         source.get().getUniverse().removeThing(player);
       }
+    } else {
+      player.getUniverse().removeThing(player);
     }
+
     destination.give(player);
     player.setAttr(AttrNames.LOCATION, destination);
     player.setUniverse(destination.getUniverse());
