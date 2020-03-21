@@ -58,6 +58,7 @@ public class CommandFactory {
         .put("ABANDON", AbandonCommand.class)
         .put("LOAD", LoadCommand.class)
         .put("SAVE", SaveCommand.class)
+        .put("SWITCH_PLAYER", SwitchPlayerCommand.class)
         .put("EXIT", ExitCommand.class)
         .put("HASH_PASSWORD", HashPasswordCommand.class)
         .put("INDEX", IndexCommand.class)

@@ -11,12 +11,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import xyz.deszaras.grounds.command.Actor;
+import xyz.deszaras.grounds.command.Command;
 import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.command.CommandExecutor.CommandResult;
 import xyz.deszaras.grounds.command.CommandFactory;
 import xyz.deszaras.grounds.command.ExitCommand;
 import xyz.deszaras.grounds.command.ShutdownCommand;
+import xyz.deszaras.grounds.command.SwitchPlayerCommand;
 import xyz.deszaras.grounds.model.Player;
 
 public class Shell implements Runnable {
@@ -75,9 +77,11 @@ public class Shell implements Runnable {
       throw new IllegalStateException("The current player is not set!");
     }
 
+    String prompt = getPrompt(player);
+
     try {
       while (true) {
-        out.printf("# ");
+        out.printf(prompt);
         out.flush();
         String line = in.readLine();
         if (line == null) {
@@ -102,13 +106,18 @@ public class Shell implements Runnable {
         err.flush();
 
         if (commandResult.isSuccessful() &&
-            commandResult.getCommandClass().isPresent() &&
-            (commandResult.getCommandClass().get().equals(ExitCommand.class) ||
-             commandResult.getCommandClass().get().equals(ShutdownCommand.class))) {
-          if (commandResult.getCommandClass().get().equals(ShutdownCommand.class)) {
-            exitedWithShutdown = true;
+            commandResult.getCommandClass().isPresent()) {
+          Class<? extends Command> commandClass = commandResult.getCommandClass().get();
+          if (commandClass.equals(ExitCommand.class) ||
+              commandClass.equals(ShutdownCommand.class)) {
+            if (commandClass.equals(ShutdownCommand.class)) {
+              exitedWithShutdown = true;
+            }
+            break;
+          } else if (commandClass.equals(SwitchPlayerCommand.class)) {
+            player = actor.getCurrentPlayer();
+            prompt = getPrompt(player);
           }
-          break;
         }
 
         String message;
@@ -133,6 +142,14 @@ public class Shell implements Runnable {
       out.println("Interrupted! Exiting");
     } finally {
       commandExecutor.shutdown();
+    }
+  }
+
+  private static String getPrompt(Player player) {
+    if (player.equals(Player.GOD)) {
+      return "# ";
+    } else {
+      return "$ ";
     }
   }
 
