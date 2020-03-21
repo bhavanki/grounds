@@ -57,6 +57,7 @@ public class CommandFactory {
         .put("SAVE", SaveCommand.class)
         .put("EXIT", ExitCommand.class)
         .put("HASH_PASSWORD", HashPasswordCommand.class)
+        .put("INDEX", IndexCommand.class)
         .put("ROLE", RoleCommand.class)
         .put("SHUTDOWN", ShutdownCommand.class)
         .build();
