@@ -1,5 +1,9 @@
 package xyz.deszaras.grounds.auth;
 
+import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
+import java.util.Set;
+
 /**
  * A role is used to determine a player's permissions in a universe.
  */
@@ -23,5 +27,14 @@ public enum Role {
   /**
    * A guest in a universe.
    */
-  GUEST
+  GUEST;
+
+  public static final Set<Role> ALL_ROLES =
+      ImmutableSet.copyOf(Arrays.asList(Role.values()));
+
+  public static final Set<Role> NON_GUEST_ROLES =
+      ImmutableSet.of(DENIZEN, BARD, ADEPT, THAUMATURGE);
+
+  public static final Set<Role> WIZARD_ROLES =
+      ImmutableSet.of(BARD, ADEPT, THAUMATURGE);
 }
