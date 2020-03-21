@@ -45,7 +45,12 @@ public class Server {
     s.setHost(serverProperties.getProperty("host", DEFAULT_HOST));
     s.setPort(Integer.valueOf(serverProperties.getProperty("port", DEFAULT_PORT)));
 
-    s.setKeyPairProvider(new SimpleGeneratorHostKeyProvider()); // yuck
+    String hostKeyFileProperty = serverProperties.getProperty("hostKeyFile");
+    if (hostKeyFileProperty == null) {
+      throw new IllegalStateException("No hostKeyFile specified");
+    }
+    Path hostKeyFile = FileSystems.getDefault().getPath(hostKeyFileProperty);
+    s.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(hostKeyFile));
 
     String passwordFileProperty = serverProperties.getProperty("passwordFile");
     if (passwordFileProperty == null) {
