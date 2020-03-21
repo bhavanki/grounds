@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import xyz.deszaras.grounds.auth.Role;
 
 /**
  * A thing that represents a player in the world.
@@ -51,8 +52,19 @@ public class Player extends Thing {
     super(id, attrs, contents);
   }
 
+  /**
+   * Builds a new player from arguments. Expected arguments: initial role.
+   *
+   * @param name name
+   * @param universe starting universe
+   * @param buildArgs build arguments
+   * @return new player
+   * @throws IllegalArgumentException if the number of arguments is wrong
+   */
   public static Player build(String name, Universe universe, List<String> buildArgs) {
-    checkArgument(buildArgs.size() == 0, "Expected 0 build arguments, got " + buildArgs.size());
-    return new Player(name, universe);
+    checkArgument(buildArgs.size() == 1, "Expected 1 build argument, got " + buildArgs.size());
+    Player player = new Player(name, universe);
+    universe.addRole(Role.valueOf(buildArgs.get(0).toUpperCase()), player);
+    return player;
   }
 }

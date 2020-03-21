@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import xyz.deszaras.grounds.auth.Role;
 
 /**
  * A world full of things. The universe is stored in memory.
@@ -35,6 +37,7 @@ public class Universe {
 
   private final String name;
   private final Map<UUID, Thing> things;
+  private final Map<UUID, Set<Role>> roles;
 
   /**
    * Creates an empty universe. Whoa.
@@ -44,6 +47,7 @@ public class Universe {
   public Universe(String name) {
     this.name = Objects.requireNonNull(name);
     things = new HashMap<>();
+    roles = new HashMap<>();
   }
 
   /**
@@ -51,14 +55,21 @@ public class Universe {
    *
    * @param name name
    * @param things things in the universe
+   * @param roles player role assignments in the universe
    */
   @JsonCreator
   public Universe(
       @JsonProperty("name") String name,
-      @JsonProperty("things") Set<Thing> things) {
+      @JsonProperty("things") Set<Thing> things,
+      @JsonProperty("roleAssignments") Map<String, Set<Role>> roles) {
     this(name);
     if (things != null) {
       things.stream().forEach(thing -> this.things.put(thing.getId(), thing));
+    }
+    if (roles != null) {
+      roles.entrySet().stream()
+          .forEach(entry -> this.roles.put(UUID.fromString(entry.getKey()),
+                                           entry.getValue()));
     }
   }
 
@@ -99,11 +110,28 @@ public class Universe {
   /**
    * Gets a thing in this universe.
    *
-   * @param id
+   * @param id ID of thing to find
    * @return thing
    */
   public Optional<Thing> getThing(UUID id) {
     return Optional.ofNullable(things.get(id));
+  }
+
+  /**
+   * Gets a thing in this universe, with an expected type.
+   *
+   * @param id ID of thing to find
+   * @param thingClass expected type of thing
+   * @return thing
+   * @throws IllegalArgumentException if the thing is not of the expected type
+   */
+  public <T extends Thing> Optional<T> getThing(UUID id, Class<T> thingClass) {
+    try {
+      return getThing(id).map(t -> thingClass.cast(t));
+    } catch (ClassCastException e) {
+      throw new IllegalArgumentException("Thing " + id.toString() + " not of expected type " +
+                                         thingClass.getName(), e);
+    }
   }
 
   /**
@@ -126,6 +154,56 @@ public class Universe {
     if (thing != null) {
       things.remove(thing.getId());
     }
+  }
+
+  /**
+   * Gets all the role assignments in this universe.
+   *
+   * @return role assignments
+   */
+  @JsonProperty
+  public Map<UUID, Set<Role>> getRoleAssignments() {
+    return Collections.unmodifiableMap(roles);
+  }
+
+  /**
+   * Gets the roles for a player in this universe.
+   *
+   * @param player player
+   * @return current roles
+   */
+  public Set<Role> getRoles(Player player) {
+    return Collections.unmodifiableSet(roles.getOrDefault(player.getId(), Collections.emptySet()));
+  }
+
+  /**
+   * Adds a role for a player in this universe.
+   *
+   * @param role role to add
+   * @param player player
+   * @return new set of current roles
+   */
+  public Set<Role> addRole(Role role, Player player) {
+    return roles.merge(player.getId(), EnumSet.of(role),
+                       (oldSet, newSet) -> {
+                          oldSet.addAll(newSet);
+                          return oldSet;
+                        });
+  }
+
+  /**
+   * Removes a role for a player in this universe.
+   *
+   * @param role role to remove
+   * @param player player
+   * @return new set of current roles
+   */
+    public Set<Role> removeRole(Role role, Player player) {
+    return roles.computeIfPresent(player.getId(),
+                                  (key, oldSet) -> {
+                                    oldSet.remove(role);
+                                    return oldSet;
+                                  });
   }
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -160,6 +238,15 @@ public class Universe {
     }
   }
 
+  /**
+   * Builds a new universe from arguments. Expected arguments: none.
+   *
+   * @param name name
+   * @param universe starting universe
+   * @param buildArgs build arguments
+   * @return new universe
+   * @throws IllegalArgumentException if the number of arguments is wrong
+   */
   public static Universe build(String name, List<String> buildArgs) {
     checkArgument(buildArgs.size() == 0, "Expected 0 build arguments, got " + buildArgs.size());
     return new Universe(name);

@@ -45,6 +45,10 @@ public class Multiverse {
     }
   }
 
+  public boolean hasUniverse(String name) {
+    return universes.containsKey(name);
+  }
+
   public Universe getUniverse(String name) {
     if (!universes.containsKey(name)) {
       throw new IllegalArgumentException("Multiverse does not contain universe " + name);
@@ -56,6 +60,13 @@ public class Multiverse {
     universes.put(universe.getName(), universe);
   }
 
+  /**
+   * Finds a thing in this multiverse.
+   *
+   * @param id spec of thing to find
+   * @return thing
+   * @throws IllegalArgumentException if the thing is not of the expected type
+   */
   public Optional<Thing> findThing(String thingSpec) {
     if (thingSpec == null || thingSpec.trim().equals("")) {
       return Optional.empty();
@@ -73,12 +84,20 @@ public class Multiverse {
     return universes.get(parts[0]).getThing(id);
   }
 
+  /**
+   * Finds a thing in this multiverse, with an expected type.
+   *
+   * @param id spec of thing to find
+   * @param thingClass expected type of thing
+   * @return thing
+   * @throws IllegalArgumentException if the thing is not of the expected type
+   */
   public <T extends Thing> Optional<T> findThing(String thingSpec, Class<T> thingClass) {
     try {
       return findThing(thingSpec).map(t -> thingClass.cast(t));
     } catch (ClassCastException e) {
-      throw new IllegalStateException("Thing " + thingSpec + " not of expected type " +
-                                      thingClass.getName(), e);
+      throw new IllegalArgumentException("Thing " + thingSpec + " not of expected type " +
+                                         thingClass.getName(), e);
     }
   }
 

@@ -48,7 +48,9 @@ public class BuildCommand extends Command {
           built = Link.build(name, universe, buildArgs);
           break;
         case UNIVERSE:
-          // special case
+          if (Multiverse.MULTIVERSE.hasUniverse(name)) {
+            throw new IllegalStateException("A universe named " + name + " already exists");
+          }
           universe = Universe.build(name, buildArgs);
           Multiverse.MULTIVERSE.putUniverse(universe);
           actor.sendMessage("Created universe " + universe.getName());
