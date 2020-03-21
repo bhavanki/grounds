@@ -3,7 +3,8 @@ package xyz.deszaras.grounds.command;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import xyz.deszaras.grounds.model.Attr;
+import java.util.Set;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.AttrNames;
 import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
@@ -20,11 +21,27 @@ public class ClaimCommand extends Command {
 
   @Override
   public boolean execute() {
-    Attr attr =
-        Attr.fromAttrSpec(Attr.buildAttrSpec(AttrNames.OWNER,
-                                             Attr.Type.STRING,
-                                             player.getId().toString()));
-    return new SetAttrCommand(actor, player, thing, attr).execute();
+    if (!mayClaim()) {
+      return false;
+    }
+    thing.setAttr(AttrNames.OWNER, player);
+    return true;
+  }
+
+  // TBD express in policy?
+  private boolean mayClaim() {
+    if (player.equals(Player.GOD)) {
+      return true;
+    }
+    Set<Role> roles = thing.getUniverse().getRoles(player);
+    if (roles.contains(Role.THAUMATURGE)) {
+      return true;
+    }
+    if (thing.getOwner().isPresent()) {
+      actor.sendMessage("That is already owned by someone else");
+      return false;
+    }
+    return true;
   }
 
   public static ClaimCommand newCommand(Actor actor, Player player,

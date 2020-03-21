@@ -18,6 +18,10 @@ public class LoadCommand extends Command {
 
   @Override
   public boolean execute() {
+    if (!player.equals(Player.GOD)) {
+      actor.sendMessage("Only GOD can load the multiverse");
+      return false;
+    }
     try {
       Multiverse.load(f);
       actor.sendMessage("Loaded multiverse from " + f.getName());

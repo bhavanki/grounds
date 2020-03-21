@@ -2,6 +2,7 @@ package xyz.deszaras.grounds.command;
 
 import java.util.List;
 import java.util.Optional;
+import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
@@ -17,6 +18,10 @@ public class InspectCommand extends Command {
 
   @Override
   public boolean execute() {
+    if (!thing.passes(Category.WRITE, player)) { // WRITE is intentional
+      actor.sendMessage("You are not permitted to inspect this");
+      return false;
+    }
     actor.sendMessage(thing.toJson());
     return true;
   }

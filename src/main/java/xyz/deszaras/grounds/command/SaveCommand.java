@@ -18,6 +18,10 @@ public class SaveCommand extends Command {
 
   @Override
   public boolean execute() {
+    if (!player.equals(Player.GOD)) {
+      actor.sendMessage("Only GOD can save the multiverse");
+      return false;
+    }
     try {
       Multiverse.save(f);
       actor.sendMessage("Saved multiverse to " + f.getName());

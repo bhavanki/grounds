@@ -3,6 +3,7 @@ package xyz.deszaras.grounds.command;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.AttrNames;
 import xyz.deszaras.grounds.model.Link;
@@ -36,11 +37,13 @@ public class MoveCommand extends Command {
     // location whose other place name matches the exit name. That other
     // place is the move destination.
     Optional<Place> moveDestination = null;
+    Optional<Link> viaLink = null;
     for (Link link : Multiverse.MULTIVERSE.findLinks(source.get())) {
       Optional<Attr> otherPlace = link.getOtherPlace(source.get());
       if (otherPlace.isPresent() &&
           otherPlace.get().getName().equalsIgnoreCase(exitName)) {
         moveDestination = otherPlace.get().getThingValue(Place.class);
+        viaLink = Optional.of(link);
       }
     }
     if (moveDestination == null) {
@@ -49,6 +52,10 @@ public class MoveCommand extends Command {
     }
     if (!moveDestination.isPresent()) {
       actor.sendMessage("The exit has another side, but I can't find that place!");
+      return false;
+    }
+    if (!viaLink.get().passes(Category.USE, player)) {
+      actor.sendMessage("You are not permitted to traverse the exit to that place");
       return false;
     }
 

@@ -20,6 +20,10 @@ public class AbandonCommand extends Command {
 
   @Override
   public boolean execute() {
+    if (!thing.getOwner().equals(player)) {
+      actor.sendMessage("You do not own that");
+      return false;
+    }
     return new RemoveAttrCommand(actor, player, thing, AttrNames.OWNER).execute();
   }
 

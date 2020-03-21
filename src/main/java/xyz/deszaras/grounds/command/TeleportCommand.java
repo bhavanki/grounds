@@ -3,6 +3,7 @@ package xyz.deszaras.grounds.command;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.AttrNames;
 import xyz.deszaras.grounds.model.Multiverse;
@@ -20,6 +21,11 @@ public class TeleportCommand extends Command {
 
   @Override
   public boolean execute() {
+    if (!destination.passes(Category.GENERAL, player)) {
+      actor.sendMessage("You are not permitted to move there");
+      return false;
+    }
+
     Optional<Attr> locationAttr = player.getAttr(AttrNames.LOCATION);
     if (locationAttr.isPresent()) {
       Optional<Place> source = locationAttr.get().getThingValue(Place.class);

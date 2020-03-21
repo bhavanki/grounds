@@ -3,6 +3,8 @@ package xyz.deszaras.grounds.command;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
@@ -19,6 +21,14 @@ public class IndexCommand extends Command {
 
   @Override
   public boolean execute() {
+    if (!player.equals(Player.GOD)) {
+      Set<Role> roles = universe.getRoles(player);
+      if (!roles.stream().anyMatch(r -> Role.WIZARD_ROLES.contains(r))) {
+        actor.sendMessage("You are not a wizard in this universe, so you may not inspect");
+        return false;
+      }
+    }
+
     List<Thing> things = new ArrayList<>(universe.getThings());
     Collections.sort(things,
                      (t1, t2) -> {

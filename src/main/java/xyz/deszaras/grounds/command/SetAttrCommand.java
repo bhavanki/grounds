@@ -3,6 +3,7 @@ package xyz.deszaras.grounds.command;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
@@ -21,6 +22,10 @@ public class SetAttrCommand extends Command {
 
   @Override
   public boolean execute() {
+    if (!thing.passes(Category.WRITE, player)) {
+      actor.sendMessage("You are not permitted to set attributes on this");
+      return false;
+    }
     thing.setAttr(attr);
     return true;
   }

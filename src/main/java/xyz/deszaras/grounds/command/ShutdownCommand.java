@@ -11,6 +11,10 @@ public class ShutdownCommand extends Command {
 
   @Override
   public boolean execute() {
+    if (!player.equals(Player.GOD)) {
+      actor.sendMessage("Only GOD may shutdown the game");
+      return false;
+    }
     return true;
   }
 

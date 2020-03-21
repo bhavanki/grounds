@@ -2,7 +2,9 @@ package xyz.deszaras.grounds.command;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.Set;
 import java.util.Objects;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Link;
 import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Place;
@@ -35,12 +37,22 @@ public class BuildCommand extends Command {
   @Override
   public boolean execute() {
     Universe universe = player.getUniverse();
+
     BuiltInType thingType = BuiltInType.valueOf(type.toUpperCase());
     if (thingType != BuiltInType.UNIVERSE &&
         universe.getName().equals(Universe.VOID.getName())) {
       actor.sendMessage("Building of anything except universes is not permitted in the VOID universe");
       return false;
     }
+
+    if (!player.equals(Player.GOD)) {
+      Set<Role> roles = universe.getRoles(player);
+      if (!roles.stream().anyMatch(r -> Role.WIZARD_ROLES.contains(r))) {
+        actor.sendMessage("You are not a wizard in this universe, so you may not build");
+        return false;
+      }
+    }
+
     Thing built;
 
     try {

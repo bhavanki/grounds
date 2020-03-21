@@ -26,6 +26,14 @@ public class RoleCommand extends Command {
   public boolean execute() {
     Universe universe = player.getUniverse();
 
+    if (!player.equals(Player.GOD)) {
+      Set<Role> roles = universe.getRoles(player);
+      if (!roles.contains(Role.THAUMATURGE)) {
+        actor.sendMessage("You are not a thaumaturge in this universe, so you may not work with roles");
+        return false;
+      }
+    }
+
     Role role;
     Player targetPlayer;
     Set<Role> newRoles;

@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.AttrNames;
 import xyz.deszaras.grounds.model.Link;
@@ -24,6 +25,10 @@ public class LookCommand extends Command {
     if (locationAttr.isPresent()) {
       Optional<Place> location = locationAttr.get().getThingValue(Place.class);
       if (location.isPresent()) {
+        if (!location.get().passes(Category.READ, player)) {
+          actor.sendMessage("You are not permitted to look at where you are");
+          return false;
+        }
         actor.sendMessage(buildMessage(location.get()));
       } else {
         actor.sendMessage("Odd, I can't find where you are");
