@@ -19,6 +19,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xyz.deszaras.grounds.auth.Policy;
 import xyz.deszaras.grounds.auth.Role;
 
@@ -29,6 +31,8 @@ import xyz.deszaras.grounds.auth.Role;
               include = JsonTypeInfo.As.PROPERTY,
               property = "class")
 public class Thing {
+
+  private static final Logger LOG = LoggerFactory.getLogger(Thing.class);
 
   /**
    * The ID of the special thing NOTHING.
@@ -468,7 +472,10 @@ public class Thing {
     if (player.equals(getOwner().orElse(null))) {
       playerRoles.add(Role.OWNER);
     }
-    return policy.passes(category, playerRoles);
+    boolean result = policy.passes(category, playerRoles);
+    LOG.debug("Permission check: category {}, player {}/{}, roles {}, result {}",
+              category, player.getName(), player.getId(), playerRoles, result);
+    return result;
   }
 
   @Override
