@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import xyz.deszaras.grounds.auth.Policy;
 import xyz.deszaras.grounds.auth.Role;
 
 /**
@@ -42,14 +43,16 @@ public class Player extends Thing {
    * @param id ID
    * @param attrs attributes
    * @param contents contents
+   * @param policy policy
    * @throws NullPointerException if any argument is null
    */
   @JsonCreator
   public Player(
       @JsonProperty("id") UUID id,
       @JsonProperty("attrs") Set<Attr> attrs,
-      @JsonProperty("contents") Set<UUID> contents) {
-    super(id, attrs, contents);
+      @JsonProperty("contents") Set<UUID> contents,
+      @JsonProperty("policy") Policy policy) {
+    super(id, attrs, contents, policy);
   }
 
   /**

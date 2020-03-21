@@ -1,6 +1,7 @@
 package xyz.deszaras.grounds.model;
 
 import static com.google.common.base.Preconditions.checkArgument;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -18,6 +19,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import xyz.deszaras.grounds.auth.Policy;
+import xyz.deszaras.grounds.auth.Role;
 
 /**
  * A thing that exists in the world.
@@ -56,6 +59,7 @@ public class Thing {
   private final Map<String, Attr> attrs;
   // private final AccessRuleKeeper accessRuleKeeper;
   private final Set<UUID> contents;
+  private final Policy policy;
 
   /**
    * Creates a new thing with a random ID.
@@ -87,6 +91,7 @@ public class Thing {
                        Objects.requireNonNull(universe).getName()));
     // accessRuleKeeper = new AccessRuleKeeper();
     contents = new HashSet<>();
+    policy = Policy.DEFAULT;
   }
 
   /**
@@ -95,6 +100,7 @@ public class Thing {
    * @param id ID
    * @param attrs attributes
    * @param contents contents
+   * @param policy policy
    * @throws NullPointerException if any argument is null
    * @throws IllegalArgumentException if there is no attribute for
    * name or universe name
@@ -103,7 +109,8 @@ public class Thing {
   public Thing(
       @JsonProperty("id") UUID id,
       @JsonProperty("attrs") Set<Attr> attrs,
-      @JsonProperty("contents") Set<UUID> contents) {
+      @JsonProperty("contents") Set<UUID> contents,
+      @JsonProperty("policy") Policy policy) {
     this.id = Objects.requireNonNull(id);
     this.attrs = new HashMap<>();
     Objects.requireNonNull(attrs).stream()
@@ -115,6 +122,7 @@ public class Thing {
       throw new IllegalArgumentException("Universe name not defined for thing with ID " + id);
     }
     this.contents = new HashSet<>(Objects.requireNonNull(contents));
+    this.policy = Objects.requireNonNull(policy);
   }
 
   /**
@@ -442,6 +450,35 @@ public class Thing {
     synchronized (contentsMonitor) {
       contents.remove(thing.getId());
     }
+  }
+
+  /**
+   * Gets the policy of this thing. This is not a defensive copy.
+   *
+   * @return policy
+   */
+  @JsonProperty
+  public Policy getPolicy() {
+    return policy;
+  }
+
+  /**
+   * Checks if the player is permitted for a category, according to this
+   * thing's policy. GOD is always permitted.
+   *
+   * @param category category to check permission for
+   * @param player player to check permission for
+   * @return true if the player is permitted for the category
+   */
+  public boolean passes(Policy.Category category, Player player) {
+    if (player.equals(Player.GOD)) {
+      return true;
+    }
+    Set<Role> playerRoles = new HashSet<>(getUniverse().getRoles(player));
+    if (player.equals(getOwner().orElse(null))) {
+      playerRoles.add(Role.OWNER);
+    }
+    return policy.passes(category, playerRoles);
   }
 
   @Override

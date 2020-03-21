@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import xyz.deszaras.grounds.auth.Policy;
 
 /**
  * A thing that links one or more places in the world.
@@ -36,6 +37,7 @@ public class Link extends Thing {
    * @param id ID
    * @param attrs attributes
    * @param contents contents
+   * @param policy policy
    * @throws NullPointerException if any argument is null
    * @throws IllegalArgumentException if the link has no
    * destinations attribute
@@ -44,8 +46,9 @@ public class Link extends Thing {
   public Link(
       @JsonProperty("id") UUID id,
       @JsonProperty("attrs") Set<Attr> attrs,
-      @JsonProperty("contents") Set<UUID> contents) {
-    super(id, attrs, contents);
+      @JsonProperty("contents") Set<UUID> contents,
+      @JsonProperty("policy") Policy policy) {
+    super(id, attrs, contents, policy);
 
     if (!getAttr(SOURCE).isPresent()) {
       throw new IllegalArgumentException("Link is missing destination");
