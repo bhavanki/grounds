@@ -21,6 +21,11 @@ public enum Role {
    */
   BARD,
   /**
+   * An owner of a thing. This role only works in the context of the thing
+   * that is owned, and is not a "universal" role.
+   */
+  OWNER,
+  /**
    * A non-wizard, typical player role in a universe.
    */
   DENIZEN,
@@ -33,7 +38,7 @@ public enum Role {
       ImmutableSet.copyOf(Arrays.asList(Role.values()));
 
   public static final Set<Role> NON_GUEST_ROLES =
-      ImmutableSet.of(DENIZEN, BARD, ADEPT, THAUMATURGE);
+      ImmutableSet.of(DENIZEN, OWNER, BARD, ADEPT, THAUMATURGE);
 
   public static final Set<Role> WIZARD_ROLES =
       ImmutableSet.of(BARD, ADEPT, THAUMATURGE);

@@ -252,6 +252,10 @@ public final class Attr {
     return new Attr(name, value, type);
   }
 
+  public static String buildAttrSpec(String name, Type type, String value) {
+    return String.format("%s[%s]=%s", name, type.toString(), value);
+  }
+
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   /**

@@ -166,6 +166,14 @@ public class Thing {
   }
 
   /**
+   * Gets this thing's owner.
+   */
+  @JsonIgnore
+  public Optional<Thing> getOwner() {
+    return getAttr(AttrNames.OWNER).map(a -> Multiverse.MULTIVERSE.findThing(a.getValue()).orElse(null));
+  }
+
+  /**
    * Sets this thing's universe.
    */
   public void setUniverse(Universe universe) {
