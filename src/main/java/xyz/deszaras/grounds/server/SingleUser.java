@@ -5,6 +5,10 @@ import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.model.Player;
 
+/**
+ * A single-user session, which doesn't involve starting the server.
+ * The actor automatically plays as GOD.
+ */
 public class SingleUser implements Runnable {
 
   @Override

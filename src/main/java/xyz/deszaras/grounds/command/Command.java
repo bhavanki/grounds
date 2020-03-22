@@ -12,13 +12,31 @@ public abstract class Command {
   protected final Actor actor;
   protected final Player player;
 
+  /**
+   * Creates a new command.
+   *
+   * @param actor actor submitting the command
+   * @param player player currently assumed by the actor
+   */
   protected Command(Actor actor, Player player) {
     this.actor = Objects.requireNonNull(actor);
     this.player = Objects.requireNonNull(player);
   }
 
+  /**
+   * Executes the command.
+   *
+   * @return true if execution was successful
+   */
   public abstract boolean execute();
 
+  /**
+   * Ensures that a list has a minimum length.
+   *
+   * @param l list
+   * @param n minimum length
+   * @throws CommandException if the list does not have enough elements
+   */
   protected static void ensureMinArgs(List<String> l, int n) throws CommandException {
     if (l.size() < n) {
       throw new CommandException("Need at least " + n + " arguments, got " + l.size());

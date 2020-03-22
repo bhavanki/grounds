@@ -14,6 +14,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import xyz.deszaras.grounds.model.Player;
 
+/**
+ * A factory for commands. This factory is responsible for parsing
+ * command lines and constructing commands for them. In order for
+ * this factory to build a command, its command class must contain
+ * a static {@code buildCommand()} method for the factory to delegate
+ * to.
+ */
 public class CommandFactory {
 
   // https://stackoverflow.com/questions/366202/regex-for-splitting-a-string-using-space-when-not-surrounded-by-single-or-double
@@ -21,6 +28,14 @@ public class CommandFactory {
   private static final Pattern TOKENIZE_PATTERN =
       Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
 
+  /**
+   * Splits a line of text into tokens. Generally, tokens are separated
+   * by whitespace, but text surrounded by single or double quotes
+   * is kept together as a single token (without the quotes).
+   *
+   * @param line line of text
+   * @return tokens in line
+   */
   @VisibleForTesting
   static List<String> tokenize(String line) {
     List<String> tokens = new ArrayList<>();
@@ -67,6 +82,14 @@ public class CommandFactory {
         .build();
   }
 
+  /**
+   * Gets a new command.
+   *
+   * @param actor actor submitting the command
+   * @param player player currently assumed by the actor
+   * @param line command line entered in the shell
+   * @throws CommandException if the command cannot be built
+   */
   public Command getCommand(Actor actor, Player player, String line)
       throws CommandException {
     if (line.trim().equals("")) {

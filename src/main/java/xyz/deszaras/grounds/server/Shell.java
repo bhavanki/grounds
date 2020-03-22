@@ -20,6 +20,12 @@ import xyz.deszaras.grounds.command.ShutdownCommand;
 import xyz.deszaras.grounds.command.SwitchPlayerCommand;
 import xyz.deszaras.grounds.model.Player;
 
+/**
+ * A shell interface for an actor. When run, a shell receives and
+ * process commands until the actor exits.
+ *
+ * @see CommandExecutor
+ */
 public class Shell implements Runnable {
 
   private final Actor actor;
@@ -31,28 +37,63 @@ public class Shell implements Runnable {
   private int exitCode = 0;
   private boolean exitedWithShutdown = false;
 
+  /**
+   * Creates a new shell.
+   *
+   * @param actor actor using the shell
+   */
   public Shell(Actor actor) {
     this.actor = actor;
   }
 
+  /**
+   * Sets the input reader for the shell.
+   *
+   * @param in input reader
+   */
   public void setIn(Reader in) {
     this.in = new BufferedReader(in);
   }
+  /**
+   * Sets the output writer for the shell.
+   *
+   * @param out output writer
+   */
   public void setOut(Writer out) {
     this.out = new PrintWriter(out);
   }
+  /**
+   * Sets the error writer for the shell.
+   *
+   * @param err error writer
+   */
   public void setErr(Writer err) {
     this.err = new PrintWriter(err);
   }
 
+  /**
+   * Sets the player for the shell.
+   *
+   * @param player player
+   */
   public void setPlayer(Player player) {
     this.player = player;
   }
 
+  /**
+   * Gets the exit code for the shell.
+   *
+   * @return exit code
+   */
   public int getExitCode() {
     return exitCode;
   }
 
+  /**
+   * Checks if the shell exited due to a shutdown request.
+   *
+   * @return true is shutdown was requested
+   */
   public boolean exitedWithShutdown() {
     return exitedWithShutdown;
   }

@@ -25,6 +25,17 @@ import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.model.Player;
 
+/**
+ * The multi-user server for the game. Connections happen over SSH,
+ * managed by Apache Mina SSHD.<p>
+ *
+ * The server is started through the {@link #start()} method, while
+ * it is stopped through the {@link #shutdown()} method. Shutdown is
+ * normally triggered, however, through a shutdown command submitted
+ * by a logged-in user.<p>
+ *
+ * An internal executor service is responsible for running shells.
+ */
 public class Server {
 
   public static final String DEFAULT_HOST = "127.0.0.1";
@@ -34,6 +45,13 @@ public class Server {
   private final ExecutorService shellExecutorService;
   private final CountDownLatch shutdownLatch;
 
+  /**
+   * Creates a new server.
+   *
+   * @param serverProperties server properties
+   * @throws IOException if the server cannot be created
+   * @throws IllegalStateException if a required server property is missing
+   */
   public Server(Properties serverProperties) throws IOException {
     sshServer = buildSshServer(serverProperties);
     shellExecutorService = Executors.newCachedThreadPool();
@@ -64,6 +82,11 @@ public class Server {
     return s;
   }
 
+  /**
+   * A Mina shell factory for the server. This class is responsible
+   * for creating a {@link ServerShellCommand} for each new session.
+   * The actor for the shell corresponds to the authenticated user.
+   */
   private class ServerShellFactory implements ShellFactory {
 
     private ServerShellFactory() {
@@ -83,6 +106,12 @@ public class Server {
     }
   }
 
+  /**
+   * A Mina command (shell, really) for the server, assigned to an
+   * authenticated user / actor. This object wraps a native
+   * {@link #Shell} for the actor, and this object bridges the
+   * streams between the two of them.
+   */
   private class ServerShellCommand implements Command {
 
     private final Shell shell;
@@ -143,16 +172,35 @@ public class Server {
     }
   }
 
+  /**
+   * Starts the server.
+   *
+   * @throws IOException if the server fails to start
+   */
   public void start() throws IOException {
     sshServer.start();
   }
 
+  /**
+   * Stops the server, also shutting down execution of shells
+   * and commands.
+   *
+   * @throws IOException if the server fails to stop
+   */
   public void shutdown() throws IOException {
     sshServer.stop();
     shellExecutorService.shutdown();
     CommandExecutor.INSTANCE.shutdown();
   }
 
+  /**
+   * Waits for server shutdown to be requested, and then
+   * stops the server.
+   *
+   * @throws IOException if the server fails to stop
+   * @throws InterruptedException if the call is interrupted while
+   * waiting for the shutdown request
+   */
   public void shutdownOnCommand() throws IOException, InterruptedException {
     shutdownLatch.await();
     shutdown();
