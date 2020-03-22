@@ -1,5 +1,6 @@
 package xyz.deszaras.grounds.command;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
@@ -36,7 +37,8 @@ public class CommandExecutor {
    * @param commandLine command line entered in the shell
    * @return future for the command result
    */
-  public Future<CommandResult> submit(Actor actor, Player player, String commandLine) {
+  public Future<CommandResult> submit(Actor actor, Player player,
+                                      List<String> commandLine) {
     CommandCallable callable = new CommandCallable(actor, player, commandLine);
     return commandExecutorService.submit(callable);
   }
@@ -116,7 +118,7 @@ public class CommandExecutor {
 
     private final Actor actor;
     private final Player player;
-    private final String commandLine;
+    private final List<String> commandLine;
 
     /**
      * Creates a new callable.
@@ -125,7 +127,7 @@ public class CommandExecutor {
      * @param player player currently assumed by the actor
      * @param commandLine command line entered in the shell
      */
-    private CommandCallable(Actor actor, Player player, String commandLine) {
+    private CommandCallable(Actor actor, Player player, List<String> commandLine) {
       this.actor = actor;
       this.player = player;
       this.commandLine = commandLine;

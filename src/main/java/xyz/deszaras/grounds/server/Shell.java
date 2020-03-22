@@ -1,14 +1,19 @@
 package xyz.deszaras.grounds.server;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,6 +107,37 @@ public class Shell implements Runnable {
     return exitedWithShutdown;
   }
 
+  // https://stackoverflow.com/questions/366202/regex-for-splitting-a-string-using-space-when-not-surrounded-by-single-or-double
+  // This doesn't obey escaped quotes, though.
+  private static final Pattern TOKENIZE_PATTERN =
+      Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
+
+  /**
+   * Splits a line of text into tokens. Generally, tokens are separated
+   * by whitespace, but text surrounded by single or double quotes
+   * is kept together as a single token (without the quotes).
+   *
+   * @param line line of text
+   * @return tokens in line
+   */
+  @VisibleForTesting
+  static List<String> tokenize(String line) {
+    List<String> tokens = new ArrayList<>();
+    Matcher m = TOKENIZE_PATTERN.matcher(line);
+    while (m.find()) {
+      if (m.group(1) != null) {
+        // quotation marks
+        tokens.add(m.group(1));
+      } else if (m.group(2) != null) {
+        // apostrophes
+        tokens.add(m.group(2));
+      } else {
+        tokens.add(m.group());
+      }
+    }
+    return tokens;
+  }
+
   @Override
   public void run() {
     if (in == null || out == null || err == null) {
@@ -121,42 +157,50 @@ public class Shell implements Runnable {
         if (line == null) {
           break;
         }
+        List<String> tokens = tokenize(line);
+        String prePrompt = "√ ";
+        if (!tokens.isEmpty()) {
 
-        Future<CommandResult> commandFuture =
-            CommandExecutor.INSTANCE.submit(actor, player, line);
-        CommandResult commandResult;
-        try {
-          commandResult = commandFuture.get();
+          Future<CommandResult> commandFuture =
+              CommandExecutor.INSTANCE.submit(actor, player, tokens);
+          CommandResult commandResult;
+          try {
+            commandResult = commandFuture.get();
 
-          if (!commandResult.isSuccessful()) {
-            Optional<CommandFactoryException> commandFactoryException =
-                commandResult.getCommandFactoryException();
-            if (commandFactoryException.isPresent()) {
-              err.printf("SYNTAX ERROR: %s\n", joinMessages(commandFactoryException.get()));
-              LOG.info("Command build failed for actor {}", actor.getUsername(),
-                       commandFactoryException);
+            if (!commandResult.isSuccessful()) {
+              Optional<CommandFactoryException> commandFactoryException =
+                  commandResult.getCommandFactoryException();
+              if (commandFactoryException.isPresent()) {
+                err.printf("SYNTAX ERROR: %s\n", joinMessages(commandFactoryException.get()));
+                LOG.info("Command build failed for actor {}", actor.getUsername(),
+                         commandFactoryException);
+              }
+            }
+          } catch (ExecutionException e) {
+            err.printf("ERROR: %s\n", joinMessages(e.getCause()));
+            LOG.info("Command execution failed for actor {}", actor.getUsername(),
+                     e.getCause());
+            commandResult = new CommandResult(false, null);
+          }
+          err.flush();
+
+          if (commandResult.isSuccessful() &&
+              commandResult.getCommandClass().isPresent()) {
+            Class<? extends Command> commandClass = commandResult.getCommandClass().get();
+            if (commandClass.equals(ExitCommand.class) ||
+                commandClass.equals(ShutdownCommand.class)) {
+              if (commandClass.equals(ShutdownCommand.class)) {
+                exitedWithShutdown = true;
+              }
+              break;
+            } else if (commandClass.equals(SwitchPlayerCommand.class)) {
+              player = actor.getCurrentPlayer();
+              prompt = getPrompt(player);
             }
           }
-        } catch (ExecutionException e) {
-          err.printf("ERROR: %s\n", joinMessages(e.getCause()));
-          LOG.info("Command execution failed for actor {}", actor.getUsername(),
-                   e.getCause());
-          commandResult = new CommandResult(false, null);
-        }
-        err.flush();
 
-        if (commandResult.isSuccessful() &&
-            commandResult.getCommandClass().isPresent()) {
-          Class<? extends Command> commandClass = commandResult.getCommandClass().get();
-          if (commandClass.equals(ExitCommand.class) ||
-              commandClass.equals(ShutdownCommand.class)) {
-            if (commandClass.equals(ShutdownCommand.class)) {
-              exitedWithShutdown = true;
-            }
-            break;
-          } else if (commandClass.equals(SwitchPlayerCommand.class)) {
-            player = actor.getCurrentPlayer();
-            prompt = getPrompt(player);
+          if (!commandResult.isSuccessful()) {
+            prePrompt = "X ";
           }
         }
 
@@ -171,7 +215,7 @@ public class Shell implements Runnable {
         }
         out.flush();
 
-        out.printf(commandResult.isSuccessful() ? "√ " : "X ");
+        out.printf(prePrompt);
       }
     } catch (IOException e) {
       e.printStackTrace(err);
