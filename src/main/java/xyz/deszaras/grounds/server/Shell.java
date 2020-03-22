@@ -15,7 +15,6 @@ import xyz.deszaras.grounds.command.Command;
 import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.command.CommandExecutor.CommandResult;
-import xyz.deszaras.grounds.command.CommandFactory;
 import xyz.deszaras.grounds.command.ExitCommand;
 import xyz.deszaras.grounds.command.ShutdownCommand;
 import xyz.deszaras.grounds.command.SwitchPlayerCommand;
@@ -23,7 +22,6 @@ import xyz.deszaras.grounds.model.Player;
 
 public class Shell implements Runnable {
 
-  private final CommandExecutor commandExecutor;
 
   private BufferedReader in = null;
   private PrintWriter out = null;
@@ -35,9 +33,6 @@ public class Shell implements Runnable {
 
   public Shell(Actor actor) {
     this.actor = actor;
-
-    CommandFactory commandFactory = new CommandFactory();
-    commandExecutor = new CommandExecutor(commandFactory);
   }
 
   public void setIn(Reader in) {
@@ -88,7 +83,8 @@ public class Shell implements Runnable {
           break;
         }
 
-        Future<CommandResult> commandFuture = commandExecutor.submit(actor, player, line);
+        Future<CommandResult> commandFuture =
+            CommandExecutor.INSTANCE.submit(actor, player, line);
         CommandResult commandResult;
         try {
           commandResult = commandFuture.get();
@@ -140,8 +136,6 @@ public class Shell implements Runnable {
     } catch (InterruptedException e) {
       e.printStackTrace(err);
       out.println("Interrupted! Exiting");
-    } finally {
-      commandExecutor.shutdown();
     }
   }
 

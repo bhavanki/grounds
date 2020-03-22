@@ -9,10 +9,13 @@ import xyz.deszaras.grounds.model.Player;
 
 public class CommandExecutor {
 
+  public static final CommandExecutor INSTANCE =
+      new CommandExecutor(new CommandFactory());
+
   private final CommandFactory commandFactory;
   private final ExecutorService commandExecutorService;
 
-  public CommandExecutor(CommandFactory commandFactory) {
+  private CommandExecutor(CommandFactory commandFactory) {
     this.commandFactory = commandFactory;
     commandExecutorService = Executors.newSingleThreadExecutor();
   }
@@ -73,9 +76,6 @@ public class CommandExecutor {
       try {
         Command command =
             commandFactory.getCommand(actor, player, commandLine);
-        if (command instanceof ExitCommand) {
-          return new CommandResult(true, ExitCommand.class);
-        }
         return new CommandResult(command.execute(), command.getClass());
       } catch (CommandException e) {
         return new CommandResult(e);

@@ -22,6 +22,7 @@ import org.apache.sshd.server.command.Command;
 import org.apache.sshd.server.shell.ShellFactory;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import xyz.deszaras.grounds.command.Actor;
+import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.model.Player;
 
 public class Server {
@@ -149,6 +150,7 @@ public class Server {
   public void shutdown() throws IOException {
     sshServer.stop();
     shellExecutorService.shutdown();
+    CommandExecutor.INSTANCE.shutdown();
   }
 
   public void shutdownOnCommand() throws IOException, InterruptedException {

@@ -2,6 +2,7 @@ package xyz.deszaras.grounds.server;
 
 import java.io.Console;
 import xyz.deszaras.grounds.command.Actor;
+import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.model.Player;
 
 public class SingleUser implements Runnable {
@@ -23,6 +24,7 @@ public class SingleUser implements Runnable {
     shell.setPlayer(Player.GOD);
 
     shell.run();
+    CommandExecutor.INSTANCE.shutdown();
 
     console.printf("\n\nBye!\n");
   }
