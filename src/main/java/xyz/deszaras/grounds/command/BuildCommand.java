@@ -78,6 +78,10 @@ public class BuildCommand extends Command {
           built = Thing.build(name, universe, buildArgs);
           break;
         case PLAYER:
+          if (Multiverse.MULTIVERSE.findThingByName(name, Player.class).isPresent()) {
+            actor.sendMessage("A player named " + name + " already exists");
+            return false;
+          }
           built = Player.build(name, universe, buildArgs);
           break;
         case PLACE:
@@ -88,7 +92,8 @@ public class BuildCommand extends Command {
           break;
         case UNIVERSE:
           if (Multiverse.MULTIVERSE.hasUniverse(name)) {
-            throw new IllegalStateException("A universe named " + name + " already exists");
+            actor.sendMessage("A universe named " + name + " already exists");
+            return false;
           }
           universe = Universe.build(name, buildArgs);
           Multiverse.MULTIVERSE.putUniverse(universe);

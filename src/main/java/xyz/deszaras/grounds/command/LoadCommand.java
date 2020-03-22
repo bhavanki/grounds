@@ -22,6 +22,7 @@ public class LoadCommand extends Command {
       actor.sendMessage("Only GOD can load the multiverse");
       return false;
     }
+    // TBD prohibit if any players besides GOD are in use
     try {
       Multiverse.load(f);
       actor.sendMessage("Loaded multiverse from " + f.getName());

@@ -131,6 +131,28 @@ public class Multiverse {
     }
   }
 
+  /**
+   * Finds a thing in this multiverse by name, with an expected type. If
+   * multiple things share the name, an arbitrary one is returned.
+   *
+   * @param name name of thing to find
+   * @param thingClass expected type of thing
+   * @return thing
+   */
+  public <T extends Thing> Optional<T> findThingByName(String name, Class<T> thingClass) {
+    if (name == null) {
+      return Optional.empty();
+    }
+    // This is currently quite expensive
+    for (Universe universe : universes.values()) {
+      Optional<T> foundThing = universe.getThingByName(name, thingClass);
+      if (foundThing.isPresent()) {
+        return foundThing;
+      }
+    }
+    return Optional.empty();
+  }
+
   public Collection<Link> findLinks(Place place) {
     // this is dreadfully inefficient
     return universes.values().stream()

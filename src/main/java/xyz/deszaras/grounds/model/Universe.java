@@ -135,6 +135,28 @@ public class Universe {
   }
 
   /**
+   * Gets a thing in this universe by name, with an expected type. If
+   * multiple things share the name, an arbitrary one is returned.
+   *
+   * @param name name of thing to find
+   * @param thingClass expected type of thing
+   * @return thing
+   */
+  public <T extends Thing> Optional<T> getThingByName(String name, Class<T> thingClass) {
+    // This is currently quite expensive
+    try {
+      return things.values().stream()
+          .filter(t -> thingClass.isAssignableFrom(t.getClass()))
+          .filter(t -> t.getName().equals(name))
+          .findFirst()
+          .map(t -> thingClass.cast(t));
+    } catch (ClassCastException e) {
+      throw new IllegalArgumentException("Thing " + name + " not of expected type " +
+                                         thingClass.getName(), e);
+    }
+  }
+
+  /**
    * Adds a thing to this universe.
    *
    * @param thing thing to add
