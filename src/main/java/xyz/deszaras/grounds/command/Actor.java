@@ -6,6 +6,8 @@ import xyz.deszaras.grounds.model.Player;
 
 public class Actor {
 
+  public static final Actor ROOT = new Actor("root");
+
   private final String username;
   private final LinkedList<String> messages;
 
@@ -34,5 +36,21 @@ public class Actor {
 
   public String getNextMessage() {
     return messages.poll();
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) return true;
+    if (other == null) return false;
+    if (!(other instanceof Actor)) {
+      return false;
+    }
+
+    return ((Actor) other).getUsername().equals(username);
+  }
+
+  @Override
+  public int hashCode() {
+    return username.hashCode();
   }
 }

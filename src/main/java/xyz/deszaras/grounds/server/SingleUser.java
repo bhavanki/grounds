@@ -48,7 +48,7 @@ public class SingleUser implements Runnable {
     console.printf("Welcome to Grounds.\n");
     console.printf("This is single-user mode. Use ^D or 'exit' to quit.\n\n");
 
-    Actor actor = new Actor("root");
+    Actor actor = Actor.ROOT;
     Shell shell = new Shell(actor);
     shell.setIn(console.reader());
     shell.setOut(console.writer());

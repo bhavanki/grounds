@@ -38,6 +38,10 @@ public class ActorCommand extends Command {
       case "ADD":
         ensureExactActorArgs(actorArgs, 2, "creating");
         username = actorArgs.get(0);
+        if (!checkIfRoot(username)) {
+          result = false;
+          break;
+        }
         password = actorArgs.get(1);
         result =
             ActorDatabase.INSTANCE.createActorRecord(
@@ -51,6 +55,10 @@ public class ActorCommand extends Command {
       case "PASSWORD":
         ensureExactActorArgs(actorArgs, 2, "setting password for");
         username = actorArgs.get(0);
+        if (!checkIfRoot(username)) {
+          result = false;
+          break;
+        }
         password = actorArgs.get(1);
         result = ActorDatabase.INSTANCE.updateActorRecord(
             username,
@@ -62,6 +70,10 @@ public class ActorCommand extends Command {
       case "ADD_PLAYER":
         ensureExactActorArgs(actorArgs, 2, "adding player for");
         username = actorArgs.get(0);
+        if (!checkIfRoot(username)) {
+          result = false;
+          break;
+        }
         playerId = UUID.fromString(actorArgs.get(1));
         result = ActorDatabase.INSTANCE.updateActorRecord(
             username,
@@ -73,6 +85,10 @@ public class ActorCommand extends Command {
       case "REMOVE_PLAYER":
         ensureExactActorArgs(actorArgs, 2, "removing player for");
         username = actorArgs.get(0);
+        if (!checkIfRoot(username)) {
+          result = false;
+          break;
+        }
         playerId = UUID.fromString(actorArgs.get(1));
         result = ActorDatabase.INSTANCE.updateActorRecord(
             username,
@@ -84,6 +100,7 @@ public class ActorCommand extends Command {
       case "GET":
         ensureExactActorArgs(actorArgs, 1, "getting");
         username = actorArgs.get(0);
+        checkIfRoot(username);
         Optional<ActorRecord> actorRecord =
             ActorDatabase.INSTANCE.getActorRecord(username);
         if (actorRecord.isPresent()) {
@@ -106,6 +123,14 @@ public class ActorCommand extends Command {
       throw new IllegalArgumentException("For " + action + " actor, expected " + n +
                                          " arguments, got " + l.size());
     }
+  }
+
+  private boolean checkIfRoot(String username) {
+    if (Actor.ROOT.getUsername().equals(username)) {
+      actor.sendMessage("Sorry, you may not work with the root actor");
+      return false;
+    }
+    return true;
   }
 
   public static ActorCommand newCommand(Actor actor, Player player,
