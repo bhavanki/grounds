@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Objects;
 import xyz.deszaras.grounds.auth.Role;
+import xyz.deszaras.grounds.model.AttrNames;
 import xyz.deszaras.grounds.model.Link;
 import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Place;
@@ -53,6 +54,11 @@ public class BuildCommand extends Command {
       }
     }
 
+    if (thingType != BuiltInType.UNIVERSE && !player.getLocation().isPresent()) {
+      actor.sendMessage("You are not located anywhere, so you may only build a universe");
+      return false;
+    }
+
     Thing built;
 
     try {
@@ -85,6 +91,12 @@ public class BuildCommand extends Command {
           throw new IllegalArgumentException("Unsupported built-in type " + type);
       }
       universe.addThing(built);
+      built.setUniverse(universe);
+      if (thingType == BuiltInType.THING ||
+          thingType == BuiltInType.PLAYER) {
+        built.setAttr(AttrNames.LOCATION, player.getLocation().get());
+        player.getLocation().get().give(built);
+      }
       actor.sendMessage("Created " + built.getId());
       return true;
     } catch (IllegalArgumentException e) {

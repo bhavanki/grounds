@@ -169,6 +169,14 @@ public class Thing {
   }
 
   /**
+   * Gets this thing's location.
+   */
+  @JsonIgnore
+  public Optional<Place> getLocation() {
+    return getAttr(AttrNames.LOCATION).map(a -> Multiverse.MULTIVERSE.findThing(a.getValue(), Place.class).orElse(null));
+  }
+
+  /**
    * Gets this thing's owner.
    */
   @JsonIgnore
