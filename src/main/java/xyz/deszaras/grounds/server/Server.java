@@ -71,12 +71,14 @@ public class Server {
     Path hostKeyFile = FileSystems.getDefault().getPath(hostKeyFileProperty);
     s.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(hostKeyFile));
 
-    String passwordFileProperty = serverProperties.getProperty("passwordFile");
-    if (passwordFileProperty == null) {
-      throw new IllegalStateException("No passwordFile specified");
+    String actorDatabaseFileProperty = serverProperties.getProperty("actorDatabaseFile");
+    if (actorDatabaseFileProperty == null) {
+      throw new IllegalStateException("No actorDatabaseFile specified");
     }
-    Path passwordFile = FileSystems.getDefault().getPath(passwordFileProperty);
-    s.setPasswordAuthenticator(new HashedPasswordAuthenticator(passwordFile));
+    Path actorDatabaseFile = FileSystems.getDefault().getPath(actorDatabaseFileProperty);
+    ActorDatabase.INSTANCE.setPath(actorDatabaseFile);
+    ActorDatabase.INSTANCE.load(); // must be present, use SingleUser otherwise
+    s.setPasswordAuthenticator(new HashedPasswordAuthenticator(ActorDatabase.INSTANCE));
 
     s.setShellFactory(new ServerShellFactory());
     return s;

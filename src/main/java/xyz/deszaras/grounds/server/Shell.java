@@ -22,6 +22,7 @@ import xyz.deszaras.grounds.command.Command;
 import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.command.CommandExecutor.CommandResult;
 import xyz.deszaras.grounds.command.CommandFactoryException;
+import xyz.deszaras.grounds.command.ActorCommand;
 import xyz.deszaras.grounds.command.ExitCommand;
 import xyz.deszaras.grounds.command.ShutdownCommand;
 import xyz.deszaras.grounds.command.SwitchPlayerCommand;
@@ -187,6 +188,7 @@ public class Shell implements Runnable {
           if (commandResult.isSuccessful() &&
               commandResult.getCommandClass().isPresent()) {
             Class<? extends Command> commandClass = commandResult.getCommandClass().get();
+
             if (commandClass.equals(ExitCommand.class) ||
                 commandClass.equals(ShutdownCommand.class)) {
               if (commandClass.equals(ShutdownCommand.class)) {
@@ -196,6 +198,13 @@ public class Shell implements Runnable {
             } else if (commandClass.equals(SwitchPlayerCommand.class)) {
               player = actor.getCurrentPlayer();
               prompt = getPrompt(player);
+            } else if (commandClass.equals(ActorCommand.class)) {
+              try {
+                ActorDatabase.INSTANCE.save();
+              } catch (IOException e) {
+                LOG.error("Failed to save actor database", e);
+                actor.sendMessage("Failed to save actor database, check the logs");
+              }
             }
           }
 

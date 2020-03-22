@@ -4,19 +4,16 @@ import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
 import de.mkammerer.argon2.Argon2Factory.Argon2Types;
 import de.mkammerer.argon2.Argon2Helper;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Optional;
 import org.apache.sshd.server.auth.password.PasswordAuthenticator;
 import org.apache.sshd.server.session.ServerSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xyz.deszaras.grounds.server.ActorDatabase.ActorRecord;
 
 /**
  * A password authenticator that uses Argon2. Usernames and hashes are
@@ -37,68 +34,45 @@ public class HashedPasswordAuthenticator implements PasswordAuthenticator {
     ARGON2 = Argon2Factory.create(Argon2Types.ARGON2id);
   }
 
-  private final Path passwordFile;
-  private final Map<String, String> passwords;
+  private final ActorDatabase actorDatabase;
 
   /**
    * Creates a new authenticator.
    *
-   * @param passwordFile path to password file
-   * @throws IOException if the password file cannot be read
+   * @param actorDatabase actor database containing passwords
    */
-  public HashedPasswordAuthenticator(Path passwordFile) throws IOException {
-    this.passwordFile = Objects.requireNonNull(passwordFile, "passwordFile may not be null");
-    passwords = loadPasswords(passwordFile);
-
-  }
-
-  private static final Map<String, String> loadPasswords(Path passwordFile) throws IOException {
-    return Files.lines(passwordFile, StandardCharsets.UTF_8)
-        .map(l -> l.trim())
-        .filter(l -> !l.isEmpty())
-        .filter(l -> !l.startsWith("#"))
-        .collect(Collectors.toMap(s -> s.substring(0, s.indexOf(":")),
-                                  s -> s.substring(s.indexOf(":") + 1)));
-  }
-
-  private static final void savePasswords(Map<String, String> passwords, Path passwordFile) throws IOException {
-    Files.write(passwordFile,
-                passwords.entrySet().stream()
-                    .map(e -> String.format("%s:%s", e.getKey(), e.getValue()))
-                    .sorted()
-                    .collect(Collectors.toList()),
-                StandardCharsets.UTF_8);
+  public HashedPasswordAuthenticator(ActorDatabase actorDatabase) {
+    this.actorDatabase = Objects.requireNonNull(actorDatabase, "actorDatabase may not be null");
   }
 
   @Override
-  public synchronized boolean authenticate(String username, String password,
-      ServerSession session) {
-    if (!passwords.containsKey(username)) {
-      LOG.info("No password stored for {}", username);
+  public boolean authenticate(String username, String password, ServerSession session) {
+    Optional<ActorRecord> actorRecord = actorDatabase.getActorRecord(username);
+    if (!actorRecord.isPresent()) {
+      LOG.info("Actor {} unknown", username);
       return false;
     }
-    String hash = passwords.get(username);
+    String hash = actorRecord.get().getPassword();
+    if (hash == null) {
+      LOG.info("No password set for actor {}", username);
+      return false;
+    }
     synchronized (ARGON2) {
       return ARGON2.verify(hash, password, StandardCharsets.UTF_8);
     }
   }
 
   @Override
-  public synchronized boolean handleClientPasswordChangeRequest(ServerSession session,
+  public boolean handleClientPasswordChangeRequest(ServerSession session,
       String username, String oldPassword, String newPassword) {
-    if (!authenticate(username, oldPassword, session)) {
-      LOG.info("Failed to verify old password for {}", username);
-      return false;
+    synchronized (actorDatabase) {
+      if (!authenticate(username, oldPassword, session)) {
+        LOG.info("Failed to verify old password for {}", username);
+        return false;
+      }
+      String hash = hashPassword(newPassword);
+      return actorDatabase.updateActorRecord(username, r -> r.setPassword(hash));
     }
-    String hash = hashPassword(newPassword);
-    passwords.put(username, hash);
-    try {
-      savePasswords(passwords, passwordFile);
-    } catch (IOException e) {
-      LOG.error("Failed to save passwords", e);
-      return false;
-    }
-    return true;
   }
 
   /**

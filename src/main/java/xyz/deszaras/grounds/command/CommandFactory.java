@@ -43,6 +43,7 @@ public class CommandFactory {
         .put("HASH_PASSWORD", HashPasswordCommand.class)
         .put("INDEX", IndexCommand.class)
         .put("ROLE", RoleCommand.class)
+        .put("ACTOR", ActorCommand.class)
         .put("SHUTDOWN", ShutdownCommand.class)
         .build();
   }

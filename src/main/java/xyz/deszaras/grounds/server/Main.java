@@ -16,6 +16,7 @@ public class Main {
   public static class Args {
     @Parameter(names = { "-p", "--properties" },
                description = "Server properties (for multi-user mode)",
+               required = true,
                converter = FileConverter.class)
     private File propertiesFile = null;
     @Parameter(names = { "-s", "--single-user" },
@@ -30,17 +31,15 @@ public class Main {
         .build()
         .parse(args);
 
-    if (jcArgs.singleUser) {
-      new SingleUser().run();
-    } else {
-      Properties properties = new Properties();
-      if (jcArgs.propertiesFile != null) {
-        try (FileReader r = new FileReader(jcArgs.propertiesFile)) {
-          properties.load(r);
-        }
-      }
-      Server server = new Server(properties);
+    Properties properties = new Properties();
+    try (FileReader r = new FileReader(jcArgs.propertiesFile)) {
+      properties.load(r);
+    }
 
+    if (jcArgs.singleUser) {
+      new SingleUser(properties).run();
+    } else {
+      Server server = new Server(properties);
       server.start();
       server.shutdownOnCommand();
     }
