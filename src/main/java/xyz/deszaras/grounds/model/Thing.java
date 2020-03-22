@@ -466,7 +466,8 @@ public class Thing {
 
   /**
    * Checks if the player is permitted for a category, according to this
-   * thing's policy. GOD is always permitted.
+   * thing's policy. GOD is always permitted. A player always passes a
+   * category for themselves.
    *
    * @param category category to check permission for
    * @param player player to check permission for
@@ -474,6 +475,13 @@ public class Thing {
    */
   public boolean passes(Policy.Category category, Player player) {
     if (player.equals(Player.GOD)) {
+      LOG.debug("Permission check: category {}, player GOD, result true",
+                category);
+      return true;
+    }
+    if (player.equals(this)) {
+      LOG.debug("Permission check: category {}, player self, result true",
+                category);
       return true;
     }
     Set<Role> playerRoles = new HashSet<>(getUniverse().getRoles(player));
