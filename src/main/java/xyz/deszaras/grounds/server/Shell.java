@@ -26,6 +26,7 @@ import xyz.deszaras.grounds.command.ActorCommand;
 import xyz.deszaras.grounds.command.ExitCommand;
 import xyz.deszaras.grounds.command.ShutdownCommand;
 import xyz.deszaras.grounds.command.SwitchPlayerCommand;
+import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
 
 /**
@@ -144,13 +145,17 @@ public class Shell implements Runnable {
     if (in == null || out == null || err == null) {
       throw new IllegalStateException("I/O is not connected!");
     }
-    if (player == null) {
-      throw new IllegalStateException("The current player is not set!");
-    }
-
-    String prompt = getPrompt(player);
 
     try {
+      if (player == null) {
+        player = selectPlayer();
+        if (player == null) {
+          return;
+        }
+      }
+
+      String prompt = getPrompt(player);
+
       while (true) {
         out.printf(prompt);
         out.flush();
@@ -233,6 +238,37 @@ public class Shell implements Runnable {
     } catch (InterruptedException e) {
       e.printStackTrace(err);
       out.println("Interrupted! Exiting");
+    }
+  }
+
+  private Player selectPlayer() throws IOException {
+    List<Player> permittedPlayers =
+        ActorDatabase.INSTANCE.getActorRecord(actor.getUsername())
+        .get().getPlayers().stream()
+        .map(id -> Multiverse.MULTIVERSE.findThing(id, Player.class))
+        .filter(p -> p.isPresent())
+        .map(p -> p.get())
+        .sorted()
+        .collect(Collectors.toList());
+    out.println("Permitted players:");
+    for (Player p : permittedPlayers) {
+      out.printf("  %s\n", p.getName());
+    }
+    out.println("");
+    while (true) {
+      out.printf("Select your initial player: ");
+      out.flush();
+      String line = in.readLine();
+      if (line == null) {
+        return null;
+      }
+      for (Player p : permittedPlayers) {
+        if (p.getName().equals(line)) {
+          return p;
+        }
+      }
+      err.printf("That is not a permitted player\n\n");
+      err.flush();
     }
   }
 

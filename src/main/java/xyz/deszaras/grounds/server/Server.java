@@ -154,7 +154,6 @@ public class Server {
         @Override
         public void run() {
           try {
-            shell.setPlayer(Player.GOD);  // temporary
             shell.run();
             exitCallback.onExit(shell.getExitCode());
             if (shell.exitedWithShutdown()) {
