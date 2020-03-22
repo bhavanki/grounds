@@ -10,11 +10,13 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.Command;
-import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.command.CommandExecutor.CommandResult;
+import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.command.ExitCommand;
 import xyz.deszaras.grounds.command.ShutdownCommand;
 import xyz.deszaras.grounds.command.SwitchPlayerCommand;
@@ -27,6 +29,8 @@ import xyz.deszaras.grounds.model.Player;
  * @see CommandExecutor
  */
 public class Shell implements Runnable {
+
+  private static final Logger LOG = LoggerFactory.getLogger(Shell.class);
 
   private final Actor actor;
 
@@ -125,13 +129,18 @@ public class Shell implements Runnable {
           commandResult = commandFuture.get();
 
           if (!commandResult.isSuccessful()) {
-            Optional<CommandException> commandException = commandResult.getCommandException();
-            if (commandException.isPresent()) {
-              err.printf("ERROR: %s\n", joinMessages(commandException.get()));
+            Optional<CommandFactoryException> commandFactoryException =
+                commandResult.getCommandFactoryException();
+            if (commandFactoryException.isPresent()) {
+              err.printf("SYNTAX ERROR: %s\n", joinMessages(commandFactoryException.get()));
+              LOG.info("Command build failed for actor {}", actor.getUsername(),
+                       commandFactoryException);
             }
           }
         } catch (ExecutionException e) {
           err.printf("ERROR: %s\n", joinMessages(e.getCause()));
+          LOG.info("Command execution failed for actor {}", actor.getUsername(),
+                   e.getCause());
           commandResult = new CommandResult(false, null);
         }
         err.flush();

@@ -64,7 +64,7 @@ public class MoveCommand extends Command {
 
   public static MoveCommand newCommand(Actor actor, Player player,
                                        List<String> commandArgs)
-      throws CommandException {
+      throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
     return new MoveCommand(actor, player, commandArgs.get(0));
   }

@@ -33,7 +33,7 @@ public class HashPasswordCommand extends Command {
 
   public static HashPasswordCommand newCommand(Actor actor, Player player,
                                                List<String> commandArgs)
-      throws CommandException {
+      throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
     return new HashPasswordCommand(actor, player, commandArgs.get(0));
   }

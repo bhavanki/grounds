@@ -32,17 +32,17 @@ public class SetAttrCommand extends Command {
 
   public static SetAttrCommand newCommand(Actor actor, Player player,
                                           List<String> commandArgs)
-      throws CommandException {
+      throws CommandFactoryException {
     ensureMinArgs(commandArgs, 2);
     Optional<Thing> setThing = Multiverse.MULTIVERSE.findThing(commandArgs.get(0));
     if (!setThing.isPresent()) {
-      throw new CommandException("Failed to find thing in universe");
+      throw new CommandFactoryException("Failed to find thing in universe");
     }
     try {
       Attr attr = Attr.fromAttrSpec(commandArgs.get(1));
       return new SetAttrCommand(actor, player, setThing.get(), attr);
     } catch (IllegalArgumentException e) {
-      throw new CommandException("Failed to build attr from spec |" + commandArgs.get(1) + "|: " + e.getMessage());
+      throw new CommandFactoryException("Failed to build attr from spec |" + commandArgs.get(1) + "|: " + e.getMessage());
     }
   }
 }

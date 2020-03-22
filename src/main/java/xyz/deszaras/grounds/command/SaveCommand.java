@@ -35,7 +35,7 @@ public class SaveCommand extends Command {
 
   public static SaveCommand newCommand(Actor actor, Player player,
                                        List<String> commandArgs)
-      throws CommandException {
+      throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
     return new SaveCommand(actor, player, new File(commandArgs.get(0)));
   }

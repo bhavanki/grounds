@@ -108,7 +108,7 @@ public class BuildCommand extends Command {
 
   public static BuildCommand newCommand(Actor actor, Player player,
                                         List<String> commandArgs)
-      throws CommandException {
+      throws CommandFactoryException {
     ensureMinArgs(commandArgs, 2);
     String type = commandArgs.get(0);
     String name = commandArgs.get(1);

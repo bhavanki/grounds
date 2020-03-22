@@ -46,11 +46,11 @@ public class ClaimCommand extends Command {
 
   public static ClaimCommand newCommand(Actor actor, Player player,
                                         List<String> commandArgs)
-      throws CommandException {
+      throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
     Optional<Thing> setThing = Multiverse.MULTIVERSE.findThing(commandArgs.get(0));
     if (!setThing.isPresent()) {
-      throw new CommandException("Failed to find thing in universe");
+      throw new CommandFactoryException("Failed to find thing in universe");
     }
     return new ClaimCommand(actor, player, setThing.get());
   }

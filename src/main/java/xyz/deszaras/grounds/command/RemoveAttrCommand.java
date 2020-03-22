@@ -32,11 +32,11 @@ public class RemoveAttrCommand extends Command {
 
   public static RemoveAttrCommand newCommand(Actor actor, Player player,
                                              List<String> commandArgs)
-      throws CommandException {
+      throws CommandFactoryException {
     ensureMinArgs(commandArgs, 2);
     Optional<Thing> setThing = Multiverse.MULTIVERSE.findThing(commandArgs.get(0));
     if (!setThing.isPresent()) {
-      throw new CommandException("Failed to find thing in universe");
+      throw new CommandFactoryException("Failed to find thing in universe");
     }
     String attrName = commandArgs.get(1);
     return new RemoveAttrCommand(actor, player, setThing.get(), attrName);

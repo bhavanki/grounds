@@ -50,33 +50,33 @@ public class CommandExecutor {
 
   /**
    * The result of running a command. If a command could not be
-   * executed at all, the exception from the attempt is recorded.
+   * built, the exception from the attempt is recorded.
    */
   public static class CommandResult {
     private final boolean success;
-    private final CommandException commandException;
+    private final CommandFactoryException commandFactoryException;
     private final Class<? extends Command> commandClass;
 
     /**
-     * Creates a new result.
+     * Creates a new result for a command that was executed.
      *
      * @param success true if the command was successful
      * @param commandClass type of the executed command
      */
     public CommandResult(boolean success, Class<? extends Command> commandClass) {
       this.success = success;
-      commandException = null;
+      commandFactoryException = null;
       this.commandClass = commandClass;
     }
 
     /**
-     * Creates a new result for a failed command execution.
+     * Creates a new result for a command that could not be built.
      *
-     * @param e exception thrown when attempting to run the command
+     * @param e exception thrown when attempting to build the command
      */
-    public CommandResult(CommandException e) {
+    public CommandResult(CommandFactoryException e) {
       success = false;
-      commandException = e;
+      commandFactoryException = e;
       this.commandClass = null;
     }
 
@@ -90,13 +90,12 @@ public class CommandExecutor {
     }
 
     /**
-     * Gets the exception thrown when execution was attempted for
-     * the command.
+     * Gets the exception thrown when building the command failed.
      *
      * @return command exception
      */
-    public Optional<CommandException> getCommandException() {
-      return Optional.ofNullable(commandException);
+    public Optional<CommandFactoryException> getCommandFactoryException() {
+      return Optional.ofNullable(commandFactoryException);
     }
 
     /**
@@ -138,7 +137,7 @@ public class CommandExecutor {
         Command command =
             commandFactory.getCommand(actor, player, commandLine);
         return new CommandResult(command.execute(), command.getClass());
-      } catch (CommandException e) {
+      } catch (CommandFactoryException e) {
         return new CommandResult(e);
       }
     }

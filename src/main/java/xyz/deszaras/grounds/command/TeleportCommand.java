@@ -49,11 +49,11 @@ public class TeleportCommand extends Command {
 
   public static TeleportCommand newCommand(Actor actor, Player player,
                                            List<String> commandArgs)
-      throws CommandException {
+      throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
     Optional<Place> destination = Multiverse.MULTIVERSE.findThing(commandArgs.get(0), Place.class);
     if (!destination.isPresent()) {
-      throw new CommandException("Failed to find destination in universe");
+      throw new CommandFactoryException("Failed to find destination in universe");
     }
     return new TeleportCommand(actor, player, destination.get());
   }

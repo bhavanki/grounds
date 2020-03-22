@@ -35,11 +35,11 @@ public abstract class Command {
    *
    * @param l list
    * @param n minimum length
-   * @throws CommandException if the list does not have enough elements
+   * @throws CommandFactoryException if the list does not have enough elements
    */
-  protected static void ensureMinArgs(List<String> l, int n) throws CommandException {
+  protected static void ensureMinArgs(List<String> l, int n) throws CommandFactoryException {
     if (l.size() < n) {
-      throw new CommandException("Need at least " + n + " arguments, got " + l.size());
+      throw new CommandFactoryException("Need at least " + n + " arguments, got " + l.size());
     }
   }
 }

@@ -35,7 +35,7 @@ public class LoadCommand extends Command {
 
   public static LoadCommand newCommand(Actor actor, Player player,
                                        List<String> commandArgs)
-      throws CommandException {
+      throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
     return new LoadCommand(actor, player, new File(commandArgs.get(0)));
   }

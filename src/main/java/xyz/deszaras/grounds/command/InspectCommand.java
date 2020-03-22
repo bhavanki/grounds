@@ -28,11 +28,11 @@ public class InspectCommand extends Command {
 
   public static InspectCommand newCommand(Actor actor, Player player,
                                           List<String> commandArgs)
-      throws CommandException {
+      throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
     Optional<Thing> thing = Multiverse.MULTIVERSE.findThing(commandArgs.get(0));
     if (!thing.isPresent()) {
-      throw new CommandException("Failed to find thing in universe");
+      throw new CommandFactoryException("Failed to find thing in universe");
     }
     return new InspectCommand(actor, player, thing.get());
   }

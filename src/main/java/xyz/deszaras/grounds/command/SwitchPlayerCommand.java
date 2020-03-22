@@ -22,11 +22,11 @@ public class SwitchPlayerCommand extends Command {
 
   public static SwitchPlayerCommand newCommand(Actor actor, Player player,
                                                List<String> commandArgs)
-      throws CommandException {
+      throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
     Optional<Player> newPlayer = Multiverse.MULTIVERSE.findThing(commandArgs.get(0), Player.class);
     if (!newPlayer.isPresent()) {
-      throw new CommandException("Failed to find new player in universe");
+      throw new CommandFactoryException("Failed to find new player in universe");
     }
     return new SwitchPlayerCommand(actor, player, newPlayer.get());
   }

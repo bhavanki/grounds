@@ -96,7 +96,7 @@ public class RoleCommand extends Command {
 
   public static RoleCommand newCommand(Actor actor, Player player,
                                        List<String> commandArgs)
-      throws CommandException {
+      throws CommandFactoryException {
     ensureMinArgs(commandArgs, 2);
     String actionString = commandArgs.get(0);
     List<String> roleArgs = commandArgs.subList(1, commandArgs.size());

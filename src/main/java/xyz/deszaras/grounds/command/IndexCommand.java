@@ -52,11 +52,11 @@ public class IndexCommand extends Command {
 
   public static IndexCommand newCommand(Actor actor, Player player,
                                           List<String> commandArgs)
-      throws CommandException {
+      throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
     String name = commandArgs.get(0);
     if (!Multiverse.MULTIVERSE.hasUniverse(name)) {
-      throw new CommandException("Universe " + name + " does not exist");
+      throw new CommandFactoryException("Universe " + name + " does not exist");
     }
     return new IndexCommand(actor, player, Multiverse.MULTIVERSE.getUniverse(name));
   }

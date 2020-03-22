@@ -88,10 +88,10 @@ public class CommandFactory {
    * @param actor actor submitting the command
    * @param player player currently assumed by the actor
    * @param line command line entered in the shell
-   * @throws CommandException if the command cannot be built
+   * @throws CommandFactoryException if the command cannot be built
    */
   public Command getCommand(Actor actor, Player player, String line)
-      throws CommandException {
+      throws CommandFactoryException {
     if (line.trim().equals("")) {
       return new NoOpCommand(actor, player);
     }
@@ -101,7 +101,7 @@ public class CommandFactory {
 
     Class<? extends Command> commandClass = COMMANDS.get(commandName);
     if (commandClass == null) {
-      throw new CommandException("Unrecognized command " + commandName);
+      throw new CommandFactoryException("Unrecognized command " + commandName);
     }
 
     try {
@@ -109,10 +109,12 @@ public class CommandFactory {
           commandClass.getMethod("newCommand", Actor.class, Player.class, List.class);
       return (Command) newCommandMethod.invoke(null, actor, player, commandArgs);
     } catch (NoSuchMethodException e) {
-      throw new CommandException("Command class " + commandClass.getName() +
+      throw new CommandFactoryException("Command class " + commandClass.getName() +
                                  " lacks a static newCommand method!");
-    } catch (IllegalAccessException | InvocationTargetException e) {
-      throw new CommandException("Failed to create new command", e);
+    } catch (IllegalAccessException e) {
+      throw new CommandFactoryException("Failed to create new command", e);
+    } catch (InvocationTargetException e) {
+      throw new CommandFactoryException("Failed to create new command", e.getCause());
     }
   }
 }
