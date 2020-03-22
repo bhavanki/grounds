@@ -11,6 +11,14 @@ import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 
+/**
+ * Moves a player to a destination through a link. Delegates the
+ * actual transition to {@link TeleportCommand}.<p>
+ *
+ * Arguments: exit name<br>
+ * Checks: player has a location; link at location has exit name;
+ * place on other end of link exists; player passes USE of link
+ */
 public class MoveCommand extends Command {
 
   private final String exitName;
@@ -66,6 +74,7 @@ public class MoveCommand extends Command {
                                        List<String> commandArgs)
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
+    // resolution is special for this command
     return new MoveCommand(actor, player, commandArgs.get(0));
   }
 }

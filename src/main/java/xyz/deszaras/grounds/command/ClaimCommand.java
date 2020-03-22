@@ -2,14 +2,19 @@ package xyz.deszaras.grounds.command;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.AttrNames;
-import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
+/**
+ * Grants ownership of a thing to a player.<p>
+ *
+ * Arguments: name or ID of thing<br>
+ * Checks: player is GOD or THAUMATURGE in the thing's universe;
+ * thing is not already owned
+ */
 public class ClaimCommand extends Command {
 
   private final Thing thing;
@@ -48,10 +53,8 @@ public class ClaimCommand extends Command {
                                         List<String> commandArgs)
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
-    Optional<Thing> setThing = Multiverse.MULTIVERSE.findThing(commandArgs.get(0));
-    if (!setThing.isPresent()) {
-      throw new CommandFactoryException("Failed to find thing in universe");
-    }
-    return new ClaimCommand(actor, player, setThing.get());
+    Thing claimedThing =
+        ArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Thing.class, player);
+    return new ClaimCommand(actor, player, claimedThing);
   }
 }

@@ -1,10 +1,14 @@
 package xyz.deszaras.grounds.command;
 
 import java.util.List;
-import java.util.Optional;
-import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
 
+/**
+ * Switches to a different player.
+ *
+ * Arguments: name or ID of new player
+ * Checks: nothing yet, but soon
+ */
 public class SwitchPlayerCommand extends Command {
 
   private final Player newPlayer;
@@ -24,10 +28,8 @@ public class SwitchPlayerCommand extends Command {
                                                List<String> commandArgs)
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
-    Optional<Player> newPlayer = Multiverse.MULTIVERSE.findThing(commandArgs.get(0), Player.class);
-    if (!newPlayer.isPresent()) {
-      throw new CommandFactoryException("Failed to find new player in universe");
-    }
-    return new SwitchPlayerCommand(actor, player, newPlayer.get());
+    Player newPlayer =
+        ArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Player.class, player);
+    return new SwitchPlayerCommand(actor, player, newPlayer);
   }
 }

@@ -2,13 +2,17 @@ package xyz.deszaras.grounds.command;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.model.Attr;
-import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
+/**
+ * Sets an attribute on a thing.<p>
+ *
+ * Arguments: name or ID of thing, attribute spec<br>
+ * Checks: player passes WRITE for thing
+ */
 public class SetAttrCommand extends Command {
 
   private final Thing thing;
@@ -34,13 +38,11 @@ public class SetAttrCommand extends Command {
                                           List<String> commandArgs)
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 2);
-    Optional<Thing> setThing = Multiverse.MULTIVERSE.findThing(commandArgs.get(0));
-    if (!setThing.isPresent()) {
-      throw new CommandFactoryException("Failed to find thing in universe");
-    }
+    Thing setThing =
+        ArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Thing.class, player);
     try {
       Attr attr = Attr.fromAttrSpec(commandArgs.get(1));
-      return new SetAttrCommand(actor, player, setThing.get(), attr);
+      return new SetAttrCommand(actor, player, setThing, attr);
     } catch (IllegalArgumentException e) {
       throw new CommandFactoryException("Failed to build attr from spec |" + commandArgs.get(1) + "|: " + e.getMessage());
     }

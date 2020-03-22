@@ -1,12 +1,16 @@
 package xyz.deszaras.grounds.command;
 
 import java.util.List;
-import java.util.Optional;
 import xyz.deszaras.grounds.auth.Policy.Category;
-import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
+/**
+ * Inspects a thing.<p>
+ *
+ * Arguments: name or ID of thing<br>
+ * Checks: player passes WRITE for thing (intentionally not just READ)
+ */
 public class InspectCommand extends Command {
 
   private final Thing thing;
@@ -18,7 +22,7 @@ public class InspectCommand extends Command {
 
   @Override
   public boolean execute() {
-    if (!thing.passes(Category.WRITE, player)) { // WRITE is intentional
+    if (!thing.passes(Category.WRITE, player)) {
       actor.sendMessage("You are not permitted to inspect this");
       return false;
     }
@@ -30,10 +34,8 @@ public class InspectCommand extends Command {
                                           List<String> commandArgs)
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
-    Optional<Thing> thing = Multiverse.MULTIVERSE.findThing(commandArgs.get(0));
-    if (!thing.isPresent()) {
-      throw new CommandFactoryException("Failed to find thing in universe");
-    }
-    return new InspectCommand(actor, player, thing.get());
+    Thing thing =
+        ArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Thing.class, player);
+    return new InspectCommand(actor, player, thing);
   }
 }

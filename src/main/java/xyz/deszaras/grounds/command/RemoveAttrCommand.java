@@ -2,13 +2,17 @@ package xyz.deszaras.grounds.command;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.model.Attr;
-import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
+/**
+ * Removes an attribute on a thing.<p>
+ *
+ * Arguments: name or ID of thing, attribute name<br>
+ * Checks: player passes WRITE for thing
+ */
 public class RemoveAttrCommand extends Command {
 
   private final Thing thing;
@@ -34,11 +38,9 @@ public class RemoveAttrCommand extends Command {
                                              List<String> commandArgs)
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 2);
-    Optional<Thing> setThing = Multiverse.MULTIVERSE.findThing(commandArgs.get(0));
-    if (!setThing.isPresent()) {
-      throw new CommandFactoryException("Failed to find thing in universe");
-    }
+    Thing removeThing =
+        ArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Thing.class, player);
     String attrName = commandArgs.get(1);
-    return new RemoveAttrCommand(actor, player, setThing.get(), attrName);
+    return new RemoveAttrCommand(actor, player, removeThing, attrName);
   }
 }

@@ -10,6 +10,12 @@ import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 import xyz.deszaras.grounds.model.Universe;
 
+/**
+ * Shows a listing of all of the things in a universe.<p>
+ *
+ * Arguments: name of universe<br>
+ * Checks: player is wizard in universe
+ */
 public class IndexCommand extends Command {
 
   private final Universe universe;
@@ -48,7 +54,7 @@ public class IndexCommand extends Command {
   }
 
   public static IndexCommand newCommand(Actor actor, Player player,
-                                          List<String> commandArgs)
+                                        List<String> commandArgs)
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
     String name = commandArgs.get(0);

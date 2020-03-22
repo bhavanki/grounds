@@ -10,6 +10,12 @@ import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 
+/**
+ * Teleports the player to a destination anywhere in the multiverse.<p>
+ *
+ * Arguments: ID of destination<br>
+ * Checks: player passes GENERAL of destination
+ */
 public class TeleportCommand extends Command {
 
   private final Place destination;

@@ -13,6 +13,14 @@ import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 import xyz.deszaras.grounds.model.Universe;
 
+/**
+ * Creates a new thing in the player's current universe.<p>
+ *
+ * Arguments: type of thing, name of thing, type-specific arguments<br>
+ * Checks: type of thing is known; player is not in the VOID universe
+ * and creating something other than a new universe; player is a wizard;
+ * player has a location if creating something other than a new universe
+ */
 public class BuildCommand extends Command {
 
   public enum BuiltInType {
