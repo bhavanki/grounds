@@ -12,6 +12,7 @@ import xyz.deszaras.grounds.model.Link;
 import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.model.Thing;
 
 public class LookCommand extends Command {
 
@@ -44,6 +45,15 @@ public class LookCommand extends Command {
     Optional<String> description = location.getDescription();
     if (description.isPresent()) {
       b.append("\n\n").append(description.get());
+    }
+    if (location.getContents().size() > 0) {
+      b.append("\n\nCONTENTS:");
+      location.getContents().forEach(id -> {
+        Optional<Thing> t = Multiverse.MULTIVERSE.findThing(id);
+        if (t.isPresent()) {
+          b.append("\n- " + t.get().getName () + " [" + t.get().getId() + "]");
+        }
+      });
     }
     Collection<Link> links = Multiverse.MULTIVERSE.findLinks(location);
     if (!links.isEmpty()) {
