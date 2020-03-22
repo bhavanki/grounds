@@ -22,11 +22,11 @@ import xyz.deszaras.grounds.model.Player;
 
 public class Shell implements Runnable {
 
+  private final Actor actor;
 
   private BufferedReader in = null;
   private PrintWriter out = null;
   private PrintWriter err = null;
-  private Actor actor = null;
   private Player player = null;
   private int exitCode = 0;
   private boolean exitedWithShutdown = false;
@@ -45,9 +45,6 @@ public class Shell implements Runnable {
     this.err = new PrintWriter(err);
   }
 
-  public void setActor(Actor actor) {
-    this.actor = actor;
-  }
   public void setPlayer(Player player) {
     this.player = player;
   }
@@ -64,9 +61,6 @@ public class Shell implements Runnable {
   public void run() {
     if (in == null || out == null || err == null) {
       throw new IllegalStateException("I/O is not connected!");
-    }
-    if (actor == null) {
-      throw new IllegalStateException("The actor is not set!");
     }
     if (player == null) {
       throw new IllegalStateException("The current player is not set!");
