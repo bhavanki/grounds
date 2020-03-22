@@ -24,7 +24,7 @@ public class AbandonCommand extends Command {
 
   @Override
   public boolean execute() {
-    if (!thing.getOwner().equals(player)) {
+    if (!player.equals(thing.getOwner().orElse(null))) {
       actor.sendMessage("You do not own that");
       return false;
     }
