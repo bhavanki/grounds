@@ -21,12 +21,9 @@ public class IndexCommand extends Command {
 
   @Override
   public boolean execute() {
-    if (!player.equals(Player.GOD)) {
-      Set<Role> roles = universe.getRoles(player);
-      if (!roles.stream().anyMatch(r -> Role.WIZARD_ROLES.contains(r))) {
-        actor.sendMessage("You are not a wizard in this universe, so you may not inspect");
-        return false;
-      }
+    if (!Role.isWizard(player, universe)) {
+      actor.sendMessage("You are not a wizard in this universe, so you may not inspect");
+      return false;
     }
 
     List<Thing> things = new ArrayList<>(universe.getThings());

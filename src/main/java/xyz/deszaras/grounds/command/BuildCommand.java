@@ -52,12 +52,9 @@ public class BuildCommand extends Command {
       return false;
     }
 
-    if (!player.equals(Player.GOD)) {
-      Set<Role> roles = universe.getRoles(player);
-      if (!roles.stream().anyMatch(r -> Role.WIZARD_ROLES.contains(r))) {
-        actor.sendMessage("You are not a wizard in this universe, so you may not build");
-        return false;
-      }
+    if (!Role.isWizard(player)) {
+      actor.sendMessage("You are not a wizard in this universe, so you may not build");
+      return false;
     }
 
     if (thingType != BuiltInType.UNIVERSE && !player.getLocation().isPresent()) {
