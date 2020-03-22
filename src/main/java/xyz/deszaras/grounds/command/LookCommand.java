@@ -1,10 +1,8 @@
 package xyz.deszaras.grounds.command;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.AttrNames;
@@ -58,7 +56,6 @@ public class LookCommand extends Command {
     Collection<Link> links = Multiverse.MULTIVERSE.findLinks(location);
     if (!links.isEmpty()) {
       b.append("\n\nEXITS:");
-      Set<Optional<Place>> exits = new HashSet<>();
       for (Link link : links) {
         Optional<Attr> otherPlaceAttr = link.getOtherPlace(location);
         if (otherPlaceAttr.isPresent()) {

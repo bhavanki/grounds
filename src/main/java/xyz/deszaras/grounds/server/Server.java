@@ -23,7 +23,6 @@ import org.apache.sshd.server.shell.ShellFactory;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandExecutor;
-import xyz.deszaras.grounds.model.Player;
 
 /**
  * The multi-user server for the game. Connections happen over SSH,
@@ -38,7 +37,7 @@ import xyz.deszaras.grounds.model.Player;
  */
 public class Server {
 
-  public static final String DEFAULT_HOST = "127.0.0.1";
+  public static final String DEFAULT_HOST = "127.0.0.1"; // NOPMD
   public static final String DEFAULT_PORT = "4768";
 
   private final SshServer sshServer;

@@ -3,7 +3,6 @@ package xyz.deszaras.grounds.command;
 import java.util.List;
 import java.util.Objects;
 import xyz.deszaras.grounds.auth.Policy.Category;
-import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 

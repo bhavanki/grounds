@@ -174,7 +174,7 @@ public class ArgumentResolver {
       if (!type.isAssignableFrom(thing.getClass())) {
         continue;
       }
-      if ((name != null && thing.getName().equalsIgnoreCase(name)) ||
+      if ((name != null && thing.getName().equalsIgnoreCase(name)) || // NOPMD
           thing.getId().equals(id)) {
         return Optional.of(type.cast(thing));
       }

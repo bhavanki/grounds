@@ -2,7 +2,6 @@ package xyz.deszaras.grounds.command;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import java.util.Set;
 import java.util.Objects;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.AttrNames;

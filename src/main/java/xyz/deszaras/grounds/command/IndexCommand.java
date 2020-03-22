@@ -3,7 +3,6 @@ package xyz.deszaras.grounds.command;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
