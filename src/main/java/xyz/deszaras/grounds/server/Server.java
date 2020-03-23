@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
@@ -42,6 +43,7 @@ public class Server {
 
   private final SshServer sshServer;
   private final ExecutorService shellExecutorService;
+  private final String bannerContent;
   private final CountDownLatch shutdownLatch;
 
   /**
@@ -54,6 +56,7 @@ public class Server {
   public Server(Properties serverProperties) throws IOException {
     sshServer = buildSshServer(serverProperties);
     shellExecutorService = Executors.newCachedThreadPool();
+    bannerContent = readBannerContent(serverProperties);
     shutdownLatch = new CountDownLatch(1);
   }
 
@@ -81,6 +84,16 @@ public class Server {
 
     s.setShellFactory(new ServerShellFactory());
     return s;
+  }
+
+  private String readBannerContent(Properties serverProperties) throws IOException {
+    String bannerFileProperty = serverProperties.getProperty("bannerFile");
+    if (bannerFileProperty != null) {
+      Path bannerFile = FileSystems.getDefault().getPath(bannerFileProperty);
+      return Files.readString(bannerFile, StandardCharsets.UTF_8);
+    } else {
+      return null;
+    }
   }
 
   /**
@@ -122,6 +135,7 @@ public class Server {
 
     private ServerShellCommand(Actor actor) {
       shell = new Shell(actor);
+      shell.setBannerContent(bannerContent);
       shellFuture = null;
     }
 

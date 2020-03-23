@@ -45,6 +45,7 @@ public class Shell implements Runnable {
   private PrintWriter out = null;
   private PrintWriter err = null;
   private Player player = null;
+  private String bannerContent = null;
   private int exitCode = 0;
   private boolean exitedWithShutdown = false;
 
@@ -89,6 +90,15 @@ public class Shell implements Runnable {
    */
   public void setPlayer(Player player) {
     this.player = player;
+  }
+
+  /**
+   * Sets the banner content for the shell.
+   *
+   * @param bannerContent banner content
+   */
+  public void setBannerContent(String bannerContent) {
+    this.bannerContent = bannerContent;
   }
 
   /**
@@ -147,6 +157,8 @@ public class Shell implements Runnable {
     }
 
     try {
+      emitBanner();
+
       if (player == null) {
         player = selectPlayer();
         if (player == null) {
@@ -239,6 +251,15 @@ public class Shell implements Runnable {
       e.printStackTrace(err);
       out.println("Interrupted! Exiting");
     }
+  }
+
+  private void emitBanner() {
+    if (bannerContent == null) {
+      return;
+    }
+    String bannerToEmit = bannerContent
+        .replaceAll("_username_", actor.getUsername());
+    out.println(bannerToEmit);
   }
 
   private Player selectPlayer() throws IOException {
