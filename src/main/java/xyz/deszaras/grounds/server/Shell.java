@@ -69,6 +69,15 @@ public class Shell implements Runnable {
   }
 
   /**
+   * Gets the line reader used by the shell.
+   *
+   * @return line reader
+   */
+  public LineReader getLineReader() {
+    return lineReader;
+  }
+
+  /**
    * Sets the player for the shell.
    *
    * @param player player

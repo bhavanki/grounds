@@ -192,14 +192,17 @@ public class Server {
                                            Integer.parseInt(env.getEnv().get("LINES"))));
           virtualTerminal.raise(Terminal.Signal.WINCH);
         }, Signal.WINCH);
-      Future<?> emitterFuture =
-          shellExecutorService.submit(new MessageEmitter(actor, virtualTerminal));
+
+      Shell shell = new Shell(actor, virtualTerminal);
+      shell.setBannerContent(bannerContent);
+
+      Future<?> emitterFuture = shellExecutorService.submit(
+          new MessageEmitter(actor, virtualTerminal,
+                             shell.getLineReader()));
       Runnable shellRunnable = new Runnable() {
         @Override
         public void run() {
           try {
-            Shell shell = new Shell(actor, virtualTerminal);
-            shell.setBannerContent(bannerContent);
             shell.run();
             exitCallback.onExit(shell.getExitCode());
             if (shell.exitedWithShutdown()) {
