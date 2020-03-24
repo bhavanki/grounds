@@ -7,6 +7,12 @@ import java.util.Objects;
 import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
 
+/**
+ * Loads a multiverse from a file.<p>
+ *
+ * Arguments: file to load<br>
+ * Checks: player is GOD
+ */
 public class LoadCommand extends Command {
 
   private final File f;
@@ -22,7 +28,8 @@ public class LoadCommand extends Command {
       actor.sendMessage("Only GOD can load the multiverse");
       return false;
     }
-    // TBD prohibit if any players besides GOD are in use
+    // TBD prohibit if any players besides GOD are in use, especially
+    // because they are disconnected from their players
     try {
       Multiverse.load(f);
       actor.sendMessage("Loaded multiverse from " + f.getName());

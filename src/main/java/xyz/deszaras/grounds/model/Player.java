@@ -5,10 +5,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import xyz.deszaras.grounds.auth.Policy;
 import xyz.deszaras.grounds.auth.Role;
+import xyz.deszaras.grounds.command.Actor;
 
 /**
  * A thing that represents a player in the world.
@@ -27,6 +29,8 @@ public class Player extends Thing {
   static {
     Universe.VOID.addThing(GOD);
   }
+
+  private Actor actor;
 
   public Player(String name, Universe universe) {
     super(name, universe);
@@ -52,6 +56,25 @@ public class Player extends Thing {
       @JsonProperty("contents") Set<UUID> contents,
       @JsonProperty("policy") Policy policy) {
     super(id, attrs, contents, policy);
+  }
+
+  /**
+   * Gets this player's current actor. An idling player does not have
+   * any actor.
+   *
+   * @return current actor
+   */
+  public Optional<Actor> getCurrentActor() {
+    return Optional.ofNullable(actor);
+  }
+
+  /**
+   * Sets this player's current actor. Pass null to set the player to idle.
+   *
+   * @param actor current actor
+   */
+  public void setCurrentActor(Actor actor) {
+    this.actor = actor;
   }
 
   /**

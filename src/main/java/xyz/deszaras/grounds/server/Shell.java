@@ -155,6 +155,7 @@ public class Shell implements Runnable {
       if (player == null) {
         try {
           player = selectPlayer();
+          player.setCurrentActor(actor);
         } catch (UserInterruptException | EndOfFileException e) {
           return;
         }

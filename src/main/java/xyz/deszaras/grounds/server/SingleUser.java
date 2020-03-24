@@ -61,6 +61,7 @@ public class SingleUser implements Runnable {
 
     Shell shell = new Shell(actor, localTerminal);
     shell.setPlayer(Player.GOD);
+    Player.GOD.setCurrentActor(actor);
 
     Thread emitterThread =
         new Thread(new MessageEmitter(actor, localTerminal,

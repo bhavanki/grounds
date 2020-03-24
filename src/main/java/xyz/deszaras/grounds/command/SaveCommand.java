@@ -7,6 +7,12 @@ import java.util.Objects;
 import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
 
+/**
+ * Saves the multiverse to a file.<p>
+ *
+ * Arguments: file to save to<br>
+ * Checks: player is GOD
+ */
 public class SaveCommand extends Command {
 
   private final File f;
