@@ -30,9 +30,9 @@ public class MessageEmitter implements Runnable {
    * @throws NullPointerException if actor or terminal is null
    */
   public MessageEmitter(Actor actor, Terminal terminal, LineReader lineReader) {
-    this.actor = actor;
-    this.terminal = terminal;
-    this.lineReader = lineReader;
+    this.actor = Objects.requireNonNull(actor);
+    this.terminal = Objects.requireNonNull(terminal);
+    this.lineReader = Objects.requireNonNull(lineReader);
   }
 
   @Override
