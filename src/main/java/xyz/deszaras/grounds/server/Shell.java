@@ -33,9 +33,13 @@ import xyz.deszaras.grounds.model.Player;
 
 /**
  * A shell interface for an actor. When run, a shell receives and
- * process commands until the actor exits.
+ * process commands until the actor exits. While it does provide some
+ * output to the actor's terminal, most of it should go through an
+ * accompanying {@link MessageEmitter}, so that messages are delivered
+ * even while the shell is waiting for input.
  *
  * @see CommandExecutor
+ * @see MessageEmitter
  */
 public class Shell implements Runnable {
 
@@ -54,6 +58,7 @@ public class Shell implements Runnable {
    * Creates a new shell.
    *
    * @param actor actor using the shell
+   * @param terminal actor's terminal
    */
   public Shell(Actor actor, Terminal terminal) {
     this.actor = actor;
@@ -184,7 +189,6 @@ public class Shell implements Runnable {
                      e.getCause());
             commandResult = new CommandResult(false, null);
           }
-          // err.flush();
 
           if (commandResult.isSuccessful() &&
               commandResult.getCommandClass().isPresent()) {
@@ -213,17 +217,6 @@ public class Shell implements Runnable {
             prePrompt = "X ";
           }
         }
-
-        String message;
-        boolean wroteSeparator = false;
-        while ((message = actor.getNextMessage()) != null) {
-          if (!wroteSeparator) {
-            out.printf("========================================\n");
-            wroteSeparator = true;
-          }
-          out.printf("%s\n", message);
-        }
-        // out.flush();
       }
     } catch (IOException e) {
       e.printStackTrace(err);
@@ -260,7 +253,6 @@ public class Shell implements Runnable {
     terminal.writer().println("");
     while (true) {
       terminal.writer().printf("Select your initial player: ");
-      // terminal.writer().flush();
       String line = lineReader.readLine();
       if (line == null) {
         return null;
@@ -271,7 +263,6 @@ public class Shell implements Runnable {
         }
       }
       terminal.writer().printf("That is not a permitted player\n\n");
-      // terminal.writer().flush();
     }
   }
 

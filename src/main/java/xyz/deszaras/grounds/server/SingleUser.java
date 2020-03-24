@@ -58,12 +58,17 @@ public class SingleUser implements Runnable {
       console.printf("Failed to allocate local terminal", e);
       return;
     }
+
+    Thread emitterThread = new Thread(new MessageEmitter(actor, localTerminal));
+    emitterThread.start();
+
     Shell shell = new Shell(actor, localTerminal);
     shell.setPlayer(Player.GOD);
 
     try {
       shell.run();
     } finally {
+      emitterThread.interrupt();
       try {
         localTerminal.close();
       } catch (IOException e) {

@@ -192,6 +192,8 @@ public class Server {
                                            Integer.parseInt(env.getEnv().get("LINES"))));
           virtualTerminal.raise(Terminal.Signal.WINCH);
         }, Signal.WINCH);
+      Future<?> emitterFuture =
+          shellExecutorService.submit(new MessageEmitter(actor, virtualTerminal));
       Runnable shellRunnable = new Runnable() {
         @Override
         public void run() {
@@ -206,6 +208,7 @@ public class Server {
           } catch (Exception e) {
             exitCallback.onExit(255, e.getMessage());
           } finally {
+            emitterFuture.cancel(true);
             try {
               virtualTerminal.close();
             } catch (IOException e) { // NOPMD
