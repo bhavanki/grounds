@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.Properties;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.model.Player;
@@ -49,13 +51,25 @@ public class SingleUser implements Runnable {
     console.printf("This is single-user mode. Use ^D or 'exit' to quit.\n\n");
 
     Actor actor = Actor.ROOT;
-    Shell shell = new Shell(actor);
-    shell.setIn(console.reader());
-    shell.setOut(console.writer());
-    shell.setErr(console.writer());
+    Terminal localTerminal;
+    try {
+      localTerminal = TerminalBuilder.terminal();
+    } catch (IOException e) {
+      console.printf("Failed to allocate local terminal", e);
+      return;
+    }
+    Shell shell = new Shell(actor, localTerminal);
     shell.setPlayer(Player.GOD);
 
-    shell.run();
+    try {
+      shell.run();
+    } finally {
+      try {
+        localTerminal.close();
+      } catch (IOException e) {
+        console.printf("Failed to close local terminal", e);
+      }
+    }
     CommandExecutor.INSTANCE.shutdown();
 
     console.printf("\n\nBye!\n");

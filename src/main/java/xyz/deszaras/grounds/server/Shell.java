@@ -2,11 +2,8 @@ package xyz.deszaras.grounds.server;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +12,11 @@ import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.jline.reader.EndOfFileException;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.UserInterruptException;
+import org.jline.terminal.Terminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.deszaras.grounds.command.Actor;
@@ -40,10 +42,9 @@ public class Shell implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(Shell.class);
 
   private final Actor actor;
+  private final Terminal terminal;
+  private final LineReader lineReader;
 
-  private BufferedReader in = null;
-  private PrintWriter out = null;
-  private PrintWriter err = null;
   private Player player = null;
   private String bannerContent = null;
   private int exitCode = 0;
@@ -54,33 +55,12 @@ public class Shell implements Runnable {
    *
    * @param actor actor using the shell
    */
-  public Shell(Actor actor) {
+  public Shell(Actor actor, Terminal terminal) {
     this.actor = actor;
-  }
-
-  /**
-   * Sets the input reader for the shell.
-   *
-   * @param in input reader
-   */
-  public void setIn(Reader in) {
-    this.in = new BufferedReader(in);
-  }
-  /**
-   * Sets the output writer for the shell.
-   *
-   * @param out output writer
-   */
-  public void setOut(Writer out) {
-    this.out = new PrintWriter(out);
-  }
-  /**
-   * Sets the error writer for the shell.
-   *
-   * @param err error writer
-   */
-  public void setErr(Writer err) {
-    this.err = new PrintWriter(err);
+    this.terminal = terminal;
+    lineReader = LineReaderBuilder.builder()
+        .terminal(terminal)
+        .build();
   }
 
   /**
@@ -152,31 +132,35 @@ public class Shell implements Runnable {
 
   @Override
   public void run() {
-    if (in == null || out == null || err == null) {
-      throw new IllegalStateException("I/O is not connected!");
-    }
+    PrintWriter out = terminal.writer();
+    PrintWriter err = terminal.writer(); // sadly
 
     try {
       emitBanner();
 
       if (player == null) {
-        player = selectPlayer();
+        try {
+          player = selectPlayer();
+        } catch (UserInterruptException | EndOfFileException e) {
+          return;
+        }
         if (player == null) {
           return;
         }
       }
 
+      String prePrompt = "";
       String prompt = getPrompt(player);
 
       while (true) {
-        out.printf(prompt);
-        out.flush();
-        String line = in.readLine();
-        if (line == null) {
+        String line;
+        try {
+          line = lineReader.readLine(prePrompt + prompt);
+        } catch (UserInterruptException | EndOfFileException e) {
           break;
         }
         List<String> tokens = tokenize(line);
-        String prePrompt = "√ ";
+        prePrompt = "√ ";
         if (!tokens.isEmpty()) {
 
           Future<CommandResult> commandFuture =
@@ -200,7 +184,7 @@ public class Shell implements Runnable {
                      e.getCause());
             commandResult = new CommandResult(false, null);
           }
-          err.flush();
+          // err.flush();
 
           if (commandResult.isSuccessful() &&
               commandResult.getCommandClass().isPresent()) {
@@ -239,9 +223,7 @@ public class Shell implements Runnable {
           }
           out.printf("%s\n", message);
         }
-        out.flush();
-
-        out.printf(prePrompt);
+        // out.flush();
       }
     } catch (IOException e) {
       e.printStackTrace(err);
@@ -259,7 +241,7 @@ public class Shell implements Runnable {
     }
     String bannerToEmit = bannerContent
         .replaceAll("_username_", actor.getUsername());
-    out.println(bannerToEmit);
+    terminal.writer().println(bannerToEmit);
   }
 
   private Player selectPlayer() throws IOException {
@@ -271,15 +253,15 @@ public class Shell implements Runnable {
         .map(p -> p.get())
         .sorted()
         .collect(Collectors.toList());
-    out.println("Permitted players:");
+    terminal.writer().println("Permitted players:");
     for (Player p : permittedPlayers) {
-      out.printf("  %s\n", p.getName());
+      terminal.writer().printf("  %s\n", p.getName());
     }
-    out.println("");
+    terminal.writer().println("");
     while (true) {
-      out.printf("Select your initial player: ");
-      out.flush();
-      String line = in.readLine();
+      terminal.writer().printf("Select your initial player: ");
+      // terminal.writer().flush();
+      String line = lineReader.readLine();
       if (line == null) {
         return null;
       }
@@ -288,8 +270,8 @@ public class Shell implements Runnable {
           return p;
         }
       }
-      err.printf("That is not a permitted player\n\n");
-      err.flush();
+      terminal.writer().printf("That is not a permitted player\n\n");
+      // terminal.writer().flush();
     }
   }
 

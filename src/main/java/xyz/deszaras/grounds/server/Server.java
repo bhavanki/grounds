@@ -1,27 +1,35 @@
 package xyz.deszaras.grounds.server;
 
-import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import org.apache.sshd.common.channel.PtyMode;
 import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.ExitCallback;
+import org.apache.sshd.server.Signal;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.channel.ChannelSession;
 import org.apache.sshd.server.command.Command;
 import org.apache.sshd.server.shell.ShellFactory;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
+import org.jline.terminal.Attributes;
+import org.jline.terminal.Attributes.ControlChar;
+import org.jline.terminal.Attributes.InputFlag;
+import org.jline.terminal.Attributes.LocalFlag;
+import org.jline.terminal.Attributes.OutputFlag;
+import org.jline.terminal.Size;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandExecutor;
 
@@ -34,7 +42,10 @@ import xyz.deszaras.grounds.command.CommandExecutor;
  * normally triggered, however, through a shutdown command submitted
  * by a logged-in user.<p>
  *
- * An internal executor service is responsible for running shells.
+ * An internal executor service is responsible for running shells.<p>
+ *
+ * Lots of SSH and terminal handling code was lifted from the JLine 3
+ * project, particularly from {@code ShellFactoryImpl}.
  */
 public class Server {
 
@@ -128,32 +139,32 @@ public class Server {
    */
   private class ServerShellCommand implements Command {
 
-    private final Shell shell;
+    private final Actor actor;
 
+    private InputStream in;
+    private OutputStream out;
+    private OutputStream err;
     private ExitCallback exitCallback;
     private Future<?> shellFuture;
 
     private ServerShellCommand(Actor actor) {
-      shell = new Shell(actor);
-      shell.setBannerContent(bannerContent);
+      this.actor = actor;
       shellFuture = null;
     }
 
     @Override
     public void setInputStream(InputStream in) {
-      shell.setIn(new InputStreamReader(in, StandardCharsets.UTF_8));
+      this.in = in;
     }
 
     @Override
     public void setOutputStream(OutputStream out) {
-      shell.setOut(new OutputStreamWriter(out, StandardCharsets.UTF_8));
-      // shell.setOut(new OutputStreamWriter(new NlCorrectingOutputStream(out), StandardCharsets.UTF_8));
+      this.out = out;
     }
 
     @Override
     public void setErrorStream(OutputStream err) {
-      shell.setErr(new OutputStreamWriter(err, StandardCharsets.UTF_8));
-      // shell.setErr(new OutputStreamWriter(new NlCorrectingOutputStream(err), StandardCharsets.UTF_8));
+      this.err = err;
     }
 
     @Override
@@ -162,11 +173,31 @@ public class Server {
     }
 
     @Override
-    public void start(ChannelSession session, Environment env) {
+    public void start(ChannelSession session, Environment env) throws IOException {
+      if (in == null || out == null || err == null) {
+        throw new IllegalStateException("I/O is not connected!");
+      }
+
+      Terminal virtualTerminal = TerminalBuilder.builder()
+          .name("Grounds SSH")
+          .type(env.getEnv().get("TERM"))
+          .system(false)
+          .streams(in, out)
+          .build();
+      virtualTerminal.setSize(new Size(Integer.parseInt(env.getEnv().get("COLUMNS")),
+                                       Integer.parseInt(env.getEnv().get("LINES"))));
+      processEnvPtyModes(env, virtualTerminal);
+      env.addSignalListener((channel, signal) -> {
+          virtualTerminal.setSize(new Size(Integer.parseInt(env.getEnv().get("COLUMNS")),
+                                           Integer.parseInt(env.getEnv().get("LINES"))));
+          virtualTerminal.raise(Terminal.Signal.WINCH);
+        }, Signal.WINCH);
       Runnable shellRunnable = new Runnable() {
         @Override
         public void run() {
           try {
+            Shell shell = new Shell(actor, virtualTerminal);
+            shell.setBannerContent(bannerContent);
             shell.run();
             exitCallback.onExit(shell.getExitCode());
             if (shell.exitedWithShutdown()) {
@@ -174,10 +205,111 @@ public class Server {
             }
           } catch (Exception e) {
             exitCallback.onExit(255, e.getMessage());
+          } finally {
+            try {
+              virtualTerminal.close();
+            } catch (IOException e) { // NOPMD
+              // what can ya do
+            }
           }
         }
       };
       shellFuture = shellExecutorService.submit(shellRunnable);
+    }
+
+    private void processEnvPtyModes(Environment env, Terminal terminal) {
+      Attributes attr = terminal.getAttributes();
+      for (Map.Entry<PtyMode, Integer> e : env.getPtyModes().entrySet()) {
+          switch (e.getKey()) {
+              case VINTR:
+                  attr.setControlChar(ControlChar.VINTR, e.getValue());
+                  break;
+              case VQUIT:
+                  attr.setControlChar(ControlChar.VQUIT, e.getValue());
+                  break;
+              case VERASE:
+                  attr.setControlChar(ControlChar.VERASE, e.getValue());
+                  break;
+              case VKILL:
+                  attr.setControlChar(ControlChar.VKILL, e.getValue());
+                  break;
+              case VEOF:
+                  attr.setControlChar(ControlChar.VEOF, e.getValue());
+                  break;
+              case VEOL:
+                  attr.setControlChar(ControlChar.VEOL, e.getValue());
+                  break;
+              case VEOL2:
+                  attr.setControlChar(ControlChar.VEOL2, e.getValue());
+                  break;
+              case VSTART:
+                  attr.setControlChar(ControlChar.VSTART, e.getValue());
+                  break;
+              case VSTOP:
+                  attr.setControlChar(ControlChar.VSTOP, e.getValue());
+                  break;
+              case VSUSP:
+                  attr.setControlChar(ControlChar.VSUSP, e.getValue());
+                  break;
+              case VDSUSP:
+                  attr.setControlChar(ControlChar.VDSUSP, e.getValue());
+                  break;
+              case VREPRINT:
+                  attr.setControlChar(ControlChar.VREPRINT, e.getValue());
+                  break;
+              case VWERASE:
+                  attr.setControlChar(ControlChar.VWERASE, e.getValue());
+                  break;
+              case VLNEXT:
+                  attr.setControlChar(ControlChar.VLNEXT, e.getValue());
+                  break;
+              /*
+              case VFLUSH:
+                  attr.setControlChar(ControlChar.VMIN, e.getValue());
+                  break;
+              case VSWTCH:
+                  attr.setControlChar(ControlChar.VTIME, e.getValue());
+                  break;
+              */
+              case VSTATUS:
+                  attr.setControlChar(ControlChar.VSTATUS, e.getValue());
+                  break;
+              case VDISCARD:
+                  attr.setControlChar(ControlChar.VDISCARD, e.getValue());
+                  break;
+              case ECHO:
+                  attr.setLocalFlag(LocalFlag.ECHO, e.getValue() != 0);
+                  break;
+              case ICANON:
+                  attr.setLocalFlag(LocalFlag.ICANON, e.getValue() != 0);
+                  break;
+              case ISIG:
+                  attr.setLocalFlag(LocalFlag.ISIG, e.getValue() != 0);
+                  break;
+              case ICRNL:
+                  attr.setInputFlag(InputFlag.ICRNL, e.getValue() != 0);
+                  break;
+              case INLCR:
+                  attr.setInputFlag(InputFlag.INLCR, e.getValue() != 0);
+                  break;
+              case IGNCR:
+                  attr.setInputFlag(InputFlag.IGNCR, e.getValue() != 0);
+                  break;
+              case OCRNL:
+                  attr.setOutputFlag(OutputFlag.OCRNL, e.getValue() != 0);
+                  break;
+              case ONLCR:
+                  attr.setOutputFlag(OutputFlag.ONLCR, e.getValue() != 0);
+                  break;
+              case ONLRET:
+                  attr.setOutputFlag(OutputFlag.ONLRET, e.getValue() != 0);
+                  break;
+              case OPOST:
+                  attr.setOutputFlag(OutputFlag.OPOST, e.getValue() != 0);
+                  break;
+          }
+      }
+      terminal.setAttributes(attr);
     }
 
     @Override
@@ -218,24 +350,5 @@ public class Server {
   public void shutdownOnCommand() throws IOException, InterruptedException {
     shutdownLatch.await();
     shutdown();
-  }
-
-  // https://github.com/bigpuritz/javaforge-blog/blob/master/sshd-daemon-demo/src/main/java/net/javaforge/blog/sshd/InAppShellFactory.java
-  private static class NlCorrectingOutputStream extends FilterOutputStream {
-
-    private static final boolean MAC = System.getProperty("os.name").startsWith("Mac OS X");
-
-    private NlCorrectingOutputStream(OutputStream out) {
-      super(out);
-    }
-
-    @Override
-    public void write(int i) throws IOException {
-      if (MAC && i == '\n') {
-        super.write('\r');
-      }
-
-      super.write(i);
-    }
   }
 }
