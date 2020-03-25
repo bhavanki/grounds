@@ -30,6 +30,8 @@ import org.jline.terminal.Attributes.OutputFlag;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandExecutor;
 
@@ -48,6 +50,8 @@ import xyz.deszaras.grounds.command.CommandExecutor;
  * project, particularly from {@code ShellFactoryImpl}.
  */
 public class Server {
+
+  private static final Logger LOG = LoggerFactory.getLogger(Server.class);
 
   public static final String DEFAULT_HOST = "127.0.0.1"; // NOPMD
   public static final String DEFAULT_PORT = "4768";
@@ -203,12 +207,15 @@ public class Server {
         @Override
         public void run() {
           try {
+            LOG.info("Running shell for {}", actor.getUsername());
             shell.run();
+            LOG.info("Shell exited with exit code {}", shell.getExitCode());
             exitCallback.onExit(shell.getExitCode());
             if (shell.exitedWithShutdown()) {
               shutdownLatch.countDown();
             }
           } catch (Exception e) {
+            LOG.error("Exception thrown by shell", e);
             exitCallback.onExit(255, e.getMessage());
           } finally {
             emitterFuture.cancel(true);
