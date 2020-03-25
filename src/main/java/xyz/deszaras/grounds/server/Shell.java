@@ -254,7 +254,7 @@ public class Shell implements Runnable {
         .map(id -> Multiverse.MULTIVERSE.findThing(id, Player.class))
         .filter(p -> p.isPresent())
         .map(p -> p.get())
-        .sorted()
+        .sorted((p1, p2) -> p1.getName().compareTo(p2.getName()))
         .collect(Collectors.toList());
     terminal.writer().println("Permitted players:");
     for (Player p : permittedPlayers) {
