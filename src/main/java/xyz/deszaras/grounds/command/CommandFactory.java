@@ -43,7 +43,12 @@ public class CommandFactory {
         .put("ROLE", RoleCommand.class)
         .put("ACTOR", ActorCommand.class)
         .put("SHUTDOWN", ShutdownCommand.class)
+        .put("HELP", HelpCommand.class)
         .build();
+  }
+
+  public static Class<? extends Command> getCommandClass(String commandName) {
+    return COMMANDS.get(commandName.toUpperCase());
   }
 
   /**
@@ -59,10 +64,10 @@ public class CommandFactory {
     if (line.isEmpty()) {
       return new NoOpCommand(actor, player);
     }
-    String commandName = line.get(0).toUpperCase();
+    String commandName = line.get(0);
     List<String> commandArgs = line.subList(1, line.size());
 
-    Class<? extends Command> commandClass = COMMANDS.get(commandName);
+    Class<? extends Command> commandClass = getCommandClass(commandName);
     if (commandClass == null) {
       throw new CommandFactoryException("Unrecognized command " + commandName);
     }

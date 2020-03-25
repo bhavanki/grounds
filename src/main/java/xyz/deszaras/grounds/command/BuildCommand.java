@@ -130,4 +130,11 @@ public class BuildCommand extends Command {
     List<String> buildArgs = commandArgs.subList(2, commandArgs.size());
     return new BuildCommand(actor, player, type, name, buildArgs);
   }
+
+  public static String help() {
+    return "BUILD <type> <name> [<build argument> ...]\n\n" +
+        "Builds a new thing, locating it where the player is now.\n\n" +
+        "Supported types: thing, player, place, link, universe\n\n" +
+        "More info TBD";
+  }
 }
