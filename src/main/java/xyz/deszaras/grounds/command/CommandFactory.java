@@ -29,6 +29,7 @@ public class CommandFactory {
         .put("GO", MoveCommand.class)
         .put("G", MoveCommand.class)
         .put("WHISPER", WhisperCommand.class)
+        .put("POSE", PoseCommand.class)
         .put("BUILD", BuildCommand.class)
         .put("SET_ATTR", SetAttrCommand.class)
         .put("REMOVE_ATTR", RemoveAttrCommand.class)

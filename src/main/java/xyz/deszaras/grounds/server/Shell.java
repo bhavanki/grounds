@@ -119,6 +119,27 @@ public class Shell implements Runnable {
       Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
 
   /**
+   * Preprocesses a line in order to expand special command aliases.
+   *
+   * @param line line of text
+   * @return processed text
+   */
+  @VisibleForTesting
+  static String preprocess(String line, Player player) {
+    if (line.isEmpty()) {
+      return line;
+    }
+
+    // Use ':' as alias for a POSE command starting with the player's
+    // name.
+    if (line.startsWith(":")) {
+      return "POSE " + player.getName() + " " + line.substring(1);
+    }
+
+    return line;
+  }
+
+  /**
    * Splits a line of text into tokens. Generally, tokens are separated
    * by whitespace, but text surrounded by single or double quotes
    * is kept together as a single token (without the quotes).
@@ -174,6 +195,7 @@ public class Shell implements Runnable {
         } catch (UserInterruptException | EndOfFileException e) {
           break;
         }
+        line = preprocess(line, player);
         List<String> tokens = tokenize(line);
         prePrompt = "√ ";
         if (!tokens.isEmpty()) {
