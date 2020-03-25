@@ -209,13 +209,15 @@ public class Server {
           try {
             LOG.info("Running shell for {}", actor.getUsername());
             shell.run();
-            LOG.info("Shell exited with exit code {}", shell.getExitCode());
+            LOG.info("Shell for {} exited with exit code {}",
+                     actor.getUsername(), shell.getExitCode());
             exitCallback.onExit(shell.getExitCode());
             if (shell.exitedWithShutdown()) {
               shutdownLatch.countDown();
             }
           } catch (Exception e) {
-            LOG.error("Exception thrown by shell", e);
+            LOG.error("Exception thrown by shell for {}",
+                      actor.getUsername(), e);
             exitCallback.onExit(255, e.getMessage());
           } finally {
             emitterFuture.cancel(true);
