@@ -30,7 +30,11 @@ public class SwitchPlayerCommand extends Command {
                         newPlayer.getName());
       return false;
     }
+
+    player.setCurrentActor(null);
     actor.setCurrentPlayer(newPlayer);
+    newPlayer.setCurrentActor(actor);
+
     return true;
   }
 
