@@ -261,6 +261,7 @@ public class Shell implements Runnable {
       terminal.writer().printf("  %s\n", p.getName());
     }
     terminal.writer().println("");
+    selection:
     while (true) {
       terminal.writer().printf("Select your initial player: ");
       String line = lineReader.readLine();
@@ -268,9 +269,15 @@ public class Shell implements Runnable {
         return null;
       }
       for (Player p : permittedPlayers) {
-        if (p.getName().equals(line)) {
-          return p;
+        if (!p.getName().equals(line)) {
+          continue;
         }
+        if (p.getCurrentActor().isPresent()) {
+          terminal.writer().printf("Someone is already playing as %s\n\n",
+                                   p.getName());
+          continue selection;
+        }
+        return p;
       }
       terminal.writer().printf("That is not a permitted player\n\n");
     }
