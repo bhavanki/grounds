@@ -2,6 +2,8 @@
 
 A [MUSH](https://en.wikipedia.org/wiki/MUSH).
 
+![Java CI with Maven](https://github.com/bhavanki/grounds/workflows/Java%20CI%20with%20Maven/badge.svg)
+
 ## Features
 
 Grounds is under active development, so features are all new and/or still being worked on to a large extent. There are definitely bugs and missing features, and many concepts are still subject to change.
@@ -64,3 +66,6 @@ $ mvn package
 
 [MIT License](LICENSE)
 
+## Other Credits
+
+Default banner logo from www.patorjk.com, Ivrit font
