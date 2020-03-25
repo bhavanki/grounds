@@ -3,6 +3,7 @@ package xyz.deszaras.grounds.model;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Optional;
@@ -64,6 +65,7 @@ public class Player extends Thing {
    *
    * @return current actor
    */
+  @JsonIgnore
   public Optional<Actor> getCurrentActor() {
     return Optional.ofNullable(actor);
   }
