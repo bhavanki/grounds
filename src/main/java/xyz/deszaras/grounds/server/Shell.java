@@ -261,26 +261,32 @@ public class Shell implements Runnable {
       terminal.writer().printf("  %s\n", p.getName());
     }
     terminal.writer().println("");
-    selection:
-    while (true) {
+
+    Player chosenPlayer = null;
+    while (chosenPlayer == null) {
       terminal.writer().printf("Select your initial player: ");
       String line = lineReader.readLine();
       if (line == null) {
         return null;
       }
+
       for (Player p : permittedPlayers) {
-        if (!p.getName().equals(line)) {
-          continue;
+        if (p.getName().equals(line)) {
+          if (p.getCurrentActor().isPresent()) {
+            terminal.writer().printf("Someone is already playing as %s\n",
+                                     p.getName());
+          } else {
+            chosenPlayer = p;
+          }
+          break;
         }
-        if (p.getCurrentActor().isPresent()) {
-          terminal.writer().printf("Someone is already playing as %s\n\n",
-                                   p.getName());
-          continue selection;
-        }
-        return p;
       }
-      terminal.writer().printf("That is not a permitted player\n\n");
+      if (chosenPlayer == null) {
+        terminal.writer().printf("That is not a permitted player\n\n");
+      }
     }
+
+    return chosenPlayer;
   }
 
   private static String getPrompt(Player player) {
