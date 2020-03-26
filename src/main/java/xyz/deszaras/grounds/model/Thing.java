@@ -159,6 +159,15 @@ public class Thing {
   }
 
   /**
+   * Sets this thing's description.
+   *
+   * @param description description
+   */
+  public void setDescription(String description) {
+    setAttr(AttrNames.DESCRIPTION, description);
+  }
+
+  /**
    * Gets this thing's universe.
    */
   @JsonIgnore

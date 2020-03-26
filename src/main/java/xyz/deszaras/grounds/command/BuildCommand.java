@@ -98,9 +98,8 @@ public class BuildCommand extends Command {
           Multiverse.MULTIVERSE.putUniverse(universe);
           actor.sendMessage("Created universe " + universe.getName());
 
-          Place origin = new Place("ORIGIN", universe);
-          universe.addThing(origin);
-          actor.sendMessage("Created origin place " + origin.getId());
+          createOrigin(universe);
+
           return true;
         default:
           throw new IllegalArgumentException("Unsupported built-in type " + type);
@@ -119,6 +118,18 @@ public class BuildCommand extends Command {
       actor.sendMessage("Unsupported type " + type + ": " + e.getMessage());
     }
     return false;
+  }
+
+  private void createOrigin(Universe universe) {
+    Place origin = new Place("ORIGIN", universe);
+    universe.addThing(origin);
+
+    origin.setDescription(
+        "This is the first place to exist in its new universe. From here" +
+        " you can start building more things to create a new world. Type" +
+        " `build help` to see what you can create.");
+
+    actor.sendMessage("Created origin place " + origin.getId());
   }
 
   public static BuildCommand newCommand(Actor actor, Player player,
