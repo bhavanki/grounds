@@ -23,4 +23,8 @@ public class ShutdownCommand extends Command {
     return new ShutdownCommand(actor, player);
   }
 
+  public static String help() {
+    return "SHUTDOWN\n\n" +
+        "Exits the shell and also shuts down the server.";
+  }
 }

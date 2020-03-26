@@ -18,4 +18,9 @@ public class ExitCommand extends Command {
                                        List<String> commandArgs) {
     return new ExitCommand(actor, player);
   }
+
+  public static String help() {
+    return "EXIT\n\n" +
+        "Exits the shell.";
+  }
 }

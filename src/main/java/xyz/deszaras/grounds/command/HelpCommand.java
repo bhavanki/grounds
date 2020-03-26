@@ -2,6 +2,8 @@ package xyz.deszaras.grounds.command;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import xyz.deszaras.grounds.model.Player;
@@ -17,6 +19,16 @@ public class HelpCommand extends Command {
 
   @Override
   public boolean execute() {
+    if (commandName.equalsIgnoreCase("commands")) {
+      List<String> commandNames =
+          new ArrayList<>(CommandFactory.getCommandNames());
+      Collections.sort(commandNames);
+      for (String commandName : commandNames) {
+        actor.sendMessage(commandName);
+      }
+      return true;
+    }
+
     Class<? extends Command> commandClass =
         CommandFactory.getCommandClass(commandName);
     if (commandClass == null) {
@@ -49,7 +61,8 @@ public class HelpCommand extends Command {
   }
 
   public static String help() {
-    return "HELP <command>\n\n" +
-        "Gets help for a command";
+    return "HELP [<command> | commands]\n\n" +
+        "Gets help for a command\n\n" +
+        "`HELP commands` lists all available commands";
   }
 }

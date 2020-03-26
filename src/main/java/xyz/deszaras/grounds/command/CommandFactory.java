@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import xyz.deszaras.grounds.model.Player;
 
 /**
@@ -50,6 +51,10 @@ public class CommandFactory {
 
   public static Class<? extends Command> getCommandClass(String commandName) {
     return COMMANDS.get(commandName.toUpperCase());
+  }
+
+  public static Set<String> getCommandNames() {
+    return COMMANDS.keySet();
   }
 
   /**

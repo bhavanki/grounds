@@ -145,7 +145,12 @@ public class BuildCommand extends Command {
   public static String help() {
     return "BUILD <type> <name> [<build argument> ...]\n\n" +
         "Builds a new thing, locating it where the player is now.\n\n" +
-        "Supported types: thing, player, place, link, universe\n\n" +
-        "More info TBD";
+        "Supported types:\n" +
+        "  BUILD thing <name>\n" +
+        "  BUILD player <name> <initial role>\n" +
+        "  BUILD place <name>\n" +
+        "  BUILD link <name> <source place> <source exit name>\n" +
+        "    <destination place> <destination exit name>\n" +
+        "  BUILD universe <name>";
   }
 }
