@@ -185,6 +185,7 @@ public class Server {
       Terminal virtualTerminal = TerminalBuilder.builder()
           .name("Grounds SSH")
           .type(env.getEnv().get("TERM"))
+          .encoding(StandardCharsets.UTF_8)
           .system(false)
           .streams(in, out)
           .build();
