@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import xyz.deszaras.grounds.auth.Role;
-import xyz.deszaras.grounds.model.AttrNames;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 

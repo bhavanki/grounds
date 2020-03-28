@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Objects;
 import xyz.deszaras.grounds.auth.Role;
-import xyz.deszaras.grounds.model.AttrNames;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Link;
 import xyz.deszaras.grounds.model.Multiverse;
