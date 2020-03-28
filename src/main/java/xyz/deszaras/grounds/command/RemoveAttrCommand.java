@@ -3,6 +3,7 @@ package xyz.deszaras.grounds.command;
 import java.util.List;
 import java.util.Objects;
 import xyz.deszaras.grounds.auth.Policy.Category;
+import xyz.deszaras.grounds.model.AttrNames;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
@@ -25,6 +26,12 @@ public class RemoveAttrCommand extends Command {
 
   @Override
   public boolean execute() {
+    if (AttrNames.ALL_NAMES.contains(attrName) &&
+        !player.equals(Player.GOD)) {
+      actor.sendMessage("Only GOD may remove that attribute directly");
+      return false;
+    }
+
     if (!thing.passes(Category.WRITE, player)) {
       actor.sendMessage("You are not permitted to set attributes on this");
       return false;
