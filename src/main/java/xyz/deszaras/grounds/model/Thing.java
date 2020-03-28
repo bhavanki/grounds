@@ -177,6 +177,13 @@ public class Thing {
   }
 
   /**
+   * Sets this thing's universe.
+   */
+  public void setUniverse(Universe universe) {
+    setAttr(AttrNames.UNIVERSE, Objects.requireNonNull(universe).getName());
+  }
+
+  /**
    * Gets this thing's location.
    */
   @JsonIgnore
@@ -201,14 +208,19 @@ public class Thing {
    */
   @JsonIgnore
   public Optional<Thing> getOwner() {
+    // TBD: what if owner is set but cannot be found?
     return getAttr(AttrNames.OWNER).map(a -> Multiverse.MULTIVERSE.findThing(a.getValue()).orElse(null));
   }
 
   /**
-   * Sets this thing's universe.
+   * Sets this thing's owner. Pass a null owner to remove it.
    */
-  public void setUniverse(Universe universe) {
-    setAttr(AttrNames.UNIVERSE, Objects.requireNonNull(universe).getName());
+  public void setOwner(Thing owner) {
+    if (owner != null) {
+      setAttr(AttrNames.OWNER, owner);
+    } else {
+      removeAttr(AttrNames.OWNER);
+    }
   }
 
   private final Object attrMonitor = new Object();

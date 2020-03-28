@@ -29,7 +29,7 @@ public class ClaimCommand extends Command {
     if (!mayClaim()) {
       return false;
     }
-    thing.setAttr(AttrNames.OWNER, player);
+    thing.setOwner(player);
     return true;
   }
 
@@ -43,6 +43,10 @@ public class ClaimCommand extends Command {
       return true;
     }
     if (thing.getOwner().isPresent()) {
+      if (thing.getOwner().get().equals(player)) {
+        actor.sendMessage("You already own that");
+        return true;
+      }
       actor.sendMessage("That is already owned by someone else");
       return false;
     }

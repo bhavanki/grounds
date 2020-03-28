@@ -27,7 +27,8 @@ public class AbandonCommand extends Command {
       actor.sendMessage("You do not own that");
       return false;
     }
-    return new RemoveAttrCommand(actor, player, thing, AttrNames.OWNER).execute();
+    thing.setOwner(null);
+    return true;
   }
 
   public static AbandonCommand newCommand(Actor actor, Player player,
