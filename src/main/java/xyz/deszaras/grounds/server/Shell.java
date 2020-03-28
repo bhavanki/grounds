@@ -257,6 +257,10 @@ public class Shell implements Runnable {
     } catch (InterruptedException e) {
       e.printStackTrace(err);
       out.println("Interrupted! Exiting");
+    } finally {
+      if (player != null) {
+        player.setCurrentActor(null);
+      }
     }
   }
 
