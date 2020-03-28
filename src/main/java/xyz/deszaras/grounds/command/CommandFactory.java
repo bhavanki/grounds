@@ -37,6 +37,8 @@ public class CommandFactory {
         .put("TAKE", TakeCommand.class)
         .put("GET", TakeCommand.class)
         .put("DROP", DropCommand.class)
+        .put("INVENTORY", InventoryCommand.class)
+        .put("I", InventoryCommand.class)
         .put("CLAIM", ClaimCommand.class)
         .put("ABANDON", AbandonCommand.class)
         .put("LOAD", LoadCommand.class)
