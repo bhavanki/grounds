@@ -233,6 +233,17 @@ public class Server {
       shellFuture = shellExecutorService.submit(shellRunnable);
     }
 
+    /**
+     * Does magical stuff with the control characters for the terminal,
+     * based on the environment's PTY modes. If I were to claim I
+     * understand this, I'd be lying.<p>
+     *
+     * Possibly related note: Turn off "bracketed paste" in your
+     * terminal. Maybe it's related to this stuff here.
+     *
+     * @param env SSH environment
+     * @param terminal JLine terminal
+     */
     private void processEnvPtyModes(Environment env, Terminal terminal) {
       Attributes attr = terminal.getAttributes();
       for (Map.Entry<PtyMode, Integer> e : env.getPtyModes().entrySet()) {
