@@ -6,17 +6,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An attribute, which is a name/value pair. The value has a specific
  * type.
  */
 public final class Attr {
+
+  private static final Logger LOG = LoggerFactory.getLogger(Attr.class);
 
   /**
    * Attribute types.
@@ -240,6 +248,26 @@ public final class Attr {
   private static final Pattern ATTR_SPEC_PATTERN =
       Pattern.compile("([^\\[]+)\\[([^]]+)\\]=(.*)");
 
+  /**
+   * Creates an attribute from a spec string, formatted as:<p>
+   *
+   * name[type]=value<p>
+   *
+   * where "type" is a value of {@link Attr.Type}. "value" is the
+   * string value of the attribute; for ATTR and ATTRLIST type
+   * attributes, the value is the JSON representation of the
+   * attribute or list of attributes, respectively.<p>
+   *
+   * If the value begins with the '@' character, then the rest of
+   * the value is treated as the path to a file, and the content
+   * of the file is loaded and used as the attribute value. This is
+   * helpful for ATTR and ATTRLIST type attributes.
+   *
+   * @param attrSpec attribute spec string
+   * @return attribute
+   * @throws IllegalArgumentException if the spec string is invalid,
+   * or the value cannot be loaded from a file
+   */
   public static Attr fromAttrSpec(String attrSpec) {
     Matcher m = ATTR_SPEC_PATTERN.matcher(attrSpec);
     if (!m.matches()) {
@@ -248,6 +276,16 @@ public final class Attr {
     String name = m.group(1);
     Type type = Type.valueOf(m.group(2));
     String value = m.group(3);
+
+    if (value.startsWith("@") && value.length() > 1) {
+      try {
+        value = Files.readString(FileSystems.getDefault().getPath(value.substring(1)),
+                                 StandardCharsets.UTF_8);
+      } catch (IOException e) {
+        LOG.error("Failed to read attribute value from " + value, e);
+        throw new IllegalArgumentException("Failed to read attribute value from " + value, e);
+      }
+    }
     return new Attr(name, value, type);
   }
 
