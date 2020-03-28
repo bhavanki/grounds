@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.AttrNames;
+import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Link;
 import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Place;
@@ -27,6 +28,7 @@ public class BuildCommand extends Command {
     PLAYER,
     PLACE,
     LINK,
+    EXTENSION,
     UNIVERSE;
   }
 
@@ -88,6 +90,9 @@ public class BuildCommand extends Command {
           break;
         case LINK:
           built = Link.build(name, universe, buildArgs);
+          break;
+        case EXTENSION:
+          built = Extension.build(name, universe, buildArgs);
           break;
         case UNIVERSE:
           if (Multiverse.MULTIVERSE.hasUniverse(name)) {
@@ -151,6 +156,7 @@ public class BuildCommand extends Command {
         "  BUILD place <name>\n" +
         "  BUILD link <name> <source place> <source exit name>\n" +
         "    <destination place> <destination exit name>\n" +
+        "  BUILD extension <name>\n" +
         "  BUILD universe <name>";
   }
 }
