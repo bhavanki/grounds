@@ -24,8 +24,12 @@ public class TakeCommand extends Command {
       actor.sendMessage("You are already holding that");
       return false;
     }
+    if (!(thing.getClass().equals(Thing.class))) {
+      actor.sendMessage("You can only take ordinary things");
+      return false;
+    }
     if (!thing.passes(Category.GENERAL, player)) {
-      actor.sendMessage("You are unable to take that");
+      actor.sendMessage("You are not permitted to take that");
       return false;
     }
 
