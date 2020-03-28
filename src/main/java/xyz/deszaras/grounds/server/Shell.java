@@ -290,9 +290,12 @@ public class Shell implements Runnable {
 
     Player chosenPlayer = null;
     while (chosenPlayer == null) {
-      terminal.writer().printf("Select your initial player: ");
+      terminal.writer().printf("Select your initial player (exit to disconnect): ");
       String line = lineReader.readLine();
       if (line == null) {
+        return null;
+      }
+      if (line.equals("exit")) {
         return null;
       }
 
