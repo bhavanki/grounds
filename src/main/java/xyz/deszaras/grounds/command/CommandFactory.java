@@ -50,6 +50,9 @@ public class CommandFactory {
   }
 
   public static Class<? extends Command> getCommandClass(String commandName) {
+    if (commandName.startsWith("$")) {
+      return ScriptedCommand.class;
+    }
     return COMMANDS.get(commandName.toUpperCase());
   }
 
@@ -71,11 +74,19 @@ public class CommandFactory {
       return new NoOpCommand(actor, player);
     }
     String commandName = line.get(0);
-    List<String> commandArgs = line.subList(1, line.size());
 
     Class<? extends Command> commandClass = getCommandClass(commandName);
     if (commandClass == null) {
       throw new CommandFactoryException("Unrecognized command " + commandName);
+    }
+
+    // For scripted commands, the command name needs to be passed along
+    // with everything else.
+    List<String> commandArgs;
+    if (commandClass.equals(ScriptedCommand.class)) {
+      commandArgs = line;
+    } else {
+      commandArgs = line.subList(1, line.size());
     }
 
     try {
