@@ -39,9 +39,7 @@ public class PoseCommand extends Command {
         .map(id -> universe.getThing(id))
         .filter(t -> t.isPresent())
         .filter(t -> t.get() instanceof Player)
-        .map(p -> ((Player) p.get()).getCurrentActor())
-        .filter(a -> a.isPresent())
-        .forEach(a -> a.get().sendMessage(message));
+        .forEach(p -> ((Player) p.get()).sendMessage(message));
     return true;
   }
 

@@ -2,7 +2,6 @@ package xyz.deszaras.grounds.command;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import xyz.deszaras.grounds.model.Player;
 
@@ -29,13 +28,8 @@ public class WhisperCommand extends Command {
 
   @Override
   public boolean execute() {
-    Optional<Actor> recipientActor = recipient.getCurrentActor();
-    if (recipientActor.isEmpty()) {
-      actor.sendMessage(player.getName() + " is idle");
-      return false;
-    }
     String fullMessage = String.format(PREFIX + message, player.getName());
-    recipientActor.get().sendMessage(fullMessage);
+    recipient.sendMessage(fullMessage);
     return true;
   }
 

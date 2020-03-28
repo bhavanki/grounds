@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -77,6 +78,20 @@ public class Player extends Thing {
    */
   public void setCurrentActor(Actor actor) {
     this.actor = actor;
+  }
+
+  /**
+   * Sends a message to this player's current actor. The message is
+   * dropped when there is no actor.
+   *
+   * @param message message to send
+   * @throws NullPointerException if the message is null
+   */
+  public void sendMessage(String message) {
+    if (actor == null) {
+      return;
+    }
+    actor.sendMessage(Objects.requireNonNull(message));
   }
 
   /**
