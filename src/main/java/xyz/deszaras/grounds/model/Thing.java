@@ -159,12 +159,17 @@ public class Thing {
   }
 
   /**
-   * Sets this thing's description.
+   * Sets this thing's description. Pass a null description to remove
+   * it.
    *
    * @param description description
    */
   public void setDescription(String description) {
-    setAttr(AttrNames.DESCRIPTION, description);
+    if (description != null) {
+      setAttr(AttrNames.DESCRIPTION, description);
+    } else {
+      removeAttr(AttrNames.DESCRIPTION);
+    }
   }
 
   /**
