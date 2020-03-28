@@ -20,18 +20,13 @@ public class LookCommand extends Command {
 
   @Override
   public boolean execute() {
-    Optional<Attr> locationAttr = player.getAttr(AttrNames.LOCATION);
-    if (locationAttr.isPresent()) {
-      Optional<Place> location = locationAttr.get().getThingValue(Place.class);
-      if (location.isPresent()) {
-        if (!location.get().passes(Category.READ, player)) {
-          actor.sendMessage("You are not permitted to look at where you are");
-          return false;
-        }
-        actor.sendMessage(buildMessage(location.get()));
-      } else {
-        actor.sendMessage("Odd, I can't find where you are");
+    Optional<Place> location = player.getLocation();
+    if (location.isPresent()) {
+      if (!location.get().passes(Category.READ, player)) {
+        actor.sendMessage("You are not permitted to look at where you are");
+        return false;
       }
+      actor.sendMessage(buildMessage(location.get()));
     } else {
       actor.sendMessage("nowhere");
     }

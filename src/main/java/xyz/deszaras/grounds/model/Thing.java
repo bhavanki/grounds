@@ -181,7 +181,19 @@ public class Thing {
    */
   @JsonIgnore
   public Optional<Place> getLocation() {
+    // TBD: what if location is set but cannot be found?
     return getAttr(AttrNames.LOCATION).map(a -> Multiverse.MULTIVERSE.findThing(a.getValue(), Place.class).orElse(null));
+  }
+
+  /**
+   * Sets this thing's location. Pass a null location to remove it.
+   */
+  public void setLocation(Place location) {
+    if (location != null) {
+      setAttr(AttrNames.LOCATION, location);
+    } else {
+      removeAttr(AttrNames.LOCATION);
+    }
   }
 
   /**

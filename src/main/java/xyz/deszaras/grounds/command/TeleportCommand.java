@@ -32,19 +32,14 @@ public class TeleportCommand extends Command {
       return false;
     }
 
-    Optional<Attr> locationAttr = player.getAttr(AttrNames.LOCATION);
-    if (locationAttr.isPresent()) {
-      Optional<Place> source = locationAttr.get().getThingValue(Place.class);
-      if (source.isPresent()) {
-        source.get().take(player);
-        source.get().getUniverse().removeThing(player);
-      }
-    } else {
-      player.getUniverse().removeThing(player);
+    Optional<Place> source = player.getLocation();
+    if (source.isPresent()) {
+      source.get().take(player);
     }
+    player.getUniverse().removeThing(player);
 
     destination.give(player);
-    player.setAttr(AttrNames.LOCATION, destination);
+    player.setLocation(destination);
     player.setUniverse(destination.getUniverse());
     destination.getUniverse().addThing(player);
 

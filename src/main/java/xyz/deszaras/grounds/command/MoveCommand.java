@@ -30,14 +30,9 @@ public class MoveCommand extends Command {
 
   @Override
   public boolean execute() {
-    Optional<Attr> locationAttr = player.getAttr(AttrNames.LOCATION);
-    if (!locationAttr.isPresent()) {
-      actor.sendMessage("You have no current location, so you cannot move elsewhere");
-      return false;
-    }
-    Optional<Place> source = locationAttr.get().getThingValue(Place.class);
+    Optional<Place> source = player.getLocation();
     if (!source.isPresent()) {
-      actor.sendMessage("You have a location, but I can't find that place!");
+      actor.sendMessage("You have no current location, so you cannot move elsewhere");
       return false;
     }
 

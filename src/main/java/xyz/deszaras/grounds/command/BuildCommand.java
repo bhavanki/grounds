@@ -113,7 +113,7 @@ public class BuildCommand extends Command {
       built.setUniverse(universe);
       if (thingType == BuiltInType.THING ||
           thingType == BuiltInType.PLAYER) {
-        built.setAttr(AttrNames.LOCATION, player.getLocation().get());
+        built.setLocation(player.getLocation().get());
         player.getLocation().get().give(built);
       }
       actor.sendMessage("Created " + built.getId());
