@@ -30,13 +30,12 @@ public class TakeCommand extends Command {
     }
 
     Optional<Place> location = thing.getLocation();
-    if (!Role.isWizard(player, thing.getUniverse())) {
-      if (location.isEmpty() ||             // the thing has no location
-          player.getLocation().isEmpty() || // the player has no location
-          !location.get().equals(player.getLocation().get())) {
-        actor.sendMessage("You may only take that if you are in the same location");
+    if (!Role.isWizard(player, thing.getUniverse()) &&
+        (location.isEmpty() ||             // the thing has no location
+         player.getLocation().isEmpty() || // the player has no location
+         !location.get().equals(player.getLocation().get()))) {
+      actor.sendMessage("You may only take that if you are in the same location");
       return false;
-      }
     }
 
     if (location.isPresent()) {
