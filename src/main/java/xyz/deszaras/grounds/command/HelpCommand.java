@@ -21,7 +21,7 @@ public class HelpCommand extends Command {
   public boolean execute() {
     if (commandName.equalsIgnoreCase("commands")) {
       List<String> commandNames =
-          new ArrayList<>(CommandFactory.getCommandNames());
+          new ArrayList<>(CommandExecutor.INSTANCE.getCommandFactory().getCommandNames());
       Collections.sort(commandNames);
       for (String commandName : commandNames) {
         actor.sendMessage(commandName);
@@ -30,7 +30,7 @@ public class HelpCommand extends Command {
     }
 
     Class<? extends Command> commandClass =
-        CommandFactory.getCommandClass(commandName);
+        CommandExecutor.INSTANCE.getCommandFactory().getCommandClass(commandName);
     if (commandClass == null) {
       actor.sendMessage("Unrecognized command " + commandName);
       return false;

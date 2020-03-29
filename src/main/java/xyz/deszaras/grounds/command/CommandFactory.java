@@ -17,52 +17,33 @@ import xyz.deszaras.grounds.model.Player;
  */
 public class CommandFactory {
 
-  private static final Map<String, Class<? extends Command>> COMMANDS;
+  private final Map<String, Class<? extends Command>> commands;
 
-  static {
-    COMMANDS = ImmutableMap.<String, Class<? extends Command>>builder()
-        .put("LOOK", LookCommand.class)
-        .put("L", LookCommand.class)
-        .put("INSPECT", InspectCommand.class)
-        .put("TELEPORT", TeleportCommand.class)
-        .put("TP", TeleportCommand.class)
-        .put("MOVE", MoveCommand.class)
-        .put("GO", MoveCommand.class)
-        .put("G", MoveCommand.class)
-        .put("WHISPER", WhisperCommand.class)
-        .put("POSE", PoseCommand.class)
-        .put("BUILD", BuildCommand.class)
-        .put("SET_ATTR", SetAttrCommand.class)
-        .put("REMOVE_ATTR", RemoveAttrCommand.class)
-        .put("TAKE", TakeCommand.class)
-        .put("GET", TakeCommand.class)
-        .put("DROP", DropCommand.class)
-        .put("INVENTORY", InventoryCommand.class)
-        .put("I", InventoryCommand.class)
-        .put("CLAIM", ClaimCommand.class)
-        .put("ABANDON", AbandonCommand.class)
-        .put("LOAD", LoadCommand.class)
-        .put("SAVE", SaveCommand.class)
-        .put("SWITCH_PLAYER", SwitchPlayerCommand.class)
-        .put("EXIT", ExitCommand.class)
-        .put("HASH_PASSWORD", HashPasswordCommand.class)
-        .put("INDEX", IndexCommand.class)
-        .put("ROLE", RoleCommand.class)
-        .put("ACTOR", ActorCommand.class)
-        .put("SHUTDOWN", ShutdownCommand.class)
-        .put("HELP", HelpCommand.class)
-        .build();
+  public CommandFactory(Map<String, Class<? extends Command>> commands) {
+    this.commands = ImmutableMap.copyOf(commands);
   }
 
-  public static Class<? extends Command> getCommandClass(String commandName) {
-    if (commandName.startsWith("$")) {
+  /**
+   * Gets the class of the command that implements the given command
+   * name.
+   *
+   * @param commandName command name
+   * @return supported command, or null if unsupported
+   */
+  public Class<? extends Command> getCommandClass(String commandName) {
+    if (commandName.startsWith("$")) { // minor wart
       return ScriptedCommand.class;
     }
-    return COMMANDS.get(commandName.toUpperCase());
+    return commands.get(commandName.toUpperCase());
   }
 
-  public static Set<String> getCommandNames() {
-    return COMMANDS.keySet();
+  /**
+   * Gets all of the command names supported by this factory.
+   *
+   * @return supported command names
+   */
+  public Set<String> getCommandNames() {
+    return commands.keySet();
   }
 
   /**

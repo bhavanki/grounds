@@ -1,6 +1,9 @@
 package xyz.deszaras.grounds.command;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
@@ -18,15 +21,61 @@ import xyz.deszaras.grounds.model.Player;
  */
 public class CommandExecutor {
 
+  private static final Map<String, Class<? extends Command>> COMMANDS;
+
+  static {
+    COMMANDS = ImmutableMap.<String, Class<? extends Command>>builder()
+        .put("LOOK", LookCommand.class)
+        .put("L", LookCommand.class)
+        .put("INSPECT", InspectCommand.class)
+        .put("TELEPORT", TeleportCommand.class)
+        .put("TP", TeleportCommand.class)
+        .put("MOVE", MoveCommand.class)
+        .put("GO", MoveCommand.class)
+        .put("G", MoveCommand.class)
+        .put("WHISPER", WhisperCommand.class)
+        .put("POSE", PoseCommand.class)
+        .put("BUILD", BuildCommand.class)
+        .put("SET_ATTR", SetAttrCommand.class)
+        .put("REMOVE_ATTR", RemoveAttrCommand.class)
+        .put("TAKE", TakeCommand.class)
+        .put("GET", TakeCommand.class)
+        .put("DROP", DropCommand.class)
+        .put("INVENTORY", InventoryCommand.class)
+        .put("I", InventoryCommand.class)
+        .put("CLAIM", ClaimCommand.class)
+        .put("ABANDON", AbandonCommand.class)
+        .put("LOAD", LoadCommand.class)
+        .put("SAVE", SaveCommand.class)
+        .put("SWITCH_PLAYER", SwitchPlayerCommand.class)
+        .put("EXIT", ExitCommand.class)
+        .put("HASH_PASSWORD", HashPasswordCommand.class)
+        .put("INDEX", IndexCommand.class)
+        .put("ROLE", RoleCommand.class)
+        .put("ACTOR", ActorCommand.class)
+        .put("SHUTDOWN", ShutdownCommand.class)
+        .put("HELP", HelpCommand.class)
+        .build();
+  }
+
   public static final CommandExecutor INSTANCE =
-      new CommandExecutor(new CommandFactory());
+      new CommandExecutor(new CommandFactory(COMMANDS));
 
   private final CommandFactory commandFactory;
   private final ExecutorService commandExecutorService;
 
   private CommandExecutor(CommandFactory commandFactory) {
-    this.commandFactory = commandFactory;
+    this.commandFactory = Objects.requireNonNull(commandFactory);
     commandExecutorService = Executors.newSingleThreadExecutor();
+  }
+
+  /**
+   * Gets this executor's command factory.
+   *
+   * @return command factory
+   */
+  public CommandFactory getCommandFactory() {
+    return commandFactory;
   }
 
   /**
