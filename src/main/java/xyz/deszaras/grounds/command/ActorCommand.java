@@ -1,131 +1,33 @@
 package xyz.deszaras.grounds.command;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import xyz.deszaras.grounds.command.actor.AddActorCommand;
+import xyz.deszaras.grounds.command.actor.AddPlayerToActorCommand;
+import xyz.deszaras.grounds.command.actor.GetActorCommand;
+import xyz.deszaras.grounds.command.actor.RemovePlayerFromActorCommand;
+import xyz.deszaras.grounds.command.actor.SetActorPasswordCommand;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.ActorDatabase;
-import xyz.deszaras.grounds.server.ActorDatabase.ActorRecord;
-import xyz.deszaras.grounds.server.HashedPasswordAuthenticator;
 
 public class ActorCommand extends Command {
 
-  private final String actionString;
-  private final List<String> actorArgs;
+  private static final Logger LOG = LoggerFactory.getLogger(ActorCommand.class);
 
-  public ActorCommand(Actor actor, Player player, String actionString,
-                      List<String> actorArgs) {
+  public ActorCommand(Actor actor, Player player) {
     super(actor, player);
-    this.actionString = Objects.requireNonNull(actionString);
-    this.actorArgs = ImmutableList.copyOf(Objects.requireNonNull(actorArgs));
   }
 
   @Override
   public boolean execute() {
-    if (!player.equals(Player.GOD)) {
-      actor.sendMessage("Only GOD may work with actors");
-      return false;
-    }
-
-    String username;
-    String password;
-    UUID playerId;
-    boolean result;
-    switch (actionString.toUpperCase()) {
-      case "CREATE":
-      case "ADD":
-        ensureExactActorArgs(actorArgs, 2, "creating");
-        username = actorArgs.get(0);
-        if (!checkIfRoot(username)) {
-          result = false;
-          break;
-        }
-        password = actorArgs.get(1);
-        result =
-            ActorDatabase.INSTANCE.createActorRecord(
-                username,
-                HashedPasswordAuthenticator.hashPassword(password));
-        if (!result) {
-          actor.sendMessage("An actor named " + username + " already exists");
-        }
-        break;
-      case "SET_PASSWORD":
-      case "PASSWORD":
-        ensureExactActorArgs(actorArgs, 2, "setting password for");
-        username = actorArgs.get(0);
-        if (!checkIfRoot(username)) {
-          result = false;
-          break;
-        }
-        password = actorArgs.get(1);
-        result = ActorDatabase.INSTANCE.updateActorRecord(
-            username,
-            r -> r.setPassword(HashedPasswordAuthenticator.hashPassword(password)));
-        if (!result) {
-          actor.sendMessage("I could not find the actor named " + username);
-        }
-        break;
-      case "ADD_PLAYER":
-        ensureExactActorArgs(actorArgs, 2, "adding player for");
-        username = actorArgs.get(0);
-        if (!checkIfRoot(username)) {
-          result = false;
-          break;
-        }
-        playerId = UUID.fromString(actorArgs.get(1));
-        result = ActorDatabase.INSTANCE.updateActorRecord(
-            username,
-            r -> r.addPlayer(playerId));
-        if (!result) {
-          actor.sendMessage("I could not find the actor named " + username);
-        }
-        break;
-      case "REMOVE_PLAYER":
-        ensureExactActorArgs(actorArgs, 2, "removing player for");
-        username = actorArgs.get(0);
-        if (!checkIfRoot(username)) {
-          result = false;
-          break;
-        }
-        playerId = UUID.fromString(actorArgs.get(1));
-        result = ActorDatabase.INSTANCE.updateActorRecord(
-            username,
-            r -> r.removePlayer(playerId));
-        if (!result) {
-          actor.sendMessage("I could not find the actor named " + username);
-        }
-        break;
-      case "GET":
-        ensureExactActorArgs(actorArgs, 1, "getting");
-        username = actorArgs.get(0);
-        checkIfRoot(username);
-        Optional<ActorRecord> actorRecord =
-            ActorDatabase.INSTANCE.getActorRecord(username);
-        if (actorRecord.isPresent()) {
-          actor.sendMessage(actorRecord.get().toString());
-          result = true;
-        } else {
-          actor.sendMessage("I could not find the actor named " + username);
-          result = false;
-        }
-        break;
-      default:
-        throw new IllegalArgumentException("Unsupported actor command " + actionString);
-    }
-
-    return true;
+    throw new UnsupportedOperationException("This is a composite command");
   }
 
-  private static void ensureExactActorArgs(List<String> l, int n, String action) {
-    if (l.size() != n) {
-      throw new IllegalArgumentException("For " + action + " actor, expected " + n +
-                                         " arguments, got " + l.size());
-    }
-  }
-
-  private boolean checkIfRoot(String username) {
+  public static boolean checkIfRoot(Actor actor, String username) {
     if (Actor.ROOT.getUsername().equals(username)) {
       actor.sendMessage("Sorry, you may not work with the root actor");
       return false;
@@ -133,13 +35,38 @@ public class ActorCommand extends Command {
     return true;
   }
 
-  public static ActorCommand newCommand(Actor actor, Player player,
-                                        List<String> commandArgs)
-      throws CommandFactoryException {
-    ensureMinArgs(commandArgs, 2);
-    String actionString = commandArgs.get(0);
-    List<String> actorArgs = commandArgs.subList(1, commandArgs.size());
-    return new ActorCommand(actor, player, actionString, actorArgs);
+  public static boolean saveActorDatabase(Actor actor) {
+    try {
+      ActorDatabase.INSTANCE.save();
+      return true;
+    } catch (IOException e) {
+      LOG.error("Failed to save actor database", e);
+      actor.sendMessage("Failed to save actor database, check the logs");
+    }
+    return false;
   }
 
+  private static final Map<String, Class<? extends Command>> ACTOR_COMMANDS;
+
+  static {
+    ACTOR_COMMANDS = ImmutableMap.<String, Class<? extends Command>>builder()
+        .put("CREATE", AddActorCommand.class)
+        .put("ADD", AddActorCommand.class)
+        .put("SET_PASSWORD", SetActorPasswordCommand.class)
+        .put("PASSWORD", SetActorPasswordCommand.class)
+        .put("GET", GetActorCommand.class)
+        .put("ADD_PLAYER", AddPlayerToActorCommand.class)
+        .put("REMOVE_PLAYER", RemovePlayerFromActorCommand.class)
+        .build();
+  }
+
+  private static final CommandFactory ACTOR_COMMAND_FACTORY =
+      new CommandFactory(ACTOR_COMMANDS);
+
+  public static Command newCommand(Actor actor, Player player,
+                                   List<String> commandArgs)
+      throws CommandFactoryException {
+    ensureMinArgs(commandArgs, 1);
+    return ACTOR_COMMAND_FACTORY.getCommand(actor, player, commandArgs);
+  }
 }
