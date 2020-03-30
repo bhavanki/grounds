@@ -108,24 +108,19 @@ public class ScriptedCommand extends Command {
     // Find the attribute defining the command. It must be attached
     // to an extension in the player's universe and have an attribute
     // list as a value.
-    Attr commandAttr = null;
+    Optional<Attr> commandAttr = Optional.empty();
     // this is inefficient :(
     for (Extension extension : player.getUniverse().getThings(Extension.class)) {
-      for (Attr attr : extension.getAttrs()) {
-        if (attr.getName().equals(commandName) &&
-            attr.getType() == Attr.Type.ATTRLIST) {
-          commandAttr = attr; break;
-        }
-      }
-      if (commandAttr != null) {
+      commandAttr = extension.getAttr(commandName, Attr.Type.ATTRLIST);
+      if (commandAttr.isPresent()) {
         break;
       }
     }
-    if (commandAttr == null) {
+    if (commandAttr.isEmpty()) {
       throw new CommandFactoryException("Failed to locate command");
     }
 
-    List<Attr> commandAttrs = commandAttr.getAttrListValue();
+    List<Attr> commandAttrs = commandAttr.get().getAttrListValue();
 
     // Get the script from the attribute list.
     Optional<Attr> scriptAttr = commandAttrs.stream()

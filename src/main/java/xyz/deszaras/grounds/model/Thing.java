@@ -243,7 +243,7 @@ public class Thing {
   }
 
   /**
-   * Gets one of this thing's attributes.
+   * Gets one of this thing's attributes by name.
    *
    * @param name attribute name
    * @return attribute, or null if not present
@@ -252,6 +252,21 @@ public class Thing {
     synchronized (attrMonitor) {
       return Optional.ofNullable(attrs.get(name));
     }
+  }
+
+  /**
+   * Gets one of this thing's attributes by name and type.
+   *
+   * @param name attribute name
+   * @param type attribute type
+   * @return attribute, or null if not present
+   */
+  public final Optional<Attr> getAttr(String name, Attr.Type type) {
+    Optional<Attr> attr = getAttr(name);
+    if (attr.isPresent() && attr.get().getType() == type) {
+      return attr;
+    }
+    return Optional.empty();
   }
 
   /**
