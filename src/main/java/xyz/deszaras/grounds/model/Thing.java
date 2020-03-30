@@ -60,7 +60,6 @@ public class Thing {
 
   private final UUID id;
   private final Map<String, Attr> attrs;
-  // private final AccessRuleKeeper accessRuleKeeper;
   private final Set<UUID> contents;
   private final Policy policy;
 
