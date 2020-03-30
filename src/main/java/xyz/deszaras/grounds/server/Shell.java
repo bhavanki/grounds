@@ -4,13 +4,10 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
@@ -29,6 +26,7 @@ import xyz.deszaras.grounds.command.ShutdownCommand;
 import xyz.deszaras.grounds.command.SwitchPlayerCommand;
 import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.util.CommandLineUtils;
 
 /**
  * A shell interface for an actor. When run, a shell receives and
@@ -112,11 +110,6 @@ public class Shell implements Runnable {
     return exitedWithShutdown;
   }
 
-  // https://stackoverflow.com/questions/366202/regex-for-splitting-a-string-using-space-when-not-surrounded-by-single-or-double
-  // This doesn't obey escaped quotes, though.
-  private static final Pattern TOKENIZE_PATTERN =
-      Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
-
   /**
    * Preprocesses a line in order to expand special command aliases.
    *
@@ -136,32 +129,6 @@ public class Shell implements Runnable {
     }
 
     return line;
-  }
-
-  /**
-   * Splits a line of text into tokens. Generally, tokens are separated
-   * by whitespace, but text surrounded by single or double quotes
-   * is kept together as a single token (without the quotes).
-   *
-   * @param line line of text
-   * @return tokens in line
-   */
-  @VisibleForTesting
-  static List<String> tokenize(String line) {
-    List<String> tokens = new ArrayList<>();
-    Matcher m = TOKENIZE_PATTERN.matcher(line);
-    while (m.find()) {
-      if (m.group(1) != null) {
-        // quotation marks
-        tokens.add(m.group(1));
-      } else if (m.group(2) != null) {
-        // apostrophes
-        tokens.add(m.group(2));
-      } else {
-        tokens.add(m.group());
-      }
-    }
-    return tokens;
   }
 
   @Override
@@ -195,7 +162,7 @@ public class Shell implements Runnable {
           break;
         }
         line = preprocess(line, player);
-        List<String> tokens = tokenize(line);
+        List<String> tokens = CommandLineUtils.tokenize(line);
         prePrompt = "√ ";
         if (!tokens.isEmpty()) {
 
