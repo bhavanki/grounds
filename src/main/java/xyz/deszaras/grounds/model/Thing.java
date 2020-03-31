@@ -22,6 +22,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.deszaras.grounds.auth.Policy;
 import xyz.deszaras.grounds.auth.Role;
+import xyz.deszaras.grounds.script.Script;
+import xyz.deszaras.grounds.script.ScriptCallable;
+import xyz.deszaras.grounds.script.ScriptFactory;
+import xyz.deszaras.grounds.script.ScriptFactoryException;
+import xyz.deszaras.grounds.util.ArgumentResolverException;
+import xyz.deszaras.grounds.util.CommandLineUtils;
 
 /**
  * A thing that exists in the world.
@@ -543,6 +549,40 @@ public class Thing {
     LOG.debug("Permission check: category {}, player {}/{}, roles {}, result {}",
               category, player.getName(), player.getId(), playerRoles, result);
     return result;
+  }
+
+  /**
+   * Sends a message to this thing. The default implementation looks
+   * for a matching listener attribute and, if found, executes it.
+   *
+   * @param message message to send
+   * @return return value of listener if present, otherwise false
+   * @throws NullPointerException if the message is null
+   */
+  public boolean sendMessage(String message) {
+    Objects.requireNonNull(message);
+    if (!message.startsWith("^")) {
+      return false;
+    }
+    List<String> messageTokens = CommandLineUtils.tokenize(message);
+
+    String listenerName = messageTokens.get(0);
+    Optional<Attr> listenerAttr = getAttr(listenerName, Attr.Type.ATTRLIST);
+    if (listenerAttr.isEmpty()) {
+      return false;
+    }
+    List<String> scriptArguments =
+        messageTokens.subList(1, messageTokens.size());
+
+    try {
+      Script script = new ScriptFactory().newScript(listenerAttr.get());
+      List<Object> resolvedArguments =
+          script.resolveScriptArguments(scriptArguments, this);
+      return new ScriptCallable(this, script, resolvedArguments).call();
+    } catch (ArgumentResolverException | ScriptFactoryException e) {
+      // do somethin
+      return false;
+    }
   }
 
   @Override

@@ -57,7 +57,7 @@ $ mvn package
 ## Plans
 
 * OOC messaging and chat system
-* Scripted ("softcode") commands
+* Scripted ("softcode") commands - in progress!
 * A combat system
 * Colors!
 * More fun stuff

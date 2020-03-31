@@ -85,13 +85,16 @@ public class Player extends Thing {
    * dropped when there is no actor.
    *
    * @param message message to send
+   * @return false, because players don't have listeners
    * @throws NullPointerException if the message is null
    */
-  public void sendMessage(String message) {
+  @Override
+  public boolean sendMessage(String message) {
     if (actor == null) {
-      return;
+      return false;
     }
     actor.sendMessage(Objects.requireNonNull(message));
+    return false;
   }
 
   /**
