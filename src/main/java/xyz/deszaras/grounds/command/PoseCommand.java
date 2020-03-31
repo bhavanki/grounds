@@ -17,6 +17,8 @@ import xyz.deszaras.grounds.model.Universe;
  */
 public class PoseCommand extends Command {
 
+  private static final String POSE_FORMAT = "` %s";
+
   private final String message;
 
   public PoseCommand(Actor actor, Player player, String message) {
@@ -34,12 +36,14 @@ public class PoseCommand extends Command {
 
     // TBD check permission for posing in location?
 
+    String poseMessage = String.format(POSE_FORMAT, message);
+
     Universe universe = location.get().getUniverse();
     location.get().getContents().stream()
         .map(id -> universe.getThing(id))
         .filter(t -> t.isPresent())
         .filter(t -> t.get() instanceof Player)
-        .forEach(p -> ((Player) p.get()).sendMessage(message));
+        .forEach(p -> ((Player) p.get()).sendMessage(poseMessage));
     return true;
   }
 

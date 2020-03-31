@@ -19,6 +19,8 @@ import xyz.deszaras.grounds.model.Universe;
  */
 public class SayCommand extends Command {
 
+  private static final String SAY_FORMAT = "> %s says: %s";
+
   private final String message;
 
   public SayCommand(Actor actor, Player player, String message) {
@@ -36,7 +38,7 @@ public class SayCommand extends Command {
 
     // TBD check permission for posing in location?
 
-    String sayMessage = player.getName() + " says: " + message;
+    String sayMessage = String.format(SAY_FORMAT, player.getName(), message);
 
     Universe universe = location.get().getUniverse();
     location.get().getContents().stream()

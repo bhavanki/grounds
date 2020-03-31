@@ -16,7 +16,7 @@ import xyz.deszaras.grounds.model.Thing;
  */
 public class WhisperCommand extends Command {
 
-  private static final String PREFIX = "Whisper from %s: ";
+  private static final String WHISPER_FORMAT = "~ %s whispers: %s";
 
   private final Thing recipient;
   private final String message;
@@ -30,7 +30,7 @@ public class WhisperCommand extends Command {
 
   @Override
   public boolean execute() {
-    String fullMessage = String.format(PREFIX + message, player.getName());
+    String fullMessage = String.format(WHISPER_FORMAT, player.getName(), message);
     recipient.sendMessage(fullMessage);
     return true;
   }
