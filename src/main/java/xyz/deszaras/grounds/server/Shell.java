@@ -122,10 +122,15 @@ public class Shell implements Runnable {
       return line;
     }
 
-    // Use ':' as alias for a POSE command starting with the player's
+    // Use ':' as an alias for a POSE command starting with the player's
     // name.
     if (line.startsWith(":")) {
       return "POSE " + player.getName() + " " + line.substring(1);
+    }
+
+    // Use 'OOC' (case-insensitive) as an alias for 'SAY _ooc_'.
+    if (line.toUpperCase().startsWith("OOC ")) {
+      return "SAY _ooc_ " + line.substring(4);
     }
 
     return line;
