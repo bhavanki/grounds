@@ -46,7 +46,7 @@ public class SetAttrCommand extends Command {
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 2);
     Thing setThing =
-        ArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Thing.class, player);
+        CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Thing.class, player);
     try {
       Attr attr = Attr.fromAttrSpec(commandArgs.get(1));
       return new SetAttrCommand(actor, player, setThing, attr);

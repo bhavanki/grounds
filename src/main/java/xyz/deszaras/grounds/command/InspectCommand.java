@@ -35,7 +35,7 @@ public class InspectCommand extends Command {
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
     Thing thing =
-        ArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Thing.class, player);
+        CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Thing.class, player);
     return new InspectCommand(actor, player, thing);
   }
 }

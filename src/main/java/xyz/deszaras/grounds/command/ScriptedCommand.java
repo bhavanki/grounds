@@ -163,15 +163,15 @@ public class ScriptedCommand extends Command {
               break;
             case THING:
               commandArguments.add(
-                  ArgumentResolver.INSTANCE.resolve(currentCommandArg, Thing.class, player));
+                  CommandArgumentResolver.INSTANCE.resolve(currentCommandArg, Thing.class, player));
               break;
             case PLAYER:
               commandArguments.add(
-                  ArgumentResolver.INSTANCE.resolve(currentCommandArg, Player.class, player));
+                  CommandArgumentResolver.INSTANCE.resolve(currentCommandArg, Player.class, player));
               break;
             case PLACE:
               commandArguments.add(
-                  ArgumentResolver.INSTANCE.resolve(currentCommandArg, Place.class, player));
+                  CommandArgumentResolver.INSTANCE.resolve(currentCommandArg, Place.class, player));
               break;
             default:
               throw new IllegalStateException("Unsupported argument type " + argType);

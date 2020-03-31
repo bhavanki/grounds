@@ -1,4 +1,4 @@
-package xyz.deszaras.grounds.command;
+package xyz.deszaras.grounds.util;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -12,31 +12,31 @@ import xyz.deszaras.grounds.model.Thing;
 import xyz.deszaras.grounds.model.Universe;
 
 /**
- * Resolves string command arguments into things. Resolution only works
- * within a player's universe.<p>
+ * Resolves string command arguments into things, in the context of
+ * another "context thing" like a player. Resolution only works within the
+ * context thing's universe.<p>
  *
  * <ul>
  * <li>A string that appears to be a UUID is treated as a thing's ID;
  *     otherwise, it is treated as a thing's name, or as a special value
  *     as described next.</li>
- * <li>The string "me" resolves to the player.</li>
- * <li>The string "here" resolves to the player's location.</li>
- * <li>The resolver looks through the player's contents for a name / ID
- *     match.</li>
- * <li>If no player contents match, the resolver looks through the things
- *     that share the player's location.</li>
- * <li>If no nearby things match, and the player is GOD or a wizard, and
- *     tthe thing is specified by an ID, then the resolver falls back to
- *     looking throughout the player's current universe.
+ * <li>The string "me" resolves to the context thing (if the types are
+ *     compatible).</li>
+ * <li>The string "here" resolves to the context thing's location.</li>
+ * <li>The resolver looks through the context things's contents for a
+ *     name / ID match.</li>
+ * <li>If no contents match, the resolver looks through the things that
+ *     share the context things's location.</li>
+ * <li>If no nearby things match, and the thing is the GOD player is a
+ *     wizard, and the thing being resolved is specified by an ID, then
+ *     the resolver falls back to looking throughout the context thing's
+ *     universe.
  * <li>If two things in a set have a matching name, the resolver picks
  *     an arbitrary one.</li>
  * </ul>
  *
  * For non-contextual resolution of things by ID, use
  * {@link Universe#getThing(UUID)} and/or {@link Multiverse#findThing(UUID)}.<p>
- *
- * Resolution failure results in throwing {@link CommandFactoryException},
- * since resolution is used while building commands.
  */
 public class ArgumentResolver {
 
@@ -61,36 +61,36 @@ public class ArgumentResolver {
    *
    * @param nameOrId name or UUID string for a thing
    * @param type expected type of thing to resolve
-   * @param player player providing context for resolution
+   * @param context thing providing context for resolution
    * @return resolved thing
-   * @throws CommandFactoryException if the thing cannot be resolved
+   * @throws ArgumentResolverException if the thing cannot be resolved
    */
   public <T extends Thing> T resolve(String nameOrId,
-      Class<T> type, Player player) throws CommandFactoryException {
+      Class<T> type, Thing context) throws ArgumentResolverException {
 
     if (UUID_PATTERN.matcher(nameOrId).matches()) {
-      return resolve(UUID.fromString(nameOrId), type, player);
+      return resolve(UUID.fromString(nameOrId), type, context);
     }
     String name = nameOrId;
 
-    if (name.equalsIgnoreCase(ME) && type.isAssignableFrom(Player.class)) {
-      LOG.debug("Resolved {} to {} {}", name, type.getSimpleName(), player.getId());
-      return type.cast(player);
+    if (name.equalsIgnoreCase(ME) && type.isAssignableFrom(context.getClass())) {
+      LOG.debug("Resolved {} to {} {}", name, type.getSimpleName(), context.getId());
+      return type.cast(context);
     }
 
-    Optional<Place> location = player.getLocation();
+    Optional<Place> location = context.getLocation();
     if (name.equalsIgnoreCase(HERE) && type.isAssignableFrom(Place.class) &&
         location.isPresent()) {
       LOG.debug("Resolved {} to {} {}", name, type.getSimpleName(), location.get().getId());
       return type.cast(location.get());
     }
 
-    Universe universe = player.getUniverse();
+    Universe universe = context.getUniverse();
 
     Optional<T> contentThing = resolveAmong(name, null, type, universe,
-                                            player.getContents());
+                                            context.getContents());
     if (contentThing.isPresent()) {
-      LOG.debug("Resolved {} to {} {} in player contents",
+      LOG.debug("Resolved {} to {} {} in context thing's contents",
                 name, type.getSimpleName(), contentThing.get().getId());
       return contentThing.get();
     }
@@ -105,7 +105,7 @@ public class ArgumentResolver {
       }
     }
 
-    throw new CommandFactoryException("I don't see anything named " + name);
+    throw new ArgumentResolverException("I don't see anything named " + name);
   }
 
   /**
@@ -113,30 +113,30 @@ public class ArgumentResolver {
    *
    * @param id id for a thing
    * @param type expected type of thing to resolve
-   * @param player player providing context for resolution
+   * @param context thing providing context for resolution
    * @return resolved thing
-   * @throws CommandFactoryException if the thing cannot be resolved
+   * @throws ArgumentResolverException if the thing cannot be resolved
    */
-  public <T extends Thing> T resolve(UUID id,
-      Class<T> type, Player player) throws CommandFactoryException {
-    if (id.equals(player.getId()) && type.equals(Player.class)) {
-      LOG.debug("Resolved {} to {} {}", id, type.getSimpleName(), player.getId());
-      return type.cast(player);
+  public <T extends Thing> T resolve(UUID id, Class<T> type,
+        Thing context) throws ArgumentResolverException {
+    if (id.equals(context.getId()) && type.isAssignableFrom(context.getClass())) {
+      LOG.debug("Resolved {} to {} {}", id, type.getSimpleName(), context.getId());
+      return type.cast(context);
     }
 
-    Optional<Place> location = player.getLocation();
+    Optional<Place> location = context.getLocation();
     if (location.isPresent() && id.equals(location.get().getId()) &&
         type.equals(Place.class)) {
       LOG.debug("Resolved {} to {} {}", id, type.getSimpleName(), location.get().getId());
       return type.cast(location.get());
     }
 
-    Universe universe = player.getUniverse();
+    Universe universe = context.getUniverse();
 
     Optional<T> contentThing = resolveAmong(null, id, type, universe,
-                                            player.getContents());
+                                            context.getContents());
     if (contentThing.isPresent()) {
-      LOG.debug("Resolved {} to {} {} in player contents",
+      LOG.debug("Resolved {} to {} {} in context thing's contents",
                 id, type.getSimpleName(), contentThing.get().getId());
       return contentThing.get();
     }
@@ -151,7 +151,8 @@ public class ArgumentResolver {
       }
     }
 
-    if (Role.isWizard(player)) {
+    // TBD: allow for wizard things, not just players
+    if (context instanceof Player && Role.isWizard((Player) context)) {
       Optional<T> finalThing = universe.getThing(id, type);
       if (finalThing.isPresent()) {
         LOG.debug("Resolved {} to {} {} in universe",
@@ -160,7 +161,7 @@ public class ArgumentResolver {
       }
     }
 
-    throw new CommandFactoryException("I don't see anything with ID " + id);
+    throw new ArgumentResolverException("I don't see anything with ID " + id);
   }
 
   private <T extends Thing> Optional<T> resolveAmong(String name,

@@ -5,8 +5,8 @@ import java.util.Objects;
 import java.util.Set;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.Actor;
-import xyz.deszaras.grounds.command.ArgumentResolver;
 import xyz.deszaras.grounds.command.Command;
+import xyz.deszaras.grounds.command.CommandArgumentResolver;
 import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.command.RoleCommand;
 import xyz.deszaras.grounds.model.Player;
@@ -43,7 +43,7 @@ public class GetRolesCommand extends Command {
     ensureMinArgs(commandArgs, 1);
 
     Player targetPlayer =
-        ArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Player.class, player);
+        CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Player.class, player);
 
     return new GetRolesCommand(actor, player, targetPlayer);
   }

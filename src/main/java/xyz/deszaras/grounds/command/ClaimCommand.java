@@ -57,7 +57,7 @@ public class ClaimCommand extends Command {
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
     Thing claimedThing =
-        ArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Thing.class, player);
+        CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Thing.class, player);
     return new ClaimCommand(actor, player, claimedThing);
   }
 }

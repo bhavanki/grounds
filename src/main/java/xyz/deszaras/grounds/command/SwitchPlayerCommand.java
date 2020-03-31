@@ -43,7 +43,7 @@ public class SwitchPlayerCommand extends Command {
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
     Player newPlayer =
-        ArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Player.class, player);
+        CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Player.class, player);
     return new SwitchPlayerCommand(actor, player, newPlayer);
   }
 }

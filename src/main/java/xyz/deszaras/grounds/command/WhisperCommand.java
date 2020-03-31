@@ -38,7 +38,7 @@ public class WhisperCommand extends Command {
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 2);
     Player recipientPlayer =
-        ArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Player.class, player);
+        CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Player.class, player);
     String message = commandArgs.subList(1, commandArgs.size())
         .stream()
         .collect(Collectors.joining(" "));

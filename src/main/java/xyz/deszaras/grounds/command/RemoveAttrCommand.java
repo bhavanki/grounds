@@ -45,7 +45,7 @@ public class RemoveAttrCommand extends Command {
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 2);
     Thing removeThing =
-        ArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Thing.class, player);
+        CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Thing.class, player);
     String attrName = commandArgs.get(1);
     return new RemoveAttrCommand(actor, player, removeThing, attrName);
   }
