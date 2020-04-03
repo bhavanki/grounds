@@ -2,9 +2,7 @@ package xyz.deszaras.grounds.command;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import java.util.Optional;
 import xyz.deszaras.grounds.model.Attr;
-import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.script.Script;
 import xyz.deszaras.grounds.script.ScriptCallable;
@@ -46,32 +44,24 @@ public class ScriptedCommand extends Command {
     return new ScriptCallable(player, script, scriptArguments).call();
   }
 
-  public static ScriptedCommand newCommand(Actor actor, Player player,
-                                           List<String> commandArgs)
+  /**
+   * Creates a new scripted command from a script attribute and arguments. Note
+   * that this method does not have the signature expected by
+   * {@link CommandFactory}.
+   *
+   * @param actor actor submitting the command
+   * @param player player currently assumed by the actor
+   * @param scriptAttr attribute defining the script to run
+   * @param scriptArguments unresolved script arguments
+   * @return scripted command
+   * @throws CommandFactoryException if the command cannot be built
+   */
+  public static ScriptedCommand newCommand(Actor actor, Player player, Attr scriptAttr,
+                                           List<String> scriptArguments)
       throws CommandFactoryException {
-    ensureMinArgs(commandArgs, 1);
-    String commandName = commandArgs.get(0);
-    List<String> scriptArguments =
-      commandArgs.subList(1, commandArgs.size());
-
-    // Find the attribute defining the command. It must be attached
-    // to an extension in the player's universe and have an attribute
-    // list as a value.
-    Optional<Attr> commandAttr = Optional.empty();
-    // this is inefficient :(
-    for (Extension extension : player.getUniverse().getThings(Extension.class)) {
-      commandAttr = extension.getAttr(commandName, Attr.Type.ATTRLIST);
-      if (commandAttr.isPresent()) {
-        break;
-      }
-    }
-    if (commandAttr.isEmpty()) {
-      throw new CommandFactoryException("Failed to locate command");
-    }
-
     try {
       // Build a script from the command attribute.
-      Script script = new ScriptFactory().newScript(commandAttr.get());
+      Script script = new ScriptFactory().newScript(scriptAttr);
 
       // Resolve the script arguments.
       List<Object> resolvedArguments =

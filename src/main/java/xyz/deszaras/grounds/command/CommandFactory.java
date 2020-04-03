@@ -5,7 +5,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import xyz.deszaras.grounds.model.Attr;
+import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Player;
 
 /**
@@ -31,9 +34,6 @@ public class CommandFactory {
    * @return supported command, or null if unsupported
    */
   public Class<? extends Command> getCommandClass(String commandName) {
-    if (commandName.startsWith("$")) { // minor wart
-      return ScriptedCommand.class;
-    }
     return commands.get(commandName.toUpperCase());
   }
 
@@ -52,6 +52,7 @@ public class CommandFactory {
    * @param actor actor submitting the command
    * @param player player currently assumed by the actor
    * @param line command line entered in the shell
+   * @return command
    * @throws CommandFactoryException if the command cannot be built
    */
   public Command getCommand(Actor actor, Player player, List<String> line)
@@ -61,19 +62,15 @@ public class CommandFactory {
     }
     String commandName = line.get(0);
 
+    if (commandName.startsWith("$")) {
+      return newScriptedCommand(actor, player, line);
+    }
+
     Class<? extends Command> commandClass = getCommandClass(commandName);
     if (commandClass == null) {
       throw new CommandFactoryException("Unrecognized command " + commandName);
     }
-
-    // For scripted commands, the command name needs to be passed along
-    // with everything else.
-    List<String> commandArgs;
-    if (commandClass.equals(ScriptedCommand.class)) {
-      commandArgs = line;
-    } else {
-      commandArgs = line.subList(1, line.size());
-    }
+    List<String> commandArgs = line.subList(1, line.size());
 
     try {
       Method newCommandMethod =
@@ -87,5 +84,38 @@ public class CommandFactory {
     } catch (InvocationTargetException e) {
       throw new CommandFactoryException("Failed to create new command", e.getCause());
     }
+  }
+
+  /**
+   * Gets a scripted command. This method hunts for the script attribute
+   * defining the command among all extensions in the player's universe.
+   *
+   * @param actor actor submitting the command
+   * @param player player currently assumed by the actor
+   * @param line command line entered in the shell
+   * @return scripted command
+   * @throws CommandFactoryException if the command cannot be built
+   */
+  private ScriptedCommand newScriptedCommand(Actor actor, Player player, List<String> line)
+      throws CommandFactoryException {
+    String commandName = line.get(0);
+    List<String> scriptArguments = line.subList(1, line.size());
+
+    // Find the attribute defining the command. It must be attached
+    // to an extension in the player's universe and have an attribute
+    // list as a value.
+    Optional<Attr> scriptAttr = Optional.empty();
+    // this is inefficient :(
+    for (Extension extension : player.getUniverse().getThings(Extension.class)) {
+      scriptAttr = extension.getAttr(commandName, Attr.Type.ATTRLIST);
+      if (scriptAttr.isPresent()) {
+        break;
+      }
+    }
+    if (scriptAttr.isEmpty()) {
+      throw new CommandFactoryException("Failed to locate script attribute for command " + commandName);
+    }
+
+    return ScriptedCommand.newCommand(actor, player, scriptAttr.get(), scriptArguments);
   }
 }
