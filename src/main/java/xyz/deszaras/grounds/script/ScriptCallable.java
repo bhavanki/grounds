@@ -6,6 +6,7 @@ import groovy.lang.GroovyShell;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+import org.codehaus.groovy.control.CompilerConfiguration;
 import xyz.deszaras.grounds.model.Thing;
 
 /**
@@ -47,16 +48,22 @@ public class ScriptCallable implements Callable<Boolean> {
   @Override
   public Boolean call() {
     // Create a binding for the script, including caller
-    // and each argument.
+    // and each argument. TBD: wrap for security
     Binding binding = new Binding();
-    binding.setProperty("caller", caller);
     for (int i = 0; i < scriptArguments.size(); i++) {
       binding.setProperty("arg" + i, scriptArguments.get(i));
     }
 
-    // Evaluate the script in a Groovy shell.
-    GroovyShell commandShell = new GroovyShell(binding);
-    Object result = commandShell.evaluate(script.getContent());
+    // Compile the script in a Groovy shell.
+    CompilerConfiguration compilerConfig = new CompilerConfiguration();
+    compilerConfig.setScriptBaseClass(GroundsScript.class.getName());
+
+    GroovyShell commandShell = new GroovyShell(binding, compilerConfig);
+    GroundsScript gscript = (GroundsScript) commandShell.parse(script.getContent());
+    gscript.setCaller(caller);
+
+    // Run it!
+    Object result = gscript.run();
 
     // Derive a return value.
     if (result instanceof Boolean) {
