@@ -23,7 +23,7 @@ public class CommandCallable implements Callable<CommandResult> {
    * @param commandLine command line entered in the shell
    */
   public CommandCallable(Actor actor, Player player, List<String> commandLine,
-                          CommandFactory commandFactory) {
+                         CommandFactory commandFactory) {
     this.actor = actor;
     this.player = player;
     this.commandLine = commandLine;
