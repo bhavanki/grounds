@@ -22,11 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.deszaras.grounds.auth.Policy;
 import xyz.deszaras.grounds.auth.Role;
-import xyz.deszaras.grounds.script.Script;
-import xyz.deszaras.grounds.script.ScriptCallable;
-import xyz.deszaras.grounds.script.ScriptFactory;
-import xyz.deszaras.grounds.script.ScriptFactoryException;
-import xyz.deszaras.grounds.util.ArgumentResolverException;
+import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.util.CommandLineUtils;
 
 /**
@@ -553,36 +549,36 @@ public class Thing {
 
   /**
    * Sends a message to this thing. The default implementation looks
-   * for a matching listener attribute and, if found, executes it.
+   * for matching listener attributes and, for each found, executes its command.
    *
    * @param message message to send
-   * @return return value of listener if present, otherwise false
+   * @return true if at least one listener was found
    * @throws NullPointerException if the message is null
    */
   public boolean sendMessage(String message) {
     Objects.requireNonNull(message);
-    if (!message.startsWith("^")) {
-      return false;
-    }
-    List<String> messageTokens = CommandLineUtils.tokenize(message);
 
-    String listenerName = messageTokens.get(0);
-    Optional<Attr> listenerAttr = getAttr(listenerName, Attr.Type.ATTRLIST);
-    if (listenerAttr.isEmpty()) {
+    Set<Attr> listenerAttrs = new HashSet<>();
+    for (Attr attr : getAttrs()) {
+      if (attr.getType() == Attr.Type.ATTRLIST && attr.isListener()) {
+        listenerAttrs.add(attr);
+      }
+    }
+    if (listenerAttrs.isEmpty()) {
       return false;
     }
-    List<String> scriptArguments =
-        messageTokens.subList(1, messageTokens.size());
 
-    try {
-      Script script = new ScriptFactory().newScript(listenerAttr.get());
-      List<Object> resolvedArguments =
-          script.resolveScriptArguments(scriptArguments, this);
-      return new ScriptCallable(this, script, resolvedArguments).call();
-    } catch (ArgumentResolverException | ScriptFactoryException e) {
-      // do somethin
-      return false;
+    for (Attr listenerAttr : listenerAttrs) {
+      // Check the message against the listener pattern from the attribute.
+      if (!message.matches(listenerAttr.getListenerPattern())) {
+        continue;
+      }
+
+      List<String> commandLine = CommandLineUtils.tokenize(listenerAttr.getListenerCommandLine());
+      // TBD: need to get actor and player
+      CommandExecutor.INSTANCE.submit(null, null, commandLine);
     }
+    return true;
   }
 
   @Override
