@@ -1,18 +1,24 @@
 package xyz.deszaras.grounds.script;
 
 import groovy.lang.Script;
-import xyz.deszaras.grounds.model.Thing;
+import xyz.deszaras.grounds.command.Actor;
+import xyz.deszaras.grounds.model.Player;
 
 public abstract class GroundsScript extends Script {
 
-  private Thing caller;
+  private Actor actor;
+  private Player player;
 
-  public void setCaller(Thing caller) {
-    this.caller = caller;
+  public void setActor(Actor actor) {
+    this.actor = actor;
+  }
+
+  public void setPlayer(Player player) {
+    this.player = player;
   }
 
   public void sendMessageToCaller(String message) {
-    caller.sendMessage(message);
+    player.sendMessage(message);
   }
 
 }

@@ -7,27 +7,31 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import org.codehaus.groovy.control.CompilerConfiguration;
-import xyz.deszaras.grounds.model.Thing;
+import xyz.deszaras.grounds.command.Actor;
+import xyz.deszaras.grounds.model.Player;
 
 /**
  * A callable for executing a {@link Script}. Groovy is supported.
  */
 public class ScriptCallable implements Callable<Boolean> {
 
-  private final Thing caller;
+  private final Actor actor;
+  private final Player player;
   private final Script script;
-  private final List<Object> scriptArguments;
+  private final List<String> scriptArguments;
 
   /**
    * Creates a new callable.
    *
-   * @param caller thing executing the script (often a player)
+   * @param actor actor executing the script
+   * @param player player executing the script
    * @param script script to execute
-   * @param scriptArguments resolved script arguments
+   * @param scriptArguments arguments to pass to the script
    * @throws NullPointerException if any argument is null
    */
-  public ScriptCallable(Thing caller, Script script, List<Object> scriptArguments) {
-    this.caller = Objects.requireNonNull(caller);
+  public ScriptCallable(Actor actor, Player player, Script script, List<String> scriptArguments) {
+    this.actor = Objects.requireNonNull(actor);
+    this.player = Objects.requireNonNull(player);
     this.script = Objects.requireNonNull(script);
     this.scriptArguments = ImmutableList.copyOf(scriptArguments);
   }
@@ -35,9 +39,8 @@ public class ScriptCallable implements Callable<Boolean> {
   /**
    * Executes the script.<p>
    *
-   * A binding is established for the script to run with. The caller
-   * is bound as the "caller" property, and each resolved script
-   * argument is bound as "arg0", "arg1", and so on.<p>
+   * A binding is established for the script to run with. Each script argument
+   * is bound as "arg0", "arg1", and so on.<p>
    *
    * If the script returns a Boolean (it should), that value is
    * returned by this method. Otherwise, true is returned if the
@@ -47,8 +50,7 @@ public class ScriptCallable implements Callable<Boolean> {
    */
   @Override
   public Boolean call() {
-    // Create a binding for the script, including caller
-    // and each argument. TBD: wrap for security
+    // Create a binding for the script, including each argument.
     Binding binding = new Binding();
     for (int i = 0; i < scriptArguments.size(); i++) {
       binding.setProperty("arg" + i, scriptArguments.get(i));
@@ -60,7 +62,8 @@ public class ScriptCallable implements Callable<Boolean> {
 
     GroovyShell commandShell = new GroovyShell(binding, compilerConfig);
     GroundsScript gscript = (GroundsScript) commandShell.parse(script.getContent());
-    gscript.setCaller(caller);
+    gscript.setActor(actor);
+    gscript.setPlayer(player);
 
     // Run it!
     Object result = gscript.run();

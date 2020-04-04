@@ -8,7 +8,6 @@ import xyz.deszaras.grounds.script.Script;
 import xyz.deszaras.grounds.script.ScriptCallable;
 import xyz.deszaras.grounds.script.ScriptFactory;
 import xyz.deszaras.grounds.script.ScriptFactoryException;
-import xyz.deszaras.grounds.util.ArgumentResolverException;
 
 /**
  * Runs a scripted command.<p>
@@ -22,7 +21,7 @@ import xyz.deszaras.grounds.util.ArgumentResolverException;
 public class ScriptedCommand extends Command {
 
   private final Script script;
-  private final List<Object> scriptArguments;
+  private final List<String> scriptArguments;
 
   /**
    * Creates a new scripted command.
@@ -33,7 +32,7 @@ public class ScriptedCommand extends Command {
    * @param scriptArguments arguments to pass to the script
    */
   public ScriptedCommand(Actor actor, Player player, Script script,
-                         List<Object> scriptArguments) {
+                         List<String> scriptArguments) {
     super(actor, player);
     this.script = script;
     this.scriptArguments = ImmutableList.copyOf(scriptArguments);
@@ -41,7 +40,7 @@ public class ScriptedCommand extends Command {
 
   @Override
   public boolean execute() {
-    return new ScriptCallable(player, script, scriptArguments).call();
+    return new ScriptCallable(actor, player, script, scriptArguments).call();
   }
 
   /**
@@ -63,15 +62,9 @@ public class ScriptedCommand extends Command {
       // Build a script from the command attribute.
       Script script = new ScriptFactory().newScript(scriptAttr);
 
-      // Resolve the script arguments.
-      List<Object> resolvedArguments =
-          script.resolveScriptArguments(scriptArguments, player);
-
       // TBD: policy ???
 
-      return new ScriptedCommand(actor, player, script, resolvedArguments);
-    } catch (ArgumentResolverException e) {
-      throw new CommandFactoryException("Failed to resolve script arguments", e);
+      return new ScriptedCommand(actor, player, script, scriptArguments);
     } catch (ScriptFactoryException e) {
       throw new CommandFactoryException("Failed to build script", e);
     }
