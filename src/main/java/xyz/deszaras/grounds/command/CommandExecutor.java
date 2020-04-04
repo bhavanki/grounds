@@ -51,6 +51,7 @@ public class CommandExecutor {
         .put("EXIT", ExitCommand.class)
         .put("HASH_PASSWORD", HashPasswordCommand.class)
         .put("INDEX", IndexCommand.class)
+        .put("GET_ID", GetIdCommand.class)
         .put("ROLE", RoleCommand.class)
         .put("ACTOR", ActorCommand.class)
         .put("SHUTDOWN", ShutdownCommand.class)
