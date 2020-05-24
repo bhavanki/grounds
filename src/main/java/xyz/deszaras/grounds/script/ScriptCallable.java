@@ -40,11 +40,10 @@ public class ScriptCallable implements Callable<Boolean> {
    * Executes the script.<p>
    *
    * A binding is established for the script to run with. Each script argument
-   * is bound as "arg0", "arg1", and so on.<p>
+   * is bound (as a string) as "arg0", "arg1", and so on.<p>
    *
-   * If the script returns a Boolean (it should), that value is
-   * returned by this method. Otherwise, true is returned if the
-   * return value is null.
+   * If the script returns a Boolean (it should), that value is returned by this
+   * method. Otherwise, true is returned if the return value is null.
    *
    * @return return value of script, either directly or derived
    */

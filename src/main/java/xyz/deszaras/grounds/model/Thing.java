@@ -61,7 +61,7 @@ public class Thing {
   }
 
   private final UUID id;
-  private final Map<String, Attr> attrs;
+  private final Map<String, Attr> attrs; // key = attr name
   private final Set<UUID> contents;
   private final Policy policy;
 

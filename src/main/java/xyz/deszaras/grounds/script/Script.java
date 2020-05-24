@@ -64,11 +64,14 @@ public class Script {
   /**
    * Resolves string arguments to this script, using the
    * {@link ArgumentResolver} for things in the universe, or else
-   * performing necessary type conversions.
+   * performing necessary type conversions. The "context thing" for argument
+   * resolution is the caller.
    *
    * @param stringArguments string arguments to the script
    * @param caller script caller, used for context in resolution
    * @return resolved arguments
+   * @throws IllegalArgumentException if the wrong number of arguments is passed
+   *     to this method
    * @throws ArgumentResolverException if argument resolution fails
    */
   public List<Object> resolveScriptArguments(List<String> stringArguments,

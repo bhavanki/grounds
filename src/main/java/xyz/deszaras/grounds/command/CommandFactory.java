@@ -18,12 +18,17 @@ import xyz.deszaras.grounds.model.Thing;
  * command objects from tokenized command lines.<p>
  *
  * In order for this factory to build a command, its command class must
- * contain a static {@code newCommand()} method delegate to.
+ * contain a static {@code newCommand()} method to delegate to.
  */
 public class CommandFactory {
 
   private final Map<String, Class<? extends Command>> commands;
 
+  /**
+   * Creates a new command factory.
+   *
+   * @param  commands map of command classes to support, keyed by command name
+   */
   public CommandFactory(Map<String, Class<? extends Command>> commands) {
     this.commands = ImmutableMap.copyOf(commands);
   }
@@ -49,7 +54,7 @@ public class CommandFactory {
   }
 
   /**
-   * Gets a new command.
+   * Gets an instance of a new command.
    *
    * @param actor actor submitting the command
    * @param player player currently assumed by the actor

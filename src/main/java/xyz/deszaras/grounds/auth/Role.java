@@ -36,12 +36,21 @@ public enum Role {
    */
   GUEST;
 
+  /**
+   * The set of all roles.
+   */
   public static final Set<Role> ALL_ROLES =
       ImmutableSet.copyOf(Arrays.asList(Role.values()));
 
+  /**
+   * The set of all non-guest roles. These are players of the game.
+   */
   public static final Set<Role> NON_GUEST_ROLES =
       ImmutableSet.of(DENIZEN, OWNER, BARD, ADEPT, THAUMATURGE);
 
+  /**
+   * The set of all wizard roles.
+   */
   public static final Set<Role> WIZARD_ROLES =
       ImmutableSet.of(BARD, ADEPT, THAUMATURGE);
 

@@ -44,9 +44,12 @@ public class ScriptFactory {
 
   /**
    * Creates a new script object from a script attribute. The attribute
-   * must be of type ATTRLIST and have the following attributes in it:
-   * a "scriptContent" string attribute containing script content; a
-   * "scriptArgString" string attribute containing an arg string.
+   * must be of type ATTRLIST. Valid attrs in the list value are:<p>
+   * <ul>
+   * <li>"scriptContent" string attribute containing script content</li>
+   * <li>"scriptArgString" string attribute containing an arg string
+   *     (optional)</li>
+   * </ul>
    *
    * @param scriptAttr script attribute
    * @return new script object

@@ -6,7 +6,7 @@ import xyz.deszaras.grounds.util.ArgumentResolver;
 import xyz.deszaras.grounds.util.ArgumentResolverException;
 
 /**
- * A wrapper around {@link ArgumentResolver} that just wraps
+ * A wrapper around {@link ArgumentResolver} that just wraps resolver
  * exceptions.
  */
 public class CommandArgumentResolver {
@@ -19,6 +19,10 @@ public class CommandArgumentResolver {
   private CommandArgumentResolver() {
   }
 
+  /**
+   * Resolves a name or ID into a thing. See {@link ArgumentResolver} for
+   * details.
+   */
   public <T extends Thing> T resolve(String nameOrId,
       Class<T> type, Thing context) throws CommandFactoryException {
     try {
@@ -28,6 +32,9 @@ public class CommandArgumentResolver {
     }
   }
 
+  /**
+   * Resolves an ID into a thing. See {@link ArgumentResolver} for details.
+   */
   public <T extends Thing> T resolve(UUID id, Class<T> type,
         Thing context) throws CommandFactoryException {
     try {

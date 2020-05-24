@@ -12,9 +12,19 @@ import xyz.deszaras.grounds.model.Thing;
 import xyz.deszaras.grounds.model.Universe;
 
 /**
- * Resolves string command arguments into things, in the context of
- * another "context thing" like a player. Resolution only works within the
- * context thing's universe.<p>
+ * Resolves string arguments into things, in the context of another "context
+ * thing" like a player. Resolution only works within the context thing's
+ * universe.<p>
+ *
+ * The purpose of the resolver is to allow natural player inputs. It's not good
+ * enough to force a player to refer to something, say, in the same location as
+ * themselves by its ID; that something's name should be enough. The resolver
+ * has the smarts to figure out what the player means.<p>
+ *
+ * The resolver does need to be told the type of thing that is expected. (That
+ * could be {@link Thing} if the type isn't important.)<p>
+ *
+ * These are the rules that the resolver follows.
  *
  * <ul>
  * <li>A string that appears to be a UUID is treated as a thing's ID;
@@ -27,7 +37,7 @@ import xyz.deszaras.grounds.model.Universe;
  *     name / ID match.</li>
  * <li>If no contents match, the resolver looks through the things that
  *     share the context things's location.</li>
- * <li>If no nearby things match, and the thing is the GOD player is a
+ * <li>If no nearby things match, and the thing is the GOD player or is a
  *     wizard, and the thing being resolved is specified by an ID, then
  *     the resolver falls back to looking throughout the context thing's
  *     universe.
@@ -68,16 +78,22 @@ public class ArgumentResolver {
   public <T extends Thing> T resolve(String nameOrId,
       Class<T> type, Thing context) throws ArgumentResolverException {
 
+    // If the string is a UUID, resolve as a UUID.
     if (UUID_PATTERN.matcher(nameOrId).matches()) {
       return resolve(UUID.fromString(nameOrId), type, context);
     }
     String name = nameOrId;
 
+    // "me"
+    // The context thing's class must be the same as or a superclass of the
+    // expected type.
     if (name.equalsIgnoreCase(ME) && type.isAssignableFrom(context.getClass())) {
       LOG.debug("Resolved {} to {} {}", name, type.getSimpleName(), context.getId());
       return type.cast(context);
     }
 
+    // "here"
+    // The expected type must be Place.
     Optional<Place> location = context.getLocation();
     if (name.equalsIgnoreCase(HERE) && type.isAssignableFrom(Place.class) &&
         location.isPresent()) {
@@ -87,6 +103,7 @@ public class ArgumentResolver {
 
     Universe universe = context.getUniverse();
 
+    // Try to resolve among the context thing's contents.
     Optional<T> contentThing = resolveAmong(name, null, type, universe,
                                             context.getContents());
     if (contentThing.isPresent()) {
@@ -95,6 +112,8 @@ public class ArgumentResolver {
       return contentThing.get();
     }
 
+    // If the context thing is located somewhere, try to resolve among the
+    // things in that location.
     if (location.isPresent()) {
       Optional<T> nearbyThing = resolveAmong(name, null, type, universe,
                                              location.get().getContents());
@@ -105,13 +124,14 @@ public class ArgumentResolver {
       }
     }
 
+    // Out of ideas!
     throw new ArgumentResolverException("I don't see anything named " + name);
   }
 
   /**
    * Resolves an ID into a thing.
    *
-   * @param id id for a thing
+   * @param id ID for a thing
    * @param type expected type of thing to resolve
    * @param context thing providing context for resolution
    * @return resolved thing
@@ -119,11 +139,17 @@ public class ArgumentResolver {
    */
   public <T extends Thing> T resolve(UUID id, Class<T> type,
         Thing context) throws ArgumentResolverException {
+
+    // the context thing's own ID (analogous to "me")
+    // The context thing's class must be the same as or a superclass of the
+    // expected type.
     if (id.equals(context.getId()) && type.isAssignableFrom(context.getClass())) {
       LOG.debug("Resolved {} to {} {}", id, type.getSimpleName(), context.getId());
       return type.cast(context);
     }
 
+    // the context thing's location (analogous to "here")
+    // The expected type must be Place.
     Optional<Place> location = context.getLocation();
     if (location.isPresent() && id.equals(location.get().getId()) &&
         type.equals(Place.class)) {
@@ -133,6 +159,7 @@ public class ArgumentResolver {
 
     Universe universe = context.getUniverse();
 
+    // Try to resolve among the context thing's contents.
     Optional<T> contentThing = resolveAmong(null, id, type, universe,
                                             context.getContents());
     if (contentThing.isPresent()) {
@@ -141,6 +168,8 @@ public class ArgumentResolver {
       return contentThing.get();
     }
 
+    // If the context thing is located somewhere, try to resolve among the
+    // things in that location.
     if (location.isPresent()) {
       Optional<T> nearbyThing = resolveAmong(null, id, type, universe,
                                              location.get().getContents());
@@ -151,6 +180,8 @@ public class ArgumentResolver {
       }
     }
 
+    // If the context thing is a wizard (or GOD), then try to resolve among all
+    // things in the universe.
     // TBD: allow for wizard things, not just players
     if (context instanceof Player && Role.isWizard((Player) context)) {
       Optional<T> finalThing = universe.getThing(id, type);
@@ -161,20 +192,35 @@ public class ArgumentResolver {
       }
     }
 
+    // Out of ideas!
     throw new ArgumentResolverException("I don't see anything with ID " + id);
   }
 
+  /**
+   * Attempts to resolve a name or ID into a thing from multiple potential
+   * matches. Either a name or ID must be provided, but not both.
+   *
+   * @param  name     name for a thing
+   * @param  id       ID for a thing
+   * @param  type     expected type of thing to resolve
+   * @param  universe universe where candidate things reside
+   * @param  ids      IDs of candidate things
+   * @return          resolved thing (empty if unresolved)
+   */
   private <T extends Thing> Optional<T> resolveAmong(String name,
       UUID id, Class<T> type, Universe universe, Iterable<UUID> ids) {
     for (UUID iid : ids) {
+      // Find the candidate thing in the universe.
       Optional<Thing> thingOpt = universe.getThing(iid);
       if (thingOpt.isEmpty()) {
         continue;
       }
       Thing thing = thingOpt.get();
+      // Check its type.
       if (!type.isAssignableFrom(thing.getClass())) {
         continue;
       }
+      // Check if it matches the name / ID.
       if ((name != null && thing.getName().equalsIgnoreCase(name)) || // NOPMD
           thing.getId().equals(id)) {
         return Optional.of(type.cast(thing));

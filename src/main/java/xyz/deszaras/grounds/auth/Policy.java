@@ -9,21 +9,47 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * A policy holds permissions for a thing. A permission has a category as
+ * defined in the {@link Category} enum. A permission also has zero or more
+ * roles that are granted it. For example, the READ permission in a thing's
+ * policy is often granted to most roles, since that lets most players "see"
+ * and inspect it.
+ */
 public class Policy {
 
+  /**
+   * The permission categories. Exactly what a category means depends on the
+   * type of thing that its permission's policy is attached to.
+   */
   public enum Category {
-    GENERAL,  /* = default */
-    READ,     /* = examine */
-    WRITE,    /* = control */
+    /**
+     * A general / default permission.
+     */
+    GENERAL,
+    /**
+     * A read / examine permission.
+     */
+    READ,
+    /**
+     * A write / control permission.
+     */
+    WRITE,
+    /**
+     * A use permission.
+     */
     USE;
   }
 
   /**
-   * The default policy for new things.
+   * The default policy for new things. This policy grants GENERAL, READ, and
+   * USE permissions to non-guest roles, and WRITE permissions to wizard roles
+   * and the OWNER role.
    */
   public static final Policy DEFAULT;
   /**
-   * A policy that is wide open, except to the GUEST role.
+   * A policy that is wide open. All permissions are granted to non-guest
+   * roles.
    */
   public static final Policy OPEN;
 
@@ -73,7 +99,8 @@ public class Policy {
   }
 
   /**
-   * Gets the roles permitted for a category.
+   * Gets the roles permitted for a category, i.e., the roles granted a
+   * permission in this policy.
    *
    * @param category category
    * @return roles permitted for the category
@@ -83,7 +110,8 @@ public class Policy {
   }
 
   /**
-   * Sets the roles permitted for a category.
+   * Sets the roles permitted for a category, i.e., the roles granted a
+   * permission in this policy.
    *
    * @param category category
    * @param roles roles permitted for the category
@@ -93,7 +121,7 @@ public class Policy {
   }
 
   /**
-   * Gets the categories for which the given role is permitted.
+   * Gets the categories (permissions) for which the given role is permitted.
    *
    * @param role role
    * @return permitted categories
@@ -107,7 +135,7 @@ public class Policy {
 
   /**
    * Checks if any role in the given set of roles is permitted for a
-   * category.
+   * category, i.e., if any role has been granted a permission.
    *
    * @param category category to check permission for
    * @param roles roles to check permission for
