@@ -476,13 +476,23 @@ public class Thing {
   /**
    * Checks if this thing contains the given thing.
    *
+   * @param thingId ID of other thing
+   * @return true if this thing contains the other thing
+   */
+  public boolean has(UUID thingId) {
+    synchronized (contentsMonitor) {
+      return contents.contains(thingId);
+    }
+  }
+
+  /**
+   * Checks if this thing contains the given thing.
+   *
    * @param thing other thing
    * @return true if this thing contains the other thing
    */
   public boolean has(Thing thing) {
-    synchronized (contentsMonitor) {
-      return contents.contains(thing.getId());
-    }
+    return has(thing.getId());
   }
 
   /**
