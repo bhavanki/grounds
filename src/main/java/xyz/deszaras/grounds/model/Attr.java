@@ -11,10 +11,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -226,6 +228,17 @@ public final class Attr {
       throw new IllegalStateException("Attribute " + name + " is type " + type);
     }
     return listFromJson(value);
+  }
+
+  /**
+   * Gets the value of this attribute as a map of attributes.
+   *
+   * @return attribute value as a map of attributes, keyed by attr name
+   * @throws IllegalStateException if this attribute is not an attrlist type
+   */
+  @JsonIgnore
+  public Map<String, Attr> getAttrListValueAsMap() {
+    return getAttrListValue().stream().collect(Collectors.toMap(a -> a.getName(), a -> a));
   }
 
   @Override
