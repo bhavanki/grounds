@@ -7,11 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Player;
-import xyz.deszaras.grounds.model.Thing;
 
 /**
  * A factory for commands. This factory is responsible for constructing
@@ -69,9 +67,7 @@ public class CommandFactory {
     }
     String commandName = line.get(0);
 
-    if (commandName.startsWith("$$")) {
-      return newTargetedScriptedCommand(actor, player, line);
-    } else if (commandName.startsWith("$")) {
+    if (commandName.startsWith("$")) {
       return newScriptedCommand(actor, player, line);
     }
 
@@ -87,38 +83,12 @@ public class CommandFactory {
       return (Command) newCommandMethod.invoke(null, actor, player, commandArgs);
     } catch (NoSuchMethodException e) {
       throw new CommandFactoryException("Command class " + commandClass.getName() +
-                                 " lacks a static newCommand method!");
+                                        " lacks a static newCommand method!");
     } catch (IllegalAccessException e) {
       throw new CommandFactoryException("Failed to create new command", e);
     } catch (InvocationTargetException e) {
       throw new CommandFactoryException("Failed to create new command", e.getCause());
     }
-  }
-
-  private ScriptedCommand newTargetedScriptedCommand(Actor actor, Player player, List<String> line)
-      throws CommandFactoryException {
-    String commandName = line.get(0);
-    List<String> scriptArguments = line.subList(1, line.size());
-
-    // Pinpoint the targeted attribute.
-    String[] targetParts = commandName.substring(2).split(":", 2);
-    if (targetParts.length < 2) {
-      throw new CommandFactoryException("Invalid syntax for targeted scripted command name");
-    }
-    String thingId = targetParts[0];
-    String attrName = targetParts[1];
-
-    Optional<Thing> thing = player.getUniverse().getThing(UUID.fromString(thingId));
-    if (thing.isEmpty()) {
-       throw new CommandFactoryException("Failed to locate thing " + thingId + " for script");
-    }
-    Optional<Attr> scriptAttr = thing.get().getAttr(attrName, Attr.Type.ATTRLIST);
-    if (scriptAttr.isEmpty()) {
-      throw new CommandFactoryException("Failed to locate attribute " + attrName +
-                                        " on thing " + thingId + " for script");
-    }
-
-    return ScriptedCommand.newCommand(actor, player, scriptAttr.get(), scriptArguments);
   }
 
   /**
