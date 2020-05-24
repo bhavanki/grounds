@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Link;
 import xyz.deszaras.grounds.model.Place;
@@ -27,7 +29,11 @@ public class GetIdCommand extends Command<String> {
   }
 
   @Override
-  public String execute() {
+  public String execute() throws CommandException {
+    Set<Role> roles = player.getUniverse().getRoles(player);
+    if (roles.stream().noneMatch(r -> Role.NON_GUEST_ROLES.contains(r))) {
+      throw new CommandException("You may not get the ID of a thing");
+    }
     Optional<? extends Thing> thing = player.getUniverse().getThingByName(name, type);
     if (!thing.isEmpty()) {
       return thing.get().getId().toString();
