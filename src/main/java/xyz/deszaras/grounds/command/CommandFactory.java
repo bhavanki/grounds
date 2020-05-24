@@ -108,12 +108,15 @@ public class CommandFactory {
 
     // Find the attribute defining the command. It must be attached
     // to an extension in the player's universe and have an attribute
-    // list as a value.
+    // list as a value. The extension must also have an owner, which is
+    // the script's owner.
     Optional<Attr> scriptAttr = Optional.empty();
+    Extension scriptExtension = null;
     // this is inefficient :(
     for (Extension extension : player.getUniverse().getThings(Extension.class)) {
       scriptAttr = extension.getAttr(commandName, Attr.Type.ATTRLIST);
       if (scriptAttr.isPresent()) {
+        scriptExtension = extension;
         break;
       }
     }
@@ -121,6 +124,6 @@ public class CommandFactory {
       throw new CommandFactoryException("Failed to locate script attribute for command " + commandName);
     }
 
-    return ScriptedCommand.newCommand(actor, player, scriptAttr.get(), scriptArguments);
+    return ScriptedCommand.newCommand(actor, player, scriptExtension, scriptAttr.get(), scriptArguments);
   }
 }
