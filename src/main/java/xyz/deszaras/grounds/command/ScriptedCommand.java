@@ -49,11 +49,10 @@ public class ScriptedCommand extends Command<String> {
   }
 
   @Override
-  public String execute() {
+  public String execute() throws CommandException {
 
     if (!scriptExtension.passes(Category.USE, player)) {
-      actor.sendMessage("You do not have permission to use this command");
-      return null;
+      throw new CommandException("You do not have permission to run the script");
     }
 
     return new ScriptCallable(actor, player, script, scriptArguments).call();
