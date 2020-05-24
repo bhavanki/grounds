@@ -54,6 +54,7 @@ public class ScriptCallable implements Callable<String> {
     for (int i = 0; i < scriptArguments.size(); i++) {
       binding.setProperty("arg" + i, scriptArguments.get(i));
     }
+    binding.setProperty("extensionId", script.getExtension().getId().toString());
 
     // Compile the script in a Groovy shell.
     CompilerConfiguration compilerConfig = new CompilerConfiguration();
@@ -63,6 +64,7 @@ public class ScriptCallable implements Callable<String> {
     GroundsScript gscript = (GroundsScript) commandShell.parse(script.getContent());
     gscript.setActor(actor);
     gscript.setPlayer(player);
+    gscript.setOwner(script.getOwner());
 
     // Run it!
     Object result = gscript.run();
