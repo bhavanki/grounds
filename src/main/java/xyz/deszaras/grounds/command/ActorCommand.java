@@ -14,7 +14,7 @@ import xyz.deszaras.grounds.command.actor.SetActorPasswordCommand;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.ActorDatabase;
 
-public class ActorCommand extends Command {
+public class ActorCommand extends Command<Boolean> {
 
   private static final Logger LOG = LoggerFactory.getLogger(ActorCommand.class);
 
@@ -23,27 +23,24 @@ public class ActorCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() {
     throw new UnsupportedOperationException("This is a composite command");
   }
 
-  public static boolean checkIfRoot(Actor actor, String username) {
+  public static void checkIfRoot(Actor actor, String username) throws CommandException {
     if (Actor.ROOT.getUsername().equals(username)) {
-      actor.sendMessage("Sorry, you may not work with the root actor");
-      return false;
+      throw new CommandException("Sorry, you may not work with the root actor");
     }
-    return true;
   }
 
-  public static boolean saveActorDatabase(Actor actor) {
+  public static boolean saveActorDatabase(Actor actor) throws CommandException {
     try {
       ActorDatabase.INSTANCE.save();
       return true;
     } catch (IOException e) {
       LOG.error("Failed to save actor database", e);
-      actor.sendMessage("Failed to save actor database, check the logs");
+      throw new CommandException("Failed to save actor database, check the logs");
     }
-    return false;
   }
 
   private static final Map<String, Class<? extends Command>> ACTOR_COMMANDS;

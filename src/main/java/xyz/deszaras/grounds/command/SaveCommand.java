@@ -13,7 +13,7 @@ import xyz.deszaras.grounds.model.Player;
  * Arguments: file to save to<br>
  * Checks: player is GOD
  */
-public class SaveCommand extends Command {
+public class SaveCommand extends Command<Boolean> {
 
   private final File f;
 
@@ -23,10 +23,9 @@ public class SaveCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() throws CommandException {
     if (!player.equals(Player.GOD)) {
-      actor.sendMessage("Only GOD can save the multiverse");
-      return false;
+      throw new CommandException("Only GOD can save the multiverse");
     }
     try {
       Multiverse.save(f);
@@ -34,9 +33,8 @@ public class SaveCommand extends Command {
       return true;
     } catch (IOException e) {
       e.printStackTrace();
-      actor.sendMessage("Failed to save multiverse: " + e.getMessage());
+      throw new CommandException("Failed to save multiverse: " + e.getMessage());
     }
-    return false;
   }
 
   public static SaveCommand newCommand(Actor actor, Player player,

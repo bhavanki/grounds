@@ -11,7 +11,7 @@ import xyz.deszaras.grounds.model.Thing;
  * Arguments: name or ID of thing<br>
  * Checks: player passes WRITE for thing (intentionally not just READ)
  */
-public class InspectCommand extends Command {
+public class InspectCommand extends Command<Boolean> {
 
   private final Thing thing;
 
@@ -21,10 +21,9 @@ public class InspectCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() throws CommandException {
     if (!thing.passes(Category.WRITE, player)) {
-      actor.sendMessage("You are not permitted to inspect this");
-      return false;
+      throw new CommandException("You are not permitted to inspect this");
     }
     actor.sendMessage(thing.toJson());
     return true;

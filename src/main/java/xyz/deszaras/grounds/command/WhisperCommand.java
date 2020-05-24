@@ -14,7 +14,7 @@ import xyz.deszaras.grounds.model.Thing;
  * Arguments: recipient thing, message (quotes not necessary)
  * Checks: none at the moment, but that'll change
  */
-public class WhisperCommand extends Command {
+public class WhisperCommand extends Command<Boolean> {
 
   private static final String WHISPER_FORMAT = "~ %s whispers: %s";
 
@@ -29,7 +29,7 @@ public class WhisperCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() {
     String fullMessage = String.format(WHISPER_FORMAT, player.getName(), message);
     recipient.sendMessage(fullMessage);
     return true;

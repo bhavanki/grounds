@@ -14,7 +14,7 @@ import xyz.deszaras.grounds.model.Thing;
  * Arguments: name or ID of thing, attribute spec<br>
  * Checks: player passes WRITE for thing
  */
-public class SetAttrCommand extends Command {
+public class SetAttrCommand extends Command<Boolean> {
 
   private final Thing thing;
   private final Attr attr;
@@ -26,16 +26,14 @@ public class SetAttrCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() throws CommandException {
     if (AttrNames.ALL_NAMES.contains(attr.getName()) &&
         !player.equals(Player.GOD)) {
-      actor.sendMessage("Only GOD may set that attribute directly");
-      return false;
+      throw new CommandException("Only GOD may set that attribute directly");
     }
 
     if (!thing.passes(Category.WRITE, player)) {
-      actor.sendMessage("You are not permitted to set attributes on this");
-      return false;
+      throw new CommandException("You are not permitted to set attributes on this");
     }
     thing.setAttr(attr);
     return true;

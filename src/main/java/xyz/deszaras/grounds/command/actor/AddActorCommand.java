@@ -5,6 +5,7 @@ import java.util.Objects;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.ActorCommand;
 import xyz.deszaras.grounds.command.Command;
+import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.ActorDatabase;
@@ -16,7 +17,7 @@ import xyz.deszaras.grounds.server.HashedPasswordAuthenticator;
  * Arguments: username and password<br>
  * Checks: player is GOD, actor is not ROOT
  */
-public class AddActorCommand extends Command {
+public class AddActorCommand extends Command<Boolean> {
 
   private final String username;
   private final String password;
@@ -29,21 +30,17 @@ public class AddActorCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() throws CommandException {
     if (!player.equals(Player.GOD)) {
-      actor.sendMessage("Only GOD may work with actors");
-      return false;
+      throw new CommandException("Only GOD may work with actors");
     }
-    if (!ActorCommand.checkIfRoot(actor, username)) {
-      return false;
-    }
+    ActorCommand.checkIfRoot(actor, username);
 
     boolean result =
         ActorDatabase.INSTANCE.createActorRecord(username,
             HashedPasswordAuthenticator.hashPassword(password));
     if (!result) {
-      actor.sendMessage("An actor named " + username + " already exists");
-      return false;
+      throw new CommandException("An actor named " + username + " already exists");
     }
 
     return ActorCommand.saveActorDatabase(actor);

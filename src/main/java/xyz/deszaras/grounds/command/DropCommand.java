@@ -8,7 +8,7 @@ import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
-public class DropCommand extends Command {
+public class DropCommand extends Command<Boolean> {
 
   private final Thing thing;
 
@@ -18,20 +18,17 @@ public class DropCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() throws CommandException {
     if (!player.has(thing)) {
-      actor.sendMessage("You aren't holding that");
-      return false;
+      throw new CommandException("You aren't holding that");
     }
     // This next check is questionable
     if (!thing.passes(Category.GENERAL, player)) {
-      actor.sendMessage("You are unable to drop that");
-      return false;
+      throw new CommandException("You are unable to drop that");
     }
     Optional<Place> location = player.getLocation();
     if (location.isEmpty()) {
-      actor.sendMessage("You are not located anywhere, so you may not drop anything");
-      return false;
+      throw new CommandException("You are not located anywhere, so you may not drop anything");
     }
 
     player.take(thing);

@@ -6,8 +6,10 @@ import xyz.deszaras.grounds.model.Player;
 
 /**
  * A command to observe or make a change to a universe.
+ *
+ * @param R type of command return value
  */
-public abstract class Command {
+public abstract class Command<R> {
 
   protected final Actor actor;
   protected final Player player;
@@ -26,9 +28,10 @@ public abstract class Command {
   /**
    * Executes the command.
    *
-   * @return true if execution was successful
+   * @return result of command
+   * @throws CommandException if the command fails
    */
-  public abstract boolean execute();
+  public abstract R execute() throws CommandException;
 
   /**
    * Ensures that a list has a minimum length.

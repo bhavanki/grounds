@@ -40,6 +40,8 @@ public class CommandCallable implements Callable<CommandResult> {
           commandFactory.getCommand(actor, player, commandLine);
       // Execute the command!
       return new CommandResult(command.execute(), command.getClass());
+    } catch (CommandException e) {
+      return new CommandResult(e);
     } catch (CommandFactoryException e) {
       return new CommandResult(e);
     }

@@ -5,22 +5,38 @@ import java.util.Optional;
 /**
  * The result of running a command. If a command could not be
  * built, the exception from the attempt is recorded.
+ *
+ * @param R type of command return value
  */
-public class CommandResult {
-  private final boolean success;
+public class CommandResult<R> {
+  private final R result;
+  private final CommandException commandException;
   private final CommandFactoryException commandFactoryException;
   private final Class<? extends Command> commandClass;
 
   /**
    * Creates a new result for a command that was executed.
    *
-   * @param success true if the command was successful
+   * @param result command result
    * @param commandClass type of the executed command
    */
-  public CommandResult(boolean success, Class<? extends Command> commandClass) {
-    this.success = success;
+  public CommandResult(R result, Class<? extends Command> commandClass) {
+    this.result = result;
+    commandException = null;
     commandFactoryException = null;
     this.commandClass = commandClass;
+  }
+
+  /**
+   * Creates a new result for a command that failed during execution.
+   *
+   * @param e exception thrown when executing the command
+   */
+  public CommandResult(CommandException e) {
+    result = null;
+    commandException = e;
+    commandFactoryException = null;
+    this.commandClass = null;
   }
 
   /**
@@ -29,7 +45,8 @@ public class CommandResult {
    * @param e exception thrown when attempting to build the command
    */
   public CommandResult(CommandFactoryException e) {
-    success = false;
+    result = null;
+    commandException = null;
     commandFactoryException = e;
     this.commandClass = null;
   }
@@ -40,13 +57,31 @@ public class CommandResult {
    * @return true if the command was successful
    */
   public boolean isSuccessful() {
-    return success;
+    return commandException == null && commandFactoryException == null;
+  }
+
+  /**
+   * Gets the result value.
+   *
+   * @return result value
+   */
+  public R getResult() {
+    return result;
+  }
+
+  /**
+   * Gets the exception thrown when executing the command failed.
+   *
+   * @return command exception
+   */
+  public Optional<CommandException> getCommandException() {
+    return Optional.ofNullable(commandException);
   }
 
   /**
    * Gets the exception thrown when building the command failed.
    *
-   * @return command exception
+   * @return command factory exception
    */
   public Optional<CommandFactoryException> getCommandFactoryException() {
     return Optional.ofNullable(commandFactoryException);

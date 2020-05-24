@@ -13,7 +13,7 @@ import xyz.deszaras.grounds.model.Player;
 /**
  * A callable for executing a {@link Script}. Groovy is supported.
  */
-public class ScriptCallable implements Callable<Boolean> {
+public class ScriptCallable implements Callable<String> {
 
   private final Actor actor;
   private final Player player;
@@ -42,13 +42,13 @@ public class ScriptCallable implements Callable<Boolean> {
    * A binding is established for the script to run with. Each script argument
    * is bound (as a string) as "arg0", "arg1", and so on.<p>
    *
-   * If the script returns a Boolean (it should), that value is returned by this
-   * method. Otherwise, true is returned if the return value is null.
+   * The return value of the script is returned by this method after calling
+   * {@code toString()} on it (unless it's null).
    *
-   * @return return value of script, either directly or derived
+   * @return return value of script
    */
   @Override
-  public Boolean call() {
+  public String call() {
     // Create a binding for the script, including each argument.
     Binding binding = new Binding();
     for (int i = 0; i < scriptArguments.size(); i++) {
@@ -67,11 +67,10 @@ public class ScriptCallable implements Callable<Boolean> {
     // Run it!
     Object result = gscript.run();
 
-    // Derive a return value.
-    if (result instanceof Boolean) {
-      return ((Boolean) result).booleanValue();
+    if (result == null) {
+      return null;
     } else {
-      return result == null;
+      return result.toString();
     }
   }
 }

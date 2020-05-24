@@ -11,19 +11,18 @@ import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
-public class LookCommand extends Command {
+public class LookCommand extends Command<Boolean> {
 
   public LookCommand(Actor actor, Player player) {
     super(actor, player);
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() throws CommandException {
     Optional<Place> location = player.getLocation();
     if (location.isPresent()) {
       if (!location.get().passes(Category.READ, player)) {
-        actor.sendMessage("You are not permitted to look at where you are");
-        return false;
+        throw new CommandException("You are not permitted to look at where you are");
       }
       actor.sendMessage(buildMessage(location.get()));
     } else {

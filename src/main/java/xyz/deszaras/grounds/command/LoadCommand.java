@@ -13,7 +13,7 @@ import xyz.deszaras.grounds.model.Player;
  * Arguments: file to load<br>
  * Checks: player is GOD
  */
-public class LoadCommand extends Command {
+public class LoadCommand extends Command<Boolean> {
 
   private final File f;
 
@@ -23,10 +23,9 @@ public class LoadCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() throws CommandException {
     if (!player.equals(Player.GOD)) {
-      actor.sendMessage("Only GOD can load the multiverse");
-      return false;
+      throw new CommandException("Only GOD can load the multiverse");
     }
     // TBD prohibit if any players besides GOD are in use, especially
     // because they are disconnected from their players
@@ -36,9 +35,8 @@ public class LoadCommand extends Command {
       return true;
     } catch (IOException e) {
       e.printStackTrace();
-      actor.sendMessage("Failed to load multiverse: " + e.getMessage());
+      throw new CommandException("Failed to load multiverse: " + e.getMessage());
     }
-    return false;
   }
 
   public static LoadCommand newCommand(Actor actor, Player player,

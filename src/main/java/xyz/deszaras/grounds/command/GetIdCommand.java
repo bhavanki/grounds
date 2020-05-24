@@ -15,7 +15,7 @@ import xyz.deszaras.grounds.model.Thing;
  * Gets the ID of a thing by its name and type in the player's universe. If
  * there are multiple matches, an arbitrary one is returned.
  */
-public class GetIdCommand extends Command {
+public class GetIdCommand extends Command<String> {
 
   private final String name;
   private final Class<? extends Thing> type;
@@ -27,13 +27,12 @@ public class GetIdCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public String execute() {
     Optional<? extends Thing> thing = player.getUniverse().getThingByName(name, type);
     if (!thing.isEmpty()) {
-      actor.sendMessage(thing.get().getId().toString());
-      return true;
+      return thing.get().getId().toString();
     }
-    return false;
+    return null;
   }
 
   private static final Map<String, Class<? extends Thing>> TYPES =

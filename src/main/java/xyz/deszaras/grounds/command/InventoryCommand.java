@@ -6,14 +6,14 @@ import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
-public class InventoryCommand extends Command {
+public class InventoryCommand extends Command<Boolean> {
 
   public InventoryCommand(Actor actor, Player player) {
     super(actor, player);
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() {
     StringBuilder b = new StringBuilder();
     player.getContents().forEach(id -> {
       Optional<Thing> t = Multiverse.MULTIVERSE.findThing(id);

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import xyz.deszaras.grounds.model.Player;
 
-public class HelpCommand extends Command {
+public class HelpCommand extends Command<Boolean> {
 
   private final String commandName;
 
@@ -18,7 +18,7 @@ public class HelpCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() throws CommandException {
     if (commandName.equalsIgnoreCase("commands")) {
       List<String> commandNames =
           new ArrayList<>(CommandExecutor.INSTANCE.getCommandFactory().getCommandNames());
@@ -32,8 +32,7 @@ public class HelpCommand extends Command {
     Class<? extends Command> commandClass =
         CommandExecutor.INSTANCE.getCommandFactory().getCommandClass(commandName);
     if (commandClass == null) {
-      actor.sendMessage("Unrecognized command " + commandName);
-      return false;
+      throw new CommandException("Unrecognized command " + commandName);
     }
 
     try {
@@ -42,14 +41,13 @@ public class HelpCommand extends Command {
       actor.sendMessage(helpText);
       return true;
     } catch (NoSuchMethodException e) {
-      actor.sendMessage("Command class " + commandClass.getName() +
-                        " lacks a static help method!");
+      throw new CommandException("Command class " + commandClass.getName() +
+                                 " lacks a static help method!");
     } catch (IllegalAccessException e) {
-      actor.sendMessage("Failed to get help text: " + e.getMessage());
+      throw new CommandException("Failed to get help text: " + e.getMessage());
     } catch (InvocationTargetException e) {
-      actor.sendMessage("Failed to get help text: " + e.getCause().getMessage());
+      throw new CommandException("Failed to get help text: " + e.getCause().getMessage());
     }
-    return false;
  }
 
   public static HelpCommand newCommand(Actor actor, Player player,

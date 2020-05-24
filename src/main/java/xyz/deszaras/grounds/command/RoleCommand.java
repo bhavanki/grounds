@@ -10,14 +10,14 @@ import xyz.deszaras.grounds.command.role.RemoveRoleCommand;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
 
-public class RoleCommand extends Command {
+public class RoleCommand extends Command<Boolean> {
 
   public RoleCommand(Actor actor, Player player) {
     super(actor, player);
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() {
     throw new UnsupportedOperationException("This is a composite command");
   }
 

@@ -15,7 +15,7 @@ import xyz.deszaras.grounds.model.Universe;
  * Arguments: name of universe<br>
  * Checks: player is wizard in universe
  */
-public class IndexCommand extends Command {
+public class IndexCommand extends Command<Boolean> {
 
   private final Universe universe;
 
@@ -25,10 +25,9 @@ public class IndexCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() throws CommandException {
     if (!Role.isWizard(player, universe)) {
-      actor.sendMessage("You are not a wizard in this universe, so you may not inspect");
-      return false;
+      throw new CommandException("You are not a wizard in this universe, so you may not inspect");
     }
 
     List<Thing> things = new ArrayList<>(universe.getThings());

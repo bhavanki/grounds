@@ -14,7 +14,7 @@ import xyz.deszaras.grounds.model.Thing;
  * Checks: player is GOD or THAUMATURGE in the thing's universe;
  * thing is not already owned
  */
-public class ClaimCommand extends Command {
+public class ClaimCommand extends Command<Boolean> {
 
   private final Thing thing;
 
@@ -24,32 +24,28 @@ public class ClaimCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
-    if (!mayClaim()) {
-      return false;
-    }
+  public Boolean execute() throws CommandException {
+    checkClaim();
     thing.setOwner(player);
     return true;
   }
 
   // TBD express in policy?
-  private boolean mayClaim() {
+  private void checkClaim() throws CommandException {
     if (player.equals(Player.GOD)) {
-      return true;
+      return;
     }
     Set<Role> roles = thing.getUniverse().getRoles(player);
     if (roles.contains(Role.THAUMATURGE)) {
-      return true;
+      return;
     }
     if (thing.getOwner().isPresent()) {
       if (thing.getOwner().get().equals(player)) {
         actor.sendMessage("You already own that");
-        return true;
+        return;
       }
-      actor.sendMessage("That is already owned by someone else");
-      return false;
+      throw new CommandException("That is already owned by someone else");
     }
-    return true;
   }
 
   public static ClaimCommand newCommand(Actor actor, Player player,

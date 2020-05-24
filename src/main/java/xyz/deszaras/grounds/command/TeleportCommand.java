@@ -14,7 +14,7 @@ import xyz.deszaras.grounds.model.Player;
  * Arguments: ID of destination<br>
  * Checks: player passes GENERAL of destination
  */
-public class TeleportCommand extends Command {
+public class TeleportCommand extends Command<Boolean> {
 
   private final Place destination;
 
@@ -24,7 +24,7 @@ public class TeleportCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() {
     if (!destination.passes(Category.GENERAL, player)) {
       actor.sendMessage("You are not permitted to move there");
       return false;
@@ -41,7 +41,10 @@ public class TeleportCommand extends Command {
     player.setUniverse(destination.getUniverse());
     destination.getUniverse().addThing(player);
 
-    new LookCommand(actor, player).execute();
+    try {
+      new LookCommand(actor, player).execute();
+    } catch (CommandException e) { // NOPMD
+    }
 
     return true;
   }

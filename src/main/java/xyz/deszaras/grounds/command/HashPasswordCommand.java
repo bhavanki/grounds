@@ -8,7 +8,7 @@ import xyz.deszaras.grounds.server.HashedPasswordAuthenticator;
  * A command to generate the hash for a password. The hash would be entered
  * into the password file for a user.
  */
-public class HashPasswordCommand extends Command {
+public class HashPasswordCommand extends Command<String> {
 
   private final String password;
 
@@ -26,9 +26,8 @@ public class HashPasswordCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
-    actor.sendMessage(HashedPasswordAuthenticator.hashPassword(password));
-    return true;
+  public String execute() {
+    return HashedPasswordAuthenticator.hashPassword(password);
   }
 
   public static HashPasswordCommand newCommand(Actor actor, Player player,

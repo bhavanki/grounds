@@ -13,7 +13,7 @@ import xyz.deszaras.grounds.model.Thing;
  * Arguments: name or ID of thing, attribute name<br>
  * Checks: player passes WRITE for thing
  */
-public class RemoveAttrCommand extends Command {
+public class RemoveAttrCommand extends Command<Boolean> {
 
   private final Thing thing;
   private final String attrName;
@@ -25,16 +25,14 @@ public class RemoveAttrCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() throws CommandException {
     if (AttrNames.ALL_NAMES.contains(attrName) &&
         !player.equals(Player.GOD)) {
-      actor.sendMessage("Only GOD may remove that attribute directly");
-      return false;
+      throw new CommandException("Only GOD may remove that attribute directly");
     }
 
     if (!thing.passes(Category.WRITE, player)) {
-      actor.sendMessage("You are not permitted to set attributes on this");
-      return false;
+      throw new CommandException("You are not permitted to set attributes on this");
     }
     thing.removeAttr(attrName);
     return true;

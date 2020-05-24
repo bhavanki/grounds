@@ -18,7 +18,7 @@ import xyz.deszaras.grounds.model.Player;
  * Checks: player has a location; link at location has exit name;
  * place on other end of link exists; player passes USE of link
  */
-public class MoveCommand extends Command {
+public class MoveCommand extends Command<Boolean> {
 
   private final String exitName;
 
@@ -28,11 +28,10 @@ public class MoveCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() throws CommandException {
     Optional<Place> source = player.getLocation();
     if (!source.isPresent()) {
-      actor.sendMessage("You have no current location, so you cannot move elsewhere");
-      return false;
+      throw new CommandException("You have no current location, so you cannot move elsewhere");
     }
 
     // Check that there is a link associated with the player's current
@@ -49,16 +48,13 @@ public class MoveCommand extends Command {
       }
     }
     if (moveDestination == null) {
-      actor.sendMessage("I can't see an exit named " + exitName);
-      return false;
+      throw new CommandException("I can't see an exit named " + exitName);
     }
     if (!moveDestination.isPresent()) {
-      actor.sendMessage("The exit has another side, but I can't find that place!");
-      return false;
+      throw new CommandException("The exit has another side, but I can't find that place!");
     }
     if (!viaLink.get().passes(Category.USE, player)) {
-      actor.sendMessage("You are not permitted to traverse the exit to that place");
-      return false;
+      throw new CommandException("You are not permitted to traverse the exit to that place");
     }
 
     return new TeleportCommand(actor, player, moveDestination.get()).execute();

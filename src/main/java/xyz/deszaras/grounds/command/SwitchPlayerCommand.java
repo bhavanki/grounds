@@ -11,7 +11,7 @@ import xyz.deszaras.grounds.server.ActorDatabase;
  * Checks: if the player is permitted for the actor (GOD and the root
  * actor may switch to any player)
  */
-public class SwitchPlayerCommand extends Command {
+public class SwitchPlayerCommand extends Command<Boolean> {
 
   private final Player newPlayer;
 
@@ -21,14 +21,13 @@ public class SwitchPlayerCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() throws CommandException {
     if (!actor.equals(Actor.ROOT) &&
         !player.equals(Player.GOD) &&
         !ActorDatabase.INSTANCE.getActorRecord(actor.getUsername()).get()
         .getPlayers().contains(newPlayer.getId())) {
-      actor.sendMessage("You do not have permission to play as " +
-                        newPlayer.getName());
-      return false;
+      throw new CommandException("You do not have permission to play as " +
+                                 newPlayer.getName());
     }
 
     player.setCurrentActor(null);

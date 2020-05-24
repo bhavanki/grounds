@@ -3,14 +3,14 @@ package xyz.deszaras.grounds.command;
 import java.util.List;
 import xyz.deszaras.grounds.model.Player;
 
-public class ExitCommand extends Command {
+public class ExitCommand extends Command<Boolean> {
 
   public ExitCommand(Actor actor, Player player) {
     super(actor, player);
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() {
     return true;
   }
 

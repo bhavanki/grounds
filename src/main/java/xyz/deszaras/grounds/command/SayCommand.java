@@ -17,7 +17,7 @@ import xyz.deszaras.grounds.model.Universe;
  * Arguments: message (quotes not necessary)
  * Checks: none at the moment, but that'll change
  */
-public class SayCommand extends Command {
+public class SayCommand extends Command<Boolean> {
 
   private static final String SAY_FORMAT = "> %s says: %s";
   private static final String OOC_FORMAT = "%% %s says OOC: %s";
@@ -32,11 +32,10 @@ public class SayCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() throws CommandException {
     Optional<Place> location = player.getLocation();
     if (location.isEmpty()) {
-      actor.sendMessage("You aren't located anywhere, so there is nothing to say anything to");
-      return false;
+      throw new CommandException("You aren't located anywhere, so there is nothing to say anything to");
     }
 
     // TBD check permission for posing in location?

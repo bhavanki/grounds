@@ -3,17 +3,16 @@ package xyz.deszaras.grounds.command;
 import java.util.List;
 import xyz.deszaras.grounds.model.Player;
 
-public class ShutdownCommand extends Command {
+public class ShutdownCommand extends Command<Boolean> {
 
   public ShutdownCommand(Actor actor, Player player) {
     super(actor, player);
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() throws CommandException {
     if (!player.equals(Player.GOD)) {
-      actor.sendMessage("Only GOD may shutdown the game");
-      return false;
+      throw new CommandException("Only GOD may shutdown the game");
     }
     return true;
   }

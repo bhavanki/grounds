@@ -15,7 +15,7 @@ import xyz.deszaras.grounds.model.Universe;
  * Arguments: message (quotes not necessary)
  * Checks: none at the moment, but that'll change
  */
-public class PoseCommand extends Command {
+public class PoseCommand extends Command<Boolean> {
 
   private static final String POSE_FORMAT = "` %s";
 
@@ -27,11 +27,10 @@ public class PoseCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() throws CommandException {
     Optional<Place> location = player.getLocation();
     if (location.isEmpty()) {
-      actor.sendMessage("You aren't located anywhere, so there is no one to pose to");
-      return false;
+      throw new CommandException("You aren't located anywhere, so there is no one to pose to");
     }
 
     // TBD check permission for posing in location?

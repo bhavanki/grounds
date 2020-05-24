@@ -11,7 +11,7 @@ import xyz.deszaras.grounds.model.Thing;
  * Arguments: name or ID of thing<br>
  * Checks: player owns thing
  */
-public class AbandonCommand extends Command {
+public class AbandonCommand extends Command<Boolean> {
 
   private final Thing thing;
 
@@ -21,10 +21,9 @@ public class AbandonCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() throws CommandException {
     if (!player.equals(thing.getOwner().orElse(null))) {
-      actor.sendMessage("You do not own that");
-      return false;
+      throw new CommandException("You do not own that");
     }
     thing.setOwner(null);
     return true;

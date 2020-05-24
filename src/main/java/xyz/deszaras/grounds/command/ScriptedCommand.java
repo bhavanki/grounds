@@ -18,7 +18,7 @@ import xyz.deszaras.grounds.script.ScriptFactoryException;
  * '$' character. See {@link ScriptFactory#newScript(Attr)} for
  * details on the necessary attribute structure.
  */
-public class ScriptedCommand extends Command {
+public class ScriptedCommand extends Command<String> {
 
   private final Script script;
   private final List<String> scriptArguments;
@@ -39,7 +39,7 @@ public class ScriptedCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public String execute() {
     return new ScriptCallable(actor, player, script, scriptArguments).call();
   }
 

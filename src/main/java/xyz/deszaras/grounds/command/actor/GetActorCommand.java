@@ -6,6 +6,7 @@ import java.util.Optional;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.ActorCommand;
 import xyz.deszaras.grounds.command.Command;
+import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.ActorDatabase;
@@ -17,7 +18,7 @@ import xyz.deszaras.grounds.server.ActorDatabase.ActorRecord;
  * Arguments: username<br>
  * Checks: player is GOD
  */
-public class GetActorCommand extends Command {
+public class GetActorCommand extends Command<Boolean> {
 
   private final String username;
 
@@ -27,14 +28,11 @@ public class GetActorCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() throws CommandException {
     if (!player.equals(Player.GOD)) {
-      actor.sendMessage("Only GOD may work with actors");
-      return false;
+      throw new CommandException("Only GOD may work with actors");
     }
-    if (!ActorCommand.checkIfRoot(actor, username)) {
-      return false;
-    }
+    ActorCommand.checkIfRoot(actor, username);
 
     Optional<ActorRecord> actorRecord =
         ActorDatabase.INSTANCE.getActorRecord(username);
@@ -42,8 +40,7 @@ public class GetActorCommand extends Command {
       actor.sendMessage(actorRecord.get().toString());
       return true;
     } else {
-      actor.sendMessage("I could not find the actor named " + username);
-      return false;
+      throw new CommandException("I could not find the actor named " + username);
     }
   }
 

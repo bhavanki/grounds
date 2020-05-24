@@ -20,7 +20,7 @@ import xyz.deszaras.grounds.model.Universe;
  * and creating something other than a new universe; player is a wizard;
  * player has a location if creating something other than a new universe
  */
-public class BuildCommand extends Command {
+public class BuildCommand extends Command<Boolean> {
 
   public enum BuiltInType {
     THING,
@@ -44,30 +44,26 @@ public class BuildCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() throws CommandException {
     Universe universe = player.getUniverse();
 
     BuiltInType thingType;
     try {
       thingType = BuiltInType.valueOf(type.toUpperCase());
     } catch (IllegalArgumentException e) {
-      actor.sendMessage("I don't know how to build " + type);
-      return false;
+      throw new CommandException("I don't know how to build " + type);
     }
     if (thingType != BuiltInType.UNIVERSE &&
         universe.getName().equals(Universe.VOID.getName())) {
-      actor.sendMessage("Building of anything except universes is not permitted in the VOID universe");
-      return false;
+      throw new CommandException("Building of anything except universes is not permitted in the VOID universe");
     }
 
     if (!Role.isWizard(player)) {
-      actor.sendMessage("You are not a wizard in this universe, so you may not build");
-      return false;
+      throw new CommandException("You are not a wizard in this universe, so you may not build");
     }
 
     if (thingType != BuiltInType.UNIVERSE && !player.getLocation().isPresent()) {
-      actor.sendMessage("You are not located anywhere, so you may only build a universe");
-      return false;
+      throw new CommandException("You are not located anywhere, so you may only build a universe");
     }
 
     Thing built;
@@ -79,8 +75,7 @@ public class BuildCommand extends Command {
           break;
         case PLAYER:
           if (Multiverse.MULTIVERSE.findThingByName(name, Player.class).isPresent()) {
-            actor.sendMessage("A player named " + name + " already exists");
-            return false;
+            throw new CommandException("A player named " + name + " already exists");
           }
           built = Player.build(name, universe, buildArgs);
           break;
@@ -95,8 +90,7 @@ public class BuildCommand extends Command {
           break;
         case UNIVERSE:
           if (Multiverse.MULTIVERSE.hasUniverse(name)) {
-            actor.sendMessage("A universe named " + name + " already exists");
-            return false;
+            throw new CommandException("A universe named " + name + " already exists");
           }
           universe = Universe.build(name, buildArgs);
           Multiverse.MULTIVERSE.putUniverse(universe);
@@ -119,9 +113,8 @@ public class BuildCommand extends Command {
       return true;
     } catch (IllegalArgumentException e) {
       // Future: Dynamic types
-      actor.sendMessage("Unsupported type " + type + ": " + e.getMessage());
+      throw new CommandException("Unsupported type " + type + ": " + e.getMessage());
     }
-    return false;
   }
 
   private void createOrigin(Universe universe) {

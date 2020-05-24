@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.Command;
+import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.command.CommandResult;
@@ -178,6 +179,12 @@ public class Shell implements Runnable {
             commandResult = commandFuture.get();
 
             if (!commandResult.isSuccessful()) {
+              Optional<CommandException> commandException =
+                  commandResult.getCommandException();
+              if (commandException.isPresent()) {
+                actor.sendMessage(commandException.get().getMessage());
+              }
+
               Optional<CommandFactoryException> commandFactoryException =
                   commandResult.getCommandFactoryException();
               if (commandFactoryException.isPresent()) {
@@ -195,7 +202,8 @@ public class Shell implements Runnable {
 
           if (commandResult.isSuccessful() &&
               commandResult.getCommandClass().isPresent()) {
-            Class<? extends Command> commandClass = commandResult.getCommandClass().get();
+            Optional<Class<? extends Command>> commandClassOpt = commandResult.getCommandClass();
+            Class<? extends Command> commandClass = commandClassOpt.get();
 
             if (commandClass.equals(ExitCommand.class) ||
                 commandClass.equals(ShutdownCommand.class)) {

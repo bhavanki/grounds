@@ -9,7 +9,7 @@ import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
-public class TakeCommand extends Command {
+public class TakeCommand extends Command<Boolean> {
 
   private final Thing thing;
 
@@ -19,18 +19,15 @@ public class TakeCommand extends Command {
   }
 
   @Override
-  public boolean execute() {
+  public Boolean execute() throws CommandException {
     if (player.has(thing)) {
-      actor.sendMessage("You are already holding that");
-      return false;
+      throw new CommandException("You are already holding that");
     }
     if (!(thing.getClass().equals(Thing.class))) {
-      actor.sendMessage("You can only take ordinary things");
-      return false;
+      throw new CommandException("You can only take ordinary things");
     }
     if (!thing.passes(Category.GENERAL, player)) {
-      actor.sendMessage("You are not permitted to take that");
-      return false;
+      throw new CommandException("You are not permitted to take that");
     }
 
     Optional<Place> location = thing.getLocation();
@@ -38,8 +35,7 @@ public class TakeCommand extends Command {
         (location.isEmpty() ||             // the thing has no location
          player.getLocation().isEmpty() || // the player has no location
          !location.get().equals(player.getLocation().get()))) {
-      actor.sendMessage("You may only take that if you are in the same location");
-      return false;
+      throw new CommandException("You may only take that if you are in the same location");
     }
 
     if (location.isPresent()) {
