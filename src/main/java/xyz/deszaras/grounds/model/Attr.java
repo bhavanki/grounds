@@ -13,7 +13,6 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -173,33 +172,18 @@ public final class Attr {
   }
 
   /**
-   * Gets the value of this attribute as a thing.
+   * Gets the value of this attribute as a thing. This returns the string form
+   * of the thing's ID.
    *
-   * @return attribute value as a thing
+   * @return attribute value as a thing ID
    * @throws IllegalStateException if this attribute is not a thing type
    */
   @JsonIgnore
-  public Optional<Thing> getThingValue() {
-    if (type != Type.THING) {
-      throw new IllegalStateException("Attribute " + name + " is type " + type);
-    }
-    return Multiverse.MULTIVERSE.findThing(value);
-  }
-
-  /**
-   * Gets the value of this attribute as a thing of a particular class.
-   *
-   * @param thingClass expected class of thing
-   * @return attribute value as a thing of a particular class
-   * @throws IllegalStateException if this attribute is not a thing type,
-   * or if the value is not of the expected thing class
-   */
-  @JsonIgnore
-  public <T extends Thing> Optional<T> getThingValue(Class<T> thingClass) {
-    if (type != Type.THING) {
-      throw new IllegalStateException("Attribute " + name + " is type " + type);
-    }
-    return Multiverse.MULTIVERSE.findThing(value, thingClass);
+  public String getThingValue() {
+     if (type != Type.THING) {
+       throw new IllegalStateException("Attribute " + name + " is type " + type);
+     }
+     return value;
   }
 
   /**

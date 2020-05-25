@@ -51,7 +51,8 @@ public class LookCommand extends Command<String> {
         Optional<Attr> otherPlaceAttr = link.getOtherPlace(location);
         if (otherPlaceAttr.isPresent()) {
           String otherPlaceName = otherPlaceAttr.get().getName();
-          Optional<Place> otherPlace = otherPlaceAttr.get().getThingValue(Place.class);
+          Optional<Place> otherPlace =
+              Multiverse.MULTIVERSE.findThing(otherPlaceAttr.get().getThingValue(), Place.class);
           if (otherPlace.isPresent()) {
             b.append("\n- (" + otherPlaceName + ") " +
                      otherPlace.get().getName() + " [" + otherPlace.get().getId() + "]");

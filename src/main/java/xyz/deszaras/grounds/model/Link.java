@@ -58,12 +58,14 @@ public class Link extends Thing {
 
   @JsonIgnore
   public Optional<Place> getSource() {
-    return getAttr(SOURCE).get().getAttrValue().getThingValue(Place.class);
+    String sourceId = getAttr(SOURCE).get().getAttrValue().getThingValue();
+    return Multiverse.MULTIVERSE.findThing(sourceId, Place.class);
   }
 
   @JsonIgnore
   public Optional<Place> getDestination() {
-    return getAttr(DESTINATION).get().getAttrValue().getThingValue(Place.class);
+    String destinationId = getAttr(DESTINATION).get().getAttrValue().getThingValue();
+    return Multiverse.MULTIVERSE.findThing(destinationId, Place.class);
   }
 
   @JsonIgnore

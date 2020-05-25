@@ -37,6 +37,15 @@ public class AttrTest {
   }
 
   @Test
+  public void testThingAttr() {
+    Thing t = new Thing("something", new Universe("test"));
+    attr = new Attr("a", t);
+    assertEquals("a", attr.getName());
+    assertEquals(Attr.Type.THING, attr.getType());
+    assertEquals(t.getId().toString(), attr.getThingValue());
+  }
+
+  @Test
   public void testAttrAttr() {
     attr = new Attr("a", new Attr("x", "b"));
     assertEquals("a", attr.getName());
