@@ -45,7 +45,7 @@ public class Message {
 
     public static final Style INFO = new Style("%s");
     public static final Style COMMAND_EXCEPTION = new Style("! %s");
-    public static final Style SCRIPT = new Style("$ %s");
+    public static final Style SCRIPT = new Style("* %s");
 
     public static final Style POSE = new Style("` %s");
     public static final Style OOC = new Style("%% %s");
