@@ -49,7 +49,6 @@ public class CommandExecutor {
         .put("SAVE", SaveCommand.class)
         .put("SWITCH_PLAYER", SwitchPlayerCommand.class)
         .put("EXIT", ExitCommand.class)
-        .put("HASH_PASSWORD", HashPasswordCommand.class)
         .put("INDEX", IndexCommand.class)
         .put("GET_ID", GetIdCommand.class)
         .put("ROLE", RoleCommand.class)
