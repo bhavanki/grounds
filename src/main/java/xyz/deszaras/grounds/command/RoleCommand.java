@@ -21,24 +21,22 @@ public class RoleCommand extends Command<Boolean> {
     throw new UnsupportedOperationException("This is a composite command");
   }
 
-  public static boolean checkIfThaumaturge(Actor actor, Player player,
-                                           Player targetPlayer) {
+  public static void checkIfThaumaturge(Actor actor, Player player,
+                                        Player targetPlayer)
+      throws PermissionException{
     if (!player.equals(Player.GOD)) {
       Set<Role> roles = targetPlayer.getUniverse().getRoles(player);
       if (!roles.contains(Role.THAUMATURGE)) {
-        actor.sendMessage("You are not a thaumaturge in the target player's universe," +
-                          " so you may not work with roles there");
-        return false;
+        throw new PermissionException("You are not a thaumaturge in the target player's universe," +
+                                      " so you may not work with roles there");
       }
     }
-    return true;
   }
 
-  public static void reportRoles(Actor actor, Player targetPlayer,
+  public static String reportRoles(Actor actor, Player targetPlayer,
                                  Set<Role> newRoles) {
-    actor.sendMessage(String.format("Roles for %s: %s",
-                                    targetPlayer.getName(),
-                                    newRoles.toString()));
+    return String.format("Roles for %s: %s", targetPlayer.getName(),
+                         newRoles.toString());
   }
 
   private static final Map<String, Class<? extends Command>> ROLE_COMMANDS;

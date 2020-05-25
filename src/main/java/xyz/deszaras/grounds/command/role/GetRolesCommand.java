@@ -18,7 +18,7 @@ import xyz.deszaras.grounds.model.Player;
  * Arguments: target player<br>
  * Checks: player is GOD or THAUMATURGE in target player's universe
  */
-public class GetRolesCommand extends Command<Boolean> {
+public class GetRolesCommand extends Command<String> {
 
   private final Player targetPlayer;
 
@@ -28,14 +28,11 @@ public class GetRolesCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() throws CommandException {
-    if (!RoleCommand.checkIfThaumaturge(actor, player, targetPlayer)) {
-      throw new CommandException("You do not have permission to work with roles");
-    }
+  public String execute() throws CommandException {
+    RoleCommand.checkIfThaumaturge(actor, player, targetPlayer);
 
     Set<Role> newRoles = targetPlayer.getUniverse().getRoles(targetPlayer);
-    RoleCommand.reportRoles(actor, targetPlayer, newRoles);
-    return true;
+    return RoleCommand.reportRoles(actor, targetPlayer, newRoles);
   }
 
   public static GetRolesCommand newCommand(Actor actor, Player player,
