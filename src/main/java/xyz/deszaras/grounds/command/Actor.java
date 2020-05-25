@@ -18,7 +18,7 @@ public class Actor {
   public static final Actor ROOT = new Actor("root");
 
   private final String username;
-  private final LinkedBlockingQueue<String> messages;
+  private final LinkedBlockingQueue<Message> messages;
 
   private Player currentPlayer;
 
@@ -66,7 +66,7 @@ public class Actor {
    * @param message message to send
    * @throws NullPointerException if the message is null
    */
-  public void sendMessage(String message) {
+  public void sendMessage(Message message) {
     messages.offer(Objects.requireNonNull(message));
   }
 
@@ -77,7 +77,7 @@ public class Actor {
    * @return next available message
    * @throws InterruptedException if the wait is interrupted
    */
-  public String getNextMessage() throws InterruptedException {
+  public Message getNextMessage() throws InterruptedException {
     return messages.take();
   }
 

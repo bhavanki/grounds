@@ -41,7 +41,7 @@ public class MessageEmitter implements Runnable {
 
     try {
       while (true) {
-        String sentMessage = actor.getNextMessage();
+        String sentMessage = actor.getNextMessage().getFormattedMessage();
         LineBreaker lineBreaker = new LineBreaker(terminal.getWidth());
         String message = lineBreaker.insertLineBreaks(sentMessage);
         if (lineReader != null) {

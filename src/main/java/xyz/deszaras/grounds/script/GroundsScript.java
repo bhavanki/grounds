@@ -9,6 +9,7 @@ import xyz.deszaras.grounds.command.CommandCallable;
 import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.command.CommandResult;
+import xyz.deszaras.grounds.command.Message;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
@@ -21,7 +22,8 @@ import xyz.deszaras.grounds.model.Thing;
 public abstract class GroundsScript extends groovy.lang.Script {
 
   private Actor actor;
-  private Player player;
+  private Player caller;
+  private Player runner;
   private Player owner;
 
   /**
@@ -34,12 +36,13 @@ public abstract class GroundsScript extends groovy.lang.Script {
   }
 
   /**
-   * Sets the player for the script.
+   * Sets the player (and caller) for the script.
    *
    * @param player player executing the script
    */
   public void setPlayer(Player player) {
-    this.player = player;
+    this.caller = player;
+    this.runner = player;
   }
 
   /**
@@ -47,7 +50,7 @@ public abstract class GroundsScript extends groovy.lang.Script {
    *
    * @param owner owner of the script
    */
-  public void setOwner(Player player) {
+  public void setOwner(Player owner) {
     this.owner = owner;
   }
 
@@ -56,7 +59,16 @@ public abstract class GroundsScript extends groovy.lang.Script {
    * scripts to execute commands that the original caller cannot.
    */
   public void runAsOwner() {
-    this.owner = player;
+    this.runner = owner;
+  }
+
+  /**
+   * Gets the name of the caller of this script.
+   *
+   * @return caller name
+   */
+  public String getCallerName() {
+    return caller.getName();
   }
 
   /**
@@ -68,12 +80,12 @@ public abstract class GroundsScript extends groovy.lang.Script {
    * @throws CommandException if the player may not access the thing
    */
   public Optional<Attr> getAttr(String thingId, String name) throws CommandException {
-    Optional<Thing> thing = player.getUniverse().getThing(UUID.fromString(thingId));
+    Optional<Thing> thing = runner.getUniverse().getThing(UUID.fromString(thingId));
     if (thing.isEmpty()) {
       return Optional.empty();
     }
     // so maybe this should be a command
-    if (!thing.get().passes(Category.READ, player)) {
+    if (!thing.get().passes(Category.READ, runner)) {
       throw new CommandException("You may not read attributes for that");
     }
     return thing.get().getAttr(name);
@@ -85,7 +97,21 @@ public abstract class GroundsScript extends groovy.lang.Script {
    * @param message message to send
    */
   public void sendMessageToCaller(String message) {
-    player.sendMessage(message);
+    caller.sendMessage(new Message(runner, Message.Style.SCRIPT, message));
+  }
+
+  /**
+   * Sends a message to a player. The message is sent from the script's player.
+   *
+   * @param playerName name of player
+   * @param message message to send
+   */
+  public void sendMessageTo(String playerName, String message) {
+    Optional<Player> targetPlayer =
+        runner.getUniverse().getThingByName(playerName, Player.class);
+    if (targetPlayer.isPresent()) {
+      targetPlayer.get().sendMessage(new Message(runner, Message.Style.SCRIPT, message));
+    }
   }
 
   /**
@@ -98,7 +124,7 @@ public abstract class GroundsScript extends groovy.lang.Script {
    * @return command result
    */
   public CommandResult exec(List<String> commandLine) {
-    return new CommandCallable(actor, player, commandLine,
+    return new CommandCallable(actor, runner, commandLine,
                                CommandExecutor.INSTANCE.getCommandFactory()).call();
   }
 

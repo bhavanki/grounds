@@ -41,7 +41,7 @@ public class ClaimCommand extends Command<Boolean> {
     }
     if (thing.getOwner().isPresent()) {
       if (thing.getOwner().get().equals(player)) {
-        actor.sendMessage("You already own that");
+        actor.sendMessage(newInfoMessage("You already own that"));
         return;
       }
       throw new CommandException("That is already owned by someone else");

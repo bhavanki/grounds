@@ -17,7 +17,7 @@ import xyz.deszaras.grounds.model.Universe;
  */
 public class PoseCommand extends Command<Boolean> {
 
-  private static final String POSE_FORMAT = "` %s";
+  private static final String POSE_FORMAT = "%s";
 
   private final String message;
 
@@ -35,7 +35,8 @@ public class PoseCommand extends Command<Boolean> {
 
     // TBD check permission for posing in location?
 
-    String poseMessage = String.format(POSE_FORMAT, message);
+    Message poseMessage = newMessage(Message.Style.POSE,
+                                     String.format(POSE_FORMAT, message));
 
     Universe universe = location.get().getUniverse();
     location.get().getContents().stream()

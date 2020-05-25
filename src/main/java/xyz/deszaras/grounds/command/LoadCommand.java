@@ -31,7 +31,7 @@ public class LoadCommand extends Command<Boolean> {
     // because they are disconnected from their players
     try {
       Multiverse.load(f);
-      actor.sendMessage("Loaded multiverse from " + f.getName());
+      actor.sendMessage(newInfoMessage("Loaded multiverse from " + f.getName()));
       return true;
     } catch (IOException e) {
       e.printStackTrace();

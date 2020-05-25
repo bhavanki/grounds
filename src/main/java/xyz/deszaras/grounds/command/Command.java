@@ -63,4 +63,12 @@ public abstract class Command<R> {
       throw new CommandFactoryException("Need at least " + n + " arguments, got " + l.size());
     }
   }
+
+  protected Message newMessage(Message.Style style, String message) {
+    return new Message(player, style, message);
+  }
+
+  protected Message newInfoMessage(String message) {
+    return new Message(player, Message.Style.INFO, message);
+  }
 }

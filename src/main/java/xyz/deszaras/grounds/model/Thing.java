@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import xyz.deszaras.grounds.auth.Policy;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.CommandExecutor;
+import xyz.deszaras.grounds.command.Message;
 import xyz.deszaras.grounds.util.CommandLineUtils;
 
 /**
@@ -565,7 +566,7 @@ public class Thing {
    * @return true if at least one listener was found
    * @throws NullPointerException if the message is null
    */
-  public boolean sendMessage(String message) {
+  public boolean sendMessage(Message message) {
     Objects.requireNonNull(message);
 
     Set<Attr> listenerAttrs = new HashSet<>();
@@ -580,7 +581,7 @@ public class Thing {
 
     for (Attr listenerAttr : listenerAttrs) {
       // Check the message against the listener pattern from the attribute.
-      if (!message.matches(listenerAttr.getListenerPattern())) {
+      if (!message.getMessage().matches(listenerAttr.getListenerPattern())) {
         continue;
       }
 

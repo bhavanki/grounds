@@ -94,7 +94,7 @@ public class BuildCommand extends Command<Boolean> {
           }
           universe = Universe.build(name, buildArgs);
           Multiverse.MULTIVERSE.putUniverse(universe);
-          actor.sendMessage("Created universe " + universe.getName());
+          actor.sendMessage(newInfoMessage("Created universe " + universe.getName()));
 
           createOrigin(universe);
 
@@ -109,7 +109,7 @@ public class BuildCommand extends Command<Boolean> {
         built.setLocation(player.getLocation().get());
         player.getLocation().get().give(built);
       }
-      actor.sendMessage("Created " + built.getId());
+      actor.sendMessage(newInfoMessage("Created " + built.getId()));
       return true;
     } catch (IllegalArgumentException e) {
       // Future: Dynamic types
@@ -126,7 +126,7 @@ public class BuildCommand extends Command<Boolean> {
         " you can start building more things to create a new world. Type" +
         " `build help` to see what you can create.");
 
-    actor.sendMessage("Created origin place " + origin.getId());
+    actor.sendMessage(newInfoMessage("Created origin place " + origin.getId()));
   }
 
   public static BuildCommand newCommand(Actor actor, Player player,

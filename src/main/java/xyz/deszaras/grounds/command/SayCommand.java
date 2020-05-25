@@ -19,8 +19,8 @@ import xyz.deszaras.grounds.model.Universe;
  */
 public class SayCommand extends Command<Boolean> {
 
-  private static final String SAY_FORMAT = "> %s says: %s";
-  private static final String OOC_FORMAT = "%% %s says OOC: %s";
+  private static final String SAY_FORMAT = "%s says: %s";
+  private static final String OOC_FORMAT = "%s says OOC: %s";
 
   private final String message;
   private final boolean ooc;
@@ -40,11 +40,14 @@ public class SayCommand extends Command<Boolean> {
 
     // TBD check permission for posing in location?
 
-    String sayMessage;
+    String sayMessageString;
+    Message sayMessage;
     if (ooc) {
-      sayMessage = String.format(OOC_FORMAT, player.getName(), message);
+      sayMessageString = String.format(OOC_FORMAT, player.getName(), message);
+      sayMessage = newMessage(Message.Style.OOC, sayMessageString);
     } else {
-      sayMessage = String.format(SAY_FORMAT, player.getName(), message);
+      sayMessageString = String.format(SAY_FORMAT, player.getName(), message);
+      sayMessage = newMessage(Message.Style.SAY, sayMessageString);
     }
 
     Universe universe = location.get().getUniverse();

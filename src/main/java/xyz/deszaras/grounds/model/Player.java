@@ -13,6 +13,7 @@ import java.util.UUID;
 import xyz.deszaras.grounds.auth.Policy;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.Actor;
+import xyz.deszaras.grounds.command.Message;
 
 /**
  * A thing that represents a player in the world.
@@ -89,7 +90,7 @@ public class Player extends Thing {
    * @throws NullPointerException if the message is null
    */
   @Override
-  public boolean sendMessage(String message) {
+  public boolean sendMessage(Message message) {
     if (actor == null) {
       return false;
     }

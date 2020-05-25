@@ -29,7 +29,7 @@ public class SaveCommand extends Command<Boolean> {
     }
     try {
       Multiverse.save(f);
-      actor.sendMessage("Saved multiverse to " + f.getName());
+      actor.sendMessage(newInfoMessage("Saved multiverse to " + f.getName()));
       return true;
     } catch (IOException e) {
       e.printStackTrace();

@@ -23,6 +23,7 @@ import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.command.CommandResult;
 import xyz.deszaras.grounds.command.ExitCommand;
+import xyz.deszaras.grounds.command.Message;
 import xyz.deszaras.grounds.command.ShutdownCommand;
 import xyz.deszaras.grounds.command.SwitchPlayerCommand;
 import xyz.deszaras.grounds.model.Multiverse;
@@ -182,7 +183,8 @@ public class Shell implements Runnable {
               Optional<CommandException> commandException =
                   commandResult.getCommandException();
               if (commandException.isPresent()) {
-                actor.sendMessage(commandException.get().getMessage());
+                actor.sendMessage(new Message(player, Message.Style.COMMAND_EXCEPTION,
+                                              commandException.get().getMessage()));
               }
 
               Optional<CommandFactoryException> commandFactoryException =
@@ -203,7 +205,7 @@ public class Shell implements Runnable {
           if (commandResult.isSuccessful()) {
             Object result = commandResult.getResult();
             if (result != null && !(result instanceof Boolean)) {
-              actor.sendMessage(result.toString());
+              actor.sendMessage(new Message(player, Message.Style.INFO, result.toString()));
             }
           }
 

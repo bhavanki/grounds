@@ -6,9 +6,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import xyz.deszaras.grounds.model.Player;
 
-public class HelpCommand extends Command<Boolean> {
+public class HelpCommand extends Command<String> {
 
   private final String commandName;
 
@@ -18,15 +19,12 @@ public class HelpCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() throws CommandException {
+  public String execute() throws CommandException {
     if (commandName.equalsIgnoreCase("commands")) {
       List<String> commandNames =
           new ArrayList<>(CommandExecutor.INSTANCE.getCommandFactory().getCommandNames());
       Collections.sort(commandNames);
-      for (String commandName : commandNames) {
-        actor.sendMessage(commandName);
-      }
-      return true;
+      return commandNames.stream().collect(Collectors.joining("\n"));
     }
 
     Class<? extends Command> commandClass =
@@ -37,9 +35,7 @@ public class HelpCommand extends Command<Boolean> {
 
     try {
       Method helpMethod = commandClass.getMethod("help");
-      String helpText = (String) helpMethod.invoke(null);
-      actor.sendMessage(helpText);
-      return true;
+      return (String) helpMethod.invoke(null);
     } catch (NoSuchMethodException e) {
       throw new CommandException("Command class " + commandClass.getName() +
                                  " lacks a static help method!");
