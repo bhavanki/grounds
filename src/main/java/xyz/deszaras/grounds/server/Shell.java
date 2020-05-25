@@ -200,6 +200,13 @@ public class Shell implements Runnable {
             commandResult = new CommandResult(false, null);
           }
 
+          if (commandResult.isSuccessful()) {
+            Object result = commandResult.getResult();
+            if (result != null && !(result instanceof Boolean)) {
+              actor.sendMessage(result.toString());
+            }
+          }
+
           if (commandResult.isSuccessful() &&
               commandResult.getCommandClass().isPresent()) {
             Optional<Class<? extends Command>> commandClassOpt = commandResult.getCommandClass();
