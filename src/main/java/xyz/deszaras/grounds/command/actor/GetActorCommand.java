@@ -18,7 +18,7 @@ import xyz.deszaras.grounds.server.ActorDatabase.ActorRecord;
  * Arguments: username<br>
  * Checks: player is GOD
  */
-public class GetActorCommand extends Command<Boolean> {
+public class GetActorCommand extends Command<String> {
 
   private final String username;
 
@@ -28,17 +28,14 @@ public class GetActorCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() throws CommandException {
-    if (!player.equals(Player.GOD)) {
-      throw new CommandException("Only GOD may work with actors");
-    }
+  public String execute() throws CommandException {
+    ActorCommand.checkIfGod(player);
     ActorCommand.checkIfRoot(actor, username);
 
     Optional<ActorRecord> actorRecord =
         ActorDatabase.INSTANCE.getActorRecord(username);
     if (actorRecord.isPresent()) {
-      actor.sendMessage(actorRecord.get().toString());
-      return true;
+      return actorRecord.get().toString();
     } else {
       throw new CommandException("I could not find the actor named " + username);
     }

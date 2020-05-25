@@ -33,6 +33,12 @@ public class ActorCommand extends Command<Boolean> {
     }
   }
 
+  public static void checkIfGod(Player player) throws PermissionException {
+    if (!player.equals(Player.GOD)) {
+      throw new PermissionException("Only GOD may work with actors");
+    }
+  }
+
   public static boolean saveActorDatabase(Actor actor) throws CommandException {
     try {
       ActorDatabase.INSTANCE.save();

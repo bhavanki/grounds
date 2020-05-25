@@ -15,7 +15,7 @@ import xyz.deszaras.grounds.model.Universe;
  * Arguments: name of universe<br>
  * Checks: player is wizard in universe
  */
-public class IndexCommand extends Command<Boolean> {
+public class IndexCommand extends Command<String> {
 
   private final Universe universe;
 
@@ -25,9 +25,9 @@ public class IndexCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() throws CommandException {
+  public String execute() throws CommandException {
     if (!Role.isWizard(player, universe)) {
-      throw new CommandException("You are not a wizard in this universe, so you may not inspect");
+      throw new PermissionException("You are not a wizard in this universe, so you may not index it");
     }
 
     List<Thing> things = new ArrayList<>(universe.getThings());
@@ -44,11 +44,12 @@ public class IndexCommand extends Command<Boolean> {
                       return t1.getId().compareTo(t2.getId());
                      });
 
+    StringBuilder b = new StringBuilder();
     for (Thing t : things) {
-      actor.sendMessage(String.format("%12.12s %25.25s %s", t.getClass().getSimpleName(),
-                                      t.getName(), t.getId().toString()));
+      b.append(String.format("%12.12s %25.25s %s\n", t.getClass().getSimpleName(),
+                             t.getName(), t.getId().toString()));
     }
-    return true;
+    return b.toString();
   }
 
   public static IndexCommand newCommand(Actor actor, Player player,

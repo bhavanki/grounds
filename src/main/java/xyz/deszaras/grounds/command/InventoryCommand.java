@@ -6,14 +6,14 @@ import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
-public class InventoryCommand extends Command<Boolean> {
+public class InventoryCommand extends Command<String> {
 
   public InventoryCommand(Actor actor, Player player) {
     super(actor, player);
   }
 
   @Override
-  public Boolean execute() {
+  public String execute() {
     StringBuilder b = new StringBuilder();
     player.getContents().forEach(id -> {
       Optional<Thing> t = Multiverse.MULTIVERSE.findThing(id);
@@ -21,8 +21,7 @@ public class InventoryCommand extends Command<Boolean> {
         b.append("- " + t.get().getName () + " [" + t.get().getId() + "]\n");
       }
     });
-    actor.sendMessage(b.toString());
-    return true;
+    return b.toString();
   }
 
   public static InventoryCommand newCommand(Actor actor, Player player,

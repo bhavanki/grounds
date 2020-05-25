@@ -31,9 +31,7 @@ public class AddPlayerToActorCommand extends Command<Boolean> {
 
   @Override
   public Boolean execute() throws CommandException {
-    if (!player.equals(Player.GOD)) {
-      throw new CommandException("Only GOD may work with actors");
-    }
+    ActorCommand.checkIfGod(player);
     ActorCommand.checkIfRoot(actor, username);
 
     boolean result = ActorDatabase.INSTANCE.updateActorRecord(username,

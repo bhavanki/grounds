@@ -57,8 +57,7 @@ public abstract class AbstractCommandTest {
    * @return      new thing
    */
   protected Thing newTestThing(String name) {
-    Thing thing = new Thing(name, Universe.VOID);
-    thing.setUniverse(testUniverse);
+    Thing thing = new Thing(name, testUniverse);
     testUniverse.addThing(thing);
     return thing;
   }
