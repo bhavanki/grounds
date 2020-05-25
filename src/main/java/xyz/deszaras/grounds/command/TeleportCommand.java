@@ -24,11 +24,8 @@ public class TeleportCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() {
-    if (!destination.passes(Category.GENERAL, player)) {
-      actor.sendMessage("You are not permitted to move there");
-      return false;
-    }
+  public Boolean execute() throws CommandException {
+    checkPermission(Category.GENERAL, destination, "You are not permitted to move there");
 
     Optional<Place> source = player.getLocation();
     if (source.isPresent()) {
@@ -42,7 +39,7 @@ public class TeleportCommand extends Command<Boolean> {
     destination.getUniverse().addThing(player);
 
     try {
-      new LookCommand(actor, player).execute();
+      return new LookCommand(actor, player).execute();
     } catch (CommandException e) { // NOPMD
     }
 

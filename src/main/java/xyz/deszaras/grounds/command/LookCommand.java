@@ -21,9 +21,8 @@ public class LookCommand extends Command<Boolean> {
   public Boolean execute() throws CommandException {
     Optional<Place> location = player.getLocation();
     if (location.isPresent()) {
-      if (!location.get().passes(Category.READ, player)) {
-        throw new CommandException("You are not permitted to look at where you are");
-      }
+      checkPermission(Category.READ, location.get(),
+                      "You are not permitted to look at where you are");
       actor.sendMessage(buildMessage(location.get()));
     } else {
       actor.sendMessage("nowhere");

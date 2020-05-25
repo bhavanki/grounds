@@ -53,9 +53,8 @@ public class MoveCommand extends Command<Boolean> {
     if (!moveDestination.isPresent()) {
       throw new CommandException("The exit has another side, but I can't find that place!");
     }
-    if (!viaLink.get().passes(Category.USE, player)) {
-      throw new CommandException("You are not permitted to traverse the exit to that place");
-    }
+    checkPermission(Category.USE, viaLink.get(),
+                    "You are not permitted to traverse the exit to that place");
 
     return new TeleportCommand(actor, player, moveDestination.get()).execute();
   }

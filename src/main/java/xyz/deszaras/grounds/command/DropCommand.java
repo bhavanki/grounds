@@ -23,9 +23,7 @@ public class DropCommand extends Command<Boolean> {
       throw new CommandException("You aren't holding that");
     }
     // This next check is questionable
-    if (!thing.passes(Category.GENERAL, player)) {
-      throw new CommandException("You are unable to drop that");
-    }
+    checkPermission(Category.GENERAL, thing, "You are unable to drop that");
     Optional<Place> location = player.getLocation();
     if (location.isEmpty()) {
       throw new CommandException("You are not located anywhere, so you may not drop anything");

@@ -22,9 +22,7 @@ public class InspectCommand extends Command<Boolean> {
 
   @Override
   public Boolean execute() throws CommandException {
-    if (!thing.passes(Category.WRITE, player)) {
-      throw new CommandException("You are not permitted to inspect this");
-    }
+    checkPermission(Category.WRITE, thing, "You are not permitted to inspect this");
     actor.sendMessage(thing.toJson());
     return true;
   }

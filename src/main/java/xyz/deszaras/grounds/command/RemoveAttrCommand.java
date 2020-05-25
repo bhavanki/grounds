@@ -31,9 +31,7 @@ public class RemoveAttrCommand extends Command<Boolean> {
       throw new CommandException("Only GOD may remove that attribute directly");
     }
 
-    if (!thing.passes(Category.WRITE, player)) {
-      throw new CommandException("You are not permitted to set attributes on this");
-    }
+    checkPermission(Category.WRITE, thing, "You are not permitted to remove attributes on this");
     thing.removeAttr(attrName);
     return true;
   }

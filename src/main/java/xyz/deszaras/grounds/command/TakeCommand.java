@@ -26,9 +26,7 @@ public class TakeCommand extends Command<Boolean> {
     if (!(thing.getClass().equals(Thing.class))) {
       throw new CommandException("You can only take ordinary things");
     }
-    if (!thing.passes(Category.GENERAL, player)) {
-      throw new CommandException("You are not permitted to take that");
-    }
+    checkPermission(Category.GENERAL, thing, "You are not permitted to take that");
 
     Optional<Place> location = thing.getLocation();
     if (!Role.isWizard(player, thing.getUniverse()) &&
