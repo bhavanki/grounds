@@ -2,8 +2,6 @@ package xyz.deszaras.grounds.script;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
 import org.junit.Test;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Player;

@@ -18,7 +18,7 @@ import xyz.deszaras.grounds.model.Player;
  * Checks: player has a location; link at location has exit name;
  * place on other end of link exists; player passes USE of link
  */
-public class MoveCommand extends Command<Boolean> {
+public class MoveCommand extends Command<String> {
 
   private final String exitName;
 
@@ -28,7 +28,7 @@ public class MoveCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() throws CommandException {
+  public String execute() throws CommandException {
     Optional<Place> source = player.getLocation();
     if (!source.isPresent()) {
       throw new CommandException("You have no current location, so you cannot move elsewhere");

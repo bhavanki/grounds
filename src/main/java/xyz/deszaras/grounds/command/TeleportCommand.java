@@ -14,17 +14,23 @@ import xyz.deszaras.grounds.model.Player;
  * Arguments: ID of destination<br>
  * Checks: player passes GENERAL of destination
  */
-public class TeleportCommand extends Command<Boolean> {
+public class TeleportCommand extends Command<String> {
 
   private final Place destination;
+  private LookCommand testLookCommand;
 
   public TeleportCommand(Actor actor, Player player, Place destination) {
     super(actor, player);
     this.destination = Objects.requireNonNull(destination);
+    testLookCommand = null;
+  }
+
+  protected void setTestLookCommand(LookCommand testLookCommand) {
+    this.testLookCommand = testLookCommand;
   }
 
   @Override
-  public Boolean execute() throws CommandException {
+  public String execute() throws CommandException {
     checkPermission(Category.GENERAL, destination, "You are not permitted to move there");
 
     Optional<Place> source = player.getLocation();
@@ -39,11 +45,12 @@ public class TeleportCommand extends Command<Boolean> {
     destination.getUniverse().addThing(player);
 
     try {
-      return new LookCommand(actor, player).execute();
-    } catch (CommandException e) { // NOPMD
+      LookCommand lookCommand =
+          testLookCommand != null ? testLookCommand : new LookCommand(actor, player);
+      return lookCommand.execute();
+    } catch (CommandException e) {
+      return e.getMessage();
     }
-
-    return true;
   }
 
   public static TeleportCommand newCommand(Actor actor, Player player,

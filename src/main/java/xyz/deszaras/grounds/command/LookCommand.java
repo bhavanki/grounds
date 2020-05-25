@@ -11,23 +11,22 @@ import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
-public class LookCommand extends Command<Boolean> {
+public class LookCommand extends Command<String> {
 
   public LookCommand(Actor actor, Player player) {
     super(actor, player);
   }
 
   @Override
-  public Boolean execute() throws CommandException {
+  public String execute() throws CommandException {
     Optional<Place> location = player.getLocation();
     if (location.isPresent()) {
       checkPermission(Category.READ, location.get(),
                       "You are not permitted to look at where you are");
-      actor.sendMessage(buildMessage(location.get()));
+      return buildMessage(location.get());
     } else {
-      actor.sendMessage("nowhere");
+      return "nowhere";
     }
-    return true;
   }
 
   private String buildMessage(Place location) {

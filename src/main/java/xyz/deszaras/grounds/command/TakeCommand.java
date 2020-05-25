@@ -1,5 +1,7 @@
 package xyz.deszaras.grounds.command;
 
+import static xyz.deszaras.grounds.util.TestabilityUtils.nonmock;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -23,7 +25,7 @@ public class TakeCommand extends Command<Boolean> {
     if (player.has(thing)) {
       throw new CommandException("You are already holding that");
     }
-    if (!(thing.getClass().equals(Thing.class))) {
+    if (!(nonmock(thing.getClass()).equals(Thing.class))) {
       throw new CommandException("You can only take ordinary things");
     }
     checkPermission(Category.GENERAL, thing, "You are not permitted to take that");
@@ -40,6 +42,7 @@ public class TakeCommand extends Command<Boolean> {
       location.get().take(thing);
     }
     player.give(thing);
+    thing.setLocation(null);
     return true;
   }
 
