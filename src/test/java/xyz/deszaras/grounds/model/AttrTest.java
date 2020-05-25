@@ -78,4 +78,10 @@ public class AttrTest {
     assertEquals(Attr.Type.STRING, attr.getType());
     assertEquals("b", attr.getValue());
   }
+
+  @Test
+  public void testToAttrSpec() {
+    attr = new Attr("a", "b");
+    assertEquals("a[STRING]=b", attr.toAttrSpec());
+  }
 }

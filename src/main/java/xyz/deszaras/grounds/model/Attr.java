@@ -258,6 +258,16 @@ public final class Attr {
     return Objects.hash(name, type, value);
   }
 
+  /**
+   * Returns the spec string for this attribute.
+   *
+   * @return attribute spec string
+   * @see #fromAttrSpec(String)
+   */
+  public String toAttrSpec() {
+    return String.format("%s[%s]=%s", name, type.toString(), value);
+  }
+
   private static final Pattern ATTR_SPEC_PATTERN =
       Pattern.compile("([^\\[]+)\\[([^]]+)\\]=(.*)");
 
@@ -300,10 +310,6 @@ public final class Attr {
       }
     }
     return new Attr(name, value, type);
-  }
-
-  public static String buildAttrSpec(String name, Type type, String value) {
-    return String.format("%s[%s]=%s", name, type.toString(), value);
   }
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
