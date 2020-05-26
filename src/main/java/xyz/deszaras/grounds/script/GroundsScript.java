@@ -125,7 +125,7 @@ public abstract class GroundsScript extends groovy.lang.Script {
    */
   public CommandResult exec(List<String> commandLine) {
     return new CommandCallable(actor, runner, commandLine,
-                               CommandExecutor.INSTANCE.getCommandFactory()).call();
+                               CommandExecutor.getInstance().getCommandFactory()).call();
   }
 
   /**

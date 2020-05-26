@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ExecutorService;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.server.Server;
 
 /**
  * This class is responsible for executing commands. It is a singleton,
@@ -54,13 +55,27 @@ public class CommandExecutor {
         .put("GET_ID", GetIdCommand.class)
         .put("ROLE", RoleCommand.class)
         .put("ACTOR", ActorCommand.class)
+        .put("WHO", WhoCommand.class)
         .put("SHUTDOWN", ShutdownCommand.class)
         .put("HELP", HelpCommand.class)
         .build();
   }
 
-  public static final CommandExecutor INSTANCE =
-      new CommandExecutor(new CommandFactory(COMMANDS));
+  private static CommandExecutor theExecutor = null;
+
+  public static synchronized void create(Server server) {
+    if (theExecutor != null) {
+      throw new IllegalStateException("The command executor has already been created");
+    }
+    theExecutor = new CommandExecutor(new CommandFactory(COMMANDS, server));
+  }
+
+  public static synchronized CommandExecutor getInstance() {
+    if (theExecutor == null) {
+      throw new IllegalStateException("The command executor has not yet been created");
+    }
+    return theExecutor;
+  }
 
   private final CommandFactory commandFactory;
   private final ExecutorService commandExecutorService;

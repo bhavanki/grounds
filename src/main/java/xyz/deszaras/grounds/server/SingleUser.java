@@ -47,6 +47,8 @@ public class SingleUser implements Runnable {
       console.printf("Actor database does not yet exist, not loading\n\n");
     }
 
+    CommandExecutor.create(null);
+
     console.printf("Welcome to Grounds.\n");
     console.printf("This is single-user mode. Use ^D or 'exit' to quit.\n\n");
 
@@ -78,7 +80,7 @@ public class SingleUser implements Runnable {
         console.printf("Failed to close local terminal", e);
       }
     }
-    CommandExecutor.INSTANCE.shutdown();
+    CommandExecutor.getInstance().shutdown();
 
     console.printf("\n\nBye!\n");
   }

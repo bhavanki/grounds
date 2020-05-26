@@ -1,5 +1,8 @@
 package xyz.deszaras.grounds.server;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -8,7 +11,9 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -62,6 +67,9 @@ public class Server {
   private final String bannerContent;
   private final CountDownLatch shutdownLatch;
 
+  private final Set<Actor> connectedActors;
+  private final Cache<Actor, Shell> openShells;
+
   /**
    * Creates a new server.
    *
@@ -74,6 +82,13 @@ public class Server {
     shellExecutorService = Executors.newCachedThreadPool();
     bannerContent = readBannerContent(serverProperties);
     shutdownLatch = new CountDownLatch(1);
+
+    connectedActors = new HashSet<>();
+    openShells = CacheBuilder.newBuilder().weakValues().build();
+  }
+
+  public Map<Actor, Shell> getOpenShells() {
+    return ImmutableMap.copyOf(openShells.asMap());
   }
 
   private SshServer buildSshServer(Properties serverProperties) throws IOException {
@@ -136,6 +151,14 @@ public class Server {
         if (!(remoteAddress.getAddress().getHostAddress().equals(LOCALHOST))) {
           throw new IOException("root may only connect from localhost");
         }
+      }
+
+      // If the actor is already connected, reject.
+      synchronized (connectedActors) {
+        if (connectedActors.contains(actor)) {
+          throw new IOException(actor.getUsername() + " is already connected");
+        }
+        connectedActors.add(actor);
       }
 
       return new ServerShellCommand(actor);
@@ -213,6 +236,7 @@ public class Server {
         }, Signal.WINCH);
 
       Shell shell = new Shell(actor, virtualTerminal);
+      openShells.put(actor, shell);
       shell.setBannerContent(bannerContent);
 
       Future<?> emitterFuture = shellExecutorService.submit(
@@ -237,6 +261,7 @@ public class Server {
             exitCallback.onExit(255, e.getMessage());
           } finally {
             emitterFuture.cancel(true);
+            openShells.invalidate(actor);
             try {
               virtualTerminal.close();
             } catch (IOException e) { // NOPMD
@@ -357,6 +382,10 @@ public class Server {
     @Override
     public void destroy(ChannelSession session) {
       shellFuture.cancel(true);
+
+      synchronized (connectedActors) {
+        connectedActors.remove(new Actor(session.getSessionContext().getUsername()));
+      }
     }
   }
 
@@ -366,6 +395,8 @@ public class Server {
    * @throws IOException if the server fails to start
    */
   public void start() throws IOException {
+    CommandExecutor.create(this);
+
     sshServer.start();
   }
 
@@ -378,7 +409,7 @@ public class Server {
   public void shutdown() throws IOException {
     sshServer.stop();
     shellExecutorService.shutdown();
-    CommandExecutor.INSTANCE.shutdown();
+    CommandExecutor.getInstance().shutdown();
     LOG.info("Shutdown complete");
   }
 

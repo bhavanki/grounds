@@ -22,13 +22,13 @@ public class HelpCommand extends Command<String> {
   public String execute() throws CommandException {
     if (commandName.equalsIgnoreCase("commands")) {
       List<String> commandNames =
-          new ArrayList<>(CommandExecutor.INSTANCE.getCommandFactory().getCommandNames());
+          new ArrayList<>(CommandExecutor.getInstance().getCommandFactory().getCommandNames());
       Collections.sort(commandNames);
       return commandNames.stream().collect(Collectors.joining("\n"));
     }
 
     Class<? extends Command> commandClass =
-        CommandExecutor.INSTANCE.getCommandFactory().getCommandClass(commandName);
+        CommandExecutor.getInstance().getCommandFactory().getCommandClass(commandName);
     if (commandClass == null) {
       throw new CommandException("Unrecognized command " + commandName);
     }

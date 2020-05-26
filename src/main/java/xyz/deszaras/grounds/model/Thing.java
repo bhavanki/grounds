@@ -587,7 +587,7 @@ public class Thing {
 
       List<String> commandLine = CommandLineUtils.tokenize(listenerAttr.getListenerCommandLine());
       // TBD: need to get actor and player
-      CommandExecutor.INSTANCE.submit(null, null, commandLine);
+      CommandExecutor.getInstance().submit(null, null, commandLine);
     }
     return true;
   }

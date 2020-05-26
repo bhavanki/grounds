@@ -53,7 +53,7 @@ public class RoleCommand extends Command<Boolean> {
   }
 
   private static final CommandFactory ROLE_COMMAND_FACTORY =
-      new CommandFactory(ROLE_COMMANDS);
+      new CommandFactory(ROLE_COMMANDS, null);
 
   public static Command newCommand(Actor actor, Player player,
                                    List<String> commandArgs)

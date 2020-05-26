@@ -10,6 +10,7 @@ import java.util.Set;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.server.Server;
 
 /**
  * A factory for commands. This factory is responsible for constructing
@@ -21,14 +22,17 @@ import xyz.deszaras.grounds.model.Player;
 public class CommandFactory {
 
   private final Map<String, Class<? extends Command>> commands;
+  private final Server server;
 
   /**
    * Creates a new command factory.
    *
    * @param  commands map of command classes to support, keyed by command name
    */
-  public CommandFactory(Map<String, Class<? extends Command>> commands) {
+  public CommandFactory(Map<String, Class<? extends Command>> commands,
+                        Server server) {
     this.commands = ImmutableMap.copyOf(commands);
+    this.server = server;
   }
 
   /**
@@ -78,9 +82,16 @@ public class CommandFactory {
     List<String> commandArgs = line.subList(1, line.size());
 
     try {
-      Method newCommandMethod =
-          commandClass.getMethod("newCommand", Actor.class, Player.class, List.class);
-      return (Command) newCommandMethod.invoke(null, actor, player, commandArgs);
+      Method newCommandMethod;
+      if (ServerCommand.class.isAssignableFrom(commandClass)) {
+        newCommandMethod =
+            commandClass.getMethod("newCommand", Actor.class, Player.class, Server.class, List.class);
+        return (Command) newCommandMethod.invoke(null, actor, player, server, commandArgs);
+      } else {
+        newCommandMethod =
+            commandClass.getMethod("newCommand", Actor.class, Player.class, List.class);
+        return (Command) newCommandMethod.invoke(null, actor, player, commandArgs);
+      }
     } catch (NoSuchMethodException e) {
       throw new CommandFactoryException("Command class " + commandClass.getName() +
                                         " lacks a static newCommand method!");

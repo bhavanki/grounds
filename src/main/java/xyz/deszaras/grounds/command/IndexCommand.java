@@ -45,6 +45,8 @@ public class IndexCommand extends Command<String> {
                      });
 
     StringBuilder b = new StringBuilder();
+    b.append(String.format("%12.12s %25.25s %s\n", "TYPE", "NAME", "ID"));
+    b.append(String.format("%12.12s %25.25s %s\n", "----", "----", "--"));
     for (Thing t : things) {
       b.append(String.format("%12.12s %25.25s %s\n", t.getClass().getSimpleName(),
                              t.getName(), t.getId().toString()));

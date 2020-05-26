@@ -77,6 +77,15 @@ public class Shell implements Runnable {
   }
 
   /**
+   * Gets the player for the shell.
+   *
+   * @return player
+   */
+  public Player getPlayer() {
+    return player;
+  }
+
+  /**
    * Sets the player for the shell.
    *
    * @param player player
@@ -174,7 +183,7 @@ public class Shell implements Runnable {
         if (!tokens.isEmpty()) {
 
           Future<CommandResult> commandFuture =
-              CommandExecutor.INSTANCE.submit(actor, player, tokens);
+              CommandExecutor.getInstance().submit(actor, player, tokens);
           CommandResult commandResult;
           try {
             commandResult = commandFuture.get();
