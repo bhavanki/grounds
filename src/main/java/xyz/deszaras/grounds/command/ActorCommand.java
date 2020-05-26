@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import xyz.deszaras.grounds.command.actor.AddActorCommand;
 import xyz.deszaras.grounds.command.actor.AddPlayerToActorCommand;
 import xyz.deszaras.grounds.command.actor.GetActorCommand;
+import xyz.deszaras.grounds.command.actor.RemoveActorCommand;
 import xyz.deszaras.grounds.command.actor.RemovePlayerFromActorCommand;
 import xyz.deszaras.grounds.command.actor.SetActorPasswordCommand;
 import xyz.deszaras.grounds.model.Player;
@@ -60,6 +61,8 @@ public class ActorCommand extends Command<Boolean> {
         .put("GET", GetActorCommand.class)
         .put("ADD_PLAYER", AddPlayerToActorCommand.class)
         .put("REMOVE_PLAYER", RemovePlayerFromActorCommand.class)
+        .put("REMOVE", RemoveActorCommand.class)
+        .put("DELETE", RemoveActorCommand.class)
         .build();
   }
 
