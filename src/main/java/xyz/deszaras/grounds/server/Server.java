@@ -3,6 +3,7 @@ package xyz.deszaras.grounds.server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -118,12 +119,25 @@ public class Server {
    */
   private class ServerShellFactory implements ShellFactory {
 
+    @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
+    private static final String LOCALHOST = "127.0.0.1";
+
     private ServerShellFactory() {
     }
 
     @Override
-    public Command createShell(ChannelSession session) {
+    public Command createShell(ChannelSession session) throws IOException {
       Actor actor = buildActor(session);
+
+      // If actor is root, only permit connecting from 127.0.0.1.
+      if (actor.equals(Actor.ROOT)) {
+        InetSocketAddress remoteAddress =
+            (InetSocketAddress) session.getSessionContext().getRemoteAddress();
+        if (!(remoteAddress.getAddress().getHostAddress().equals(LOCALHOST))) {
+          throw new IOException("root may only connect from localhost");
+        }
+      }
+
       return new ServerShellCommand(actor);
     }
 
