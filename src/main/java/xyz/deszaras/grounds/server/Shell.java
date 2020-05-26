@@ -279,6 +279,11 @@ public class Shell implements Runnable {
     terminal.writer().println("");
 
     Player chosenPlayer = null;
+    if (permittedPlayers.size() == 1) {
+      chosenPlayer = permittedPlayers.get(0);
+      terminal.writer().printf("Auto-selecting initial player %s\n",
+                               chosenPlayer.getName());
+    }
     while (chosenPlayer == null) {
       terminal.writer().printf("Select your initial player (exit to disconnect): ");
       String line = lineReader.readLine();
