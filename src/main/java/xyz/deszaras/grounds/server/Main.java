@@ -49,6 +49,7 @@ public class Main {
       Server server = new Server(properties);
       server.start();
       server.shutdownOnCommand();
+      System.exit(0); // JLine terminals hang on close
     }
   }
 }

@@ -214,6 +214,7 @@ public class Server {
                      actor.getUsername(), shell.getExitCode());
             exitCallback.onExit(shell.getExitCode());
             if (shell.exitedWithShutdown()) {
+              LOG.info("Shell exited with shutdown command");
               shutdownLatch.countDown();
             }
           } catch (Exception e) {
@@ -364,6 +365,7 @@ public class Server {
     sshServer.stop();
     shellExecutorService.shutdown();
     CommandExecutor.INSTANCE.shutdown();
+    LOG.info("Shutdown complete");
   }
 
   /**
