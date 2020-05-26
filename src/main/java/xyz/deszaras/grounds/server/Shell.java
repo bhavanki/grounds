@@ -1,6 +1,5 @@
 package xyz.deszaras.grounds.server;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -121,32 +120,6 @@ public class Shell implements Runnable {
     return exitedWithShutdown;
   }
 
-  /**
-   * Preprocesses a line in order to expand special command aliases.
-   *
-   * @param line line of text
-   * @return processed text
-   */
-  @VisibleForTesting
-  static String preprocess(String line, Player player) {
-    if (line.isEmpty()) {
-      return line;
-    }
-
-    // Use ':' as an alias for a POSE command starting with the player's
-    // name.
-    if (line.startsWith(":")) {
-      return "POSE " + player.getName() + " " + line.substring(1);
-    }
-
-    // Use 'OOC' (case-insensitive) as an alias for 'SAY _ooc_'.
-    if (line.toUpperCase().startsWith("OOC ")) {
-      return "SAY _ooc_ " + line.substring(4);
-    }
-
-    return line;
-  }
-
   @Override
   public void run() {
     PrintWriter out = terminal.writer();
@@ -177,7 +150,6 @@ public class Shell implements Runnable {
         } catch (UserInterruptException | EndOfFileException e) {
           break;
         }
-        line = preprocess(line, player);
         List<String> tokens = CommandLineUtils.tokenize(line);
         prePrompt = "√ ";
         if (!tokens.isEmpty()) {

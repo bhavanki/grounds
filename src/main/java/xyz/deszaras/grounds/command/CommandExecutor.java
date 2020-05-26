@@ -1,5 +1,6 @@
 package xyz.deszaras.grounds.command;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ExecutorService;
+import java.util.function.BiFunction;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.Server;
 
@@ -21,6 +23,7 @@ import xyz.deszaras.grounds.server.Server;
 public class CommandExecutor {
 
   private static final Map<String, Class<? extends Command>> COMMANDS;
+  private static final List<BiFunction<List<String>, Player, List<String>>> TRANSFORMS;
 
   static {
     COMMANDS = ImmutableMap.<String, Class<? extends Command>>builder()
@@ -59,6 +62,33 @@ public class CommandExecutor {
         .put("SHUTDOWN", ShutdownCommand.class)
         .put("HELP", HelpCommand.class)
         .build();
+
+    TRANSFORMS = ImmutableList.<BiFunction<List<String>, Player, List<String>>>builder()
+        // Use ':' as an alias for a POSE command starting with the player's
+        // name.
+        .add((line, player) -> {
+            if (line.get(0).startsWith(":")) {
+              return ImmutableList.<String>builder()
+                  .add("POSE")
+                  .add(player.getName())
+                  .add(line.get(0).substring(1))
+                  .addAll(line.subList(1, line.size()))
+                  .build();
+            }
+            return line;
+          })
+        // Use 'OOC' (case-insensitive) as an alias for 'SAY _ooc_'.
+        .add((line, player) -> {
+            if (line.get(0).equalsIgnoreCase("OOC")) {
+              return ImmutableList.<String>builder()
+                  .add("SAY")
+                  .add("_ooc_")
+                  .addAll(line.subList(1, line.size()))
+                  .build();
+            }
+            return line;
+          })
+        .build();
   }
 
   private static CommandExecutor theExecutor = null;
@@ -67,7 +97,7 @@ public class CommandExecutor {
     if (theExecutor != null) {
       throw new IllegalStateException("The command executor has already been created");
     }
-    theExecutor = new CommandExecutor(new CommandFactory(COMMANDS, server));
+    theExecutor = new CommandExecutor(new CommandFactory(TRANSFORMS, COMMANDS, server));
   }
 
   public static synchronized CommandExecutor getInstance() {

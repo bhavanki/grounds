@@ -67,7 +67,7 @@ public class ActorCommand extends Command<Boolean> {
   }
 
   private static final CommandFactory ACTOR_COMMAND_FACTORY =
-      new CommandFactory(ACTOR_COMMANDS, null);
+      new CommandFactory(null, ACTOR_COMMANDS, null);
 
   public static Command newCommand(Actor actor, Player player,
                                    List<String> commandArgs)

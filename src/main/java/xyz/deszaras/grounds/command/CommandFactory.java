@@ -1,5 +1,6 @@
 package xyz.deszaras.grounds.command;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -7,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Player;
@@ -21,6 +23,7 @@ import xyz.deszaras.grounds.server.Server;
  */
 public class CommandFactory {
 
+  private final List<BiFunction<List<String>, Player, List<String>>> transforms;
   private final Map<String, Class<? extends Command>> commands;
   private final Server server;
 
@@ -29,8 +32,11 @@ public class CommandFactory {
    *
    * @param  commands map of command classes to support, keyed by command name
    */
-  public CommandFactory(Map<String, Class<? extends Command>> commands,
+  public CommandFactory(List<BiFunction<List<String>, Player, List<String>>> transforms,
+                        Map<String, Class<? extends Command>> commands,
                         Server server) {
+    this.transforms = transforms != null ?
+        ImmutableList.copyOf(transforms) : ImmutableList.of();
     this.commands = ImmutableMap.copyOf(commands);
     this.server = server;
   }
@@ -69,6 +75,11 @@ public class CommandFactory {
     if (line.isEmpty()) {
       return new NoOpCommand(actor, player);
     }
+
+    for (BiFunction<List<String>, Player, List<String>> transform : transforms) {
+      line = transform.apply(line, player);
+    }
+
     String commandName = line.get(0);
 
     if (commandName.startsWith("$")) {
