@@ -32,7 +32,16 @@ public class SetActorPasswordCommand extends Command<Boolean> {
   @Override
   public Boolean execute() throws CommandException {
     ActorCommand.checkIfGod(player);
-    ActorCommand.checkIfRoot(actor, username);
+
+    if (Actor.ROOT.getUsername().equals(username)) {
+      actor.sendMessage(newInfoMessage("Setting password for root actor!"));
+      // Create the root actor in the database (OK if already present).
+      ActorDatabase.INSTANCE.createActorRecord(username,
+          HashedPasswordAuthenticator.hashPassword(password));
+      // The root actor may only play as GOD.
+      ActorDatabase.INSTANCE.updateActorRecord(username,
+        r -> r.addPlayer(Player.GOD.getId()));
+    }
 
     boolean result = ActorDatabase.INSTANCE.updateActorRecord(username,
         r -> r.setPassword(HashedPasswordAuthenticator.hashPassword(password)));
