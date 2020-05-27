@@ -10,7 +10,7 @@ public final class CommandLineUtils {
   // https://stackoverflow.com/questions/366202/regex-for-splitting-a-string-using-space-when-not-surrounded-by-single-or-double
   // This doesn't obey escaped quotes, though.
   private static final Pattern TOKENIZE_PATTERN =
-      Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
+      Pattern.compile("[^\\s\"'][^\\s]*|\"([^\"]*)\"|'([^']*)'");
 
   /**
    * Splits a line of text into tokens. Generally, tokens are separated

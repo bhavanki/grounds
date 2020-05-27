@@ -19,4 +19,16 @@ public class CommandLineUtilsTest {
     List<String> tokens = CommandLineUtils.tokenize("a \"b c\" d");
     assertEquals(ImmutableList.of("a", "b c", "d"), tokens);
   }
+
+  @Test
+  public void testTokenizeWithSingleQuotes() {
+    List<String> tokens = CommandLineUtils.tokenize("a 'b c' d");
+    assertEquals(ImmutableList.of("a", "b c", "d"), tokens);
+  }
+
+  @Test
+  public void testTokenizeWithContraction() {
+    List<String> tokens = CommandLineUtils.tokenize("I don't think so");
+    assertEquals(ImmutableList.of("I", "don't", "think", "so"), tokens);
+  }
 }
