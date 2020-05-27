@@ -251,10 +251,6 @@ public class Server {
             LOG.info("Shell for {} exited with exit code {}",
                      actor.getUsername(), shell.getExitCode());
             exitCallback.onExit(shell.getExitCode());
-            if (shell.exitedWithShutdown()) {
-              LOG.info("Shell exited with shutdown command");
-              shutdownLatch.countDown();
-            }
           } catch (Exception e) {
             LOG.error("Exception thrown by shell for {}",
                       actor.getUsername(), e);
@@ -407,8 +403,8 @@ public class Server {
    * @throws IOException if the server fails to stop
    */
   public void shutdown() throws IOException {
+    shellExecutorService.shutdownNow();
     sshServer.stop();
-    shellExecutorService.shutdown();
     CommandExecutor.getInstance().shutdown();
     LOG.info("Shutdown complete");
   }
@@ -424,5 +420,12 @@ public class Server {
   public void shutdownOnCommand() throws IOException, InterruptedException {
     shutdownLatch.await();
     shutdown();
+  }
+
+  /**
+   * Request server shutdown.
+   */
+  public void requestServerShutdown() {
+    shutdownLatch.countDown();
   }
 }

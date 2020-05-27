@@ -23,7 +23,6 @@ import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.command.CommandResult;
 import xyz.deszaras.grounds.command.ExitCommand;
 import xyz.deszaras.grounds.command.Message;
-import xyz.deszaras.grounds.command.ShutdownCommand;
 import xyz.deszaras.grounds.command.SwitchPlayerCommand;
 import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
@@ -50,7 +49,6 @@ public class Shell implements Runnable {
   private Player player = null;
   private String bannerContent = null;
   private int exitCode = 0;
-  private boolean exitedWithShutdown = false;
 
   /**
    * Creates a new shell.
@@ -109,15 +107,6 @@ public class Shell implements Runnable {
    */
   public int getExitCode() {
     return exitCode;
-  }
-
-  /**
-   * Checks if the shell exited due to a shutdown request.
-   *
-   * @return true is shutdown was requested
-   */
-  public boolean exitedWithShutdown() {
-    return exitedWithShutdown;
   }
 
   @Override
@@ -195,11 +184,7 @@ public class Shell implements Runnable {
             Optional<Class<? extends Command>> commandClassOpt = commandResult.getCommandClass();
             Class<? extends Command> commandClass = commandClassOpt.get();
 
-            if (commandClass.equals(ExitCommand.class) ||
-                commandClass.equals(ShutdownCommand.class)) {
-              if (commandClass.equals(ShutdownCommand.class)) {
-                exitedWithShutdown = true;
-              }
+            if (commandClass.equals(ExitCommand.class)) {
               break;
             } else if (commandClass.equals(SwitchPlayerCommand.class)) {
               player = actor.getCurrentPlayer();
