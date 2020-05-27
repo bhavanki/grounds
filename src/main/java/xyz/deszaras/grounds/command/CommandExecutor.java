@@ -65,12 +65,24 @@ public class CommandExecutor {
 
     TRANSFORMS = ImmutableList.<BiFunction<List<String>, Player, List<String>>>builder()
         // Use ':' as an alias for a POSE command starting with the player's
-        // name.
+        // name. Example: `:waves.` => `POSE Bob waves.`
         .add((line, player) -> {
             if (line.get(0).startsWith(":")) {
               return ImmutableList.<String>builder()
                   .add("POSE")
                   .add(player.getName())
+                  .add(line.get(0).substring(1))
+                  .addAll(line.subList(1, line.size()))
+                  .build();
+            }
+            return line;
+          })
+        // Use '>' as an alias for a SAY command. Example: `>Hello.` =>
+        // `SAY Hello.`
+        .add((line, player) -> {
+            if (line.get(0).startsWith(">")) {
+              return ImmutableList.<String>builder()
+                  .add("SAY")
                   .add(line.get(0).substring(1))
                   .addAll(line.subList(1, line.size()))
                   .build();
@@ -83,6 +95,19 @@ public class CommandExecutor {
               return ImmutableList.<String>builder()
                   .add("SAY")
                   .add("_ooc_")
+                  .addAll(line.subList(1, line.size()))
+                  .build();
+            }
+            return line;
+          })
+        // Use '%' as an alias for a SAY _ooc_ command. Example:
+        // `%Let's play!` => `SAY _ooc_ Let's play!`
+        .add((line, player) -> {
+            if (line.get(0).startsWith("%")) {
+              return ImmutableList.<String>builder()
+                  .add("SAY")
+                  .add("_ooc_")
+                  .add(line.get(0).substring(1))
                   .addAll(line.subList(1, line.size()))
                   .build();
             }
