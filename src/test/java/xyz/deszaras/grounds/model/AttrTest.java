@@ -3,6 +3,7 @@ package xyz.deszaras.grounds.model;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -86,6 +87,32 @@ public class AttrTest {
     assertEquals("a", attr.getName());
     assertEquals(Attr.Type.STRING, attr.getType());
     assertEquals("b", attr.getValue());
+  }
+
+  @Test
+  public void testFromAttrSpecJsonFile() throws Exception {
+    String attrSpec = "a[ATTR]=@" +
+        Paths.get(ClassLoader.getSystemResource("attrvalue.json").toURI());
+    attr = Attr.fromAttrSpec(attrSpec);
+    assertEquals("a", attr.getName());
+    assertEquals(Attr.Type.ATTR, attr.getType());
+    Attr a2 = attr.getAttrValue();
+    assertEquals("key1", a2.getName());
+    assertEquals(Attr.Type.STRING, a2.getType());
+    assertEquals("value1", a2.getValue());
+  }
+
+  @Test
+  public void testFromAttrSpecYamlFile() throws Exception {
+    String attrSpec = "a[ATTR]=@" +
+        Paths.get(ClassLoader.getSystemResource("attrvalue.yaml").toURI());
+    attr = Attr.fromAttrSpec(attrSpec);
+    assertEquals("a", attr.getName());
+    assertEquals(Attr.Type.ATTR, attr.getType());
+    Attr a2 = attr.getAttrValue();
+    assertEquals("key1", a2.getName());
+    assertEquals(Attr.Type.STRING, a2.getType());
+    assertEquals("value1", a2.getValue());
   }
 
   @Test
