@@ -255,7 +255,8 @@ public final class Attr {
   }
 
   private static final Pattern ATTR_SPEC_PATTERN =
-      Pattern.compile("([^\\[]+)\\[([^]]+)\\]=(.*)");
+      Pattern.compile("([^\\[]+)\\[([^]]+)\\]=(.*)",
+                      Pattern.DOTALL);
 
   private static final ObjectMapper YAML_OBJECT_MAPPER = new ObjectMapper(new YAMLFactory());
 
