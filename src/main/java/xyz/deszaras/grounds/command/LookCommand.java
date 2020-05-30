@@ -1,6 +1,8 @@
 package xyz.deszaras.grounds.command;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import xyz.deszaras.grounds.auth.Policy.Category;
@@ -35,15 +37,38 @@ public class LookCommand extends Command<String> {
     if (description.isPresent()) {
       b.append("\n\n").append(description.get());
     }
-    if (location.getContents().size() > 0) {
-      b.append("\n\nCONTENTS:");
-      location.getContents().forEach(id -> {
-        Optional<Thing> t = Multiverse.MULTIVERSE.findThing(id);
-        if (t.isPresent()) {
-          b.append("\n- " + t.get().getName () + " [" + t.get().getId() + "]");
+
+    List<Player> players = new ArrayList<>();
+    List<Thing> theRest = new ArrayList<>();
+
+    location.getContents().forEach(id -> {
+      Optional<Thing> t = Multiverse.MULTIVERSE.findThing(id);
+      if (t.isPresent()) {
+        Thing tt = t.get();
+        if (tt instanceof Player) {
+          players.add((Player) tt);
+        } else {
+          theRest.add(tt);
         }
-      });
+      }
+    });
+
+    Collections.sort(players, (p1, p2) -> p1.getName().compareTo(p2.getName()));
+    Collections.sort(theRest, (t1, t2) -> t1.getName().compareTo(t2.getName()));
+
+    if (players.size() > 0) {
+      b.append("\n\nPLAYERS:");
+      for (Player p : players) {
+        b.append("\n- " + p.getName () + " [" + p.getId() + "]");
+      }
     }
+    if (theRest.size() > 0) {
+      b.append("\n\nCONTENTS:");
+      for (Thing t : theRest) {
+        b.append("\n- " + t.getName () + " [" + t.getId() + "]");
+      }
+    }
+
     Collection<Link> links = Multiverse.MULTIVERSE.findLinks(location);
     if (!links.isEmpty()) {
       b.append("\n\nEXITS:");
