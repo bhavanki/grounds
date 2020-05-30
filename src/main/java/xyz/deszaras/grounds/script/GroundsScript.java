@@ -2,17 +2,15 @@ package xyz.deszaras.grounds.script;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
-import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandCallable;
 import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandExecutor;
+import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.command.CommandResult;
 import xyz.deszaras.grounds.command.Message;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Player;
-import xyz.deszaras.grounds.model.Thing;
 
 /**
  * The custom script class for Groovy scripts run by the game. This class
@@ -72,23 +70,58 @@ public abstract class GroundsScript extends groovy.lang.Script {
   }
 
   /**
-   * Gets one of a thing's attributes by name. An attribute is immutable.
+   * Gets a thing's attributes by name. An attribute is immutable.
    *
    * @param thingId ID of thing with attribute
    * @param name attribute name
    * @return attribute
-   * @throws CommandException if the player may not access the thing
    */
-  public Optional<Attr> getAttr(String thingId, String name) throws CommandException {
-    Optional<Thing> thing = runner.getUniverse().getThing(UUID.fromString(thingId));
-    if (thing.isEmpty()) {
-      return Optional.empty();
+  public Attr getAttr(String thingId, String name, String notFoundMessage)
+      throws CommandException, CommandFactoryException {
+    CommandResult getResult = exec(List.of("GET_ATTR", thingId, name));
+    try {
+      throwFailureExceptionIfPresent(getResult);
+    } catch (CommandException e) {
+      throw new CommandException(notFoundMessage);
     }
-    // so maybe this should be a command
-    if (!thing.get().passes(Category.READ, runner)) {
-      throw new CommandException("You may not read attributes for that");
-    }
-    return thing.get().getAttr(name);
+    return Attr.fromAttrSpec(getResult.getResult().toString());
+  }
+
+  public Attr newAttr(String name, String value) {
+    return new Attr(name, value);
+  }
+
+  /**
+   * Sets a thing's attribute with a string value.
+   *
+   * @param  thingId ID of thing
+   * @param  name    attribute name
+   * @param  value   attribute value
+   */
+  public void setAttr(String thingId, String name, String value)
+      throws CommandException, CommandFactoryException {
+    Attr newAttr = new Attr(name, value);
+    setAttr(thingId, newAttr);
+  }
+
+  /**
+   * Set's a thing's attribute with an attribute list value.
+   *
+   * @param  thingId ID of thing
+   * @param  name    attribute name
+   * @param  value   attribute value
+   * @return       new attribute
+   */
+  public void setAttr(String thingId, String name, List<Attr> value)
+      throws CommandException, CommandFactoryException {
+    Attr newAttr = new Attr(name, value);
+    setAttr(thingId, newAttr);
+  }
+
+  private void setAttr(String thingId, Attr newAttr)
+      throws CommandException, CommandFactoryException {
+    CommandResult setResult = exec(List.of("SET_ATTR", thingId, newAttr.toAttrSpec()));
+    throwFailureExceptionIfPresent(setResult);
   }
 
   /**
@@ -135,5 +168,29 @@ public abstract class GroundsScript extends groovy.lang.Script {
    */
   public CommandException failure(String message) {
     return new CommandException(message);
+  }
+
+  /**
+   * Throws any exception recorded in a command result, or none if the result
+   * indicates success.
+   *
+   * @param  result                  command result
+   * @throws CommandException        if the result indicates failure due to
+   *                                 command execution
+   * @throws CommandFactoryException if the result indicates failure due to
+   *                                 building the command
+   */
+  private void throwFailureExceptionIfPresent(CommandResult result)
+      throws CommandException, CommandFactoryException {
+    if (result.isSuccessful()) {
+      return;
+    }
+
+    Optional<CommandException> ce = result.getCommandException();
+    if (ce.isPresent()) {
+      throw ce.get();
+    }
+    Optional<CommandException> cfe = result.getCommandFactoryException();
+    throw cfe.get();
   }
 }
