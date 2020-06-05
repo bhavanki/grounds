@@ -52,6 +52,7 @@ public class CommandExecutor {
         .put("ABANDON", AbandonCommand.class)
         .put("LOAD", LoadCommand.class)
         .put("SAVE", SaveCommand.class)
+        .put("RUN", RunCommand.class)
         .put("SWITCH_PLAYER", SwitchPlayerCommand.class)
         .put("EXIT", ExitCommand.class)
         .put("INDEX", IndexCommand.class)
