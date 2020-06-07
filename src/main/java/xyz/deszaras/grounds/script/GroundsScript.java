@@ -69,6 +69,17 @@ public abstract class GroundsScript extends groovy.lang.Script {
     return caller.getName();
   }
 
+  public boolean hasAttr(String thingId, String name)
+      throws CommandFactoryException {
+    CommandResult getResult = exec(List.of("GET_ATTR", thingId, name));
+    try {
+      throwFailureExceptionIfPresent(getResult);
+    } catch (CommandException e) {
+      return false;
+    }
+    return true;
+  }
+
   /**
    * Gets a thing's attributes by name. An attribute is immutable.
    *
@@ -122,6 +133,12 @@ public abstract class GroundsScript extends groovy.lang.Script {
       throws CommandException, CommandFactoryException {
     CommandResult setResult = exec(List.of("SET_ATTR", thingId, newAttr.toAttrSpec()));
     throwFailureExceptionIfPresent(setResult);
+  }
+
+  public void removeAttr(String thingId, String name)
+      throws CommandException, CommandFactoryException {
+    CommandResult removeResult = exec(List.of("REMOVE_ATTR", thingId, name));
+    throwFailureExceptionIfPresent(removeResult);
   }
 
   /**
