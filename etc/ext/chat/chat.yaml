@@ -1,0 +1,56 @@
+- name: scriptContent
+  type: STRING
+  value: |
+    getChannel = { n ->
+      if (!n.startsWith('#')) {
+        throw failure("That is not a valid channel name")
+      }
+      return getAttr(extensionId, n, "Channel $n not found")
+    }
+    getMembers = {c ->
+      return c.getAttrListValueAsMap()['members'].getValue().split(',') as List
+    }
+    setMembers = {c, members ->
+      newMembersAttr = newAttr('members', members.join(','))
+      newAttrList = c.getAttrListValue().findAll {it -> !it.getName().equals('members')}
+      newAttrList << newMembersAttr
+      setAttr(extensionId, c.name, newAttrList)
+    }
+    runAsOwner()
+    callerName = getCallerName()
+    subcommand = arg0
+    switch (subcommand.toUpperCase()) {
+      case "SAY":
+        channel = getChannel(arg1)
+        members = getMembers(channel)
+        if (!members.contains(callerName)) {
+          throw failure("You do not belong to that channel")
+        }
+        for (m in members) {
+          sendMessageTo(m, "[$channel.name] $callerName: $arg2")
+        }
+        break;
+      case "JOIN":
+        channel = getChannel(arg1)
+        members = getMembers(channel)
+        if (members.contains(callerName)) {
+          sendMessageToCaller('You are already joined to that channel')
+        } else {
+          members.add(callerName)
+          setMembers(channel, members)
+        }
+        break;
+      case "LEAVE":
+        channel = getChannel(arg1)
+        members = getMembers(channel)
+        if (!members.contains(callerName)) {
+          sendMessageToCaller('You are not joined to that channel')
+        } else {
+          members.remove(callerName)
+          setMembers(channel, members)
+        }
+        break;
+      default:
+        throw failure("Unsupported command $subcommand")
+    }
+    return null

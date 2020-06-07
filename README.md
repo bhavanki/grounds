@@ -13,6 +13,8 @@ Grounds is under active development, so features are all new and/or still being 
 * **Role-based permissions.** Every thing in a universe has a security policy that permits categories of actions that affect it only by specified roles. For example, a player can't read another thing's attributes unless the player has a role with READ permission. Roles include a few wizardly ones plus ordinary ones.
 * **SSH connectivity.** The game server accepts connections over SSH, so that all traffic is encrypted.
 * **Command-line editing.** Grounds uses [JLine](https://github.com/jline/jline3) to deliver powerful command line editing features.
+* **Extensibility through softcode (scripted) commands.** Extensions in a universe can hold Groovy scripts that may be executed as commands.
+* **Chat.** Players can message each other over OOC, named chat channels. *This feature is implemented completely in softcode!*
 
 ## Requirements
 
@@ -56,8 +58,8 @@ $ mvn package
 
 ## Plans
 
-* OOC messaging and chat system
-* Scripted ("softcode") commands - in progress!
+* OOC messaging system
+* Tighter security around scripted commands
 * A combat system
 * Colors!
 * More fun stuff

@@ -1,0 +1,37 @@
+- name: scriptContent
+  type: STRING
+  value: |
+    hasChannel = { n ->
+      if (!n.startsWith('#')) {
+        throw failure("That is not a valid channel name")
+      }
+      return hasAttr(extensionId, n)
+    }
+    getChannel = { n ->
+      if (!n.startsWith('#')) {
+        throw failure("That is not a valid channel name")
+      }
+      return getAttr(extensionId, n, "Channel $n not found")
+    }
+    subcommand = arg0
+    switch (subcommand.toUpperCase()) {
+      case "CREATE":
+        if (hasChannel(arg1)) {
+          throw failure("Channel ${arg1} already exists");
+        }
+        membersAttr = newAttr('members', '')
+        channelAttrList = [ membersAttr ]
+        setAttr(extensionId, arg1, channelAttrList)
+        sendMessageToCaller("Created channel ${arg1}")
+        break;
+      case "DELETE":
+        if (!hasChannel(arg1)) {
+          throw failure("Channel ${arg1} does not exist");
+        }
+        removeAttr(extensionId, arg1);
+        sendMessageToCaller("Deleted channel ${arg1}")
+        break;
+      default:
+        throw failure("Unsupported command $subcommand")
+    }
+    return null
