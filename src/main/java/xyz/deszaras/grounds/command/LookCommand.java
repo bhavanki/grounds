@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.fusesource.jansi.Ansi;
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Link;
@@ -12,6 +13,7 @@ import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
+import xyz.deszaras.grounds.util.AnsiUtils;
 
 public class LookCommand extends Command<String> {
 
@@ -32,7 +34,8 @@ public class LookCommand extends Command<String> {
   }
 
   private String buildMessage(Place location) {
-    StringBuilder b = new StringBuilder(location.getName());
+    String name = AnsiUtils.color(location.getName(), Ansi.Color.CYAN, false);
+    StringBuilder b = new StringBuilder(name);
     Optional<String> description = location.getDescription();
     if (description.isPresent()) {
       b.append("\n\n").append(description.get());
@@ -57,30 +60,30 @@ public class LookCommand extends Command<String> {
     Collections.sort(theRest, (t1, t2) -> t1.getName().compareTo(t2.getName()));
 
     if (players.size() > 0) {
-      b.append("\n\nPLAYERS:");
+      b.append("\n\n" + AnsiUtils.color("Players present:", Ansi.Color.CYAN, false));
       for (Player p : players) {
-        b.append("\n- " + p.getName () + " [" + p.getId() + "]");
+        b.append("\n- " + AnsiUtils.listing(p));
       }
     }
     if (theRest.size() > 0) {
-      b.append("\n\nCONTENTS:");
+      b.append("\n\n" + AnsiUtils.color("Contents:", Ansi.Color.CYAN, false));
       for (Thing t : theRest) {
-        b.append("\n- " + t.getName () + " [" + t.getId() + "]");
+        b.append("\n- " + AnsiUtils.listing(t));
       }
     }
 
     Collection<Link> links = Multiverse.MULTIVERSE.findLinks(location);
     if (!links.isEmpty()) {
-      b.append("\n\nEXITS:");
+      b.append("\n\n" + AnsiUtils.color("Exits:", Ansi.Color.CYAN, false));
       for (Link link : links) {
         Optional<Attr> otherPlaceAttr = link.getOtherPlace(location);
         if (otherPlaceAttr.isPresent()) {
-          String otherPlaceName = otherPlaceAttr.get().getName();
           Optional<Place> otherPlace =
               Multiverse.MULTIVERSE.findThing(otherPlaceAttr.get().getThingValue(), Place.class);
           if (otherPlace.isPresent()) {
-            b.append("\n- (" + otherPlaceName + ") " +
-                     otherPlace.get().getName() + " [" + otherPlace.get().getId() + "]");
+            String otherPlaceName =
+                AnsiUtils.color(otherPlaceAttr.get().getName(), Ansi.Color.GREEN, false);
+            b.append("\n- (" + otherPlaceName + ") " + AnsiUtils.listing(otherPlace.get()));
           }
         }
       }

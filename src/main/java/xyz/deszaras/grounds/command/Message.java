@@ -3,7 +3,10 @@ package xyz.deszaras.grounds.command;
 import java.util.Objects;
 import java.util.Set;
 
+import org.fusesource.jansi.Ansi;
+
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.util.AnsiUtils;
 
 /**
  * A message sent to an actor.
@@ -44,13 +47,18 @@ public class Message {
     }
 
     public static final Style INFO = new Style("%s");
-    public static final Style COMMAND_EXCEPTION = new Style("! %s");
+    public static final Style COMMAND_EXCEPTION =
+        new Style(AnsiUtils.color("! %s", Ansi.Color.RED, true));
     public static final Style SCRIPT = new Style("* %s");
 
-    public static final Style POSE = new Style(": %s");
-    public static final Style OOC = new Style("%% %s");
-    public static final Style SAY = new Style("> %s");
-    public static final Style WHISPER = new Style("~ %s");
+    public static final Style POSE =
+        new Style(AnsiUtils.color(": %s", Ansi.Color.WHITE, true));
+    public static final Style OOC =
+        new Style(AnsiUtils.color("%% %s", Ansi.Color.YELLOW, false));
+    public static final Style SAY =
+        new Style(AnsiUtils.color("> %s", Ansi.Color.WHITE, true));
+    public static final Style WHISPER =
+        new Style(AnsiUtils.color("~ %s", Ansi.Color.BLACK, true));
   }
 
   public static final Set<Style> SYSTEM_STYLES =

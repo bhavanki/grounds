@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
+import org.fusesource.jansi.Ansi;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
@@ -26,6 +27,7 @@ import xyz.deszaras.grounds.command.Message;
 import xyz.deszaras.grounds.command.SwitchPlayerCommand;
 import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.util.AnsiUtils;
 import xyz.deszaras.grounds.util.CommandLineUtils;
 
 /**
@@ -114,6 +116,12 @@ public class Shell implements Runnable {
     PrintWriter out = terminal.writer();
     PrintWriter err = terminal.writer(); // sadly
 
+    // TBD: Figure out when to disable ANSI. This was available in JLine 2.
+    // if (!terminal.isANSISupported()) {
+    //   // The flag is an InheritedThreadLocal, so it only affects this shell.
+    //   Ansi.setEnabled(false);
+    // }
+
     try {
       emitBanner();
 
@@ -140,7 +148,7 @@ public class Shell implements Runnable {
           break;
         }
         List<String> tokens = CommandLineUtils.tokenize(line);
-        prePrompt = "√ ";
+        prePrompt = AnsiUtils.color("√ ", Ansi.Color.GREEN, true);
         if (!tokens.isEmpty()) {
 
           Future<CommandResult> commandFuture =
@@ -193,7 +201,7 @@ public class Shell implements Runnable {
           }
 
           if (!commandResult.isSuccessful()) {
-            prePrompt = "X ";
+            prePrompt = AnsiUtils.color("X ", Ansi.Color.RED, true);
           }
         }
       }
@@ -254,8 +262,9 @@ public class Shell implements Runnable {
       for (Player p : permittedPlayers) {
         if (p.getName().equals(line)) {
           if (p.getCurrentActor().isPresent()) {
-            terminal.writer().printf("Someone is already playing as %s\n",
-                                     p.getName());
+            String occupiedMessage = String.format("Someone is already playing as %s\n",
+                                                   p.getName());
+            terminal.writer().printf(AnsiUtils.color(occupiedMessage, Ansi.Color.RED, false));
           } else {
             chosenPlayer = p;
           }
@@ -263,7 +272,8 @@ public class Shell implements Runnable {
         }
       }
       if (chosenPlayer == null) {
-        terminal.writer().printf("That is not a permitted player\n\n");
+        terminal.writer().printf(AnsiUtils.color("That is not a permitted player\n\n",
+                                                   Ansi.Color.RED, false));
       }
     }
 
@@ -272,9 +282,9 @@ public class Shell implements Runnable {
 
   private static String getPrompt(Player player) {
     if (player.equals(Player.GOD)) {
-      return "# ";
+      return AnsiUtils.color("# ", Ansi.Color.WHITE, true);
     } else {
-      return "$ ";
+      return AnsiUtils.color("$ ", Ansi.Color.WHITE, true);
     }
   }
 
