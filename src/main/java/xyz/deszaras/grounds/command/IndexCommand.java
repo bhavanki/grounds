@@ -64,4 +64,9 @@ public class IndexCommand extends Command<String> {
     }
     return new IndexCommand(actor, player, Multiverse.MULTIVERSE.getUniverse(name));
   }
+
+  public static String help() {
+    return "INDEX <universe>\n\n" +
+        "Lists all things contained in a universe";
+  }
 }
