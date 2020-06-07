@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -89,6 +90,20 @@ public class Policy {
   }
 
   /**
+   * Creates a new policy as a copy of an existing policy.
+   *
+   * @param  original original policy
+   */
+  public Policy(Policy original) {
+    this();
+    synchronized (original) {
+      original.permissions.entrySet().forEach(e ->
+          this.permissions.put(e.getKey(), ImmutableSet.copyOf(e.getValue()))
+      );
+    }
+  }
+
+  /**
    * Gets all of the permissions in this policy.
    *
    * @return permissions
@@ -144,5 +159,14 @@ public class Policy {
   public synchronized boolean passes(Category category, Set<Role> roles) {
     Set<Role> permittedRoles = getRoles(category);
     return roles.stream().filter(r -> permittedRoles.contains(r)).count() > 0;
+  }
+
+  @Override
+  public String toString() {
+    synchronized (this) {
+      return Arrays.stream(Category.values())
+          .map(c -> c.toString() + ": " + getRoles(c).toString())
+          .collect(Collectors.joining("\n"));
+    }
   }
 }

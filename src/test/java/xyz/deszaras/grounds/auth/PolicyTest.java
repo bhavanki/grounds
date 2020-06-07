@@ -36,6 +36,12 @@ public class PolicyTest {
   }
 
   @Test
+  public void testCopyConstructor() {
+    Policy policy2 = new Policy(policy);
+    assertEquals(policy.getPermissions(), policy2.getPermissions());
+  }
+
+  @Test
   public void testCategories() {
     policy.setRoles(Category.GENERAL, s1);
     policy.setRoles(Category.READ, s2);
