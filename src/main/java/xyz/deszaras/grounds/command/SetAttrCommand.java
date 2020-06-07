@@ -12,7 +12,11 @@ import xyz.deszaras.grounds.model.Thing;
  * Sets an attribute on a thing.<p>
  *
  * Arguments: name or ID of thing, attribute spec<br>
- * Checks: player passes WRITE for thing
+ * Checks: player passes WRITE for thing<p>
+ *
+ * For THING type attributes, this command will resolve a thing name in an
+ * attribute spec into an ID in the player's universe. If resolution fails,
+ * the attribute is not set.
  */
 public class SetAttrCommand extends Command<Boolean> {
 
@@ -45,6 +49,11 @@ public class SetAttrCommand extends Command<Boolean> {
         CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Thing.class, player);
     try {
       Attr attr = Attr.fromAttrSpec(commandArgs.get(1));
+      if (attr.getType() == Attr.Type.THING) {
+        Thing attrThing = CommandArgumentResolver.INSTANCE
+            .resolve(attr.getValue(), Thing.class, player);
+        attr = new Attr(attr.getName(), attrThing);
+      }
       return new SetAttrCommand(actor, player, setThing, attr);
     } catch (IllegalArgumentException e) {
       throw new CommandFactoryException("Failed to build attr from spec |" + commandArgs.get(1) + "|: " + e.getMessage());
@@ -56,7 +65,7 @@ public class SetAttrCommand extends Command<Boolean> {
         "Sets an attribute on a thing.\n\n" +
         "attrSpec basic format is name[type]=value\n" +
         "  supported types: STRING, INTEGER, BOOLEAN, THING, ATTR, ATTRLIST\n" +
-        "    THING: use the thing's ID as the value\n" +
+        "    THING: use the thing's name or ID as the value\n" +
         "    ATTR: use JSON object with name, type, and value fields\n" +
         "    ATTRLIST: use JSON array of JSON objects\n" +
         "  value is either literal or @path-to-file-containing-value";
