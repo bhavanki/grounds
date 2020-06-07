@@ -96,7 +96,7 @@ public class Thing {
                        Objects.requireNonNull(universe).getName()));
     // accessRuleKeeper = new AccessRuleKeeper();
     contents = new HashSet<>();
-    policy = Policy.DEFAULT;
+    policy = new Policy(Policy.DEFAULT);
   }
 
   /**
@@ -127,7 +127,7 @@ public class Thing {
       throw new IllegalArgumentException("Universe name not defined for thing with ID " + id);
     }
     this.contents = new HashSet<>(Objects.requireNonNull(contents));
-    this.policy = Objects.requireNonNull(policy);
+    this.policy = new Policy(Objects.requireNonNull(policy));
   }
 
   /**
