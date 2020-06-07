@@ -38,9 +38,8 @@ import xyz.deszaras.grounds.model.Universe;
  * <li>If no contents match, the resolver looks through the things that
  *     share the context things's location.</li>
  * <li>If no nearby things match, and the thing is the GOD player or is a
- *     wizard, and the thing being resolved is specified by an ID, then
- *     the resolver falls back to looking throughout the context thing's
- *     universe.
+ *     wizard, then the resolver falls back to looking throughout the context
+ *     thing's universe.
  * <li>If two things in a set have a matching name, the resolver picks
  *     an arbitrary one.</li>
  * </ul>
@@ -121,6 +120,18 @@ public class ArgumentResolver {
         LOG.debug("Resolved {} to {} {} nearby",
                   name, type.getSimpleName(), nearbyThing.get().getId());
         return nearbyThing.get();
+      }
+    }
+
+    // If the context thing is a wizard (or GOD), then try to resolve among all
+    // things in the universe.
+    // TBD: allow for wizard things, not just players
+    if (context instanceof Player && Role.isWizard((Player) context)) {
+      Optional<T> finalThing = universe.getThingByName(name, type);
+      if (finalThing.isPresent()) {
+        LOG.debug("Resolved {} to {} {} in universe",
+                  name, type.getSimpleName(), finalThing.get().getId());
+        return finalThing.get();
       }
     }
 
