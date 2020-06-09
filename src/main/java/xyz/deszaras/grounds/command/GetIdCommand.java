@@ -60,10 +60,4 @@ public class GetIdCommand extends Command<String> {
     }
     return new GetIdCommand(actor, player, commandArgs.get(0), type);
   }
-
-  public static String help() {
-    return "GET_ID <name> <type>\n\n" +
-        "Gets the ID of a thing in the player's universe.\n\n" +
-        "Supported types: thing, player, place, link, extension";
-  }
 }

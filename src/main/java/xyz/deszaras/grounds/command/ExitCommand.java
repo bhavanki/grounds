@@ -19,8 +19,4 @@ public class ExitCommand extends Command<Boolean> {
     return new ExitCommand(actor, player);
   }
 
-  public static String help() {
-    return "EXIT\n\n" +
-        "Exits the shell.";
-  }
 }

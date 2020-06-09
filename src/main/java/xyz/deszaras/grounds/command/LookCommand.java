@@ -95,9 +95,4 @@ public class LookCommand extends Command<String> {
                                        List<String> commandArgs) {
     return new LookCommand(actor, player);
   }
-
-  public static String help() {
-    return "LOOK\n\n" +
-        "Describes where you are, including other things present and exits";
-  }
 }

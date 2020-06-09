@@ -106,12 +106,4 @@ public class RunCommand extends Command<Boolean> {
     ensureMinArgs(commandArgs, 1);
     return new RunCommand(actor, player, new File(commandArgs.get(0)));
   }
-
-  public static String help() {
-    return "RUN <file>\n\n" +
-        "Runs commands from a file.\n\n" +
-        "Each command is executed as if typed into a shell.\n" +
-        "Blank lines and lines starting with \"#\" or \"//\" are ignored.\n" +
-        "If any command fails, execution stops and remaining commands are not run.";
-  }
 }

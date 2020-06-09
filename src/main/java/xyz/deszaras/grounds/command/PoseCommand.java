@@ -54,9 +54,4 @@ public class PoseCommand extends Command<Boolean> {
     String message = commandArgs.stream().collect(Collectors.joining(" "));
     return new PoseCommand(actor, player, message);
   }
-
-  public static String help() {
-    return "POSE <message>\n\n" +
-        "Emits a message to all players in the same location";
-  }
 }

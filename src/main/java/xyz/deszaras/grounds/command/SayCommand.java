@@ -77,9 +77,4 @@ public class SayCommand extends Command<Boolean> {
     }
     return new SayCommand(actor, player, message, ooc);
   }
-
-  public static String help() {
-    return "SAY <message>\n\n" +
-        "Says a message, heard by all players and things in the same location";
-  }
 }

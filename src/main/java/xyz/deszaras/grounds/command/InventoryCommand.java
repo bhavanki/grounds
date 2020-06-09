@@ -30,9 +30,4 @@ public class InventoryCommand extends Command<String> {
       throws CommandFactoryException {
     return new InventoryCommand(actor, player);
   }
-
-  public static String help() {
-    return "INVENTORY\n\n" +
-        "Lists your inventory (contents)";
-  }
 }

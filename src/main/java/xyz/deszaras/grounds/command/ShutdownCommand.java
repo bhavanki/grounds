@@ -24,9 +24,4 @@ public class ShutdownCommand extends ServerCommand<Boolean> {
                                            List<String> commandArgs) {
     return new ShutdownCommand(actor, player, server);
   }
-
-  public static String help() {
-    return "SHUTDOWN\n\n" +
-        "Exits the shell and also shuts down the server.";
-  }
 }

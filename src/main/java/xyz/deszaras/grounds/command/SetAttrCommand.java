@@ -59,15 +59,4 @@ public class SetAttrCommand extends Command<Boolean> {
       throw new CommandFactoryException("Failed to build attr from spec |" + commandArgs.get(1) + "|: " + e.getMessage());
     }
   }
-
-  public static String help() {
-    return "SET_ATTR <thing> <attrSpec>\n\n" +
-        "Sets an attribute on a thing.\n\n" +
-        "attrSpec basic format is name[type]=value\n" +
-        "  supported types: STRING, INTEGER, BOOLEAN, THING, ATTR, ATTRLIST\n" +
-        "    THING: use the thing's name or ID as the value\n" +
-        "    ATTR: use JSON object with name, type, and value fields\n" +
-        "    ATTRLIST: use JSON array of JSON objects\n" +
-        "  value is either literal or @path-to-file-containing-value";
-  }
 }

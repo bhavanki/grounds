@@ -159,22 +159,4 @@ public class ChangePolicyCommand extends Command<String> {
     }
     return new ChangePolicyCommand(actor, player, policyThing, changeInstruction);
   }
-
-  public static String help() {
-    return "CHANGE_POLICY <thing> <instruction>\n\n" +
-        "Changes the policy on a thing\n\n" +
-        "An instruction is a comma-separated list of modifications.\n" +
-        "A modification has the following form:\n" +
-        "    <category><+|-><roles>\n" +
-        "- <category> is a character:\n" +
-        "    g = GENERAL   r = READ      w = WRITE     u = USE\n" +
-        "- + indicates to add roles, - indicated to remove roles\n" +
-        "- <roles> is one or more characters (in any order):\n" +
-        "    g = GUEST     d = DENIZEN   o = OWNER\n" +
-        "    B = BARD      A = ADEPT     T = THAUMATURGE\n\n" +
-        "Examples:\n" +
-        "- g+g = add GUEST to GENERAL\n" +
-        "- w-BA,r+g = remove BARD and ADEPT from WRITE, add GUEST to READ";
-  }
-
 }

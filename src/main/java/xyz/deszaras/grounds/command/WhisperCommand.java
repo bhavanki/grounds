@@ -46,9 +46,4 @@ public class WhisperCommand extends Command<Boolean> {
         .collect(Collectors.joining(" "));
     return new WhisperCommand(actor, player, recipient, message);
   }
-
-  public static String help() {
-    return "WHISPER <player> <message>\n\n" +
-        "Sends a message only to another thing (player)";
-  }
 }

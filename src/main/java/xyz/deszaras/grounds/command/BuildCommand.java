@@ -138,17 +138,4 @@ public class BuildCommand extends Command<Boolean> {
     List<String> buildArgs = commandArgs.subList(2, commandArgs.size());
     return new BuildCommand(actor, player, type, name, buildArgs);
   }
-
-  public static String help() {
-    return "BUILD <type> <name> [<build argument> ...]\n\n" +
-        "Builds a new thing, locating it where the player is now.\n\n" +
-        "Supported types:\n" +
-        "  BUILD thing <name>\n" +
-        "  BUILD player <name> <initial role>\n" +
-        "  BUILD place <name>\n" +
-        "  BUILD link <name> <source place> <source exit name>\n" +
-        "    <destination place> <destination exit name>\n" +
-        "  BUILD extension <name>\n" +
-        "  BUILD universe <name>";
-  }
 }

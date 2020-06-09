@@ -43,14 +43,4 @@ public class GetAttrCommand extends Command<String> {
         CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Thing.class, player);
     return new GetAttrCommand(actor, player, getThing, commandArgs.get(1));
   }
-
-  public static String help() {
-    return "GET_ATTR <thing> <attrName>\n\n" +
-        "Gets an attribute (attrSpec) on a thing.\n\n" +
-        "attrSpec basic format is name[type]=value\n" +
-        "  supported types: STRING, INTEGER, BOOLEAN, THING, ATTR, ATTRLIST\n" +
-        "    THING: use the thing's ID as the value\n" +
-        "    ATTR: use JSON object with name, type, and value fields\n" +
-        "    ATTRLIST: use JSON array of JSON objects";
-  }
 }
