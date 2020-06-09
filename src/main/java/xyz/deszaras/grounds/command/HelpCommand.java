@@ -1,7 +1,5 @@
 package xyz.deszaras.grounds.command;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,24 +44,8 @@ public class HelpCommand extends Command<String> {
                            helpResource.getString(upperCommandName + ".description"));
     }
 
-    Class<? extends Command> commandClass =
-        CommandExecutor.getInstance().getCommandFactory().getCommandClass(commandName);
-    if (commandClass == null) {
-      throw new CommandException("Unrecognized command " + commandName);
-    }
-
-    try {
-      Method helpMethod = commandClass.getMethod("help");
-      return (String) helpMethod.invoke(null);
-    } catch (NoSuchMethodException e) {
-      throw new CommandException("Command class " + commandClass.getName() +
-                                 " lacks a static help method!");
-    } catch (IllegalAccessException e) {
-      throw new CommandException("Failed to get help text: " + e.getMessage());
-    } catch (InvocationTargetException e) {
-      throw new CommandException("Failed to get help text: " + e.getCause().getMessage());
-    }
- }
+    throw new CommandException("Help is not available for " + upperCommandName);
+  }
 
   public static HelpCommand newCommand(Actor actor, Player player,
                                        List<String> commandArgs)
