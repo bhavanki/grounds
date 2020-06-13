@@ -44,6 +44,7 @@ public class CommandExecutor {
         .put("SET_ATTR", SetAttrCommand.class)
         .put("REMOVE_ATTR", RemoveAttrCommand.class)
         .put("CHANGE_POLICY", ChangePolicyCommand.class)
+        .put("DESTROY", DestroyCommand.class)
         .put("TAKE", TakeCommand.class)
         .put("GET", TakeCommand.class)
         .put("DROP", DropCommand.class)

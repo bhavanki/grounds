@@ -38,6 +38,7 @@ public class Universe {
   private final String name;
   private final Map<UUID, Thing> things;
   private final Map<UUID, Set<Role>> roles;
+  private UUID lostAndFoundId;
 
   /**
    * Creates an empty universe. Whoa.
@@ -48,6 +49,7 @@ public class Universe {
     this.name = Objects.requireNonNull(name);
     things = new HashMap<>();
     roles = new HashMap<>();
+    lostAndFoundId = null;
   }
 
   /**
@@ -56,12 +58,14 @@ public class Universe {
    * @param name name
    * @param things things in the universe
    * @param roles player role assignments in the universe
+   * @param lostAndFoundId the ID for the lost and found place in the universe
    */
   @JsonCreator
   public Universe(
       @JsonProperty("name") String name,
       @JsonProperty("things") Set<Thing> things,
-      @JsonProperty("roleAssignments") Map<String, Set<Role>> roles) {
+      @JsonProperty("roleAssignments") Map<String, Set<Role>> roles,
+      @JsonProperty("lostAndFoundId") String lafId) {
     this(name);
     if (things != null) {
       things.stream().forEach(thing -> this.things.put(thing.getId(), thing));
@@ -70,6 +74,9 @@ public class Universe {
       roles.entrySet().stream()
           .forEach(entry -> this.roles.put(UUID.fromString(entry.getKey()),
                                            entry.getValue()));
+    }
+    if (lafId != null) {
+      lostAndFoundId = UUID.fromString(lafId);
     }
   }
 
@@ -220,13 +227,55 @@ public class Universe {
    * @param player player
    * @return new set of current roles
    */
-    public Set<Role> removeRole(Role role, Player player) {
+  public Set<Role> removeRole(Role role, Player player) {
     return roles.computeIfPresent(player.getId(),
                                   (key, oldSet) -> {
                                     oldSet.remove(role);
                                     return oldSet;
                                   });
   }
+
+  /**
+   * Removes all player roles in this universe.
+   *
+   * @param player player
+   */
+  public void removeAllRoles(Player player) {
+    roles.remove(player.getId());
+  }
+
+  /**
+   * Gets the ID for the lost and found place in this universe. This place is
+   * where the contents of destroyed things go.
+   *
+   * @return ID of lost and found place
+   */
+  public UUID getLostAndFoundId() {
+    return lostAndFoundId;
+  }
+
+  /**
+   * Gets the lost and found place in this universe. This place is where the
+   * contents of destroyed things go.
+   *
+   * @return lost and found place
+   */
+  @JsonIgnore
+  public Optional<Place> getLostAndFoundPlace() {
+    return lostAndFoundId != null ?
+        getThing(lostAndFoundId, Place.class) : Optional.empty();
+  }
+
+  /**
+   * Sets the ID for the lost and found place in this universe. This place is
+   * where the contents of destroyed things go.
+   *
+   * @param lostAndFoundId ID of lost and found place
+   */
+  public void setLostAndFoundId(UUID lostAndFoundId) {
+    this.lostAndFoundId = lostAndFoundId;
+  }
+
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 

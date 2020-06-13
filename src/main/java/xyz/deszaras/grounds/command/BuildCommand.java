@@ -59,7 +59,7 @@ public class BuildCommand extends Command<Boolean> {
     }
 
     if (!Role.isWizard(player)) {
-      throw new CommandException("You are not a wizard in this universe, so you may not build");
+      throw new PermissionException("You are not a wizard in this universe, so you may not build");
     }
 
     if (thingType != BuiltInType.UNIVERSE && !player.getLocation().isPresent()) {
@@ -97,6 +97,7 @@ public class BuildCommand extends Command<Boolean> {
           actor.sendMessage(newInfoMessage("Created universe " + universe.getName()));
 
           createOrigin(universe);
+          createLostAndFound(universe);
 
           return true;
         default:
@@ -127,6 +128,17 @@ public class BuildCommand extends Command<Boolean> {
         " `build help` to see what you can create.");
 
     actor.sendMessage(newInfoMessage("Created origin place " + origin.getId()));
+  }
+
+  private void createLostAndFound(Universe universe) {
+    Place laf = new Place("LOST+FOUND", universe);
+    universe.addThing(laf);
+    universe.setLostAndFoundId(laf.getId());
+
+    laf.setDescription(
+        "This is where the contents of destroyed things end up.");
+
+    actor.sendMessage(newInfoMessage("Created lost+found place " + laf.getId()));
   }
 
   public static BuildCommand newCommand(Actor actor, Player player,
