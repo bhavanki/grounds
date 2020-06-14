@@ -46,6 +46,7 @@ public class Shell implements Runnable {
 
   private final Actor actor;
   private final Terminal terminal;
+  private final String ipAddressString;
   private final LineReader lineReader;
 
   private Player player = null;
@@ -57,13 +58,24 @@ public class Shell implements Runnable {
    *
    * @param actor actor using the shell
    * @param terminal actor's terminal
+   * @param ipAddressString actor's IP address
    */
-  public Shell(Actor actor, Terminal terminal) {
+  public Shell(Actor actor, Terminal terminal, String ipAddressString) {
     this.actor = actor;
     this.terminal = terminal;
+    this.ipAddressString = ipAddressString;
     lineReader = LineReaderBuilder.builder()
         .terminal(terminal)
         .build();
+  }
+
+  /**
+   * Gets the IP address for the actor using this shell.
+   *
+   * @return IP address
+   */
+  public String getIPAddress() {
+    return ipAddressString;
   }
 
   /**
@@ -224,7 +236,8 @@ public class Shell implements Runnable {
       return;
     }
     String bannerToEmit = bannerContent
-        .replaceAll("_username_", actor.getUsername());
+        .replaceAll("_username_", actor.getUsername())
+        .replaceAll("_ipaddress_", ipAddressString);
     terminal.writer().println(bannerToEmit);
   }
 

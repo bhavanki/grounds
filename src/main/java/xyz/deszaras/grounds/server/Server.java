@@ -3,6 +3,7 @@ package xyz.deszaras.grounds.server;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.net.InetAddresses;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -144,13 +145,13 @@ public class Server {
     public Command createShell(ChannelSession session) throws IOException {
       Actor actor = buildActor(session);
 
+      InetSocketAddress remoteAddress =
+          (InetSocketAddress) session.getSessionContext().getRemoteAddress();
+
       // If actor is root, only permit connecting from 127.0.0.1.
-      if (actor.equals(Actor.ROOT)) {
-        InetSocketAddress remoteAddress =
-            (InetSocketAddress) session.getSessionContext().getRemoteAddress();
-        if (!(remoteAddress.getAddress().getHostAddress().equals(LOCALHOST))) {
-          throw new IOException("root may only connect from localhost");
-        }
+      if (actor.equals(Actor.ROOT) &&
+         !(remoteAddress.getAddress().getHostAddress().equals(LOCALHOST))) {
+        throw new IOException("root may only connect from localhost");
       }
 
       // If the actor is already connected, reject.
@@ -161,7 +162,18 @@ public class Server {
         connectedActors.add(actor);
       }
 
-      return new ServerShellCommand(actor);
+      // Remember the actor's IP address.
+      String ipAddressString = InetAddresses.toAddrString(remoteAddress.getAddress());
+      ActorDatabase.INSTANCE.updateActorRecord(actor.getUsername(),
+          r -> r.setMostRecentIPAddress(ipAddressString));
+      try {
+        ActorDatabase.INSTANCE.save();
+      } catch (IOException e) {
+        LOG.warn("Failed to save updated actor record for {} to record IP address {}",
+                 actor.getUsername(), ipAddressString);
+      }
+
+      return new ServerShellCommand(actor, ipAddressString);
     }
 
     private Actor buildActor(ChannelSession session) {
@@ -181,6 +193,7 @@ public class Server {
   private class ServerShellCommand implements Command {
 
     private final Actor actor;
+    private final String ipAddressString;
 
     private InputStream in;
     private OutputStream out;
@@ -188,8 +201,9 @@ public class Server {
     private ExitCallback exitCallback;
     private Future<?> shellFuture;
 
-    private ServerShellCommand(Actor actor) {
+    private ServerShellCommand(Actor actor, String ipAddressString) {
       this.actor = actor;
+      this.ipAddressString = ipAddressString;
       shellFuture = null;
     }
 
@@ -235,7 +249,7 @@ public class Server {
           virtualTerminal.raise(Terminal.Signal.WINCH);
         }, Signal.WINCH);
 
-      Shell shell = new Shell(actor, virtualTerminal);
+      Shell shell = new Shell(actor, virtualTerminal, ipAddressString);
       openShells.put(actor, shell);
       shell.setBannerContent(bannerContent);
 
@@ -246,7 +260,8 @@ public class Server {
         @Override
         public void run() {
           try {
-            LOG.info("Running shell for {}", actor.getUsername());
+            LOG.info("Running shell for {} connected from {}", actor.getUsername(),
+                     ipAddressString);
             shell.run();
             LOG.info("Shell for {} exited with exit code {}",
                      actor.getUsername(), shell.getExitCode());

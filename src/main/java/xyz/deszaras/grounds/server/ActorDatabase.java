@@ -17,12 +17,19 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+/**
+ * A simple database holding actor records. It is thread-safe.
+ */
 public class ActorDatabase {
 
+  /**
+   * The record for an actor in the actor database.
+   */
   public static class ActorRecord {
     private final String username;
     private String password;
     private Set<UUID> players;
+    private String mostRecentIPAddress;
 
     private ActorRecord(String username, String password) {
       this.username = Objects.requireNonNull(username);
@@ -34,10 +41,12 @@ public class ActorDatabase {
     private ActorRecord(
       @JsonProperty("username") String username,
       @JsonProperty("password") String password,
-      @JsonProperty("players") Set<UUID> players) {
+      @JsonProperty("players") Set<UUID> players,
+      @JsonProperty("mostRecentIPAddress") String mostRecentIPAddress) {
       this.username = Objects.requireNonNull(username);
       this.password = password;
       this.players = players != null ? new HashSet<>(players) : new HashSet<>();
+      this.mostRecentIPAddress = mostRecentIPAddress;
     }
 
     @JsonProperty
@@ -65,6 +74,15 @@ public class ActorDatabase {
 
     public void removePlayer(UUID playerId) {
       players.remove(playerId);
+    }
+
+    @JsonProperty
+    public String getMostRecentIPAddress() {
+      return mostRecentIPAddress;
+    }
+
+    public void setMostRecentIPAddress(String mostRecentIPAddress) {
+      this.mostRecentIPAddress = mostRecentIPAddress;
     }
 
     @Override
@@ -124,6 +142,10 @@ public class ActorDatabase {
 
   public synchronized Optional<ActorRecord> getActorRecord(String username) {
     return Optional.ofNullable(actors.get(username));
+  }
+
+  public synchronized Set<ActorRecord> getAllActorRecords() {
+    return ImmutableSet.copyOf(actors.values());
   }
 
   public synchronized boolean updateActorRecord(String username,

@@ -1,5 +1,6 @@
 package xyz.deszaras.grounds.command;
 
+import java.net.InetAddress;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.Objects;
 import xyz.deszaras.grounds.model.Player;
@@ -21,6 +22,7 @@ public class Actor {
   private final LinkedBlockingQueue<Message> messages;
 
   private Player currentPlayer;
+  private InetAddress mostRecentIPAddress;
 
   /**
    * Creates a new actor.
@@ -57,6 +59,24 @@ public class Actor {
    */
   public void setCurrentPlayer(Player player) {
     currentPlayer = player;
+  }
+
+  /**
+   * Gets the most recent IP address for this actor.
+   *
+   * @return most recent IP address
+   */
+  public InetAddress getMostRecentIPAddress() {
+    return mostRecentIPAddress;
+  }
+
+  /**
+   * Sets the most recent IP address for this actor.
+   *
+   * @param mostRecentIPAddress most recent IP address
+   */
+  public void setMostRecentIPAddress(InetAddress mostRecentIPAddress) {
+    this.mostRecentIPAddress = mostRecentIPAddress;
   }
 
   /**
