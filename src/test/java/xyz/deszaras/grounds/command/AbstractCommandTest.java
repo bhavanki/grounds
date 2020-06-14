@@ -8,7 +8,6 @@ import java.util.UUID;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Link;
-import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
@@ -34,16 +33,15 @@ public abstract class AbstractCommandTest {
    */
   public void setUp() {
     testUniverse = new Universe("test");
-    Multiverse.MULTIVERSE.putUniverse(testUniverse);
+    Universe.setCurrent(testUniverse);
 
-    Place laf = new Place("LOST+FOUND", testUniverse);
+    Place laf = new Place("LOST+FOUND");
     testUniverse.addThing(laf);
     testUniverse.setLostAndFoundId(laf.getId());
 
     actor = mock(Actor.class);
     player = mock(Player.class);
     when(player.getId()).thenReturn(UUID.randomUUID());
-    when(player.getUniverse()).thenReturn(testUniverse);
   }
 
   /**
@@ -62,9 +60,8 @@ public abstract class AbstractCommandTest {
    * @return      new extension
    */
   protected Extension newTestExtension(String name) {
-    Extension extension = new Extension(name, testUniverse);
+    Extension extension = new Extension(name);
     testUniverse.addThing(extension);
-    extension.setUniverse(testUniverse);
     return extension;
   }
 
@@ -77,10 +74,8 @@ public abstract class AbstractCommandTest {
    * @return      new link
    */
   protected Link newTestLink(String name, Place place1, Place place2) {
-    Link link = new Link(name, testUniverse, place1, "source", place2,
-                         "destination");
+    Link link = new Link(name, place1, "source", place2, "destination");
     testUniverse.addThing(link);
-    link.setUniverse(testUniverse);
     return link;
   }
 
@@ -91,9 +86,8 @@ public abstract class AbstractCommandTest {
    * @return      new place
    */
   protected Place newTestPlace(String name) {
-    Place place = new Place(name, testUniverse);
+    Place place = new Place(name);
     testUniverse.addThing(place);
-    place.setUniverse(testUniverse);
     return place;
   }
 
@@ -104,9 +98,8 @@ public abstract class AbstractCommandTest {
    * @return      new player
    */
   protected Player newTestPlayer(String name, Role role) {
-    Player player = new Player(name, testUniverse);
+    Player player = new Player(name);
     testUniverse.addThing(player);
-    player.setUniverse(testUniverse);
     testUniverse.addRole(role, player);
     return player;
   }
@@ -120,9 +113,8 @@ public abstract class AbstractCommandTest {
    * @return      new thing
    */
   protected Thing newTestThing(String name) {
-    Thing thing = new Thing(name, testUniverse);
+    Thing thing = new Thing(name);
     testUniverse.addThing(thing);
-    thing.setUniverse(testUniverse);
     return thing;
   }
 

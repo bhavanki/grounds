@@ -50,9 +50,8 @@ public class SayCommand extends Command<Boolean> {
       sayMessage = newMessage(Message.Style.SAY, sayMessageString);
     }
 
-    Universe universe = location.get().getUniverse();
     location.get().getContents().stream()
-        .map(id -> universe.getThing(id))
+        .map(id -> Universe.getCurrent().getThing(id))
         .filter(t -> t.isPresent())
         .filter(t -> t.get() instanceof Player)
         .forEach(p -> ((Player) p.get()).sendMessage(sayMessage));

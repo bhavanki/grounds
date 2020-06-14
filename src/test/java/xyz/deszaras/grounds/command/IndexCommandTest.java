@@ -21,7 +21,7 @@ public class IndexCommandTest extends AbstractCommandTest {
   public void setUp() {
     super.setUp();
 
-    command = new IndexCommand(actor, player, testUniverse);
+    command = new IndexCommand(actor, player);
   }
 
   @Test
@@ -43,7 +43,7 @@ public class IndexCommandTest extends AbstractCommandTest {
     setPlayerRoles(Role.DENIZEN);
 
     thrown.expect(PermissionException.class);
-    thrown.expectMessage("You are not a wizard in this universe, so you may not index it");
+    thrown.expectMessage("You are not a wizard, so you may not index it");
 
     command.execute();
   }

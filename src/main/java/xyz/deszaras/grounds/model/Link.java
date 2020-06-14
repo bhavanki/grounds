@@ -6,12 +6,15 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+
 import xyz.deszaras.grounds.auth.Policy;
+import xyz.deszaras.grounds.util.UUIDUtils;
 
 /**
  * A thing that links one or more places in the world.
@@ -21,9 +24,9 @@ public class Link extends Thing {
   public static final String SOURCE = "source";
   public static final String DESTINATION = "destination";
 
-  public Link(String name, Universe universe, Place source, String sourceName,
+  public Link(String name, Place source, String sourceName,
               Place destination, String destinationName) {
-    super(name, universe);
+    super(name);
 
     setAttr(SOURCE, new Attr(sourceName, source));
     setAttr(DESTINATION, new Attr(destinationName, destination));
@@ -59,13 +62,13 @@ public class Link extends Thing {
   @JsonIgnore
   public Optional<Place> getSource() {
     String sourceId = getAttr(SOURCE).get().getAttrValue().getThingValue();
-    return Multiverse.MULTIVERSE.findThing(sourceId, Place.class);
+    return Universe.getCurrent().getThing(UUIDUtils.getUUID(sourceId), Place.class);
   }
 
   @JsonIgnore
   public Optional<Place> getDestination() {
     String destinationId = getAttr(DESTINATION).get().getAttrValue().getThingValue();
-    return Multiverse.MULTIVERSE.findThing(destinationId, Place.class);
+    return Universe.getCurrent().getThing(UUIDUtils.getUUID(destinationId), Place.class);
   }
 
   @JsonIgnore
@@ -91,21 +94,27 @@ public class Link extends Thing {
     return Optional.empty();
   }
 
-  // TBD: make changing its universe impossible
-
-  public static Link build(String name, Universe universe, List<String> buildArgs) {
+  public static Link build(String name, List<String> buildArgs) {
     checkArgument(buildArgs.size() == 4, "Expected 4 build arguments, got " + buildArgs.size());
-    Optional<Place> source = Multiverse.MULTIVERSE.findThing(buildArgs.get(0), Place.class);
+    if (!UUIDUtils.isUUID(buildArgs.get(0))) {
+      throw new IllegalArgumentException("Not a UUID: " + buildArgs.get(0));
+    }
+    if (!UUIDUtils.isUUID(buildArgs.get(2))) {
+      throw new IllegalArgumentException("Not a UUID: " + buildArgs.get(2));
+    }
+    Optional<Place> source =
+        Universe.getCurrent().getThing(UUIDUtils.getUUID(buildArgs.get(0)), Place.class);
     if (!source.isPresent()) {
       throw new IllegalArgumentException("Cannot find source " + buildArgs.get(0));
     }
     String sourceName = Objects.requireNonNull(buildArgs.get(1));
-    Optional<Place> destination = Multiverse.MULTIVERSE.findThing(buildArgs.get(2), Place.class);
+    Optional<Place> destination =
+        Universe.getCurrent().getThing(UUIDUtils.getUUID(buildArgs.get(2)), Place.class);
     if (!destination.isPresent()) {
       throw new IllegalArgumentException("Cannot find destination " + buildArgs.get(2));
     }
     String destinationName = Objects.requireNonNull(buildArgs.get(3));
-    return new Link(name, universe, source.get(), sourceName,
+    return new Link(name, source.get(), sourceName,
                     destination.get(), destinationName);
   }
 }

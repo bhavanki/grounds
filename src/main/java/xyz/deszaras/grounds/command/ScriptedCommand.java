@@ -16,11 +16,11 @@ import xyz.deszaras.grounds.script.ScriptFactoryException;
 /**
  * Runs a scripted command.<p>
  *
- * A scripted command is defined in an attribute of an extension
- * in the universe of the player running it. The name of the
- * attribute matches the name of the command and must start with a
- * '$' character. See {@link ScriptFactory#newScript(Attr)} for
- * details on the necessary attribute structure.<p>
+ * A scripted command is defined in an attribute of an extension.
+ * The name of the attribute matches the name of the command and
+ * must start with a '$' character. See
+ * {@link ScriptFactory#newScript(Attr)} for details on the
+ * necessary attribute structure.<p>
  *
  * A player may call a script if they pass the USE category on
  * the extension where the script is defined.

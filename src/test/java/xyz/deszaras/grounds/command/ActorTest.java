@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.model.Player;
-import xyz.deszaras.grounds.model.Universe;
 
 public class ActorTest {
 
@@ -25,7 +24,7 @@ public class ActorTest {
   public void testGettersAndSetters() {
     assertEquals("bob", actor.getUsername());
 
-    Player player = new Player("robobob", Universe.VOID);
+    Player player = new Player("robobob");
     actor.setCurrentPlayer(player);
     assertEquals(player, actor.getCurrentPlayer());
 

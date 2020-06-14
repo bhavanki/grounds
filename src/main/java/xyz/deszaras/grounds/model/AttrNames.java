@@ -20,10 +20,6 @@ public final class AttrNames {
    */
   public static final String DESCRIPTION = "description";
   /**
-   * The attribute for the universe of a thing.
-   */
-  public static final String UNIVERSE = "universe";
-  /**
    * The attribute for the location of a thing.
    */
   public static final String LOCATION = "location";
@@ -38,7 +34,6 @@ public final class AttrNames {
   public static final Set<String> ALL_NAMES = ImmutableSet.<String>builder()
       .add(NAME)
       .add(DESCRIPTION)
-      .add(UNIVERSE)
       .add(LOCATION)
       .add(OWNER)
       .build();

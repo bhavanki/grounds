@@ -12,6 +12,7 @@ import java.util.function.BiFunction;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.model.Universe;
 import xyz.deszaras.grounds.server.Server;
 
 /**
@@ -115,7 +116,7 @@ public class CommandFactory {
 
   /**
    * Gets a scripted command. This method hunts for the script attribute
-   * defining the command among all extensions in the player's universe.
+   * defining the command among all extensions in the universe.
    *
    * @param actor actor submitting the command
    * @param player player currently assumed by the actor
@@ -129,13 +130,12 @@ public class CommandFactory {
     List<String> scriptArguments = line.subList(1, line.size());
 
     // Find the attribute defining the command. It must be attached
-    // to an extension in the player's universe and have an attribute
-    // list as a value. The extension must also have an owner, which is
-    // the script's owner.
+    // to an extension and have an attribute list as a value. The
+    // extension must also have an owner, which is the script's owner.
     Optional<Attr> scriptAttr = Optional.empty();
     Extension scriptExtension = null;
     // this is inefficient :(
-    for (Extension extension : player.getUniverse().getThings(Extension.class)) {
+    for (Extension extension : Universe.getCurrent().getThings(Extension.class)) {
       scriptAttr = extension.getAttr(commandName, Attr.Type.ATTRLIST);
       if (scriptAttr.isPresent()) {
         scriptExtension = extension;

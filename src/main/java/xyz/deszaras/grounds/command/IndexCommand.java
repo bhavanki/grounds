@@ -4,33 +4,28 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import xyz.deszaras.grounds.auth.Role;
-import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 import xyz.deszaras.grounds.model.Universe;
 
 /**
- * Shows a listing of all of the things in a universe.<p>
+ * Shows a listing of all of the things in the universe.<p>
  *
- * Arguments: name of universe<br>
  * Checks: player is wizard in universe
  */
 public class IndexCommand extends Command<String> {
 
-  private final Universe universe;
-
-  public IndexCommand(Actor actor, Player player, Universe universe) {
+  public IndexCommand(Actor actor, Player player) {
     super(actor, player);
-    this.universe = universe;
   }
 
   @Override
   public String execute() throws CommandException {
-    if (!Role.isWizard(player, universe)) {
-      throw new PermissionException("You are not a wizard in this universe, so you may not index it");
+    if (!Role.isWizard(player)) {
+      throw new PermissionException("You are not a wizard, so you may not index it");
     }
 
-    List<Thing> things = new ArrayList<>(universe.getThings());
+    List<Thing> things = new ArrayList<>(Universe.getCurrent().getThings());
     Collections.sort(things,
                      (t1, t2) -> {
                       int c = t1.getClass().getSimpleName().compareTo(t2.getClass().getSimpleName());
@@ -57,11 +52,7 @@ public class IndexCommand extends Command<String> {
   public static IndexCommand newCommand(Actor actor, Player player,
                                         List<String> commandArgs)
       throws CommandFactoryException {
-    ensureMinArgs(commandArgs, 1);
-    String name = commandArgs.get(0);
-    if (!Multiverse.MULTIVERSE.hasUniverse(name)) {
-      throw new CommandFactoryException("Universe " + name + " does not exist");
-    }
-    return new IndexCommand(actor, player, Multiverse.MULTIVERSE.getUniverse(name));
+    ensureMinArgs(commandArgs, 0);
+    return new IndexCommand(actor, player);
   }
 }

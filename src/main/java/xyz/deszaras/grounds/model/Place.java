@@ -14,8 +14,8 @@ import xyz.deszaras.grounds.auth.Policy;
  */
 public class Place extends Thing {
 
-  public Place(String name, Universe universe) {
-    super(name, universe);
+  public Place(String name) {
+    super(name);
   }
 
   /**
@@ -36,10 +36,8 @@ public class Place extends Thing {
     super(id, attrs, contents, policy);
   }
 
-  // TBD: make changing its universe impossible
-
-  public static Place build(String name, Universe universe, List<String> buildArgs) {
+  public static Place build(String name, List<String> buildArgs) {
     checkArgument(buildArgs.size() == 0, "Expected 0 build arguments, got " + buildArgs.size());
-    return new Place(name, universe);
+    return new Place(name);
   }
 }

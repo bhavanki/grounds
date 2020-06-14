@@ -39,7 +39,7 @@ public class DestroyCommandTest extends AbstractCommandTest {
     command = new DestroyCommand(actor, player, thing);
 
     thrown.expect(PermissionException.class);
-    thrown.expectMessage("You are not a wizard in this universe, so you may not destroy");
+    thrown.expectMessage("You are not a wizard, so you may not destroy");
     command.execute();
   }
 

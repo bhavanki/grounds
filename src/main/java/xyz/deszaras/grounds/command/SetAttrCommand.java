@@ -15,8 +15,7 @@ import xyz.deszaras.grounds.model.Thing;
  * Checks: player passes WRITE for thing<p>
  *
  * For THING type attributes, this command will resolve a thing name in an
- * attribute spec into an ID in the player's universe. If resolution fails,
- * the attribute is not set.
+ * attribute spec into an ID. If resolution fails, the attribute is not set.
  */
 public class SetAttrCommand extends Command<Boolean> {
 

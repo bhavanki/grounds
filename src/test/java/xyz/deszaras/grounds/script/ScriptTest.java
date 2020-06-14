@@ -6,15 +6,14 @@ import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Player;
-import xyz.deszaras.grounds.model.Universe;
 
 public class ScriptTest {
 
   @Test
   public void testGetters() {
     String content = "println('Hello world')";
-    Player owner = new Player("owner", Universe.VOID);
-    Extension extension = new Extension("extension", Universe.VOID);
+    Player owner = new Player("owner");
+    Extension extension = new Extension("extension");
 
     Script s = new Script(content, owner, extension);
 

@@ -9,11 +9,12 @@ import org.fusesource.jansi.Ansi;
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Link;
-import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
+import xyz.deszaras.grounds.model.Universe;
 import xyz.deszaras.grounds.util.AnsiUtils;
+import xyz.deszaras.grounds.util.UUIDUtils;
 
 public class LookCommand extends Command<String> {
 
@@ -45,7 +46,7 @@ public class LookCommand extends Command<String> {
     List<Thing> theRest = new ArrayList<>();
 
     location.getContents().forEach(id -> {
-      Optional<Thing> t = Multiverse.MULTIVERSE.findThing(id);
+      Optional<Thing> t = Universe.getCurrent().getThing(id);
       if (t.isPresent()) {
         Thing tt = t.get();
         if (tt instanceof Player) {
@@ -72,14 +73,15 @@ public class LookCommand extends Command<String> {
       }
     }
 
-    Collection<Link> links = Multiverse.MULTIVERSE.findLinks(location);
+    Collection<Link> links = Universe.getCurrent().findLinks(location);
     if (!links.isEmpty()) {
       b.append("\n\n" + AnsiUtils.color("Exits:", Ansi.Color.CYAN, false));
       for (Link link : links) {
         Optional<Attr> otherPlaceAttr = link.getOtherPlace(location);
         if (otherPlaceAttr.isPresent()) {
           Optional<Place> otherPlace =
-              Multiverse.MULTIVERSE.findThing(otherPlaceAttr.get().getThingValue(), Place.class);
+              Universe.getCurrent().getThing(UUIDUtils.getUUID(otherPlaceAttr.get().getThingValue()),
+                                             Place.class);
           if (otherPlace.isPresent()) {
             String otherPlaceName =
                 AnsiUtils.color(otherPlaceAttr.get().getName(), Ansi.Color.GREEN, false);

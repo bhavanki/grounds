@@ -4,11 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.model.Universe;
 
 /**
- * Loads a multiverse from a file.<p>
+ * Loads a universe from a file.<p>
  *
  * Arguments: file to load<br>
  * Checks: player is GOD
@@ -25,17 +25,17 @@ public class LoadCommand extends Command<Boolean> {
   @Override
   public Boolean execute() throws CommandException {
     if (!player.equals(Player.GOD)) {
-      throw new CommandException("Only GOD can load the multiverse");
+      throw new CommandException("Only GOD can load a universe");
     }
     // TBD prohibit if any players besides GOD are in use, especially
     // because they are disconnected from their players
     try {
-      Multiverse.load(f);
-      actor.sendMessage(newInfoMessage("Loaded multiverse from " + f.getName()));
+      Universe.setCurrent(Universe.load(f));
+      actor.sendMessage(newInfoMessage("Loaded universe from " + f.getName()));
       return true;
     } catch (IOException e) {
       e.printStackTrace();
-      throw new CommandException("Failed to load multiverse: " + e.getMessage());
+      throw new CommandException("Failed to load universe: " + e.getMessage());
     }
   }
 

@@ -6,13 +6,13 @@ import java.util.Set;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
+import xyz.deszaras.grounds.model.Universe;
 
 /**
  * Grants ownership of a thing to a player.<p>
  *
  * Arguments: name or ID of thing<br>
- * Checks: player is GOD or THAUMATURGE in the thing's universe;
- * thing is not already owned
+ * Checks: player is GOD or THAUMATURGE; thing is not already owned
  */
 public class ClaimCommand extends Command<Boolean> {
 
@@ -35,7 +35,7 @@ public class ClaimCommand extends Command<Boolean> {
     if (player.equals(Player.GOD)) {
       return;
     }
-    Set<Role> roles = thing.getUniverse().getRoles(player);
+    Set<Role> roles = Universe.getCurrent().getRoles(player);
     if (roles.contains(Role.THAUMATURGE)) {
       return;
     }

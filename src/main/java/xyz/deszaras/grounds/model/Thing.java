@@ -25,9 +25,10 @@ import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.command.Message;
 import xyz.deszaras.grounds.util.CommandLineUtils;
+import xyz.deszaras.grounds.util.UUIDUtils;
 
 /**
- * A thing that exists in the world.
+ * A thing that exists in a universe.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS,
               include = JsonTypeInfo.As.PROPERTY,
@@ -44,7 +45,7 @@ public class Thing {
    * The special thing NOTHING.
    */
   public static final Thing NOTHING =
-      new Thing("NOTHING", Universe.VOID, NOTHING_ID) {};
+      new Thing("NOTHING", NOTHING_ID) {};
 
   /**
    * The ID of the special thing EVERYTHING.
@@ -54,12 +55,7 @@ public class Thing {
    * The special thing EVERYTHING.
    */
   public static final Thing EVERYTHING =
-      new Thing("EVERYTHING", Universe.VOID, EVERYTHING_ID) {};
-
-  static {
-    Universe.VOID.addThing(NOTHING);
-    Universe.VOID.addThing(EVERYTHING);
-  }
+      new Thing("EVERYTHING", EVERYTHING_ID) {};
 
   private final UUID id;
   private final Map<String, Attr> attrs; // key = attr name
@@ -70,31 +66,25 @@ public class Thing {
    * Creates a new thing with a random ID.
    *
    * @param name name
-   * @param universe starting universe
-   * @throws NullPointerException if any argument is null
+   * @throws NullPointerException if name is null
    */
-  public Thing(String name, Universe universe) {
-    this(name, universe, UUID.randomUUID());
+  public Thing(String name) {
+    this(name, UUID.randomUUID());
   }
 
   /**
    * Creates a new thing.
    *
    * @param name name
-   * @param universe starting universe
    * @param id ID
    * @throws NullPointerException if any argument is null
    */
-  public Thing(String name, Universe universe, UUID id) {
+  public Thing(String name, UUID id) {
     this.id = Objects.requireNonNull(id);
     attrs = new HashMap<>();
     attrs.put(AttrNames.NAME,
               new Attr(AttrNames.NAME,
                        Objects.requireNonNull(name)));
-    attrs.put(AttrNames.UNIVERSE,
-              new Attr(AttrNames.UNIVERSE,
-                       Objects.requireNonNull(universe).getName()));
-    // accessRuleKeeper = new AccessRuleKeeper();
     contents = new HashSet<>();
     policy = new Policy(Policy.DEFAULT);
   }
@@ -107,8 +97,7 @@ public class Thing {
    * @param contents contents
    * @param policy policy
    * @throws NullPointerException if any argument is null
-   * @throws IllegalArgumentException if there is no attribute for
-   * name or universe name
+   * @throws IllegalArgumentException if there is no attribute for name
    */
   @JsonCreator
   public Thing(
@@ -122,9 +111,6 @@ public class Thing {
         .forEach(a -> this.attrs.put(a.getName(), a));
     if (!this.attrs.containsKey(AttrNames.NAME)) {
       throw new IllegalArgumentException("Name not defined for thing with ID " + id);
-    }
-    if (!this.attrs.containsKey(AttrNames.UNIVERSE)) {
-      throw new IllegalArgumentException("Universe name not defined for thing with ID " + id);
     }
     this.contents = new HashSet<>(Objects.requireNonNull(contents));
     this.policy = new Policy(Objects.requireNonNull(policy));
@@ -175,28 +161,14 @@ public class Thing {
   }
 
   /**
-   * Gets this thing's universe.
-   */
-  @JsonIgnore
-  public Universe getUniverse() {
-    String universeName = getAttr(AttrNames.UNIVERSE).get().getValue();
-    return Multiverse.MULTIVERSE.getUniverse(universeName);
-  }
-
-  /**
-   * Sets this thing's universe.
-   */
-  public void setUniverse(Universe universe) {
-    setAttr(AttrNames.UNIVERSE, Objects.requireNonNull(universe).getName());
-  }
-
-  /**
    * Gets this thing's location.
    */
   @JsonIgnore
   public Optional<Place> getLocation() {
     // TBD: what if location is set but cannot be found?
-    return getAttr(AttrNames.LOCATION).map(a -> Multiverse.MULTIVERSE.findThing(a.getValue(), Place.class).orElse(null));
+    return getAttr(AttrNames.LOCATION).map(a ->
+        Universe.getCurrent().getThing(UUIDUtils.getUUID(a.getValue()), Place.class)
+        .orElse(null));
   }
 
   /**
@@ -216,7 +188,9 @@ public class Thing {
   @JsonIgnore
   public Optional<Thing> getOwner() {
     // TBD: what if owner is set but cannot be found?
-    return getAttr(AttrNames.OWNER).map(a -> Multiverse.MULTIVERSE.findThing(a.getValue()).orElse(null));
+    return getAttr(AttrNames.OWNER).map(a ->
+        Universe.getCurrent().getThing(UUIDUtils.getUUID(a.getValue()))
+        .orElse(null));
   }
 
   /**
@@ -548,7 +522,7 @@ public class Thing {
                 category);
       return true;
     }
-    Set<Role> playerRoles = new HashSet<>(getUniverse().getRoles(player));
+    Set<Role> playerRoles = new HashSet<>(Universe.getCurrent().getRoles(player));
     if (player.equals(getOwner().orElse(null))) {
       playerRoles.add(Role.OWNER);
     }
@@ -620,8 +594,8 @@ public class Thing {
     }
   }
 
-  public static Thing build(String name, Universe universe, List<String> buildArgs) {
+  public static Thing build(String name, List<String> buildArgs) {
     checkArgument(buildArgs.size() == 0, "Expected 0 build arguments, got " + buildArgs.size());
-    return new Thing(name, universe);
+    return new Thing(name);
   }
 }

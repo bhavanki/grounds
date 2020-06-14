@@ -18,11 +18,12 @@ public class UniverseTest {
   @BeforeEach
   public void setUp() {
     u = new Universe("test");
+    Universe.setCurrent(u);
   }
 
   @Test
   public void testRoles() {
-    p = new Player("bob", u);
+    p = new Player("bob");
 
     assertEquals(0, u.getRoles(p).size());
 

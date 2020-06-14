@@ -3,12 +3,14 @@ package xyz.deszaras.grounds.command;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Link;
-import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.model.Universe;
+import xyz.deszaras.grounds.util.UUIDUtils;
 
 /**
  * Moves a player to a destination through a link. Delegates the
@@ -39,12 +41,13 @@ public class MoveCommand extends Command<String> {
     // place is the move destination.
     Optional<Place> moveDestination = null;
     Optional<Link> viaLink = null;
-    for (Link link : Multiverse.MULTIVERSE.findLinks(source.get())) {
+    for (Link link : Universe.getCurrent().findLinks(source.get())) {
       Optional<Attr> otherPlace = link.getOtherPlace(source.get());
       if (otherPlace.isPresent() &&
           otherPlace.get().getName().equalsIgnoreCase(exitName)) {
         moveDestination =
-            Multiverse.MULTIVERSE.findThing(otherPlace.get().getThingValue(), Place.class);
+            Universe.getCurrent().getThing(UUIDUtils.getUUID(otherPlace.get().getThingValue()),
+                                           Place.class);
         viaLink = Optional.of(link);
       }
     }

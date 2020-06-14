@@ -25,8 +25,8 @@ import xyz.deszaras.grounds.command.CommandResult;
 import xyz.deszaras.grounds.command.ExitCommand;
 import xyz.deszaras.grounds.command.Message;
 import xyz.deszaras.grounds.command.SwitchPlayerCommand;
-import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.model.Universe;
 import xyz.deszaras.grounds.util.AnsiUtils;
 import xyz.deszaras.grounds.util.CommandLineUtils;
 
@@ -245,7 +245,7 @@ public class Shell implements Runnable {
     List<Player> permittedPlayers =
         ActorDatabase.INSTANCE.getActorRecord(actor.getUsername())
         .get().getPlayers().stream()
-        .map(id -> Multiverse.MULTIVERSE.findThing(id, Player.class))
+        .map(id -> Universe.getCurrent().getThing(id, Player.class))
         .filter(p -> p.isPresent())
         .map(p -> p.get())
         .sorted((p1, p2) -> p1.getName().compareTo(p2.getName()))

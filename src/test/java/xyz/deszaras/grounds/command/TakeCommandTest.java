@@ -34,7 +34,6 @@ public class TakeCommandTest extends AbstractCommandTest {
     location = mock(Place.class);
 
     thing = mock(Thing.class);
-    when(thing.getUniverse()).thenReturn(getTestUniverse());
     command = new TakeCommand(actor, player, thing);
   }
 

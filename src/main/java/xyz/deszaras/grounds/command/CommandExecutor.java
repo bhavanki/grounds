@@ -52,6 +52,7 @@ public class CommandExecutor {
         .put("I", InventoryCommand.class)
         .put("CLAIM", ClaimCommand.class)
         .put("ABANDON", AbandonCommand.class)
+        .put("INIT", InitCommand.class)
         .put("LOAD", LoadCommand.class)
         .put("SAVE", SaveCommand.class)
         .put("RUN", RunCommand.class)

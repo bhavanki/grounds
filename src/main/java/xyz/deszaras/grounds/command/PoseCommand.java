@@ -38,9 +38,8 @@ public class PoseCommand extends Command<Boolean> {
     Message poseMessage = newMessage(Message.Style.POSE,
                                      String.format(POSE_FORMAT, message));
 
-    Universe universe = location.get().getUniverse();
     location.get().getContents().stream()
-        .map(id -> universe.getThing(id))
+        .map(id -> Universe.getCurrent().getThing(id))
         .filter(t -> t.isPresent())
         .filter(t -> t.get() instanceof Player)
         .forEach(p -> ((Player) p.get()).sendMessage(poseMessage));

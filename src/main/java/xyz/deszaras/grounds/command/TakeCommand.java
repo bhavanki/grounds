@@ -31,7 +31,7 @@ public class TakeCommand extends Command<Boolean> {
     checkPermission(Category.GENERAL, thing, "You are not permitted to take that");
 
     Optional<Place> location = thing.getLocation();
-    if (!Role.isWizard(player, thing.getUniverse()) &&
+    if (!Role.isWizard(player) &&
         (location.isEmpty() ||             // the thing has no location
          player.getLocation().isEmpty() || // the player has no location
          !location.get().equals(player.getLocation().get()))) {

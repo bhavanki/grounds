@@ -7,19 +7,19 @@ import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Universe;
 
 /**
- * A role is used to determine a player's permissions in a universe.
+ * A role is used to determine a player's permissions.
  */
 public enum Role {
   /**
-   * The most powerful wizard role in a universe.
+   * The most powerful wizard role.
    */
   THAUMATURGE,
   /**
-   * A moderately powerful player role in a universe.
+   * A moderately powerful player role.
    */
   ADEPT,
   /**
-   * The least powerful wizard role in a universe.
+   * The least powerful wizard role.
    */
   BARD,
   /**
@@ -28,11 +28,11 @@ public enum Role {
    */
   OWNER,
   /**
-   * A non-wizard, typical player role in a universe.
+   * A non-wizard, typical player role.
    */
   DENIZEN,
   /**
-   * A guest in a universe.
+   * A guest.
    */
   GUEST;
 
@@ -55,27 +55,16 @@ public enum Role {
       ImmutableSet.of(BARD, ADEPT, THAUMATURGE);
 
   /**
-   * Checks if the player has a wizard role in their current universe.
+   * Checks if the player has a wizard role.
    *
    * @param player player
-   * @return true if player is a wizard in their current universe, or is GOD
+   * @return true if player is a wizard, or is GOD
    */
   public static boolean isWizard(Player player) {
-    return isWizard(player, player.getUniverse());
-  }
-
-  /**
-   * Checks if the player has a wizard role in a universe.
-   *
-   * @param player player
-   * @param universe universe
-   * @return true if player is a wizard in the given universe, or is GOD
-   */
-  public static boolean isWizard(Player player, Universe universe) {
     if (player.equals(Player.GOD)) {
       return true;
     }
-    Set<Role> roles = universe.getRoles(player);
+    Set<Role> roles = Universe.getCurrent().getRoles(player);
     return roles.stream().anyMatch(r -> Role.WIZARD_ROLES.contains(r));
   }
 }

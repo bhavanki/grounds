@@ -16,7 +16,7 @@ import xyz.deszaras.grounds.server.Shell;
  * Shows a listing of all connected actors or all actors.<p>
  *
  * Arguments: "all" to list all actors, omit for just connected ones
- * Checks: player is wizard in universe (might relax later)
+ * Checks: player is wizard (might relax later)
  */
 public class WhoCommand extends ServerCommand<String> {
 
@@ -30,8 +30,8 @@ public class WhoCommand extends ServerCommand<String> {
   @Override
   public String execute() throws CommandException {
     checkIfServer();
-    if (!Role.isWizard(player, player.getUniverse())) {
-      throw new PermissionException("You are not a wizard in your universe, so you may not see who is on");
+    if (!Role.isWizard(player)) {
+      throw new PermissionException("You are not a wizard, so you may not see who is on");
     }
 
     Map<Actor, Shell> openShells = server.getOpenShells();

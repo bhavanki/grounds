@@ -8,14 +8,13 @@ import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Link;
-// import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 import xyz.deszaras.grounds.model.Universe;
 
 /**
- * Destroys a thing in the player's current universe.<p>
+ * Destroys a thing.<p>
  *
  * Arguments: thing
  * Checks: player is a wizard
@@ -32,7 +31,7 @@ public class DestroyCommand extends Command<Boolean> {
   @Override
   public Boolean execute() throws CommandException {
     if (!Role.isWizard(player)) {
-      throw new PermissionException("You are not a wizard in this universe, so you may not destroy");
+      throw new PermissionException("You are not a wizard, so you may not destroy");
     }
 
     String whyNot = mayDestroy(thing);
@@ -41,15 +40,13 @@ public class DestroyCommand extends Command<Boolean> {
                                                whyNot));
     }
 
-    Universe universe = thing.getUniverse();
-
-    Optional<Place> lafOpt = universe.getLostAndFoundPlace();
+    Optional<Place> lafOpt = Universe.getCurrent().getLostAndFoundPlace();
     if (lafOpt.isEmpty()) {
-      throw new CommandException("The thing's universe lacks a lost and found place");
+      throw new CommandException("The universe lacks a lost and found place");
     }
     Place laf = lafOpt.get();
     for (UUID contentThingId : thing.getContents()) {
-      Thing contentThing = universe.getThing(contentThingId).get();
+      Thing contentThing = Universe.getCurrent().getThing(contentThingId).get();
       thing.take(contentThing);
       laf.give(contentThing);
       contentThing.setLocation(laf);
@@ -59,9 +56,9 @@ public class DestroyCommand extends Command<Boolean> {
       thing.getLocation().get().take(thing);
     }
     if (thing.getClass().equals(Player.class)) {
-      universe.removeAllRoles((Player) thing);
+      Universe.getCurrent().removeAllRoles((Player) thing);
     }
-    universe.removeThing(thing);
+    Universe.getCurrent().removeThing(thing);
 
     actor.sendMessage(newInfoMessage("Destroyed " + thing.getId()));
     return true;
@@ -83,7 +80,7 @@ public class DestroyCommand extends Command<Boolean> {
         return "This place is occupied. Empty it out first";
       }
       Place place = (Place) thing;
-      if (thing.getUniverse().getThings(Link.class).stream()
+      if (Universe.getCurrent().getThings(Link.class).stream()
           .anyMatch(l -> l.linksTo(place))) {
         return "There are still links to this place. Unlink or remove them first";
       }

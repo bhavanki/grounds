@@ -1,17 +1,16 @@
 package xyz.deszaras.grounds.model;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,8 +30,59 @@ public class Universe {
    */
   public static final Universe VOID = new Universe("VOID");
 
-  static {
-    Multiverse.MULTIVERSE.putUniverse(VOID);
+  /**
+   * The currently loaded universe.
+   */
+  public static Universe theUniverse;
+
+  /**
+   * Gets the current universe.
+   *
+   * @return current universe
+   */
+  public static Universe getCurrent() {
+    return theUniverse;
+  }
+
+  /**
+   * Sets the current universe.
+   *
+   * @param universe current universe
+   */
+  public static void setCurrent(Universe universe) {
+    theUniverse = universe;
+  }
+
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+  /**
+   * Loads a universe from a file.
+   *
+   * @param  f           file containing universe
+   * @return             loaded universe
+   * @throws IOException if the universe could not be loaded
+   */
+  public static Universe load(File f) throws IOException {
+    try {
+      return OBJECT_MAPPER.readValue(f, Universe.class);
+    } catch (JsonProcessingException e) {
+      throw new IOException("Failed to load universe", e);
+    }
+  }
+
+  /**
+   * Saves a universe to a file.
+   *
+   * @param  universe    universe to save
+   * @param  f           file to save to
+   * @throws IOException if the universe could not be saved
+   */
+  public static void save(Universe universe, File f) throws IOException {
+    try {
+      OBJECT_MAPPER.writeValue(f, universe);
+    } catch (JsonProcessingException e) {
+      throw new IOException("Failed to save universe", e);
+    }
   }
 
   private final String name;
@@ -164,6 +214,35 @@ public class Universe {
   }
 
   /**
+   * Finds all links connected to the given place.
+   *
+   * @param  place place
+   * @return       links that connect to the place
+   */
+  public Collection<Link> findLinks(Place place) {
+    // this is inefficient
+    return getThings(Link.class).stream()
+        .filter(l -> l.linksTo(place))
+        .collect(Collectors.toUnmodifiableSet());
+  }
+
+  /**
+   * Finds a link that connects the given source and destination (order isn't
+   * important). If multiple links connect the two places, an arbitrary one is
+   * returned.
+   *
+   * @param  source      place
+   * @param  destination another place
+   * @return             link between the two places
+   */
+  public Optional<Link> findLink(Place source, Place destination) {
+    // this is inefficient
+    return getThings(Link.class).stream()
+        .filter(l -> l.linksTo(source) && l.linksTo(destination))
+        .findFirst();
+  }
+
+  /**
    * Adds a thing to this universe.
    *
    * @param thing thing to add
@@ -276,9 +355,6 @@ public class Universe {
     this.lostAndFoundId = lostAndFoundId;
   }
 
-
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
   /**
    * Creates a JSON representation of this universe.
    *
@@ -307,19 +383,5 @@ public class Universe {
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException("Failed to create universe from JSON", e);
     }
-  }
-
-  /**
-   * Builds a new universe from arguments. Expected arguments: none.
-   *
-   * @param name name
-   * @param universe starting universe
-   * @param buildArgs build arguments
-   * @return new universe
-   * @throws IllegalArgumentException if the number of arguments is wrong
-   */
-  public static Universe build(String name, List<String> buildArgs) {
-    checkArgument(buildArgs.size() == 0, "Expected 0 build arguments, got " + buildArgs.size());
-    return new Universe(name);
   }
 }

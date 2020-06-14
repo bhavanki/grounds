@@ -6,7 +6,7 @@ import com.beust.jcommander.converters.FileConverter;
 import java.io.File;
 import java.io.FileReader;
 import java.util.Properties;
-import xyz.deszaras.grounds.model.Multiverse;
+import xyz.deszaras.grounds.model.Universe;
 
 /**
  * The entry point for the application.
@@ -22,10 +22,10 @@ public class Main {
     @Parameter(names = { "-s", "--single-user" },
                description = "Start in single-user mode")
     private boolean singleUser = false;
-    @Parameter(names = { "-m", "--multiverse" },
-               description = "Multiverse to load",
+    @Parameter(names = { "-u", "--universe" },
+               description = "Universe to load",
                converter = FileConverter.class)
-    private File multiverseFile = null;
+    private File universeFile = null;
   }
 
   public static void main(String[] args) throws Exception {
@@ -39,8 +39,10 @@ public class Main {
     try (FileReader r = new FileReader(jcArgs.propertiesFile)) {
       properties.load(r);
     }
-    if (jcArgs.multiverseFile != null) {
-      Multiverse.MULTIVERSE.load(jcArgs.multiverseFile);
+    if (jcArgs.universeFile != null) {
+      Universe.setCurrent(Universe.load(jcArgs.universeFile));
+    } else {
+      Universe.setCurrent(Universe.VOID);
     }
 
     if (jcArgs.singleUser) {

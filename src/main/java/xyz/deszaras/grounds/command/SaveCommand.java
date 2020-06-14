@@ -4,11 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.model.Universe;
 
 /**
- * Saves the multiverse to a file.<p>
+ * Saves the universe to a file.<p>
  *
  * Arguments: file to save to<br>
  * Checks: player is GOD
@@ -25,15 +25,15 @@ public class SaveCommand extends Command<Boolean> {
   @Override
   public Boolean execute() throws CommandException {
     if (!player.equals(Player.GOD)) {
-      throw new CommandException("Only GOD can save the multiverse");
+      throw new CommandException("Only GOD can save the universe");
     }
     try {
-      Multiverse.save(f);
-      actor.sendMessage(newInfoMessage("Saved multiverse to " + f.getName()));
+      Universe.save(Universe.getCurrent(), f);
+      actor.sendMessage(newInfoMessage("Saved universe to " + f.getName()));
       return true;
     } catch (IOException e) {
       e.printStackTrace();
-      throw new CommandException("Failed to save multiverse: " + e.getMessage());
+      throw new CommandException("Failed to save universe: " + e.getMessage());
     }
   }
 

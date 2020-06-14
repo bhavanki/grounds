@@ -9,6 +9,7 @@ import xyz.deszaras.grounds.command.role.GetRolesCommand;
 import xyz.deszaras.grounds.command.role.RemoveRoleCommand;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.model.Universe;
 
 public class RoleCommand extends Command<Boolean> {
 
@@ -25,9 +26,9 @@ public class RoleCommand extends Command<Boolean> {
                                         Player targetPlayer)
       throws PermissionException{
     if (!player.equals(Player.GOD)) {
-      Set<Role> roles = targetPlayer.getUniverse().getRoles(player);
+      Set<Role> roles = Universe.getCurrent().getRoles(player);
       if (!roles.contains(Role.THAUMATURGE)) {
-        throw new PermissionException("You are not a thaumaturge in the target player's universe," +
+        throw new PermissionException("You are not a thaumaturge," +
                                       " so you may not work with roles there");
       }
     }

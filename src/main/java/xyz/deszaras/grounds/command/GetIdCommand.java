@@ -12,10 +12,11 @@ import xyz.deszaras.grounds.model.Link;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
+import xyz.deszaras.grounds.model.Universe;
 
 /**
- * Gets the ID of a thing by its name and type in the player's universe. If
- * there are multiple matches, an arbitrary one is returned.
+ * Gets the ID of a thing by its name and type. If there are
+ * multiple matches, an arbitrary one is returned.
  */
 public class GetIdCommand extends Command<String> {
 
@@ -30,11 +31,11 @@ public class GetIdCommand extends Command<String> {
 
   @Override
   public String execute() throws CommandException {
-    Set<Role> roles = player.getUniverse().getRoles(player);
+    Set<Role> roles = Universe.getCurrent().getRoles(player);
     if (roles.stream().noneMatch(r -> Role.NON_GUEST_ROLES.contains(r))) {
       throw new CommandException("You may not get the ID of a thing");
     }
-    Optional<? extends Thing> thing = player.getUniverse().getThingByName(name, type);
+    Optional<? extends Thing> thing = Universe.getCurrent().getThingByName(name, type);
     if (!thing.isEmpty()) {
       return thing.get().getId().toString();
     }

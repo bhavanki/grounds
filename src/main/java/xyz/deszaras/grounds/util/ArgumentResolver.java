@@ -2,7 +2,6 @@ package xyz.deszaras.grounds.util;
 
 import java.util.Optional;
 import java.util.UUID;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.deszaras.grounds.auth.Role;
@@ -13,8 +12,7 @@ import xyz.deszaras.grounds.model.Universe;
 
 /**
  * Resolves string arguments into things, in the context of another "context
- * thing" like a player. Resolution only works within the context thing's
- * universe.<p>
+ * thing" like a player.<p>
  *
  * The purpose of the resolver is to allow natural player inputs. It's not good
  * enough to force a player to refer to something, say, in the same location as
@@ -38,14 +36,13 @@ import xyz.deszaras.grounds.model.Universe;
  * <li>If no contents match, the resolver looks through the things that
  *     share the context things's location.</li>
  * <li>If no nearby things match, and the thing is the GOD player or is a
- *     wizard, then the resolver falls back to looking throughout the context
- *     thing's universe.
+ *     wizard, then the resolver falls back to looking throughout the universe.
  * <li>If two things in a set have a matching name, the resolver picks
  *     an arbitrary one.</li>
  * </ul>
  *
  * For non-contextual resolution of things by ID, use
- * {@link Universe#getThing(UUID)} and/or {@link Multiverse#findThing(UUID)}.<p>
+ * {@link Universe#getThing(UUID)}.<p>
  */
 public class ArgumentResolver {
 
@@ -58,9 +55,6 @@ public class ArgumentResolver {
 
   private ArgumentResolver() {
   }
-
-  private static final Pattern UUID_PATTERN =
-      Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
 
   private static final String HERE = "here";
   private static final String ME = "me";
@@ -78,8 +72,8 @@ public class ArgumentResolver {
       Class<T> type, Thing context) throws ArgumentResolverException {
 
     // If the string is a UUID, resolve as a UUID.
-    if (UUID_PATTERN.matcher(nameOrId).matches()) {
-      return resolve(UUID.fromString(nameOrId), type, context);
+    if (UUIDUtils.isUUID(nameOrId)) {
+      return resolve(UUIDUtils.getUUID(nameOrId), type, context);
     }
     String name = nameOrId;
 
@@ -100,11 +94,8 @@ public class ArgumentResolver {
       return type.cast(location.get());
     }
 
-    Universe universe = context.getUniverse();
-
     // Try to resolve among the context thing's contents.
-    Optional<T> contentThing = resolveAmong(name, null, type, universe,
-                                            context.getContents());
+    Optional<T> contentThing = resolveAmong(name, null, type, context.getContents());
     if (contentThing.isPresent()) {
       LOG.debug("Resolved {} to {} {} in context thing's contents",
                 name, type.getSimpleName(), contentThing.get().getId());
@@ -114,8 +105,7 @@ public class ArgumentResolver {
     // If the context thing is located somewhere, try to resolve among the
     // things in that location.
     if (location.isPresent()) {
-      Optional<T> nearbyThing = resolveAmong(name, null, type, universe,
-                                             location.get().getContents());
+      Optional<T> nearbyThing = resolveAmong(name, null, type, location.get().getContents());
       if (nearbyThing.isPresent()) {
         LOG.debug("Resolved {} to {} {} nearby",
                   name, type.getSimpleName(), nearbyThing.get().getId());
@@ -127,7 +117,7 @@ public class ArgumentResolver {
     // things in the universe.
     // TBD: allow for wizard things, not just players
     if (context instanceof Player && Role.isWizard((Player) context)) {
-      Optional<T> finalThing = universe.getThingByName(name, type);
+      Optional<T> finalThing = Universe.getCurrent().getThingByName(name, type);
       if (finalThing.isPresent()) {
         LOG.debug("Resolved {} to {} {} in universe",
                   name, type.getSimpleName(), finalThing.get().getId());
@@ -168,11 +158,8 @@ public class ArgumentResolver {
       return type.cast(location.get());
     }
 
-    Universe universe = context.getUniverse();
-
     // Try to resolve among the context thing's contents.
-    Optional<T> contentThing = resolveAmong(null, id, type, universe,
-                                            context.getContents());
+    Optional<T> contentThing = resolveAmong(null, id, type, context.getContents());
     if (contentThing.isPresent()) {
       LOG.debug("Resolved {} to {} {} in context thing's contents",
                 id, type.getSimpleName(), contentThing.get().getId());
@@ -182,8 +169,7 @@ public class ArgumentResolver {
     // If the context thing is located somewhere, try to resolve among the
     // things in that location.
     if (location.isPresent()) {
-      Optional<T> nearbyThing = resolveAmong(null, id, type, universe,
-                                             location.get().getContents());
+      Optional<T> nearbyThing = resolveAmong(null, id, type, location.get().getContents());
       if (nearbyThing.isPresent()) {
         LOG.debug("Resolved {} to {} {} nearby",
                   id, type.getSimpleName(), nearbyThing.get().getId());
@@ -195,7 +181,7 @@ public class ArgumentResolver {
     // things in the universe.
     // TBD: allow for wizard things, not just players
     if (context instanceof Player && Role.isWizard((Player) context)) {
-      Optional<T> finalThing = universe.getThing(id, type);
+      Optional<T> finalThing = Universe.getCurrent().getThing(id, type);
       if (finalThing.isPresent()) {
         LOG.debug("Resolved {} to {} {} in universe",
                   id, type.getSimpleName(), finalThing.get().getId());
@@ -214,15 +200,14 @@ public class ArgumentResolver {
    * @param  name     name for a thing
    * @param  id       ID for a thing
    * @param  type     expected type of thing to resolve
-   * @param  universe universe where candidate things reside
    * @param  ids      IDs of candidate things
    * @return          resolved thing (empty if unresolved)
    */
   private <T extends Thing> Optional<T> resolveAmong(String name,
-      UUID id, Class<T> type, Universe universe, Iterable<UUID> ids) {
+      UUID id, Class<T> type, Iterable<UUID> ids) {
     for (UUID iid : ids) {
-      // Find the candidate thing in the universe.
-      Optional<Thing> thingOpt = universe.getThing(iid);
+      // Find the candidate thing.
+      Optional<Thing> thingOpt = Universe.getCurrent().getThing(iid);
       if (thingOpt.isEmpty()) {
         continue;
       }

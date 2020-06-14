@@ -41,7 +41,7 @@ public class ChangePolicyCommandTest extends AbstractCommandTest {
 
   @Test
   public void testBasicAddRole() throws Exception {
-    when(thing.getUniverse().getRoles(player)).thenReturn(Set.of(Role.THAUMATURGE));
+    setPlayerRoles(Role.THAUMATURGE);
 
     Set<Role> roles = policy.getRoles(Policy.Category.USE);
     assertFalse(roles.contains(Role.GUEST));
@@ -54,7 +54,7 @@ public class ChangePolicyCommandTest extends AbstractCommandTest {
 
   @Test
   public void testBasicRemoveRole() throws Exception {
-    when(thing.getUniverse().getRoles(player)).thenReturn(Set.of(Role.THAUMATURGE));
+    setPlayerRoles(Role.THAUMATURGE);
 
     Set<Role> roles = policy.getRoles(Policy.Category.USE);
     assertTrue(roles.contains(Role.BARD));
@@ -67,7 +67,7 @@ public class ChangePolicyCommandTest extends AbstractCommandTest {
 
   @Test
   public void testAllCategories() throws Exception {
-    when(thing.getUniverse().getRoles(player)).thenReturn(Set.of(Role.THAUMATURGE));
+    setPlayerRoles(Role.THAUMATURGE);
 
     for (Category c : Category.values()) {
       Set<Role> roles = policy.getRoles(c);
@@ -85,7 +85,7 @@ public class ChangePolicyCommandTest extends AbstractCommandTest {
 
   @Test
   public void testAllRoles() throws Exception {
-    when(thing.getUniverse().getRoles(player)).thenReturn(Set.of(Role.THAUMATURGE));
+    setPlayerRoles(Role.THAUMATURGE);
 
     command = new ChangePolicyCommand(actor, player, thing,
                                       new ChangeInstruction("g-gdoBAT"));
@@ -102,7 +102,7 @@ public class ChangePolicyCommandTest extends AbstractCommandTest {
 
   @Test
   public void testConflictingRoleFailure() throws Exception {
-    when(thing.getUniverse().getRoles(player)).thenReturn(Set.of(Role.THAUMATURGE));
+    setPlayerRoles(Role.THAUMATURGE);
 
     thrown.expect(IllegalArgumentException.class);
 
@@ -113,7 +113,7 @@ public class ChangePolicyCommandTest extends AbstractCommandTest {
 
   @Test
   public void testPermissionFailure() throws Exception {
-    when(thing.getUniverse().getRoles(player)).thenReturn(Set.of(Role.DENIZEN));
+    setPlayerRoles(Role.DENIZEN);
 
     thrown.expect(PermissionException.class);
     thrown.expectMessage("You are not a thaumaturge in this universe, " +

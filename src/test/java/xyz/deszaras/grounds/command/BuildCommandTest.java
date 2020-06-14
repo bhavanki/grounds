@@ -48,7 +48,7 @@ public class BuildCommandTest extends AbstractCommandTest {
                                "buildme", buildArgs);
 
     thrown.expect(PermissionException.class);
-    thrown.expectMessage("You are not a wizard in this universe, so you may not build");
+    thrown.expectMessage("You are not a wizard, so you may not build");
     command.execute();
   }
 
@@ -81,7 +81,6 @@ public class BuildCommandTest extends AbstractCommandTest {
 
     assertTrue(testUniverse.getThing(built.getId()).isPresent());
     assertSame(built, testUniverse.getThing(built.getId()).get());
-    assertEquals(testUniverse, built.getUniverse());
 
     assertTrue(built.getLocation().isPresent());
     assertEquals(place, built.getLocation().get());

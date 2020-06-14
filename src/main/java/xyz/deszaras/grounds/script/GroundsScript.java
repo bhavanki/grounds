@@ -11,6 +11,7 @@ import xyz.deszaras.grounds.command.CommandResult;
 import xyz.deszaras.grounds.command.Message;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.model.Universe;
 
 /**
  * The custom script class for Groovy scripts run by the game. This class
@@ -158,7 +159,7 @@ public abstract class GroundsScript extends groovy.lang.Script {
    */
   public void sendMessageTo(String playerName, String message) {
     Optional<Player> targetPlayer =
-        runner.getUniverse().getThingByName(playerName, Player.class);
+        Universe.getCurrent().getThingByName(playerName, Player.class);
     if (targetPlayer.isPresent()) {
       targetPlayer.get().sendMessage(new Message(runner, Message.Style.SCRIPT, message));
     }

@@ -12,8 +12,8 @@ import xyz.deszaras.grounds.auth.Policy;
  */
 public class Extension extends Thing {
 
-  public Extension(String name, Universe universe) {
-    super(name, universe);
+  public Extension(String name) {
+    super(name);
   }
 
   /**
@@ -34,8 +34,8 @@ public class Extension extends Thing {
     super(id, attrs, contents, policy);
   }
 
-  public static Extension build(String name, Universe universe, List<String> buildArgs) {
-    Extension extension = new Extension(name, universe);
+  public static Extension build(String name, List<String> buildArgs) {
+    Extension extension = new Extension(name);
     return extension;
   }
 }

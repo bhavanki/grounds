@@ -6,19 +6,17 @@ import java.util.Objects;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Link;
-import xyz.deszaras.grounds.model.Multiverse;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 import xyz.deszaras.grounds.model.Universe;
 
 /**
- * Creates a new thing in the player's current universe.<p>
+ * Creates a new thing.<p>
  *
  * Arguments: type of thing, name of thing, type-specific arguments<br>
- * Checks: type of thing is known; player is not in the VOID universe
- * and creating something other than a new universe; player is a wizard;
- * player has a location if creating something other than a new universe
+ * Checks: type of thing is known; player is not in the VOID universe;
+ * player is a wizard; player has a location
  */
 public class BuildCommand extends Command<Boolean> {
 
@@ -27,8 +25,7 @@ public class BuildCommand extends Command<Boolean> {
     PLAYER,
     PLACE,
     LINK,
-    EXTENSION,
-    UNIVERSE;
+    EXTENSION;
   }
 
   private final String type;
@@ -45,25 +42,22 @@ public class BuildCommand extends Command<Boolean> {
 
   @Override
   public Boolean execute() throws CommandException {
-    Universe universe = player.getUniverse();
-
     BuiltInType thingType;
     try {
       thingType = BuiltInType.valueOf(type.toUpperCase());
     } catch (IllegalArgumentException e) {
       throw new CommandException("I don't know how to build " + type);
     }
-    if (thingType != BuiltInType.UNIVERSE &&
-        universe.getName().equals(Universe.VOID.getName())) {
-      throw new CommandException("Building of anything except universes is not permitted in the VOID universe");
+    if (Universe.getCurrent().getName().equals(Universe.VOID.getName())) {
+      throw new CommandException("Building is not permitted in the VOID universe");
     }
 
     if (!Role.isWizard(player)) {
-      throw new PermissionException("You are not a wizard in this universe, so you may not build");
+      throw new PermissionException("You are not a wizard, so you may not build");
     }
 
-    if (thingType != BuiltInType.UNIVERSE && !player.getLocation().isPresent()) {
-      throw new CommandException("You are not located anywhere, so you may only build a universe");
+    if (!player.getLocation().isPresent()) {
+      throw new CommandException("You are not located anywhere, so you cannot build anything");
     }
 
     Thing built;
@@ -71,40 +65,27 @@ public class BuildCommand extends Command<Boolean> {
     try {
       switch (thingType) {
         case THING:
-          built = Thing.build(name, universe, buildArgs);
+          built = Thing.build(name, buildArgs);
           break;
         case PLAYER:
-          if (Multiverse.MULTIVERSE.findThingByName(name, Player.class).isPresent()) {
+          if (Universe.getCurrent().getThingByName(name, Player.class).isPresent()) {
             throw new CommandException("A player named " + name + " already exists");
           }
-          built = Player.build(name, universe, buildArgs);
+          built = Player.build(name, buildArgs);
           break;
         case PLACE:
-          built = Place.build(name, universe, buildArgs);
+          built = Place.build(name, buildArgs);
           break;
         case LINK:
-          built = Link.build(name, universe, buildArgs);
+          built = Link.build(name, buildArgs);
           break;
         case EXTENSION:
-          built = Extension.build(name, universe, buildArgs);
+          built = Extension.build(name, buildArgs);
           break;
-        case UNIVERSE:
-          if (Multiverse.MULTIVERSE.hasUniverse(name)) {
-            throw new CommandException("A universe named " + name + " already exists");
-          }
-          universe = Universe.build(name, buildArgs);
-          Multiverse.MULTIVERSE.putUniverse(universe);
-          actor.sendMessage(newInfoMessage("Created universe " + universe.getName()));
-
-          createOrigin(universe);
-          createLostAndFound(universe);
-
-          return true;
         default:
           throw new IllegalArgumentException("Unsupported built-in type " + type);
       }
-      universe.addThing(built);
-      built.setUniverse(universe);
+      Universe.getCurrent().addThing(built);
       if (thingType == BuiltInType.THING ||
           thingType == BuiltInType.PLAYER) {
         built.setLocation(player.getLocation().get());
@@ -116,29 +97,6 @@ public class BuildCommand extends Command<Boolean> {
       // Future: Dynamic types
       throw new CommandException("Unsupported type " + type + ": " + e.getMessage());
     }
-  }
-
-  private void createOrigin(Universe universe) {
-    Place origin = new Place("ORIGIN", universe);
-    universe.addThing(origin);
-
-    origin.setDescription(
-        "This is the first place to exist in its new universe. From here" +
-        " you can start building more things to create a new world. Type" +
-        " `build help` to see what you can create.");
-
-    actor.sendMessage(newInfoMessage("Created origin place " + origin.getId()));
-  }
-
-  private void createLostAndFound(Universe universe) {
-    Place laf = new Place("LOST+FOUND", universe);
-    universe.addThing(laf);
-    universe.setLostAndFoundId(laf.getId());
-
-    laf.setDescription(
-        "This is where the contents of destroyed things end up.");
-
-    actor.sendMessage(newInfoMessage("Created lost+found place " + laf.getId()));
   }
 
   public static BuildCommand newCommand(Actor actor, Player player,

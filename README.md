@@ -8,7 +8,6 @@ A [MUSH](https://en.wikipedia.org/wiki/MUSH).
 
 Grounds is under active development, so features are all new and/or still being worked on to a large extent. There are definitely bugs and missing features, and many concepts are still subject to change.
 
-* **Multiple universes.** Game data is in the form of a multiverse containing one or more named universes. Each universe is its own world full of players, places, and other things.
 * **Arbitrary attributes.** Every thing has an unlimited set of named, typed attributes. Some are special, like "name" and "description". Make up any others you need.
 * **Role-based permissions.** Every thing in a universe has a security policy that permits categories of actions that affect it only by specified roles. For example, a player can't read another thing's attributes unless the player has a role with READ permission. Roles include a few wizardly ones plus ordinary ones.
 * **SSH connectivity.** The game server accepts connections over SSH, so that all traffic is encrypted.
@@ -27,7 +26,7 @@ For now, you need to build Grounds yourself. See the Building section below.
 In normal multi-user mode:
 
 ```
-$ java -jar grounds.jar --properties etc/server.properties --multiverse mygame.json
+$ java -jar grounds.jar --properties etc/server.properties --universe mygame.json
 ```
 
 In single-user mode:
@@ -36,7 +35,7 @@ In single-user mode:
 $ java -jar grounds.jar --properties etc/server.properties --single-user
 ```
 
-Instructions on building a new multiverse will be written in the future.
+Instructions on building a new universe will be written in the future.
 
 ## Connecting
 

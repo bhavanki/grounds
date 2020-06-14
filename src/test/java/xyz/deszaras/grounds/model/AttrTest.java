@@ -40,7 +40,7 @@ public class AttrTest {
 
   @Test
   public void testThingAttr() {
-    Thing t = new Thing("something", new Universe("test"));
+    Thing t = new Thing("something");
     attr = new Attr("a", t);
     assertEquals("a", attr.getName());
     assertEquals(Attr.Type.THING, attr.getType());

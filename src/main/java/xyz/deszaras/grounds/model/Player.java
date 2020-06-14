@@ -27,20 +27,16 @@ public class Player extends Thing {
   /**
    * The special player GOD.
    */
-  public static final Player GOD = new Player("GOD", Universe.VOID, GOD_ID);
-
-  static {
-    Universe.VOID.addThing(GOD);
-  }
+  public static final Player GOD = new Player("GOD", GOD_ID);
 
   private Actor actor;
 
-  public Player(String name, Universe universe) {
-    super(name, universe);
+  public Player(String name) {
+    super(name);
   }
 
-  private Player(String name, Universe universe, UUID id) {
-    super(name, universe, id);
+  private Player(String name, UUID id) {
+    super(name, id);
   }
 
   /**
@@ -102,15 +98,14 @@ public class Player extends Thing {
    * Builds a new player from arguments. Expected arguments: initial role.
    *
    * @param name name
-   * @param universe starting universe
    * @param buildArgs build arguments
    * @return new player
    * @throws IllegalArgumentException if the number of arguments is wrong
    */
-  public static Player build(String name, Universe universe, List<String> buildArgs) {
+  public static Player build(String name, List<String> buildArgs) {
     checkArgument(buildArgs.size() == 1, "Expected 1 build argument, got " + buildArgs.size());
-    Player player = new Player(name, universe);
-    universe.addRole(Role.valueOf(buildArgs.get(0).toUpperCase()), player);
+    Player player = new Player(name);
+    Universe.getCurrent().addRole(Role.valueOf(buildArgs.get(0).toUpperCase()), player);
     return player;
   }
 }

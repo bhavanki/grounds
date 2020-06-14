@@ -11,12 +11,13 @@ import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.command.RoleCommand;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.model.Universe;
 
 /**
  * Adds a role to a player.<p>
  *
  * Arguments: role and target player<br>
- * Checks: player is GOD or THAUMATURGE in target player's universe
+ * Checks: player is GOD or THAUMATURGE
  */
 public class AddRoleCommand extends Command<String> {
 
@@ -34,7 +35,7 @@ public class AddRoleCommand extends Command<String> {
   public String execute() throws CommandException {
     RoleCommand.checkIfThaumaturge(actor, player, targetPlayer);
 
-    Set<Role> newRoles = targetPlayer.getUniverse().addRole(role, targetPlayer);
+    Set<Role> newRoles = Universe.getCurrent().addRole(role, targetPlayer);
     return RoleCommand.reportRoles(actor, targetPlayer, newRoles);
   }
 
