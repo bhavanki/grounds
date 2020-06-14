@@ -1,13 +1,13 @@
 package xyz.deszaras.grounds.command;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.google.common.net.InetAddresses;
 
 import java.net.InetAddress;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Universe;
@@ -16,7 +16,7 @@ public class ActorTest {
 
   private Actor actor;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     actor = new Actor("bob");
   }

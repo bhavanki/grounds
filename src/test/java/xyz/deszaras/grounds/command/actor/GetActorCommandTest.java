@@ -1,12 +1,11 @@
 package xyz.deszaras.grounds.command.actor;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.AbstractCommandTest;
@@ -20,19 +19,16 @@ public class GetActorCommandTest extends AbstractCommandTest {
 
   private static final String USERNAME = "GetActorCommandTest.actor1";
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   private GetActorCommand command;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     super.setUp();
 
     ActorDatabase.INSTANCE.createActorRecord(USERNAME, "password");
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     ActorDatabase.INSTANCE.removeActorRecord(USERNAME);
   }
@@ -51,29 +47,26 @@ public class GetActorCommandTest extends AbstractCommandTest {
     command = new GetActorCommand(actor, player, USERNAME);
     setPlayerRoles(Role.THAUMATURGE);
 
-    thrown.expect(PermissionException.class);
-    thrown.expectMessage("Only GOD may work with actors");
-
-    command.execute();
+    PermissionException e = assertThrows(PermissionException.class,
+                                         () -> command.execute());
+    assertEquals("Only GOD may work with actors", e.getMessage());
   }
 
   @Test
   public void testFailureForRootActor() throws Exception {
     command = new GetActorCommand(actor, Player.GOD, Actor.ROOT.getUsername());
 
-    thrown.expect(CommandException.class);
-    thrown.expectMessage("Sorry, you may not work with the root actor");
-
-    command.execute();
+    CommandException e = assertThrows(CommandException.class,
+                                      () -> command.execute());
+    assertEquals("Sorry, you may not work with the root actor", e.getMessage());
   }
 
   @Test
   public void testFailureMissingActor() throws Exception {
     command = new GetActorCommand(actor, Player.GOD, "nobody");
 
-    thrown.expect(CommandException.class);
-    thrown.expectMessage("I could not find the actor named nobody");
-
-    command.execute();
+    CommandException e = assertThrows(CommandException.class,
+                                      () -> command.execute());
+    assertEquals("I could not find the actor named nobody", e.getMessage());
   }
 }

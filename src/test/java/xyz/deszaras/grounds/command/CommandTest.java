@@ -1,21 +1,18 @@
 package xyz.deszaras.grounds.command;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
 public class CommandTest {
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
 
   private class TestCommand extends Command<Boolean> {
 
@@ -33,7 +30,7 @@ public class CommandTest {
   private Player player;
   private Command command;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     actor = mock(Actor.class);
     player = mock(Player.class);
@@ -53,10 +50,9 @@ public class CommandTest {
     Thing thing = mock(Thing.class);
     when(thing.passes(Category.GENERAL, player)).thenReturn(false);
 
-    thrown.expect(PermissionException.class);
-    thrown.expectMessage("fail");
-
-    command.checkPermission(Category.GENERAL, thing, "fail");
+    PermissionException e = assertThrows(PermissionException.class,
+        () -> command.checkPermission(Category.GENERAL, thing, "fail"));
+    assertTrue(e.getMessage().contains("fail"));
   }
 
 }

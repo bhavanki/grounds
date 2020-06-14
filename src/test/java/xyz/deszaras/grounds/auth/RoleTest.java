@@ -1,19 +1,20 @@
 package xyz.deszaras.grounds.auth;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Universe;
-
-import org.junit.Before;
-import org.junit.Test;
 
 public class RoleTest {
 
   private Universe universe;
   private Player player;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     universe = new Universe("test");
     player = new Player("p1", universe);
