@@ -1,0 +1,23 @@
+- name: scriptContent
+  type: STRING
+  value: |
+    m = arg0 =~ /([0-9]+)d([0-9]+)/
+    if (!m) {
+      throw failure("Invalid argument: ${arg0}")
+    }
+    numThrows = Integer.parseInt(m.group(1))
+    if (numThrows < 1) {
+      throw failure("The number of throws must be positive")
+    }
+    sides = Integer.parseInt(m.group(2))
+    if (sides < 1) {
+      throw failure("The number of sides must be positive")
+    }
+
+    results=[]
+    for (i = 0; i < numThrows; i++) {
+      results << new Random().nextInt(sides) + 1
+    }
+    callerName = getCallerName()
+    exec(["POSE", "${callerName} rolls: ${results} total: ${results.sum()}"])
+    return null
