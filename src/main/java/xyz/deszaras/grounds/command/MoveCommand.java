@@ -10,7 +10,6 @@ import xyz.deszaras.grounds.model.Link;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Universe;
-import xyz.deszaras.grounds.util.UUIDUtils;
 
 /**
  * Moves a player to a destination through a link. Delegates the
@@ -46,7 +45,7 @@ public class MoveCommand extends Command<String> {
       if (otherPlace.isPresent() &&
           otherPlace.get().getName().equalsIgnoreCase(exitName)) {
         moveDestination =
-            Universe.getCurrent().getThing(UUIDUtils.getUUID(otherPlace.get().getThingValue()),
+            Universe.getCurrent().getThing(otherPlace.get().getThingValue(),
                                            Place.class);
         viaLink = Optional.of(link);
       }

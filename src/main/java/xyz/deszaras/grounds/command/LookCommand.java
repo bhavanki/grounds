@@ -14,7 +14,6 @@ import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 import xyz.deszaras.grounds.model.Universe;
 import xyz.deszaras.grounds.util.AnsiUtils;
-import xyz.deszaras.grounds.util.UUIDUtils;
 
 public class LookCommand extends Command<String> {
 
@@ -80,7 +79,7 @@ public class LookCommand extends Command<String> {
         Optional<Attr> otherPlaceAttr = link.getOtherPlace(location);
         if (otherPlaceAttr.isPresent()) {
           Optional<Place> otherPlace =
-              Universe.getCurrent().getThing(UUIDUtils.getUUID(otherPlaceAttr.get().getThingValue()),
+              Universe.getCurrent().getThing(otherPlaceAttr.get().getThingValue(),
                                              Place.class);
           if (otherPlace.isPresent()) {
             String otherPlaceName =

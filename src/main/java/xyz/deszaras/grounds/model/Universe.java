@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import xyz.deszaras.grounds.auth.Role;
+import xyz.deszaras.grounds.util.UUIDUtils;
 
 /**
  * A world full of things. The universe is stored in memory.
@@ -167,11 +168,35 @@ public class Universe {
   /**
    * Gets a thing in this universe.
    *
+   * @param id string ID of thing to find
+   * @return thing
+   * @throws IllegalArgumentException if id is not a valid UUID
+   */
+  public Optional<Thing> getThing(String id) {
+    return getThing(UUIDUtils.getUUID(id));
+  }
+
+  /**
+   * Gets a thing in this universe.
+   *
    * @param id ID of thing to find
    * @return thing
    */
   public Optional<Thing> getThing(UUID id) {
     return Optional.ofNullable(things.get(id));
+  }
+
+  /**
+   * Gets a thing in this universe, with an expected type.
+   *
+   * @param id string ID of thing to find
+   * @param thingClass expected type of thing
+   * @return thing
+   * @throws IllegalArgumentException if id is not a valid UUID
+   * @throws IllegalArgumentException if the thing is not of the expected type
+   */
+  public <T extends Thing> Optional<T> getThing(String id, Class<T> thingClass) {
+    return getThing(UUIDUtils.getUUID(id), thingClass);
   }
 
   /**

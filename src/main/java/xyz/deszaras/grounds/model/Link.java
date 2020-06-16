@@ -62,13 +62,13 @@ public class Link extends Thing {
   @JsonIgnore
   public Optional<Place> getSource() {
     String sourceId = getAttr(SOURCE).get().getAttrValue().getThingValue();
-    return Universe.getCurrent().getThing(UUIDUtils.getUUID(sourceId), Place.class);
+    return Universe.getCurrent().getThing(sourceId, Place.class);
   }
 
   @JsonIgnore
   public Optional<Place> getDestination() {
     String destinationId = getAttr(DESTINATION).get().getAttrValue().getThingValue();
-    return Universe.getCurrent().getThing(UUIDUtils.getUUID(destinationId), Place.class);
+    return Universe.getCurrent().getThing(destinationId, Place.class);
   }
 
   @JsonIgnore
@@ -103,13 +103,13 @@ public class Link extends Thing {
       throw new IllegalArgumentException("Not a UUID: " + buildArgs.get(2));
     }
     Optional<Place> source =
-        Universe.getCurrent().getThing(UUIDUtils.getUUID(buildArgs.get(0)), Place.class);
+        Universe.getCurrent().getThing(buildArgs.get(0), Place.class);
     if (!source.isPresent()) {
       throw new IllegalArgumentException("Cannot find source " + buildArgs.get(0));
     }
     String sourceName = Objects.requireNonNull(buildArgs.get(1));
     Optional<Place> destination =
-        Universe.getCurrent().getThing(UUIDUtils.getUUID(buildArgs.get(2)), Place.class);
+        Universe.getCurrent().getThing(buildArgs.get(2), Place.class);
     if (!destination.isPresent()) {
       throw new IllegalArgumentException("Cannot find destination " + buildArgs.get(2));
     }

@@ -25,7 +25,6 @@ import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.command.Message;
 import xyz.deszaras.grounds.util.CommandLineUtils;
-import xyz.deszaras.grounds.util.UUIDUtils;
 
 /**
  * A thing that exists in a universe.
@@ -167,7 +166,7 @@ public class Thing {
   public Optional<Place> getLocation() {
     // TBD: what if location is set but cannot be found?
     return getAttr(AttrNames.LOCATION).map(a ->
-        Universe.getCurrent().getThing(UUIDUtils.getUUID(a.getValue()), Place.class)
+        Universe.getCurrent().getThing(a.getValue(), Place.class)
         .orElse(null));
   }
 
@@ -189,8 +188,7 @@ public class Thing {
   public Optional<Thing> getOwner() {
     // TBD: what if owner is set but cannot be found?
     return getAttr(AttrNames.OWNER).map(a ->
-        Universe.getCurrent().getThing(UUIDUtils.getUUID(a.getValue()))
-        .orElse(null));
+        Universe.getCurrent().getThing(a.getValue()).orElse(null));
   }
 
   /**
