@@ -17,6 +17,7 @@ import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Thing;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 public class TakeCommandTest extends AbstractCommandTest {
 
   private Place location;

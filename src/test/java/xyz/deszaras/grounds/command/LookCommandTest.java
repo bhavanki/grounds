@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.model.Place;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 public class LookCommandTest extends AbstractCommandTest {
 
   private Place location;

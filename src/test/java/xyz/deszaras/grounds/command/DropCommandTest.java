@@ -16,6 +16,7 @@ import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Thing;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 public class DropCommandTest extends AbstractCommandTest {
 
   private Place location;

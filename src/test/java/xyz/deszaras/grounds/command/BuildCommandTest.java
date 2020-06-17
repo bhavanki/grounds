@@ -20,6 +20,7 @@ import xyz.deszaras.grounds.model.Place;
 // import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 public class BuildCommandTest extends AbstractCommandTest {
 
   private Place place;
