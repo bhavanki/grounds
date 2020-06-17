@@ -1,11 +1,10 @@
 package xyz.deszaras.grounds.command;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Attr;
@@ -13,15 +12,12 @@ import xyz.deszaras.grounds.model.Thing;
 
 public class GetAttrCommandTest extends AbstractCommandTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   private Attr attr;
 
   private Thing thing;
   private GetAttrCommand command;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     super.setUp();
 
@@ -43,10 +39,10 @@ public class GetAttrCommandTest extends AbstractCommandTest {
   public void testFailureAttributeMissing() throws Exception {
     testUniverse.addRole(Role.BARD, player); // expect DEFAULT policy on thing
 
-    thrown.expect(CommandException.class);
-    thrown.expectMessage("There is no attribute named foo on this");
-
-    command.execute();
+    CommandException e = assertThrows(CommandException.class,
+                                      () -> command.execute());
+    assertEquals("There is no attribute named foo on this",
+                 e.getMessage());
   }
 
   @Test
@@ -54,9 +50,9 @@ public class GetAttrCommandTest extends AbstractCommandTest {
     thing.setAttr(attr);
     testUniverse.addRole(Role.GUEST, player); // expect DEFAULT policy on thing
 
-    thrown.expect(PermissionException.class);
-    thrown.expectMessage("You are not permitted to get attributes on this");
-
-    command.execute();
+    PermissionException e = assertThrows(PermissionException.class,
+                                         () -> command.execute());
+    assertEquals("You are not permitted to get attributes on this",
+                 e.getMessage());
   }
 }

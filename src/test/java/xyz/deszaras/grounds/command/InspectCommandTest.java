@@ -2,25 +2,21 @@ package xyz.deszaras.grounds.command;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.model.Thing;
 
 public class InspectCommandTest extends AbstractCommandTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   private Thing thing;
   private InspectCommand command;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     super.setUp();
 
@@ -40,9 +36,8 @@ public class InspectCommandTest extends AbstractCommandTest {
   public void testFailureUninspectable() throws Exception {
     when(thing.passes(Category.WRITE, player)).thenReturn(false);
 
-    thrown.expect(PermissionException.class);
-    thrown.expectMessage("You are not permitted to inspect this");
-
-    command.execute();
+    PermissionException e = assertThrows(PermissionException.class,
+                                         () -> command.execute());
+    assertEquals("You are not permitted to inspect this", e.getMessage());
   }
 }

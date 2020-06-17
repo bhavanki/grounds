@@ -1,11 +1,11 @@
 package xyz.deszaras.grounds.command;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.AttrNames;
@@ -14,13 +14,10 @@ import xyz.deszaras.grounds.model.Thing;
 
 public class RemoveAttrCommandTest extends AbstractCommandTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   private Thing thing;
   private RemoveAttrCommand command;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     super.setUp();
 
@@ -54,21 +51,21 @@ public class RemoveAttrCommandTest extends AbstractCommandTest {
 
     testUniverse.addRole(Role.BARD, player); // expect DEFAULT policy on thing
 
-    thrown.expect(CommandException.class);
-    thrown.expectMessage("Only GOD may remove that attribute directly");
-
     command = new RemoveAttrCommand(actor, player, thing, AttrNames.NAME);
-    command.execute();
+    CommandException e = assertThrows(CommandException.class,
+                                      () -> command.execute());
+    assertEquals("Only GOD may remove that attribute directly",
+                 e.getMessage());
   }
 
   @Test
   public void testFailurePermission() throws Exception {
     testUniverse.addRole(Role.GUEST, player); // expect DEFAULT policy on thing
 
-    thrown.expect(PermissionException.class);
-    thrown.expectMessage("You are not permitted to remove attributes on this");
-
     command = new RemoveAttrCommand(actor, player, thing, "foo");
-    command.execute();
+    PermissionException e = assertThrows(PermissionException.class,
+                                         () -> command.execute());
+    assertEquals("You are not permitted to remove attributes on this",
+                 e.getMessage());
   }
 }

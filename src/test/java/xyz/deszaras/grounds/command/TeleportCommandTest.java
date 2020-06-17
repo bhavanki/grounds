@@ -3,15 +3,14 @@ package xyz.deszaras.grounds.command;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.model.Place;
@@ -19,15 +18,12 @@ import xyz.deszaras.grounds.model.Place;
 @SuppressWarnings("PMD.TooManyStaticImports")
 public class TeleportCommandTest extends AbstractCommandTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   private Place source;
   private Place destination;
   private TeleportCommand command;
   private LookCommand testLookCommand;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     super.setUp();
 
@@ -75,9 +71,8 @@ public class TeleportCommandTest extends AbstractCommandTest {
     when(player.getLocation()).thenReturn(Optional.of(source));
     when(destination.passes(Category.GENERAL, player)).thenReturn(false);
 
-    thrown.expect(PermissionException.class);
-    thrown.expectMessage("You are not permitted to move there");
-
-    command.execute();
+    PermissionException e = assertThrows(PermissionException.class,
+                                         () -> command.execute());
+    assertEquals("You are not permitted to move there", e.getMessage());
   }
 }

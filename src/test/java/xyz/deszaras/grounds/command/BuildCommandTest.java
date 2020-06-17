@@ -1,18 +1,17 @@
 package xyz.deszaras.grounds.command;
 
-import static org.junit.Assert.assertEquals;
-// import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+// import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Role;
 // import xyz.deszaras.grounds.model.Extension;
@@ -23,14 +22,11 @@ import xyz.deszaras.grounds.model.Thing;
 
 public class BuildCommandTest extends AbstractCommandTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   private Place place;
   private List<String> buildArgs;
   private BuildCommand command;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     super.setUp();
 
@@ -47,9 +43,10 @@ public class BuildCommandTest extends AbstractCommandTest {
     command = new BuildCommand(actor, player, BuildCommand.BuiltInType.THING.name(),
                                "buildme", buildArgs);
 
-    thrown.expect(PermissionException.class);
-    thrown.expectMessage("You are not a wizard, so you may not build");
-    command.execute();
+    PermissionException e = assertThrows(PermissionException.class,
+                                         () -> command.execute());
+    assertEquals("You are not a wizard, so you may not build",
+                 e.getMessage());
   }
 
   @Test
@@ -60,9 +57,10 @@ public class BuildCommandTest extends AbstractCommandTest {
     command = new BuildCommand(actor, player, "NOTATHING",
                                "buildme", buildArgs);
 
-    thrown.expect(CommandException.class);
-    thrown.expectMessage("I don't know how to build NOTATHING");
-    command.execute();
+    CommandException e = assertThrows(CommandException.class,
+                                      () -> command.execute());
+    assertEquals("I don't know how to build NOTATHING",
+                 e.getMessage());
   }
 
   @Test

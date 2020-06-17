@@ -1,29 +1,26 @@
 package xyz.deszaras.grounds.command;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.model.Place;
 
 public class LookCommandTest extends AbstractCommandTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   private Place location;
   private LookCommand command;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     super.setUp();
 
@@ -50,10 +47,10 @@ public class LookCommandTest extends AbstractCommandTest {
     when(player.getLocation()).thenReturn(Optional.of(location));
     when(location.passes(Category.READ, player)).thenReturn(false);
 
-    thrown.expect(PermissionException.class);
-    thrown.expectMessage("You are not permitted to look at where you are");
-
-    command.execute();
+    PermissionException e = assertThrows(PermissionException.class,
+                                         () -> command.execute());
+    assertEquals("You are not permitted to look at where you are",
+                 e.getMessage());
   }
 
   @Test

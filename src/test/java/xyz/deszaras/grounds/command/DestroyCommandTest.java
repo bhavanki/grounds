@@ -1,13 +1,12 @@
 package xyz.deszaras.grounds.command;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Extension;
@@ -18,13 +17,10 @@ import xyz.deszaras.grounds.model.Thing;
 
 public class DestroyCommandTest extends AbstractCommandTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   private Place place;
   private DestroyCommand command;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     super.setUp();
 
@@ -38,9 +34,9 @@ public class DestroyCommandTest extends AbstractCommandTest {
     Thing thing = newTestThing("destroyme");
     command = new DestroyCommand(actor, player, thing);
 
-    thrown.expect(PermissionException.class);
-    thrown.expectMessage("You are not a wizard, so you may not destroy");
-    command.execute();
+    PermissionException e = assertThrows(PermissionException.class,
+                                         () -> command.execute());
+    assertEquals("You are not a wizard, so you may not destroy", e.getMessage());
   }
 
   @Test
@@ -104,9 +100,9 @@ public class DestroyCommandTest extends AbstractCommandTest {
 
     command = new DestroyCommand(actor, player, place);
 
-    thrown.expect(CommandException.class);
-    thrown.expectMessage("This place is occupied");
-    command.execute();
+    CommandException e = assertThrows(CommandException.class,
+                                      () -> command.execute());
+    assertTrue(e.getMessage().contains("This place is occupied"));
   }
 
   @Test
@@ -120,9 +116,9 @@ public class DestroyCommandTest extends AbstractCommandTest {
 
     command = new DestroyCommand(actor, player, place);
 
-    thrown.expect(CommandException.class);
-    thrown.expectMessage("There are still links to this place");
-    command.execute();
+    CommandException e = assertThrows(CommandException.class,
+                                      () -> command.execute());
+    assertTrue(e.getMessage().contains("There are still links to this place"));
   }
 
   @Test
@@ -184,8 +180,8 @@ public class DestroyCommandTest extends AbstractCommandTest {
 
     command = new DestroyCommand(actor, player, playerToDestroy);
 
-    thrown.expect(CommandException.class);
-    thrown.expectMessage("Someone is currently playing as that player");
-    command.execute();
+    CommandException e = assertThrows(CommandException.class,
+                                      () -> command.execute());
+    assertTrue(e.getMessage().contains("Someone is currently playing as that player"));
   }
 }

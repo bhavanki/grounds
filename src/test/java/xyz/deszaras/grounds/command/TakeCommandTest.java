@@ -1,16 +1,16 @@
 package xyz.deszaras.grounds.command;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
@@ -19,14 +19,11 @@ import xyz.deszaras.grounds.model.Thing;
 
 public class TakeCommandTest extends AbstractCommandTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   private Place location;
   private Thing thing;
   private TakeCommand command;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     super.setUp();
     setPlayerRoles(Role.DENIZEN);
@@ -55,21 +52,22 @@ public class TakeCommandTest extends AbstractCommandTest {
   public void testFailureAlreadyHave() throws Exception {
     when(player.has(thing)).thenReturn(true);
 
-    thrown.expect(CommandException.class);
-    thrown.expectMessage("You are already holding that");
-
-    command.execute();
+    CommandException e = assertThrows(CommandException.class,
+                                      () -> command.execute());
+    assertEquals("You are already holding that",
+                 e.getMessage());
   }
 
   @Test
   public void testFailureNotAPlainThing() throws Exception {
     when(player.has(location)).thenReturn(false);
 
-    thrown.expect(CommandException.class);
-    thrown.expectMessage("You can only take ordinary things");
-
     command = new TakeCommand(actor, player, location);
-    command.execute();
+
+    CommandException e = assertThrows(CommandException.class,
+                                      () -> command.execute());
+    assertEquals("You can only take ordinary things",
+                 e.getMessage());
   }
 
   @Test
@@ -77,10 +75,10 @@ public class TakeCommandTest extends AbstractCommandTest {
     when(player.has(thing)).thenReturn(false);
     when(thing.passes(Category.GENERAL, player)).thenReturn(false);
 
-    thrown.expect(PermissionException.class);
-    thrown.expectMessage("You are not permitted to take that");
-
-    command.execute();
+    PermissionException e = assertThrows(PermissionException.class,
+                                         () -> command.execute());
+    assertEquals("You are not permitted to take that",
+                 e.getMessage());
   }
 
   @Test
@@ -90,10 +88,10 @@ public class TakeCommandTest extends AbstractCommandTest {
     when(thing.getLocation()).thenReturn(Optional.empty());
     when(player.getLocation()).thenReturn(Optional.of(location));
 
-    thrown.expect(CommandException.class);
-    thrown.expectMessage("You may only take that if you are in the same location");
-
-    command.execute();
+    CommandException e = assertThrows(CommandException.class,
+                                      () -> command.execute());
+    assertEquals("You may only take that if you are in the same location",
+                 e.getMessage());
   }
 
   @Test
@@ -103,10 +101,10 @@ public class TakeCommandTest extends AbstractCommandTest {
     when(thing.getLocation()).thenReturn(Optional.of(location));
     when(player.getLocation()).thenReturn(Optional.empty());
 
-    thrown.expect(CommandException.class);
-    thrown.expectMessage("You may only take that if you are in the same location");
-
-    command.execute();
+    CommandException e = assertThrows(CommandException.class,
+                                      () -> command.execute());
+    assertEquals("You may only take that if you are in the same location",
+                 e.getMessage());
   }
 
   @Test
@@ -132,9 +130,9 @@ public class TakeCommandTest extends AbstractCommandTest {
     when(thing.getLocation()).thenReturn(Optional.of(location));
     when(player.getLocation()).thenReturn(Optional.of(mock(Place.class)));
 
-    thrown.expect(CommandException.class);
-    thrown.expectMessage("You may only take that if you are in the same location");
-
-    command.execute();
+    CommandException e = assertThrows(CommandException.class,
+                                      () -> command.execute());
+    assertEquals("You may only take that if you are in the same location",
+                 e.getMessage());
   }
 }

@@ -1,17 +1,17 @@
 package xyz.deszaras.grounds.command;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Policy;
 import xyz.deszaras.grounds.auth.Policy.Category;
@@ -22,14 +22,11 @@ import xyz.deszaras.grounds.model.Thing;
 @SuppressWarnings("PMD.TooManyStaticImports")
 public class ChangePolicyCommandTest extends AbstractCommandTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   private Policy policy;
   private Thing thing;
   private ChangePolicyCommand command;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     super.setUp();
 
@@ -104,23 +101,19 @@ public class ChangePolicyCommandTest extends AbstractCommandTest {
   public void testConflictingRoleFailure() throws Exception {
     setPlayerRoles(Role.THAUMATURGE);
 
-    thrown.expect(IllegalArgumentException.class);
-
-    command = new ChangePolicyCommand(actor, player, thing,
-                                      new ChangeInstruction("g+gd,g-Bg"));
-    command.execute();
+    assertThrows(IllegalArgumentException.class,
+                 () -> new ChangePolicyCommand(actor, player, thing,
+                                               new ChangeInstruction("g+gd,g-Bg")));
   }
 
   @Test
   public void testPermissionFailure() throws Exception {
     setPlayerRoles(Role.DENIZEN);
 
-    thrown.expect(PermissionException.class);
-    thrown.expectMessage("You are not a thaumaturge in this universe, " +
-                         "so you may not change policies on things");
-
     command = new ChangePolicyCommand(actor, player, thing, new ChangeInstruction("u+g"));
-    command.execute();
+    Exception e = assertThrows(PermissionException.class,
+                               () -> command.execute());
+    assertEquals("You are not a thaumaturge in this universe, " +
+                 "so you may not change policies on things", e.getMessage());
   }
-
 }

@@ -1,23 +1,20 @@
 package xyz.deszaras.grounds.command;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Thing;
 
 public class IndexCommandTest extends AbstractCommandTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   private IndexCommand command;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     super.setUp();
 
@@ -42,9 +39,9 @@ public class IndexCommandTest extends AbstractCommandTest {
   public void testFailure() throws Exception {
     setPlayerRoles(Role.DENIZEN);
 
-    thrown.expect(PermissionException.class);
-    thrown.expectMessage("You are not a wizard, so you may not index it");
-
-    command.execute();
+    PermissionException e = assertThrows(PermissionException.class,
+                                         () -> command.execute());
+    assertEquals("You are not a wizard, so you may not index it",
+                 e.getMessage());
   }
 }

@@ -1,12 +1,11 @@
 package xyz.deszaras.grounds.command;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Attr;
@@ -16,13 +15,10 @@ import xyz.deszaras.grounds.model.Thing;
 
 public class SetAttrCommandTest extends AbstractCommandTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
   private Thing thing;
   private SetAttrCommand command;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     super.setUp();
 
@@ -53,21 +49,21 @@ public class SetAttrCommandTest extends AbstractCommandTest {
   public void testFailureProtectedAttribute() throws Exception {
     testUniverse.addRole(Role.BARD, player); // expect DEFAULT policy on thing
 
-    thrown.expect(CommandException.class);
-    thrown.expectMessage("Only GOD may set that attribute directly");
-
     command = new SetAttrCommand(actor,player, thing, new Attr(AttrNames.DESCRIPTION, "ok"));
-    command.execute();
+    CommandException e = assertThrows(CommandException.class,
+                                      () -> command.execute());
+    assertEquals("Only GOD may set that attribute directly",
+                 e.getMessage());
   }
 
   @Test
   public void testFailurePermission() throws Exception {
     testUniverse.addRole(Role.GUEST, player); // expect DEFAULT policy on thing
 
-    thrown.expect(PermissionException.class);
-    thrown.expectMessage("You are not permitted to set attributes on this");
-
     command = new SetAttrCommand(actor, player, thing, new Attr("foo", "bar"));
-    command.execute();
+    PermissionException e = assertThrows(PermissionException.class,
+                                         () -> command.execute());
+    assertEquals("You are not permitted to set attributes on this",
+                 e.getMessage());
   }
 }
