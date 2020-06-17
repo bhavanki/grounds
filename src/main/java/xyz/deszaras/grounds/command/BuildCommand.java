@@ -3,7 +3,6 @@ package xyz.deszaras.grounds.command;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Objects;
-import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Link;
 import xyz.deszaras.grounds.model.Place;
@@ -52,9 +51,7 @@ public class BuildCommand extends Command<Boolean> {
       throw new CommandException("Building is not permitted in the VOID universe");
     }
 
-    if (!Role.isWizard(player)) {
-      throw new PermissionException("You are not a wizard, so you may not build");
-    }
+    checkIfWizard("You are not a wizard, so you may not build");
 
     if (!player.getLocation().isPresent()) {
       throw new CommandException("You are not located anywhere, so you cannot build anything");

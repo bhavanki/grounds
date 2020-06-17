@@ -11,7 +11,6 @@ import xyz.deszaras.grounds.auth.Policy;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
-import xyz.deszaras.grounds.model.Universe;
 
 /**
  * Changes the policy on a thing.<p>
@@ -118,7 +117,8 @@ public class ChangePolicyCommand extends Command<String> {
 
   @Override
   public String execute() throws CommandException {
-    checkMayChangePolicy();
+    checkIfAnyRole("You are not a thaumaturge, so you may not " +
+                   "change policies on things", Role.THAUMATURGE);
     // FUTURE: if allowing lower-level wizards, check for privilege escalation
 
     Policy policy = thing.getPolicy();
@@ -132,18 +132,6 @@ public class ChangePolicyCommand extends Command<String> {
     }
 
     return policy.toString();
-  }
-
-  private void checkMayChangePolicy() throws CommandException {
-    if (player.equals(Player.GOD)) {
-      return;
-    }
-    Set<Role> roles = Universe.getCurrent().getRoles(player);
-    if (roles.contains(Role.THAUMATURGE)) {
-      return;
-    }
-    throw new PermissionException("You are not a thaumaturge in this universe, " +
-                                  "so you may not change policies on things");
   }
 
   public static ChangePolicyCommand newCommand(Actor actor, Player player,

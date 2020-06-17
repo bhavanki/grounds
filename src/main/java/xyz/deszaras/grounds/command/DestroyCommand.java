@@ -5,7 +5,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import xyz.deszaras.grounds.auth.Policy.Category;
-import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Link;
 import xyz.deszaras.grounds.model.Place;
@@ -30,9 +29,7 @@ public class DestroyCommand extends Command<Boolean> {
 
   @Override
   public Boolean execute() throws CommandException {
-    if (!Role.isWizard(player)) {
-      throw new PermissionException("You are not a wizard, so you may not destroy");
-    }
+    checkIfWizard("You are not a wizard, so you may not destroy");
 
     String whyNot = mayDestroy(thing);
     if (whyNot != null) {

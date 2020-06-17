@@ -6,7 +6,6 @@ import java.net.InetAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.ActorDatabase;
 import xyz.deszaras.grounds.server.Server;
@@ -30,9 +29,7 @@ public class WhoCommand extends ServerCommand<String> {
   @Override
   public String execute() throws CommandException {
     checkIfServer();
-    if (!Role.isWizard(player)) {
-      throw new PermissionException("You are not a wizard, so you may not see who is on");
-    }
+    checkIfWizard("You are not a wizard, so you may not see who is on");
 
     Map<Actor, Shell> openShells = server.getOpenShells();
     List<Actor> sortedConnectedActors = openShells.keySet().stream()

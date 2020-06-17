@@ -1,10 +1,15 @@
 package xyz.deszaras.grounds.command;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+
 import xyz.deszaras.grounds.auth.Policy.Category;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
+import xyz.deszaras.grounds.model.Universe;
 
 /**
  * A command to observe or make a change to a universe.
@@ -34,6 +39,52 @@ public abstract class Command<R> {
    * @throws CommandException if the command fails
    */
   public abstract R execute() throws CommandException;
+
+  /**
+   * Checks if the player running the command is a wizard, and if not, throws a
+   * {@link PermissionException}.
+   *
+   * @param message message to send to actor if permission check fails
+   * @throws PermissionException if the permission check fails
+   */
+  protected void checkIfWizard(String message) throws PermissionException {
+    if (!Role.isWizard(player)) {
+      throw new PermissionException(message);
+    }
+  }
+
+  private static final Role[] NON_GUEST_ROLES_ARRAY =
+      Role.NON_GUEST_ROLES.toArray(new Role[Role.NON_GUEST_ROLES.size()]);
+
+  /**
+   * Checks if the player running the command is a non-guest, and if not, throws
+   * a {@link PermissionException}.
+   *
+   * @param message message to send to actor if permission check fails
+   * @throws PermissionException if the permission check fails
+   */
+  protected void checkIfNonGuest(String message) throws PermissionException {
+    checkIfAnyRole(message, NON_GUEST_ROLES_ARRAY);
+  }
+
+  /**
+   * Checks if the player running the command has any of the given roles, and if
+   * not, throws a {@link PermissionException}.
+   *
+   * @param message message to send to actor if permission check fails
+   * @param roles roles to check for
+   * @throws PermissionException if the permission check fails
+   */
+  protected void checkIfAnyRole(String message, Role... roles)
+      throws PermissionException {
+    if (player.equals(Player.GOD)) {
+      return;
+    }
+    Set<Role> playerRoles = Universe.getCurrent().getRoles(player);
+    if (Arrays.stream(roles).noneMatch(r -> playerRoles.contains(r))) {
+      throw new PermissionException(message);
+    }
+  }
 
   /**
    * Checks if the player running the command passes a permission on a thing,

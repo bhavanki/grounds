@@ -2,11 +2,9 @@ package xyz.deszaras.grounds.command;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
-import xyz.deszaras.grounds.model.Universe;
 
 /**
  * Grants ownership of a thing to a player.<p>
@@ -31,20 +29,13 @@ public class ClaimCommand extends Command<Boolean> {
   }
 
   // TBD express in policy?
-  private void checkClaim() throws CommandException {
-    if (player.equals(Player.GOD)) {
-      return;
-    }
-    Set<Role> roles = Universe.getCurrent().getRoles(player);
-    if (roles.contains(Role.THAUMATURGE)) {
-      return;
-    }
+  private void checkClaim() throws PermissionException {
     if (thing.getOwner().isPresent()) {
       if (thing.getOwner().get().equals(player)) {
         actor.sendMessage(newInfoMessage("You already own that"));
         return;
       }
-      throw new CommandException("That is already owned by someone else");
+      checkIfAnyRole("That is already owned by someone else", Role.THAUMATURGE);
     }
   }
 

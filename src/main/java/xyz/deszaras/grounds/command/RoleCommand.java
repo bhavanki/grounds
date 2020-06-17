@@ -9,7 +9,6 @@ import xyz.deszaras.grounds.command.role.GetRolesCommand;
 import xyz.deszaras.grounds.command.role.RemoveRoleCommand;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
-import xyz.deszaras.grounds.model.Universe;
 
 public class RoleCommand extends Command<Boolean> {
 
@@ -20,18 +19,6 @@ public class RoleCommand extends Command<Boolean> {
   @Override
   public Boolean execute() {
     throw new UnsupportedOperationException("This is a composite command");
-  }
-
-  public static void checkIfThaumaturge(Actor actor, Player player,
-                                        Player targetPlayer)
-      throws PermissionException{
-    if (!player.equals(Player.GOD)) {
-      Set<Role> roles = Universe.getCurrent().getRoles(player);
-      if (!roles.contains(Role.THAUMATURGE)) {
-        throw new PermissionException("You are not a thaumaturge," +
-                                      " so you may not work with roles there");
-      }
-    }
   }
 
   public static String reportRoles(Actor actor, Player targetPlayer,

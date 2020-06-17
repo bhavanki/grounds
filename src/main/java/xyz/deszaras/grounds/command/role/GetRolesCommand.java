@@ -30,7 +30,8 @@ public class GetRolesCommand extends Command<String> {
 
   @Override
   public String execute() throws CommandException {
-    RoleCommand.checkIfThaumaturge(actor, player, targetPlayer);
+    checkIfAnyRole("You are not a thaumaturge, so you may not " +
+                   "get roles", Role.THAUMATURGE);
 
     Set<Role> newRoles = Universe.getCurrent().getRoles(targetPlayer);
     return RoleCommand.reportRoles(actor, targetPlayer, newRoles);

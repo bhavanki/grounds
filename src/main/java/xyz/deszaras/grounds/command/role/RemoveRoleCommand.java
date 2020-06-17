@@ -33,7 +33,8 @@ public class RemoveRoleCommand extends Command<String> {
 
   @Override
   public String execute() throws CommandException {
-    RoleCommand.checkIfThaumaturge(actor, player, targetPlayer);
+    checkIfAnyRole("You are not a thaumaturge, so you may not " +
+                   "remove roles", Role.THAUMATURGE);
 
     Set<Role> newRoles = Universe.getCurrent().removeRole(role, targetPlayer);
     return RoleCommand.reportRoles(actor, targetPlayer, newRoles);

@@ -1,5 +1,6 @@
 package xyz.deszaras.grounds.command;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -9,10 +10,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Policy.Category;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
-public class CommandTest {
+@SuppressWarnings("PMD.TooManyStaticImports")
+public class CommandTest extends AbstractCommandTest {
 
   private class TestCommand extends Command<Boolean> {
 
@@ -26,15 +29,60 @@ public class CommandTest {
     }
   }
 
-  private Actor actor;
-  private Player player;
   private Command command;
 
   @BeforeEach
   public void setUp() {
-    actor = mock(Actor.class);
-    player = mock(Player.class);
+    super.setUp();
     command = new TestCommand(actor, player);
+  }
+
+  @Test
+  public void testCheckIfWizardSuccess() throws Exception {
+    setPlayerRoles(Role.BARD);
+
+    command.checkIfWizard("You are not a wizard");
+  }
+
+  @Test
+  public void testCheckIfWizardSuccessForGOD() throws Exception {
+    command = new TestCommand(actor, Player.GOD);
+
+    command.checkIfWizard("You are not a wizard");
+  }
+
+  @Test
+  public void testCheckIfWizardFailure() throws Exception {
+    setPlayerRoles(Role.DENIZEN);
+
+    PermissionException e = assertThrows(PermissionException.class,
+                                         () -> command.checkIfWizard("You are not a wizard"));
+    assertEquals("You are not a wizard", e.getMessage());
+  }
+
+  @Test
+  public void testCheckIfAnyRoleSuccess() throws Exception {
+    setPlayerRoles(Role.DENIZEN, Role.ADEPT);
+
+    command.checkIfAnyRole("Adept or greater, please",
+                         Role.ADEPT, Role.THAUMATURGE);
+  }
+
+  @Test
+  public void testCheckIfAnyRoleSuccessForGOD() throws Exception {
+    command = new TestCommand(actor, Player.GOD);
+
+    command.checkIfAnyRole("Adept or greater, please",
+                         Role.ADEPT, Role.THAUMATURGE);
+  }
+
+  @Test
+  public void testCheckIfAnyRoleFailure() throws Exception {
+    setPlayerRoles(Role.DENIZEN, Role.BARD);
+
+    PermissionException e = assertThrows(PermissionException.class,
+        () -> command.checkIfAnyRole("Adept or higher", Role.ADEPT, Role.THAUMATURGE));
+    assertEquals("Adept or higher", e.getMessage());
   }
 
   @Test

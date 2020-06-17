@@ -3,7 +3,6 @@ package xyz.deszaras.grounds.command;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 import xyz.deszaras.grounds.model.Universe;
@@ -21,9 +20,7 @@ public class IndexCommand extends Command<String> {
 
   @Override
   public String execute() throws CommandException {
-    if (!Role.isWizard(player)) {
-      throw new PermissionException("You are not a wizard, so you may not index it");
-    }
+    checkIfWizard("You are not a wizard, so you may not index it");
 
     List<Thing> things = new ArrayList<>(Universe.getCurrent().getThings());
     Collections.sort(things,
