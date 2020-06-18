@@ -40,7 +40,7 @@ public class AddPlayerToActorCommand extends Command<Boolean> {
       throw new CommandException("I could not find the actor named " + username);
     }
 
-    return ActorCommand.saveActorDatabase(actor);
+    return ActorCommand.saveActorDatabase();
   }
 
   public static AddPlayerToActorCommand newCommand(Actor actor, Player player,

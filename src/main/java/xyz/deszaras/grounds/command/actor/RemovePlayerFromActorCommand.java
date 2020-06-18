@@ -40,7 +40,7 @@ public class RemovePlayerFromActorCommand extends Command<Boolean> {
       throw new CommandException("I could not find the actor named " + username);
     }
 
-    return ActorCommand.saveActorDatabase(actor);
+    return ActorCommand.saveActorDatabase();
   }
 
   public static RemovePlayerFromActorCommand newCommand(Actor actor, Player player,

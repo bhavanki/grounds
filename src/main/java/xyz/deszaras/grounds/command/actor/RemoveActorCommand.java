@@ -34,7 +34,7 @@ public class RemoveActorCommand extends Command<Boolean> {
 
     ActorDatabase.INSTANCE.removeActorRecord(username);
 
-    return ActorCommand.saveActorDatabase(actor);
+    return ActorCommand.saveActorDatabase();
   }
 
   public static RemoveActorCommand newCommand(Actor actor, Player player,

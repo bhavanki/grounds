@@ -40,7 +40,7 @@ public class ActorCommand extends Command<Boolean> {
     }
   }
 
-  public static boolean saveActorDatabase(Actor actor) throws CommandException {
+  public static boolean saveActorDatabase() throws CommandException {
     try {
       ActorDatabase.INSTANCE.save();
       return true;

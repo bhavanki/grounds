@@ -41,7 +41,7 @@ public class AddActorCommand extends Command<Boolean> {
       throw new CommandException("An actor named " + username + " already exists");
     }
 
-    return ActorCommand.saveActorDatabase(actor);
+    return ActorCommand.saveActorDatabase();
   }
 
   public static AddActorCommand newCommand(Actor actor, Player player,
