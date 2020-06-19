@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -30,11 +32,13 @@ public class ActorDatabase {
     private String password;
     private Set<UUID> players;
     private String mostRecentIPAddress;
+    private Map<String, String> preferences;
 
     private ActorRecord(String username, String password) {
       this.username = Objects.requireNonNull(username);
       this.password = password;
       this.players = new HashSet<>();
+      this.preferences = new HashMap<>();
     }
 
     @JsonCreator
@@ -42,11 +46,14 @@ public class ActorDatabase {
       @JsonProperty("username") String username,
       @JsonProperty("password") String password,
       @JsonProperty("players") Set<UUID> players,
-      @JsonProperty("mostRecentIPAddress") String mostRecentIPAddress) {
+      @JsonProperty("mostRecentIPAddress") String mostRecentIPAddress,
+      @JsonProperty("preferences") Map<String, String> preferences) {
       this.username = Objects.requireNonNull(username);
       this.password = password;
       this.players = players != null ? new HashSet<>(players) : new HashSet<>();
       this.mostRecentIPAddress = mostRecentIPAddress;
+      this.preferences = preferences != null ?
+          new HashMap<>(preferences) : new HashMap<>();
     }
 
     @JsonProperty
@@ -85,6 +92,23 @@ public class ActorDatabase {
       this.mostRecentIPAddress = mostRecentIPAddress;
     }
 
+    @JsonProperty
+    public Map<String, String> getPreferences() {
+      return ImmutableMap.copyOf(preferences);
+    }
+
+    public void setPreferences(Map<String, String> preferences) {
+      this.preferences = new HashMap<>(preferences);
+    }
+
+    public void setPreference(String name, String value) {
+      if (value != null) {
+        preferences.put(name, value);
+      } else {
+        preferences.remove(name);
+      }
+    }
+
     @Override
     public String toString() {
       return String.format("%s players: %s", username, players);
@@ -97,7 +121,8 @@ public class ActorDatabase {
 
   private Path path;
 
-  private ActorDatabase() {
+  @VisibleForTesting
+  ActorDatabase() {
     path = null;
   }
 

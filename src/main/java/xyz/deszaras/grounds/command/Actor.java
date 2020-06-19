@@ -1,8 +1,14 @@
 package xyz.deszaras.grounds.command;
 
+import com.google.common.collect.ImmutableMap;
+
 import java.net.InetAddress;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import xyz.deszaras.grounds.model.Player;
 
 /**
@@ -18,8 +24,11 @@ public class Actor {
    */
   public static final Actor ROOT = new Actor("root");
 
+  public static final String PREFERENCE_ANSI = "ansi";
+
   private final String username;
   private final LinkedBlockingQueue<Message> messages;
+  private final Map<String, String> preferences;
 
   private Player currentPlayer;
   private InetAddress mostRecentIPAddress;
@@ -32,6 +41,7 @@ public class Actor {
   public Actor(String username) {
     this.username = username;
     messages = new LinkedBlockingQueue<>();
+    preferences = new HashMap<>();
   }
 
   /**
@@ -99,6 +109,50 @@ public class Actor {
    */
   public Message getNextMessage() throws InterruptedException {
     return messages.take();
+  }
+
+  /**
+   * Gets a preference value.
+   *
+   * @param  name preference name
+   * @return      preference value
+   */
+  public Optional<String> getPreference(String name) {
+    return Optional.ofNullable(preferences.get(name));
+  }
+
+  /**
+   * Gets all preferences.
+   *
+   * @return immutable map of all preferences
+   */
+  public Map<String, String> getPreferences() {
+    return ImmutableMap.copyOf(preferences);
+  }
+
+  /**
+   * Sets a preference. If the preference value is null, the preference is
+   * removed.
+   *
+   * @param name  preference name
+   * @param value preference value, or null to remove
+   */
+  public void setPreference(String name, String value) {
+    if (value != null) {
+      preferences.put(name, value);
+    } else {
+      preferences.remove(name);
+    }
+  }
+
+  /**
+   * Sets all preferences. Any current preferences are removed or replaced.
+   *
+   * @param preferences new preferences
+   */
+  public void setPreferences(Map<String, String> preferences) {
+    this.preferences.clear();
+    this.preferences.putAll(preferences);
   }
 
   @Override

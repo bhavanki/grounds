@@ -47,7 +47,15 @@ public class SingleUser implements Runnable {
         return;
       }
     } else {
-      console.printf("Actor database does not yet exist, not loading\n\n");
+      console.printf("Actor database does not yet exist, creating a new one\n\n");
+      ActorDatabase.INSTANCE.createActorRecord(Actor.ROOT.getUsername(), "grounds");
+      try {
+        ActorDatabase.INSTANCE.save();
+      } catch (IOException e) {
+        console.printf("Failed to save new actor database", e);
+        return;
+      }
+      console.printf("Created new actor database. Please set the root password\n\n");
     }
 
     CommandExecutor.create(null);
@@ -56,6 +64,10 @@ public class SingleUser implements Runnable {
     console.printf("This is single-user mode. Use ^D or 'exit' to quit.\n\n");
 
     Actor actor = Actor.ROOT;
+    ActorDatabase.ActorRecord actorRecord =
+      ActorDatabase.INSTANCE.getActorRecord(actor.getUsername()).get();
+    actor.setPreferences(actorRecord.getPreferences());
+
     Terminal localTerminal;
     try {
       localTerminal = TerminalBuilder.terminal();

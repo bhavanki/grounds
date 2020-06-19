@@ -180,7 +180,12 @@ public class Server {
       if (!session.getSessionContext().isAuthenticated()) {
         throw new IllegalArgumentException("Session is not authenticated");
       }
-      return new Actor(session.getSessionContext().getUsername());
+      Actor actor = new Actor(session.getSessionContext().getUsername());
+      // Record must be there, or they couldn't have authenticated
+      ActorDatabase.ActorRecord actorRecord =
+          ActorDatabase.INSTANCE.getActorRecord(actor.getUsername()).get();
+      actor.setPreferences(actorRecord.getPreferences());
+      return actor;
     }
   }
 

@@ -128,11 +128,11 @@ public class Shell implements Runnable {
     PrintWriter out = terminal.writer();
     PrintWriter err = terminal.writer(); // sadly
 
-    // TBD: Figure out when to disable ANSI. This was available in JLine 2.
-    // if (!terminal.isANSISupported()) {
-    //   // The flag is an InheritedThreadLocal, so it only affects this shell.
-    //   Ansi.setEnabled(false);
-    // }
+    String ansiPref = actor.getPreference(Actor.PREFERENCE_ANSI).orElse("false");
+    if (!("true".equals(ansiPref))) {
+      // The flag is an InheritedThreadLocal, so it only affects this shell.
+      Ansi.setEnabled(false);
+    }
 
     try {
       emitBanner();
