@@ -63,6 +63,8 @@ public class CommandExecutor {
         .put("ROLE", RoleCommand.class)
         .put("ACTOR", ActorCommand.class)
         .put("WHO", WhoCommand.class)
+        .put("PREFERENCE", PreferenceCommand.class)
+        .put("PREF", PreferenceCommand.class)
         .put("SHUTDOWN", ShutdownCommand.class)
         .put("HELP", HelpCommand.class)
         .build();
