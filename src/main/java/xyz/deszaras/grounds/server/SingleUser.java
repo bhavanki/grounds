@@ -17,9 +17,6 @@ import xyz.deszaras.grounds.model.Player;
  */
 public class SingleUser implements Runnable {
 
-  @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
-  private static final String LOCALHOST = "127.0.0.1";
-
   private final Properties serverProperties;
 
   public SingleUser(Properties serverProperties) {
@@ -76,7 +73,7 @@ public class SingleUser implements Runnable {
       return;
     }
 
-    Shell shell = new Shell(actor, localTerminal, LOCALHOST);
+    Shell shell = new Shell(actor, localTerminal);
     shell.setPlayer(Player.GOD);
     Player.GOD.setCurrentActor(actor);
 

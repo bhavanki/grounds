@@ -1,6 +1,7 @@
 package xyz.deszaras.grounds.server;
 
 import com.google.common.base.Throwables;
+import com.google.common.net.InetAddresses;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -46,7 +47,6 @@ public class Shell implements Runnable {
 
   private final Actor actor;
   private final Terminal terminal;
-  private final String ipAddressString;
   private final LineReader lineReader;
 
   private Player player = null;
@@ -58,12 +58,10 @@ public class Shell implements Runnable {
    *
    * @param actor actor using the shell
    * @param terminal actor's terminal
-   * @param ipAddressString actor's IP address
    */
-  public Shell(Actor actor, Terminal terminal, String ipAddressString) {
+  public Shell(Actor actor, Terminal terminal) {
     this.actor = actor;
     this.terminal = terminal;
-    this.ipAddressString = ipAddressString;
     lineReader = LineReaderBuilder.builder()
         .terminal(terminal)
         .build();
@@ -75,7 +73,7 @@ public class Shell implements Runnable {
    * @return IP address
    */
   public String getIPAddress() {
-    return ipAddressString;
+    return InetAddresses.toAddrString(actor.getMostRecentIPAddress());
   }
 
   /**
@@ -237,7 +235,7 @@ public class Shell implements Runnable {
     }
     String bannerToEmit = bannerContent
         .replaceAll("_username_", actor.getUsername())
-        .replaceAll("_ipaddress_", ipAddressString);
+        .replaceAll("_ipaddress_", getIPAddress());
     terminal.writer().println(bannerToEmit);
   }
 

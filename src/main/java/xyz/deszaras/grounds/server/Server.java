@@ -172,8 +172,9 @@ public class Server {
         LOG.warn("Failed to save updated actor record for {} to record IP address {}",
                  actor.getUsername(), ipAddressString);
       }
+      actor.setMostRecentIPAddress(remoteAddress.getAddress());
 
-      return new ServerShellCommand(actor, ipAddressString);
+      return new ServerShellCommand(actor);
     }
 
     private Actor buildActor(ChannelSession session) {
@@ -198,7 +199,6 @@ public class Server {
   private class ServerShellCommand implements Command {
 
     private final Actor actor;
-    private final String ipAddressString;
 
     private InputStream in;
     private OutputStream out;
@@ -206,9 +206,8 @@ public class Server {
     private ExitCallback exitCallback;
     private Future<?> shellFuture;
 
-    private ServerShellCommand(Actor actor, String ipAddressString) {
+    private ServerShellCommand(Actor actor) {
       this.actor = actor;
-      this.ipAddressString = ipAddressString;
       shellFuture = null;
     }
 
@@ -254,7 +253,7 @@ public class Server {
           virtualTerminal.raise(Terminal.Signal.WINCH);
         }, Signal.WINCH);
 
-      Shell shell = new Shell(actor, virtualTerminal, ipAddressString);
+      Shell shell = new Shell(actor, virtualTerminal);
       openShells.put(actor, shell);
       shell.setBannerContent(bannerContent);
 
@@ -266,7 +265,7 @@ public class Server {
         public void run() {
           try {
             LOG.info("Running shell for {} connected from {}", actor.getUsername(),
-                     ipAddressString);
+                     InetAddresses.toAddrString(actor.getMostRecentIPAddress()));
             shell.run();
             LOG.info("Shell for {} exited with exit code {}",
                      actor.getUsername(), shell.getExitCode());
