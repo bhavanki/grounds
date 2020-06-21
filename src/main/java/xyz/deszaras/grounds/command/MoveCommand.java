@@ -30,18 +30,15 @@ public class MoveCommand extends Command<String> {
 
   @Override
   public String execute() throws CommandException {
-    Optional<Place> source = player.getLocation();
-    if (!source.isPresent()) {
-      throw new CommandException("You have no current location, so you cannot move elsewhere");
-    }
+    Place source = getPlayerLocation("move somewhere else");
 
     // Check that there is a link associated with the player's current
     // location whose other place name matches the exit name. That other
     // place is the move destination.
     Optional<Place> moveDestination = null;
     Optional<Link> viaLink = null;
-    for (Link link : Universe.getCurrent().findLinks(source.get())) {
-      Optional<Attr> otherPlace = link.getOtherPlace(source.get());
+    for (Link link : Universe.getCurrent().findLinks(source)) {
+      Optional<Attr> otherPlace = link.getOtherPlace(source);
       if (otherPlace.isPresent() &&
           otherPlace.get().getName().equalsIgnoreCase(exitName)) {
         moveDestination =

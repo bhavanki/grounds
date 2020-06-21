@@ -53,9 +53,7 @@ public class BuildCommand extends Command<Boolean> {
 
     checkIfWizard("You are not a wizard, so you may not build");
 
-    if (!player.getLocation().isPresent()) {
-      throw new CommandException("You are not located anywhere, so you cannot build anything");
-    }
+    Place location = getPlayerLocation("build anything");
 
     Thing built;
 
@@ -85,8 +83,8 @@ public class BuildCommand extends Command<Boolean> {
       Universe.getCurrent().addThing(built);
       if (thingType == BuiltInType.THING ||
           thingType == BuiltInType.PLAYER) {
-        built.setLocation(player.getLocation().get());
-        player.getLocation().get().give(built);
+        built.setLocation(location);
+        location.give(built);
       }
       actor.sendMessage(newInfoMessage("Created " + built.getId()));
       return true;

@@ -73,7 +73,7 @@ public class DropCommandTest extends AbstractCommandTest {
 
     CommandException e = assertThrows(CommandException.class,
                                       () -> command.execute());
-    assertEquals("You are not located anywhere, so you may not drop anything",
+    assertEquals("You have no location, so you may not drop anything",
                  e.getMessage());
   }
 }

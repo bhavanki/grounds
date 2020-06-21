@@ -2,7 +2,6 @@ package xyz.deszaras.grounds.command;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
@@ -28,17 +27,14 @@ public class PoseCommand extends Command<Boolean> {
 
   @Override
   public Boolean execute() throws CommandException {
-    Optional<Place> location = player.getLocation();
-    if (location.isEmpty()) {
-      throw new CommandException("You aren't located anywhere, so there is no one to pose to");
-    }
+    Place location = getPlayerLocation("pose to anyone");
 
     // TBD check permission for posing in location?
 
     Message poseMessage = newMessage(Message.Style.POSE,
                                      String.format(POSE_FORMAT, message));
 
-    location.get().getContents().stream()
+    location.getContents().stream()
         .map(id -> Universe.getCurrent().getThing(id))
         .filter(t -> t.isPresent())
         .filter(t -> t.get() instanceof Player)

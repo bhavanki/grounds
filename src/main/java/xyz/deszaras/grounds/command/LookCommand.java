@@ -9,6 +9,7 @@ import org.fusesource.jansi.Ansi;
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Link;
+import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
@@ -23,13 +24,17 @@ public class LookCommand extends Command<String> {
 
   @Override
   public String execute() throws CommandException {
-    Optional<Place> location = player.getLocation();
-    if (location.isPresent()) {
-      checkPermission(Category.READ, location.get(),
-                      "You are not permitted to look at where you are");
-      return buildMessage(location.get());
-    } else {
-      return "nowhere";
+    try {
+      Optional<Place> location = player.getLocation();
+      if (location.isPresent()) {
+        checkPermission(Category.READ, location.get(),
+                        "You are not permitted to look at where you are");
+        return buildMessage(location.get());
+      } else {
+        return "nowhere";
+      }
+    } catch (MissingThingException e) {
+      throw new CommandException("I cannot determine your location!");
     }
   }
 

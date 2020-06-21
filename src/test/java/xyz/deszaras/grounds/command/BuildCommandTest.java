@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import xyz.deszaras.grounds.auth.Role;
 // import xyz.deszaras.grounds.model.Extension;
 // import xyz.deszaras.grounds.model.Link;
+import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Place;
 // import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
@@ -27,13 +28,18 @@ public class BuildCommandTest extends AbstractCommandTest {
   private List<String> buildArgs;
   private BuildCommand command;
 
+  @SuppressWarnings("PMD.EmptyCatchBlock")
   @BeforeEach
   public void setUp() {
     super.setUp();
 
     place = newTestPlace("building_place");
     place.give(player);
-    when(player.getLocation()).thenReturn(Optional.of(place));
+    try {
+      when(player.getLocation()).thenReturn(Optional.of(place));
+    } catch (MissingThingException e) {
+      // won't happen
+    }
   }
 
   @Test

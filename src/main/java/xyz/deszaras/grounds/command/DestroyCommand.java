@@ -7,6 +7,7 @@ import java.util.UUID;
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Link;
+import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
@@ -27,6 +28,7 @@ public class DestroyCommand extends Command<Boolean> {
     this.thing = Objects.requireNonNull(thing);
   }
 
+  @SuppressWarnings("PMD.EmptyCatchBlock")
   @Override
   public Boolean execute() throws CommandException {
     checkIfWizard("You are not a wizard, so you may not destroy");
@@ -49,8 +51,12 @@ public class DestroyCommand extends Command<Boolean> {
       contentThing.setLocation(laf);
     }
 
-    if (thing.getLocation().isPresent()) {
-      thing.getLocation().get().take(thing);
+    try {
+      if (thing.getLocation().isPresent()) {
+        thing.getLocation().get().take(thing);
+      }
+    } catch (MissingThingException e) {
+      // no problem
     }
     if (thing.getClass().equals(Player.class)) {
       Universe.getCurrent().removeAllRoles((Player) thing);

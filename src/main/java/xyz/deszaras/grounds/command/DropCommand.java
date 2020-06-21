@@ -2,7 +2,6 @@ package xyz.deszaras.grounds.command;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
@@ -24,14 +23,11 @@ public class DropCommand extends Command<Boolean> {
     }
     // This next check is questionable
     checkPermission(Category.GENERAL, thing, "You are unable to drop that");
-    Optional<Place> location = player.getLocation();
-    if (location.isEmpty()) {
-      throw new CommandException("You are not located anywhere, so you may not drop anything");
-    }
+    Place location = getPlayerLocation("drop anything");
 
     player.take(thing);
-    location.get().give(thing);
-    thing.setLocation(location.get());
+    location.give(thing);
+    thing.setLocation(location);
     return true;
   }
 

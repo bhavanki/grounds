@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import xyz.deszaras.grounds.auth.Policy.Category;
+import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 
@@ -32,7 +33,12 @@ public class TeleportCommand extends Command<String> {
   public String execute() throws CommandException {
     checkPermission(Category.GENERAL, destination, "You are not permitted to move there");
 
-    Optional<Place> source = player.getLocation();
+    Optional<Place> source;
+    try {
+      source = player.getLocation();
+    } catch (MissingThingException e) {
+      source = Optional.empty();
+    }
     if (source.isPresent()) {
       source.get().take(player);
     }

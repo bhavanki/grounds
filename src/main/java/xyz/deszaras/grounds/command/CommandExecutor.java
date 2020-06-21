@@ -35,6 +35,7 @@ public class CommandExecutor {
         .put("MOVE", MoveCommand.class)
         .put("GO", MoveCommand.class)
         .put("G", MoveCommand.class)
+        .put("HOME", HomeCommand.class)
         .put("WHISPER", WhisperCommand.class)
         .put("TELL", WhisperCommand.class)
         .put("SAY", SayCommand.class)

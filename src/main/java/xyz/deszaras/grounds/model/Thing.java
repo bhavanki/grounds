@@ -161,13 +161,22 @@ public class Thing {
 
   /**
    * Gets this thing's location.
+   *
+   * @return location, or empty if there is none
+   * @throws MissingThingException if a location is set but not in the universe
    */
   @JsonIgnore
-  public Optional<Place> getLocation() {
-    // TBD: what if location is set but cannot be found?
-    return getAttr(AttrNames.LOCATION).map(a ->
-        Universe.getCurrent().getThing(a.getValue(), Place.class)
-        .orElse(null));
+  public Optional<Place> getLocation() throws MissingThingException {
+    Optional<Attr> locationAttr =  getAttr(AttrNames.LOCATION);
+    if (locationAttr.isEmpty()) {
+      return Optional.empty();
+    }
+    Optional<Place> location =
+        Universe.getCurrent().getThing(locationAttr.get().getValue(), Place.class);
+    if (location.isEmpty()) {
+      throw new MissingThingException("Location is missing");
+    }
+    return location;
   }
 
   /**
@@ -199,6 +208,37 @@ public class Thing {
       setAttr(AttrNames.OWNER, owner);
     } else {
       removeAttr(AttrNames.OWNER);
+    }
+  }
+
+  /**
+   * Gets this thing's home.
+   *
+   * @return home place, or empty if a home is not set
+   * @throws MissingThingException if a home is set but not in the universe
+   */
+  @JsonIgnore
+  public Optional<Place> getHome() throws MissingThingException {
+    Optional<Attr> homeAttr =  getAttr(AttrNames.HOME);
+    if (homeAttr.isEmpty()) {
+      return Optional.empty();
+    }
+    Optional<Place> home =
+        Universe.getCurrent().getThing(homeAttr.get().getValue(), Place.class);
+    if (home.isEmpty()) {
+      throw new MissingThingException("Home is missing");
+    }
+    return home;
+  }
+
+  /**
+   * Sets this thing's home. Pass a null home to remove it.
+   */
+  public void setHome(Place home) {
+    if (home != null) {
+      setAttr(AttrNames.HOME, home);
+    } else {
+      removeAttr(AttrNames.HOME);
     }
   }
 

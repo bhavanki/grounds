@@ -27,6 +27,10 @@ public final class AttrNames {
    * The attribute for the owner of a thing.
    */
   public static final String OWNER = "owner";
+  /**
+   * The attribute for the home of a thing (usually a player).
+   */
+  public static final String HOME = "home";
 
   /**
    * The names of all specially handled attributes as a set.

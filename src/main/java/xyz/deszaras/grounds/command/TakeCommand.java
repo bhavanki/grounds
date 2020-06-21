@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Optional;
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
+import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
@@ -30,16 +31,30 @@ public class TakeCommand extends Command<Boolean> {
     }
     checkPermission(Category.GENERAL, thing, "You are not permitted to take that");
 
-    Optional<Place> location = thing.getLocation();
-    if (!Role.isWizard(player) &&
-        (location.isEmpty() ||             // the thing has no location
-         player.getLocation().isEmpty() || // the player has no location
-         !location.get().equals(player.getLocation().get()))) {
-      throw new CommandException("You may only take that if you are in the same location");
+    Optional<Place> thingLocation;
+    try {
+      thingLocation = thing.getLocation();
+    } catch (MissingThingException e) {
+      thingLocation = Optional.empty();
+    }
+    // A non-wizard must be in the same location as a thing to take it.
+    // (A wizard may take a thing from anywhere, even nowhere.)
+    if (!Role.isWizard(player)) {
+      Optional<Place> playerLocation;
+      try {
+        playerLocation = player.getLocation();
+      } catch (MissingThingException e) {
+        playerLocation = Optional.empty();
+      }
+      if (thingLocation.isEmpty() ||   // the thing has no location
+          playerLocation.isEmpty() ||  // the player has no location
+          !thingLocation.get().equals(playerLocation.get())) {
+        throw new CommandException("You may only take that if you are in the same location");
+      }
     }
 
-    if (location.isPresent()) {
-      location.get().take(thing);
+    if (thingLocation.isPresent()) {
+      thingLocation.get().take(thing);
     }
     player.give(thing);
     thing.setLocation(null);

@@ -3,10 +3,13 @@ package xyz.deszaras.grounds.command;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
+import xyz.deszaras.grounds.model.MissingThingException;
+import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 import xyz.deszaras.grounds.model.Universe;
@@ -112,6 +115,26 @@ public abstract class Command<R> {
   protected static void ensureMinArgs(List<String> l, int n) throws CommandFactoryException {
     if (l.size() < n) {
       throw new CommandFactoryException("Need at least " + n + " arguments, got " + l.size());
+    }
+  }
+
+  /**
+   * Gets the player's location, failing gracefully if either the player
+   * has no location or that location cannot be found.
+   *
+   * @param  action           verb phrase used for exception messages
+   * @return                  player location
+   * @throws CommandException if the player has no location or it cannot be found
+   */
+  protected Place getPlayerLocation(String action) throws CommandException {
+    try {
+      Optional<Place> locationOpt = player.getLocation();
+      if (locationOpt.isEmpty()) {
+        throw new CommandException("You have no location, so you may not " + action);
+      }
+      return locationOpt.get();
+    } catch (MissingThingException e) {
+      throw new CommandException("I cannot determine your location!");
     }
   }
 

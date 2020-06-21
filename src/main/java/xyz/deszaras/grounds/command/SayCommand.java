@@ -2,7 +2,6 @@ package xyz.deszaras.grounds.command;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
@@ -33,10 +32,7 @@ public class SayCommand extends Command<Boolean> {
 
   @Override
   public Boolean execute() throws CommandException {
-    Optional<Place> location = player.getLocation();
-    if (location.isEmpty()) {
-      throw new CommandException("You aren't located anywhere, so there is nothing to say anything to");
-    }
+    Place location = getPlayerLocation("say anything to anyone");
 
     // TBD check permission for posing in location?
 
@@ -50,7 +46,7 @@ public class SayCommand extends Command<Boolean> {
       sayMessage = newMessage(Message.Style.SAY, sayMessageString);
     }
 
-    location.get().getContents().stream()
+    location.getContents().stream()
         .map(id -> Universe.getCurrent().getThing(id))
         .filter(t -> t.isPresent())
         .filter(t -> t.get() instanceof Player)
