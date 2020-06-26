@@ -51,6 +51,7 @@ public class Shell implements Runnable {
 
   private Player player = null;
   private String bannerContent = null;
+  private Future<?> future = null;
   private int exitCode = 0;
 
   /**
@@ -110,6 +111,15 @@ public class Shell implements Runnable {
    */
   public void setBannerContent(String bannerContent) {
     this.bannerContent = bannerContent;
+  }
+
+  /**
+   * Sets the future for the task that executes this shell.
+   *
+   * @param future future for this shell
+   */
+  public void setFuture(Future<?> future) {
+    this.future = future;
   }
 
   /**
@@ -303,5 +313,18 @@ public class Shell implements Runnable {
     return Throwables.getCausalChain(e).stream()
         .map(t -> t.getMessage())
         .collect(Collectors.joining(": "));
+  }
+
+  /**
+   * Terminates this shell by cancellation / interruption.
+   *
+   * @return true if the shell was terminated, false if it was not because
+   * it already completed or has not yet started
+   */
+  public boolean terminate() {
+    if (future == null) {
+      return false;
+    }
+    return future.cancel(true);
   }
 }

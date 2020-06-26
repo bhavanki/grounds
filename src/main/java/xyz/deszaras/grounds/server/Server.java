@@ -214,18 +214,20 @@ public class Server {
           ActorDatabase.INSTANCE.getActorRecord(actor.getUsername()).get();
 
       Instant lockedUntil = actorRecord.getLockedUntil();
-      if (lockedUntil != null && Instant.now().isBefore(lockedUntil)) {
-        throw new IOException("This account is locked until " +
-                              lockedUntil.toString());
-      } else {
-        LOG.info("Clearing lockout for actor {}", actor.getUsername());
-        ActorDatabase.INSTANCE.updateActorRecord(actorRecord.getUsername(),
-            r -> r.setLockedUntil(null));
-        try {
-          ActorDatabase.INSTANCE.save();
-        } catch (IOException e) {
-          LOG.error("Failed to save actor database to clear lockout for {}",
-                    actor.getUsername(), e);
+      if (lockedUntil != null) {
+        if (Instant.now().isBefore(lockedUntil)) {
+          throw new IOException("This account is locked until " +
+                                lockedUntil.toString());
+        } else {
+          LOG.info("Clearing lockout for actor {}", actor.getUsername());
+          ActorDatabase.INSTANCE.updateActorRecord(actorRecord.getUsername(),
+              r -> r.setLockedUntil(null));
+          try {
+            ActorDatabase.INSTANCE.save();
+          } catch (IOException e) {
+            LOG.error("Failed to save actor database to clear lockout for {}",
+                      actor.getUsername(), e);
+          }
         }
       }
 
@@ -330,6 +332,7 @@ public class Server {
         }
       };
       shellFuture = shellExecutorService.submit(shellRunnable);
+      shell.setFuture(shellFuture);
     }
 
     /**
@@ -445,6 +448,10 @@ public class Server {
       synchronized (connectedActors) {
         connectedActors.remove(new Actor(session.getSessionContext().getUsername()));
       }
+    }
+
+    public void terminate() {
+      shellFuture.cancel(true);
     }
   }
 
