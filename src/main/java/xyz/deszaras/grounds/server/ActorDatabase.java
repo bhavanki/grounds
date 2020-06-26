@@ -5,11 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -32,6 +34,7 @@ public class ActorDatabase {
     private String password;
     private Set<UUID> players;
     private String mostRecentIPAddress;
+    private Instant lockedUntil;
     private Map<String, String> preferences;
 
     private ActorRecord(String username, String password) {
@@ -47,11 +50,13 @@ public class ActorDatabase {
       @JsonProperty("password") String password,
       @JsonProperty("players") Set<UUID> players,
       @JsonProperty("mostRecentIPAddress") String mostRecentIPAddress,
+      @JsonProperty("lockedUntil") Instant lockedUntil,
       @JsonProperty("preferences") Map<String, String> preferences) {
       this.username = Objects.requireNonNull(username);
       this.password = password;
       this.players = players != null ? new HashSet<>(players) : new HashSet<>();
       this.mostRecentIPAddress = mostRecentIPAddress;
+      this.lockedUntil = lockedUntil;
       this.preferences = preferences != null ?
           new HashMap<>(preferences) : new HashMap<>();
     }
@@ -90,6 +95,15 @@ public class ActorDatabase {
 
     public void setMostRecentIPAddress(String mostRecentIPAddress) {
       this.mostRecentIPAddress = mostRecentIPAddress;
+    }
+
+    @JsonProperty
+    public Instant getLockedUntil() {
+      return lockedUntil;
+    }
+
+    public void setLockedUntil(Instant lockedUntil) {
+      this.lockedUntil = lockedUntil;
     }
 
     @JsonProperty
@@ -132,6 +146,9 @@ public class ActorDatabase {
 
   private static final ObjectMapper OBJECT_MAPPER =
       new ObjectMapper();
+  static {
+    OBJECT_MAPPER.registerModule(new JavaTimeModule());
+  }
 
   public synchronized void load() throws IOException {
     if (path == null) {

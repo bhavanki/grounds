@@ -13,6 +13,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -203,7 +204,7 @@ public class Server {
       return new ServerShellCommand(actor);
     }
 
-    private Actor buildActor(ChannelSession session) {
+    private Actor buildActor(ChannelSession session) throws IOException {
       if (!session.getSessionContext().isAuthenticated()) {
         throw new IllegalArgumentException("Session is not authenticated");
       }
@@ -211,6 +212,23 @@ public class Server {
       // Record must be there, or they couldn't have authenticated
       ActorDatabase.ActorRecord actorRecord =
           ActorDatabase.INSTANCE.getActorRecord(actor.getUsername()).get();
+
+      Instant lockedUntil = actorRecord.getLockedUntil();
+      if (lockedUntil != null && Instant.now().isBefore(lockedUntil)) {
+        throw new IOException("This account is locked until " +
+                              lockedUntil.toString());
+      } else {
+        LOG.info("Clearing lockout for actor {}", actor.getUsername());
+        ActorDatabase.INSTANCE.updateActorRecord(actorRecord.getUsername(),
+            r -> r.setLockedUntil(null));
+        try {
+          ActorDatabase.INSTANCE.save();
+        } catch (IOException e) {
+          LOG.error("Failed to save actor database to clear lockout for {}",
+                    actor.getUsername(), e);
+        }
+      }
+
       actor.setPreferences(actorRecord.getPreferences());
       return actor;
     }
