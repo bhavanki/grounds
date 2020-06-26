@@ -3,6 +3,7 @@ package xyz.deszaras.grounds.command;
 import com.google.common.collect.ImmutableList;
 import com.google.common.net.InetAddresses;
 import java.net.InetAddress;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,7 +32,7 @@ public class WhoCommand extends ServerCommand<String> {
     checkIfServer();
     checkIfWizard("You are not a wizard, so you may not see who is on");
 
-    Map<Actor, Shell> openShells = server.getOpenShells();
+    Map<Actor, Collection<Shell>> openShells = server.getOpenShells();
     List<Actor> sortedConnectedActors = openShells.keySet().stream()
         .sorted((a1, a2) -> a1.getUsername().compareTo(a2.getUsername()))
         .collect(Collectors.toList());
@@ -64,21 +65,22 @@ public class WhoCommand extends ServerCommand<String> {
     b.append(String.format("%12.12s %25.25s %s\n", "ACTOR", "PLAYER", "IP"));
     b.append(String.format("%12.12s %25.25s %s\n", "-----", "------", "--"));
     for (Actor actor : sortedActors) {
-      Shell actorShell = openShells.get(actor);
-      String playerName;
-      String ipAddress;
-      if (actorShell != null) {
-        Player actorPlayer = actorShell.getPlayer();
-        playerName = actorPlayer != null ? actorPlayer.getName() : "-";
-        ipAddress = actorShell.getIPAddress();
+      Collection<Shell> actorShells = openShells.get(actor);
+      if (actorShells != null && !actorShells.isEmpty()) {
+        for (Shell actorShell : actorShells) {
+          Player actorPlayer = actorShell.getPlayer();
+          String playerName = actorPlayer != null ? actorPlayer.getName() : "-";
+          String ipAddress = actorShell.getIPAddress();
+          b.append(String.format("%12.12s %25.25s %s\n", actor.getUsername(),
+                                 playerName, ipAddress));
+        }
       } else {
-        playerName = "-";
         InetAddress mostRecentIPAddress = actor.getMostRecentIPAddress();
-        ipAddress = mostRecentIPAddress != null ?
+        String ipAddress = mostRecentIPAddress != null ?
             InetAddresses.toAddrString(mostRecentIPAddress) : "-";
+        b.append(String.format("%12.12s %25.25s %s\n", actor.getUsername(), "-",
+                               ipAddress));
       }
-      b.append(String.format("%12.12s %25.25s %s\n", actor.getUsername(), playerName,
-                             ipAddress));
     }
     return b.toString();
   }

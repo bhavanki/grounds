@@ -1,5 +1,7 @@
 package xyz.deszaras.grounds.command.actor;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import xyz.deszaras.grounds.command.Actor;
@@ -10,6 +12,7 @@ import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.Server;
+import xyz.deszaras.grounds.server.Shell;
 
 /**
  * Boots an actor.<p>
@@ -33,11 +36,14 @@ public class BootActorCommand extends ServerCommand<Boolean> {
     ActorCommand.checkIfRoot(actor, username);
     ActorCommand.checkIfGod(player);
 
-    return server.getOpenShells().entrySet().stream()
-        .filter(e -> e.getKey().getUsername().equals(username))
-        .map(e -> {
-          Player shellPlayer = e.getValue().getPlayer();
-          boolean terminated = e.getValue().terminate();
+    Collection<Shell> actorShells = server.getOpenShells().get(new Actor(username));
+    if (actorShells == null) {
+      actorShells = Collections.emptySet();
+    }
+    return actorShells.stream()
+        .map(shell -> {
+          Player shellPlayer = shell.getPlayer();
+          boolean terminated = shell.terminate();
           String messageText = terminated ?
               String.format("Terminated shell for actor %s playing as %s",
                             username, shellPlayer.getName()) :

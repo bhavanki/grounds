@@ -1,8 +1,9 @@
 package xyz.deszaras.grounds.server;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -78,7 +80,7 @@ public class Server {
   private final ScheduledExecutorService adminExecutorService;
   private final long autosavePeriodSeconds;
   private final Set<Actor> connectedActors;
-  private final Cache<Actor, Shell> openShells;
+  private final Multimap<Actor, Shell> openShells;
 
   private ScheduledFuture<?> autosaveFuture;
 
@@ -110,12 +112,12 @@ public class Server {
                                      DEFAULT_AUTOSAVE_PERIOD_SECONDS));
 
     connectedActors = new HashSet<>();
-    openShells = CacheBuilder.newBuilder().weakValues().build();
+    openShells = Multimaps.synchronizedSetMultimap(HashMultimap.create());
 
     autosaveFuture = null;
   }
 
-  public Map<Actor, Shell> getOpenShells() {
+  public Map<Actor, Collection<Shell>> getOpenShells() {
     return ImmutableMap.copyOf(openShells.asMap());
   }
 
@@ -322,7 +324,7 @@ public class Server {
             exitCallback.onExit(255, e.getMessage());
           } finally {
             emitterFuture.cancel(true);
-            openShells.invalidate(actor);
+            openShells.remove(actor, shell);
             try {
               virtualTerminal.close();
             } catch (IOException e) { // NOPMD
