@@ -4,6 +4,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.InetAddresses;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -89,12 +90,20 @@ public class Server {
    */
   public Server(Properties serverProperties) throws IOException {
     sshServer = buildSshServer(serverProperties);
-    shellExecutorService = Executors.newCachedThreadPool();
+    shellExecutorService =
+        Executors.newCachedThreadPool(new ThreadFactoryBuilder()
+                                      .setDaemon(true)
+                                      .setNameFormat("grounds-shell-%d")
+                                      .build());
     bannerContent = readBannerContent(serverProperties);
     shutdownLatch = new CountDownLatch(1);
 
     adminExecutorService = Executors.newScheduledThreadPool(Integer.parseInt(
-        serverProperties.getProperty("adminThreadCount", DEFAULT_ADMIN_THREAD_COUNT)));
+        serverProperties.getProperty("adminThreadCount", DEFAULT_ADMIN_THREAD_COUNT)),
+        new ThreadFactoryBuilder()
+            .setDaemon(false)
+            .setNameFormat("grounds-admin-%d")
+            .build());
     autosavePeriodSeconds = Long.parseLong(
         serverProperties.getProperty("autosavePeriodSeconds",
                                      DEFAULT_AUTOSAVE_PERIOD_SECONDS));

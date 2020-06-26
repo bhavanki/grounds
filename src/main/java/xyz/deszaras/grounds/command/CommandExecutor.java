@@ -3,6 +3,7 @@ package xyz.deszaras.grounds.command;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -146,7 +147,11 @@ public class CommandExecutor {
   @VisibleForTesting
   CommandExecutor(CommandFactory commandFactory) {
     this.commandFactory = Objects.requireNonNull(commandFactory);
-    commandExecutorService = Executors.newSingleThreadExecutor();
+    commandExecutorService =
+        Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
+                                          .setDaemon(false)
+                                          .setNameFormat("grounds-command")
+                                          .build());
   }
 
   /**
