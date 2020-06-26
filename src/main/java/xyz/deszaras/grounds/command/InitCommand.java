@@ -35,6 +35,7 @@ public class InitCommand extends Command<Boolean> {
     createLostAndFound(universe);
 
     Universe.setCurrent(universe);
+    Universe.setCurrentFile(null);
     universe.addThing(player);
     player.setLocation(origin);
     origin.give(player);

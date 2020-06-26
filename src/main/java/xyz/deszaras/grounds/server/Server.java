@@ -20,6 +20,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import org.apache.sshd.common.channel.PtyMode;
 import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.ExitCallback;
@@ -62,14 +65,20 @@ public class Server {
 
   public static final String DEFAULT_HOST = "127.0.0.1"; // NOPMD
   public static final String DEFAULT_PORT = "4768";
+  public static final String DEFAULT_ADMIN_THREAD_COUNT = "2";
+  public static final String DEFAULT_AUTOSAVE_PERIOD_SECONDS = "300";
 
   private final SshServer sshServer;
   private final ExecutorService shellExecutorService;
   private final String bannerContent;
   private final CountDownLatch shutdownLatch;
 
+  private final ScheduledExecutorService adminExecutorService;
+  private final long autosavePeriodSeconds;
   private final Set<Actor> connectedActors;
   private final Cache<Actor, Shell> openShells;
+
+  private ScheduledFuture<?> autosaveFuture;
 
   /**
    * Creates a new server.
@@ -84,8 +93,16 @@ public class Server {
     bannerContent = readBannerContent(serverProperties);
     shutdownLatch = new CountDownLatch(1);
 
+    adminExecutorService = Executors.newScheduledThreadPool(Integer.parseInt(
+        serverProperties.getProperty("adminThreadCount", DEFAULT_ADMIN_THREAD_COUNT)));
+    autosavePeriodSeconds = Long.parseLong(
+        serverProperties.getProperty("autosavePeriodSeconds",
+                                     DEFAULT_AUTOSAVE_PERIOD_SECONDS));
+
     connectedActors = new HashSet<>();
     openShells = CacheBuilder.newBuilder().weakValues().build();
+
+    autosaveFuture = null;
   }
 
   public Map<Actor, Shell> getOpenShells() {
@@ -412,17 +429,37 @@ public class Server {
   public void start() throws IOException {
     CommandExecutor.create(this);
 
+    if (autosavePeriodSeconds >= 0L) {
+      autosaveFuture = adminExecutorService.scheduleAtFixedRate(
+          new AutosaveRunnable(CommandExecutor.getInstance()),
+          autosavePeriodSeconds, autosavePeriodSeconds, TimeUnit.SECONDS);
+    } else {
+      LOG.warn("Autosave disabled");
+    }
+
     sshServer.start();
   }
 
+  private static final long TIMEOUT_ADMIN_EXECUTOR_SERVICE = 10L;
+
   /**
-   * Stops the server, also shutting down execution of shells
-   * and commands.
+   * Stops the server, also shutting down execution of shells,
+   * administrative tasks, and commands.
    *
    * @throws IOException if the server fails to stop
+   * @throws InterruptedException if the wait for administrative tasks to
+   *                              complete is interrupted
    */
-  public void shutdown() throws IOException {
+  public void shutdown() throws IOException, InterruptedException {
     shellExecutorService.shutdownNow();
+
+    if (autosaveFuture != null) {
+      autosaveFuture.cancel(false);
+    }
+    adminExecutorService.shutdown();
+    adminExecutorService.awaitTermination(TIMEOUT_ADMIN_EXECUTOR_SERVICE,
+                                          TimeUnit.SECONDS);
+
     sshServer.stop();
     CommandExecutor.getInstance().shutdown();
     LOG.info("Shutdown complete");

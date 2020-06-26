@@ -31,6 +31,7 @@ public class LoadCommand extends Command<Boolean> {
     // because they are disconnected from their players
     try {
       Universe.setCurrent(Universe.load(f));
+      Universe.setCurrentFile(f);
       actor.sendMessage(newInfoMessage("Loaded universe from " + f.getName()));
       return true;
     } catch (IOException e) {

@@ -1,5 +1,6 @@
 package xyz.deszaras.grounds.command;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
@@ -142,7 +143,8 @@ public class CommandExecutor {
   private final CommandFactory commandFactory;
   private final ExecutorService commandExecutorService;
 
-  private CommandExecutor(CommandFactory commandFactory) {
+  @VisibleForTesting
+  CommandExecutor(CommandFactory commandFactory) {
     this.commandFactory = Objects.requireNonNull(commandFactory);
     commandExecutorService = Executors.newSingleThreadExecutor();
   }
@@ -168,6 +170,17 @@ public class CommandExecutor {
                                       List<String> commandLine) {
     CommandCallable callable = new CommandCallable(actor, player, commandLine,
                                                    commandFactory);
+    return commandExecutorService.submit(callable);
+  }
+
+  /**
+   * Submits a new command to be run.
+   *
+   * @param command command to run
+   * @return future for the command result
+   */
+  public Future<CommandResult> submit(Command command) {
+    CommandCallable callable = new CommandCallable(command);
     return commandExecutorService.submit(callable);
   }
 

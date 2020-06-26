@@ -41,8 +41,10 @@ public class Main {
     }
     if (jcArgs.universeFile != null) {
       Universe.setCurrent(Universe.load(jcArgs.universeFile));
+      Universe.setCurrentFile(jcArgs.universeFile);
     } else {
       Universe.setCurrent(Universe.VOID);
+      Universe.setCurrentFile(null);
     }
 
     if (jcArgs.singleUser) {

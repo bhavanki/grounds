@@ -15,9 +15,11 @@ public class CommandCallable implements Callable<CommandResult> {
   private final Player player;
   private final List<String> commandLine;
   private final CommandFactory commandFactory;
+  private final Command command;
 
   /**
-   * Creates a new callable.
+   * Creates a new callable. The command is constructed by a command
+   * factory.
    *
    * @param actor actor submitting the command
    * @param player player currently assumed by the actor
@@ -30,19 +32,44 @@ public class CommandCallable implements Callable<CommandResult> {
     this.player = player;
     this.commandLine = commandLine;
     this.commandFactory = commandFactory;
+
+    this.command = null;
+  }
+
+  /**
+   * Creates a new callable. The command is already constructed.
+   *
+   * @param command command to execute
+   */
+  public CommandCallable(Command command) {
+    this.command = command;
+
+    this.actor = null;
+    this.player = null;
+    this.commandLine = null;
+    this.commandFactory = null;
   }
 
   @Override
   public CommandResult call() {
-    try {
+    Command commandToExecute;
+    if (command != null) {
+      // Command is pre-built.
+      commandToExecute = command;
+    } else {
       // Create the command using the factory.
-      Command command =
-          commandFactory.getCommand(actor, player, commandLine);
-      // Execute the command!
-      return new CommandResult(command.execute(), command.getClass());
+      try {
+        commandToExecute = commandFactory.getCommand(actor, player, commandLine);
+      } catch (CommandFactoryException e) {
+        return new CommandResult(e);
+      }
+    }
+
+    // Execute the command!
+    try {
+      return new CommandResult(commandToExecute.execute(),
+                               commandToExecute.getClass());
     } catch (CommandException e) {
-      return new CommandResult(e);
-    } catch (CommandFactoryException e) {
       return new CommandResult(e);
     }
   }

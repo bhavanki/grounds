@@ -37,6 +37,11 @@ public class Universe {
   public static Universe theUniverse;
 
   /**
+   * The file where the currently loaded universe is loaded from / saved to.
+   */
+  private static File theUniverseFile;
+
+  /**
    * Gets the current universe.
    *
    * @return current universe
@@ -52,6 +57,35 @@ public class Universe {
    */
   public static void setCurrent(Universe universe) {
     theUniverse = universe;
+  }
+
+  /**
+   * Sets the current universe's file.
+   *
+   * @param universeFile current universe's file
+   */
+  public static void setCurrentFile(File universeFile) {
+    theUniverseFile = universeFile;
+  }
+
+  /**
+   * Saves the current universe to its file.
+   *
+   * @return true if the current universe was saved; false if there
+   *         is no current universe, or it's the VOID universe, or
+   *         if the current universe has no file
+   * @throws IOException if the universe could not be saved
+   * @see #save(Universe,File)
+   */
+  public static boolean saveCurrent() throws IOException {
+    if (theUniverse == null || Universe.VOID.equals(theUniverse)) {
+      return false;
+    }
+    if (theUniverseFile == null) {
+      return false; // maybe should throw an exception
+    }
+    Universe.save(theUniverse, theUniverseFile);
+    return true;
   }
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

@@ -1,18 +1,20 @@
 package xyz.deszaras.grounds.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import xyz.deszaras.grounds.auth.Role;
-import xyz.deszaras.grounds.model.Place;
-import xyz.deszaras.grounds.model.Thing;
 
 public class UniverseTest {
 
@@ -154,4 +156,55 @@ public class UniverseTest {
     assertEquals(currentRoles, u.getRoles(p));
   }
 
+  @Test
+  public void testLoadAndSave(@TempDir Path tempDir) throws Exception {
+    Thing t1 = new Thing("item1");
+    u.addThing(t1);
+    Thing t2 = new Thing("item2");
+    u.addThing(t2);
+
+    File saveFile = tempDir.resolve("universe.json").toFile();
+
+    Universe.save(u, saveFile);
+    Universe u2 = Universe.load(saveFile);
+
+    Collection<Thing> allThings = u2.getThings();
+    assertEquals(2, allThings.size());
+    assertTrue(allThings.contains(t1));
+    assertTrue(allThings.contains(t2));
+  }
+
+  @Test
+  public void testSaveCurrent(@TempDir Path tempDir) throws Exception {
+    Thing t1 = new Thing("item1");
+    u.addThing(t1);
+
+    File saveFile = tempDir.resolve("universe.json").toFile();
+
+    Universe.setCurrentFile(saveFile);
+    assertTrue(Universe.saveCurrent());
+
+    Universe u2 = Universe.load(saveFile);
+    Collection<Thing> allThings = u2.getThings();
+    assertEquals(1, allThings.size());
+    assertTrue(allThings.contains(t1));
+  }
+
+  @Test
+  public void testSaveCurrentNoCurrentUniverse() throws Exception {
+    Universe.setCurrent(null);
+    assertFalse(Universe.saveCurrent());
+  }
+
+  @Test
+  public void testSaveCurrentVoidUniverse() throws Exception {
+    Universe.setCurrent(Universe.VOID);
+    assertFalse(Universe.saveCurrent());
+  }
+
+  @Test
+  public void testSaveCurrentNoCurrentUniverseFile() throws Exception {
+    Universe.setCurrentFile(null);
+    assertFalse(Universe.saveCurrent());
+  }
 }
