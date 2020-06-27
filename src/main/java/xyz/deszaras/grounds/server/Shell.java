@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import org.fusesource.jansi.Ansi;
@@ -47,6 +48,7 @@ public class Shell implements Runnable {
 
   private final Actor actor;
   private final Terminal terminal;
+  private final ExecutorService emitterExecutorService;
   private final LineReader lineReader;
 
   private Player player = null;
@@ -60,9 +62,10 @@ public class Shell implements Runnable {
    * @param actor actor using the shell
    * @param terminal actor's terminal
    */
-  public Shell(Actor actor, Terminal terminal) {
+  public Shell(Actor actor, Terminal terminal, ExecutorService emitterExecutorService) {
     this.actor = actor;
     this.terminal = terminal;
+    this.emitterExecutorService = emitterExecutorService;
     lineReader = LineReaderBuilder.builder()
         .terminal(terminal)
         .build();
@@ -142,6 +145,8 @@ public class Shell implements Runnable {
       Ansi.setEnabled(false);
     }
 
+    Future<?> emitterFuture = null;
+
     try {
       emitBanner();
 
@@ -154,8 +159,11 @@ public class Shell implements Runnable {
         if (player == null) {
           return;
         }
-        player.setCurrentActor(actor);
       }
+      player.setCurrentActor(actor);
+
+      emitterFuture = emitterExecutorService.submit(
+          new MessageEmitter(player, terminal, lineReader));
 
       String prePrompt = "";
       String prompt = getPrompt(player);
@@ -217,6 +225,10 @@ public class Shell implements Runnable {
             } else if (commandClass.equals(SwitchPlayerCommand.class)) {
               player = actor.getCurrentPlayer();
               prompt = getPrompt(player);
+
+              emitterFuture.cancel(true);
+              emitterFuture = emitterExecutorService.submit(
+                 new MessageEmitter(player, terminal, lineReader));
             }
           }
 
@@ -233,6 +245,9 @@ public class Shell implements Runnable {
       e.printStackTrace(err);
       out.println("Interrupted! Exiting");
     } finally {
+      if (emitterFuture != null) {
+        emitterFuture.cancel(true);
+      }
       if (player != null) {
         player.setCurrentActor(null);
       }

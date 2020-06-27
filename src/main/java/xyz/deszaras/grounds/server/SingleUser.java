@@ -5,11 +5,16 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
+
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.model.Universe;
 
 /**
  * A single-user session, which doesn't involve starting the server.
@@ -73,19 +78,15 @@ public class SingleUser implements Runnable {
       return;
     }
 
-    Shell shell = new Shell(actor, localTerminal);
+    ExecutorService emitterExecutorService = Executors.newCachedThreadPool();
+    Shell shell = new Shell(actor, localTerminal, emitterExecutorService);
     shell.setPlayer(Player.GOD);
-    Player.GOD.setCurrentActor(actor);
-
-    Thread emitterThread =
-        new Thread(new MessageEmitter(actor, localTerminal,
-                                      shell.getLineReader()));
-    emitterThread.start();
+    Universe.getCurrent().addThing(Player.GOD);
 
     try {
       shell.run();
     } finally {
-      emitterThread.interrupt();
+      emitterExecutorService.shutdown();
       try {
         localTerminal.close();
       } catch (IOException e) {

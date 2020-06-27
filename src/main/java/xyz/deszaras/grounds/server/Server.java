@@ -301,13 +301,10 @@ public class Server {
           virtualTerminal.raise(Terminal.Signal.WINCH);
         }, Signal.WINCH);
 
-      Shell shell = new Shell(actor, virtualTerminal);
+      Shell shell = new Shell(actor, virtualTerminal, shellExecutorService);
       openShells.put(actor, shell);
       shell.setBannerContent(bannerContent);
 
-      Future<?> emitterFuture = shellExecutorService.submit(
-          new MessageEmitter(actor, virtualTerminal,
-                             shell.getLineReader()));
       Runnable shellRunnable = new Runnable() {
         @Override
         public void run() {
@@ -323,7 +320,6 @@ public class Server {
                       actor.getUsername(), e);
             exitCallback.onExit(255, e.getMessage());
           } finally {
-            emitterFuture.cancel(true);
             openShells.remove(actor, shell);
             try {
               virtualTerminal.close();

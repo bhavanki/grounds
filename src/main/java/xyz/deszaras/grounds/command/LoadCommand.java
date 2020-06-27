@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Universe;
 
@@ -27,11 +28,22 @@ public class LoadCommand extends Command<Boolean> {
     if (!player.equals(Player.GOD)) {
       throw new CommandException("Only GOD can load a universe");
     }
+
     // TBD prohibit if any players besides GOD are in use, especially
     // because they are disconnected from their players
+    Optional<Player> previousUniverseGodPlayer =
+        Universe.getCurrent().getThing(Player.GOD.getId(), Player.class);
     try {
-      Universe.setCurrent(Universe.load(f));
+      Universe loadedUniverse = Universe.load(f);
+      Universe.setCurrent(loadedUniverse);
       Universe.setCurrentFile(f);
+
+      Optional<Player> newUniverseGodPlayer =
+          loadedUniverse.getThing(Player.GOD.getId(), Player.class);
+      if (newUniverseGodPlayer.isPresent() && previousUniverseGodPlayer.isPresent()) {
+        newUniverseGodPlayer.get().setCurrentActor(previousUniverseGodPlayer.get().getCurrentActor().orElse(null));
+      }
+
       actor.sendMessage(newInfoMessage("Loaded universe from " + f.getName()));
       return true;
     } catch (IOException e) {
