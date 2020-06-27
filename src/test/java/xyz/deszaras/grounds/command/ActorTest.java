@@ -48,11 +48,4 @@ public class ActorTest {
     actor.setPreference("hi", null);
     assertTrue(actor.getPreference("hi").isEmpty());
   }
-
-  @Test
-  public void testSimpleMessaging() throws Exception {
-    Message message = new Message(Player.GOD, Message.Style.INFO, "Hello");
-    actor.sendMessage(message);
-    assertEquals(message, actor.getNextMessage());
-  }
 }

@@ -4,24 +4,22 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import xyz.deszaras.grounds.model.Player;
-import xyz.deszaras.grounds.model.Thing;
 
 /**
- * Sends a message only to another thing (often a player). For
- * non-wizards, the recipient must be in the same location as the
- * player.
+ * Sends a message only to another player. For non-wizards, the
+ * recipient must be in the same location as the player.
  *
- * Arguments: recipient thing, message (quotes not necessary)
+ * Arguments: recipient player, message (quotes not necessary)
  * Checks: none at the moment, but that'll change
  */
 public class WhisperCommand extends Command<Boolean> {
 
   private static final String WHISPER_FORMAT = "%s whispers: %s";
 
-  private final Thing recipient;
+  private final Player recipient;
   private final String message;
 
-  public WhisperCommand(Actor actor, Player player, Thing recipient,
+  public WhisperCommand(Actor actor, Player player, Player recipient,
                         String message) {
     super(actor, player);
     this.recipient = Objects.requireNonNull(recipient);
@@ -39,8 +37,8 @@ public class WhisperCommand extends Command<Boolean> {
                                           List<String> commandArgs)
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 2);
-    Thing recipient =
-        CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Thing.class, player);
+    Player recipient =
+        CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Player.class, player);
     String message = commandArgs.subList(1, commandArgs.size())
         .stream()
         .collect(Collectors.joining(" "));

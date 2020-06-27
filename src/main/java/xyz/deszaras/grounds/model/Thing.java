@@ -22,9 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.deszaras.grounds.auth.Policy;
 import xyz.deszaras.grounds.auth.Role;
-import xyz.deszaras.grounds.command.CommandExecutor;
-import xyz.deszaras.grounds.command.Message;
-import xyz.deszaras.grounds.util.CommandLineUtils;
+// import xyz.deszaras.grounds.command.CommandExecutor;
+// import xyz.deszaras.grounds.command.Message;
+// import xyz.deszaras.grounds.util.CommandLineUtils;
 
 /**
  * A thing that exists in a universe.
@@ -578,31 +578,31 @@ public class Thing {
    * @return true if at least one listener was found
    * @throws NullPointerException if the message is null
    */
-  public boolean sendMessage(Message message) {
-    Objects.requireNonNull(message);
+  // public boolean sendMessage(Message message) {
+  //   Objects.requireNonNull(message);
 
-    Set<Attr> listenerAttrs = new HashSet<>();
-    for (Attr attr : getAttrs()) {
-      if (attr.getType() == Attr.Type.ATTRLIST && attr.isListener()) {
-        listenerAttrs.add(attr);
-      }
-    }
-    if (listenerAttrs.isEmpty()) {
-      return false;
-    }
+  //   Set<Attr> listenerAttrs = new HashSet<>();
+  //   for (Attr attr : getAttrs()) {
+  //     if (attr.getType() == Attr.Type.ATTRLIST && attr.isListener()) {
+  //       listenerAttrs.add(attr);
+  //     }
+  //   }
+  //   if (listenerAttrs.isEmpty()) {
+  //     return false;
+  //   }
 
-    for (Attr listenerAttr : listenerAttrs) {
-      // Check the message against the listener pattern from the attribute.
-      if (!message.getMessage().matches(listenerAttr.getListenerPattern())) {
-        continue;
-      }
+  //   for (Attr listenerAttr : listenerAttrs) {
+  //     // Check the message against the listener pattern from the attribute.
+  //     if (!message.getMessage().matches(listenerAttr.getListenerPattern())) {
+  //       continue;
+  //     }
 
-      List<String> commandLine = CommandLineUtils.tokenize(listenerAttr.getListenerCommandLine());
-      // TBD: need to get actor and player
-      CommandExecutor.getInstance().submit(null, null, commandLine);
-    }
-    return true;
-  }
+  //     List<String> commandLine = CommandLineUtils.tokenize(listenerAttr.getListenerCommandLine());
+  //     // TBD: need to get actor and player
+  //     CommandExecutor.getInstance().submit(null, null, commandLine);
+  //   }
+  //   return true;
+  // }
 
   @Override
   public boolean equals(Object other) {

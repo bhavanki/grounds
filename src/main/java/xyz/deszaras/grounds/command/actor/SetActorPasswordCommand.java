@@ -34,7 +34,7 @@ public class SetActorPasswordCommand extends Command<Boolean> {
     ActorCommand.checkIfGod(player);
 
     if (Actor.ROOT.getUsername().equals(username)) {
-      actor.sendMessage(newInfoMessage("Setting password for root actor!"));
+      player.sendMessage(newInfoMessage("Setting password for root actor!"));
       // Create the root actor in the database (OK if already present).
       ActorDatabase.INSTANCE.createActorRecord(username,
           HashedPasswordAuthenticator.hashPassword(password));

@@ -5,11 +5,14 @@ import static com.google.common.base.Preconditions.checkArgument;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import xyz.deszaras.grounds.auth.Policy;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.Actor;
@@ -29,14 +32,17 @@ public class Player extends Thing {
    */
   public static final Player GOD = new Player("GOD", GOD_ID);
 
+  private final LinkedBlockingQueue<Message> messages;
   private Actor actor;
 
   public Player(String name) {
     super(name);
+    messages = new LinkedBlockingQueue<>();
   }
 
   private Player(String name, UUID id) {
     super(name, id);
+    messages = new LinkedBlockingQueue<>();
   }
 
   /**
@@ -55,6 +61,7 @@ public class Player extends Thing {
       @JsonProperty("contents") Set<UUID> contents,
       @JsonProperty("policy") Policy policy) {
     super(id, attrs, contents, policy);
+    messages = new LinkedBlockingQueue<>();
   }
 
   /**
@@ -79,19 +86,34 @@ public class Player extends Thing {
 
   /**
    * Sends a message to this player's current actor. The message is
-   * dropped when there is no actor.
+   * queued for delivery.
    *
    * @param message message to send
-   * @return false, because players don't have listeners
    * @throws NullPointerException if the message is null
    */
-  @Override
-  public boolean sendMessage(Message message) {
-    if (actor == null) {
-      return false;
+  public void sendMessage(Message message) {
+    if (actor != null) {
+      messages.offer(Objects.requireNonNull(message));
     }
-    actor.sendMessage(Objects.requireNonNull(message));
-    return false;
+  }
+
+  /**
+   * Gets the next message for this player's current actor from its
+   * queue. This method blocks until a message is available.
+   *
+   * @return next available message
+   * @throws InterruptedException if the wait is interrupted
+   */
+  @JsonIgnore
+  public Message getNextMessage() throws InterruptedException {
+    return messages.take();
+  }
+
+  /**
+   * Clear all messages.
+   */
+  public void clearMessages() {
+    messages.clear();
   }
 
   /**

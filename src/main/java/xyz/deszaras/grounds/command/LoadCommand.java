@@ -44,7 +44,7 @@ public class LoadCommand extends Command<Boolean> {
         newUniverseGodPlayer.get().setCurrentActor(previousUniverseGodPlayer.get().getCurrentActor().orElse(null));
       }
 
-      actor.sendMessage(newInfoMessage("Loaded universe from " + f.getName()));
+      player.sendMessage(newInfoMessage("Loaded universe from " + f.getName()));
       return true;
     } catch (IOException e) {
       e.printStackTrace();

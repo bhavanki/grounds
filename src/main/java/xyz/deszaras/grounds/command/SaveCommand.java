@@ -30,7 +30,7 @@ public class SaveCommand extends Command<Boolean> {
     try {
       Universe.save(Universe.getCurrent(), f);
       Universe.setCurrentFile(f);
-      actor.sendMessage(newInfoMessage("Saved universe to " + f.getName()));
+      player.sendMessage(newInfoMessage("Saved universe to " + f.getName()));
       return true;
     } catch (IOException e) {
       e.printStackTrace();

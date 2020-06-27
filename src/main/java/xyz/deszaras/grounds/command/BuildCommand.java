@@ -86,7 +86,7 @@ public class BuildCommand extends Command<Boolean> {
         built.setLocation(location);
         location.give(built);
       }
-      actor.sendMessage(newInfoMessage("Created " + built.getId()));
+      player.sendMessage(newInfoMessage("Created " + built.getId()));
       return true;
     } catch (IllegalArgumentException e) {
       // Future: Dynamic types

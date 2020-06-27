@@ -63,7 +63,7 @@ public class DestroyCommand extends Command<Boolean> {
     }
     Universe.getCurrent().removeThing(thing);
 
-    actor.sendMessage(newInfoMessage("Destroyed " + thing.getId()));
+    player.sendMessage(newInfoMessage("Destroyed " + thing.getId()));
     return true;
   }
 

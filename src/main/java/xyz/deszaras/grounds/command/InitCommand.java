@@ -29,7 +29,7 @@ public class InitCommand extends Command<Boolean> {
     }
 
     Universe universe = new Universe(name);
-    actor.sendMessage(newInfoMessage("Created universe " + universe.getName()));
+    player.sendMessage(newInfoMessage("Created universe " + universe.getName()));
 
     Place origin = createOrigin(universe);
     createLostAndFound(universe);
@@ -52,7 +52,7 @@ public class InitCommand extends Command<Boolean> {
         " you can start building more things to create a new world. Type" +
         " `build help` to see what you can create.");
 
-    actor.sendMessage(newInfoMessage("Created origin place " + origin.getId()));
+    player.sendMessage(newInfoMessage("Created origin place " + origin.getId()));
     return origin;
   }
 
@@ -64,7 +64,7 @@ public class InitCommand extends Command<Boolean> {
     laf.setDescription(
         "This is where the contents of destroyed things end up.");
 
-    actor.sendMessage(newInfoMessage("Created lost+found place " + laf.getId()));
+    player.sendMessage(newInfoMessage("Created lost+found place " + laf.getId()));
   }
 
   public static InitCommand newCommand(Actor actor, Player player,

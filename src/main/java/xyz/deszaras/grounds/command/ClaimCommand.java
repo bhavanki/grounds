@@ -32,7 +32,7 @@ public class ClaimCommand extends Command<Boolean> {
   private void checkClaim() throws PermissionException {
     if (thing.getOwner().isPresent()) {
       if (thing.getOwner().get().equals(player)) {
-        actor.sendMessage(newInfoMessage("You already own that"));
+        player.sendMessage(newInfoMessage("You already own that"));
         return;
       }
       checkIfAnyRole("That is already owned by someone else", Role.THAUMATURGE);

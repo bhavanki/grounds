@@ -56,8 +56,8 @@ public class RunCommand extends Command<Boolean> {
         continue;
       }
 
-      actor.sendMessage(new Message(player, Message.Style.INFO,
-                                    String.format("Running command:\n%s", line)));
+      player.sendMessage(new Message(player, Message.Style.INFO,
+                                     String.format("Running command:\n%s", line)));
       CommandCallable commandCallable =
           new CommandCallable(actor, player, tokens, commandFactory);
       CommandResult commandResult = commandCallable.call();
@@ -67,15 +67,15 @@ public class RunCommand extends Command<Boolean> {
         Optional<CommandException> commandException =
             commandResult.getCommandException();
         if (commandException.isPresent()) {
-          actor.sendMessage(new Message(player, Message.Style.COMMAND_EXCEPTION,
-                                        commandException.get().getMessage()));
+          player.sendMessage(new Message(player, Message.Style.COMMAND_EXCEPTION,
+                                         commandException.get().getMessage()));
           return false;
         }
         Optional<CommandFactoryException> commandFactoryException =
             commandResult.getCommandFactoryException();
         if (commandFactoryException.isPresent()) {
-          actor.sendMessage(new Message(player, Message.Style.COMMAND_EXCEPTION,
-                                        commandFactoryException.get().getMessage()));
+          player.sendMessage(new Message(player, Message.Style.COMMAND_EXCEPTION,
+                                         commandFactoryException.get().getMessage()));
           return false;
         }
 
@@ -84,15 +84,15 @@ public class RunCommand extends Command<Boolean> {
       } else {
         Object result = commandResult.getResult();
         if (result != null && !(result instanceof Boolean)) {
-          actor.sendMessage(new Message(player, Message.Style.INFO, result.toString()));
+          player.sendMessage(new Message(player, Message.Style.INFO, result.toString()));
         }
         Optional<Class<? extends Command>> commandClass = commandResult.getCommandClass();
         if (commandClass.isPresent() &&
           // Problem: Need to catch shutdown command before it's executed!
             (commandClass.get().equals(ExitCommand.class) ||
              commandClass.get().equals(SwitchPlayerCommand.class))) {
-          actor.sendMessage(new Message(player, Message.Style.INFO,
-                                        "Ignoring command of type " + commandClass.get().getSimpleName()));
+          player.sendMessage(new Message(player, Message.Style.INFO,
+                                         "Ignoring command of type " + commandClass.get().getSimpleName()));
         }
       }
     }

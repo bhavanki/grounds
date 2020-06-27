@@ -189,8 +189,8 @@ public class Shell implements Runnable {
               Optional<CommandException> commandException =
                   commandResult.getCommandException();
               if (commandException.isPresent()) {
-                actor.sendMessage(new Message(player, Message.Style.COMMAND_EXCEPTION,
-                                              commandException.get().getMessage()));
+                player.sendMessage(new Message(player, Message.Style.COMMAND_EXCEPTION,
+                                               commandException.get().getMessage()));
               }
 
               Optional<CommandFactoryException> commandFactoryException =
@@ -211,7 +211,7 @@ public class Shell implements Runnable {
           if (commandResult.isSuccessful()) {
             Object result = commandResult.getResult();
             if (result != null && !(result instanceof Boolean)) {
-              actor.sendMessage(new Message(player, Message.Style.INFO, result.toString()));
+              player.sendMessage(new Message(player, Message.Style.INFO, result.toString()));
             }
           }
 

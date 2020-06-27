@@ -49,7 +49,7 @@ public class BootActorCommand extends ServerCommand<Boolean> {
                             username, shellPlayer.getName()) :
               String.format("Failed to terminate shell for actor %s playing as %s",
                             username, shellPlayer.getName());
-          actor.sendMessage(new Message(player, Message.Style.INFO, messageText));
+          player.sendMessage(new Message(player, Message.Style.INFO, messageText));
           return terminated;
         })
         .reduce(true, Boolean::logicalAnd);

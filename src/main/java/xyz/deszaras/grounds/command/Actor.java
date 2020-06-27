@@ -5,9 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import xyz.deszaras.grounds.model.Player;
 
@@ -27,7 +25,6 @@ public class Actor {
   public static final String PREFERENCE_ANSI = "ansi";
 
   private final String username;
-  private final LinkedBlockingQueue<Message> messages;
   private final Map<String, String> preferences;
 
   private Player currentPlayer;
@@ -40,7 +37,6 @@ public class Actor {
    */
   public Actor(String username) {
     this.username = username;
-    messages = new LinkedBlockingQueue<>();
     preferences = new HashMap<>();
   }
 
@@ -87,28 +83,6 @@ public class Actor {
    */
   public void setMostRecentIPAddress(InetAddress mostRecentIPAddress) {
     this.mostRecentIPAddress = mostRecentIPAddress;
-  }
-
-  /**
-   * Sends a message to this actor. The message is queued for
-   * delivery.
-   *
-   * @param message message to send
-   * @throws NullPointerException if the message is null
-   */
-  public void sendMessage(Message message) {
-    messages.offer(Objects.requireNonNull(message));
-  }
-
-  /**
-   * Gets the next message for this actor from its queue. This method
-   * blocks until a message is available.
-   *
-   * @return next available message
-   * @throws InterruptedException if the wait is interrupted
-   */
-  public Message getNextMessage() throws InterruptedException {
-    return messages.take();
   }
 
   /**
