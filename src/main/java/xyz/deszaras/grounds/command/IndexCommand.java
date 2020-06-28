@@ -20,7 +20,7 @@ public class IndexCommand extends Command<String> {
 
   @Override
   public String execute() throws CommandException {
-    checkIfWizard("You are not a wizard, so you may not index it");
+    checkIfWizard("You are not a wizard, so you may not index the universe");
 
     List<Thing> things = new ArrayList<>(Universe.getCurrent().getThings());
     Collections.sort(things,

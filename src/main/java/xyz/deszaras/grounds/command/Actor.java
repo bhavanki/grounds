@@ -3,6 +3,7 @@ package xyz.deszaras.grounds.command;
 import com.google.common.collect.ImmutableMap;
 
 import java.net.InetAddress;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -29,6 +30,7 @@ public class Actor {
 
   private Player currentPlayer;
   private InetAddress mostRecentIPAddress;
+  private Instant lastLoginTime;
 
   /**
    * Creates a new actor.
@@ -83,6 +85,24 @@ public class Actor {
    */
   public void setMostRecentIPAddress(InetAddress mostRecentIPAddress) {
     this.mostRecentIPAddress = mostRecentIPAddress;
+  }
+
+  /**
+   * Gets the last login time for this actor.
+   *
+   * @return last login time
+   */
+  public Instant getLastLoginTime() {
+    return lastLoginTime;
+  }
+
+  /**
+   * Sets the last login time for this actor.
+   *
+   * @param lastLoginTime last login time
+   */
+  public void setLastLoginTime(Instant lastLoginTime) {
+    this.lastLoginTime = lastLoginTime;
   }
 
   /**

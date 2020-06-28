@@ -179,17 +179,24 @@ public class Server {
         throw new IOException("root may only connect from localhost");
       }
 
-      // Remember the actor's IP address.
+      // Remember the actor's IP address and last login time (as now).
       String ipAddressString = InetAddresses.toAddrString(remoteAddress.getAddress());
+      Instant loginTime = Instant.now();
       ActorDatabase.INSTANCE.updateActorRecord(actor.getUsername(),
-          r -> r.setMostRecentIPAddress(ipAddressString));
+          r -> {
+            r.setMostRecentIPAddress(ipAddressString);
+            r.setLastLoginTime(loginTime);
+          });
+
       try {
         ActorDatabase.INSTANCE.save();
       } catch (IOException e) {
-        LOG.warn("Failed to save updated actor record for {} to record IP address {}",
-                 actor.getUsername(), ipAddressString);
+        LOG.warn("Failed to save updated actor record for {} to record " +
+                 "IP address {} and login time", actor.getUsername(),
+                 ipAddressString);
       }
       actor.setMostRecentIPAddress(remoteAddress.getAddress());
+      actor.setLastLoginTime(loginTime);
 
       return new ServerShellCommand(actor);
     }
@@ -291,6 +298,7 @@ public class Server {
 
       Shell shell = new Shell(actor, virtualTerminal, shellExecutorService);
       openShells.put(actor, shell);
+      shell.setStartTime(actor.getLastLoginTime());
       shell.setBannerContent(bannerContent);
 
       Runnable shellRunnable = new Runnable() {

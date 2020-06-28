@@ -2,11 +2,17 @@ package xyz.deszaras.grounds.command;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.net.InetAddresses;
+
 import java.net.InetAddress;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.ActorDatabase;
 import xyz.deszaras.grounds.server.Server;
@@ -19,6 +25,10 @@ import xyz.deszaras.grounds.server.Shell;
  * Checks: player is wizard (might relax later)
  */
 public class WhoCommand extends ServerCommand<String> {
+
+  private static final DateTimeFormatter LOGIN_TIME_FORMATTER =
+      DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+          .withZone(ZoneId.systemDefault());
 
   private final boolean all;
 
@@ -49,6 +59,10 @@ public class WhoCommand extends ServerCommand<String> {
             if (ipAddressString != null) {
               a.setMostRecentIPAddress(InetAddresses.forString(ipAddressString));
             }
+            Instant lastLoginTime = r.getLastLoginTime();
+            if (lastLoginTime != null) {
+              a.setLastLoginTime(lastLoginTime);
+            }
             return a;
           })
           .sorted((a1, a2) -> a1.getUsername().compareTo(a2.getUsername()))
@@ -62,24 +76,29 @@ public class WhoCommand extends ServerCommand<String> {
     }
 
     StringBuilder b = new StringBuilder();
-    b.append(String.format("%12.12s %25.25s %s\n", "ACTOR", "PLAYER", "IP"));
-    b.append(String.format("%12.12s %25.25s %s\n", "-----", "------", "--"));
+    b.append(String.format("%12.12s %20.20s %15s %s\n", "ACTOR", "PLAYER", "IP", "LOGIN TIME"));
+    b.append(String.format("%12.12s %20.20s %15s %s\n", "-----", "------", "--", "----------"));
     for (Actor actor : sortedActors) {
+      String username = actor.getUsername();
+
       Collection<Shell> actorShells = openShells.get(actor);
       if (actorShells != null && !actorShells.isEmpty()) {
         for (Shell actorShell : actorShells) {
           Player actorPlayer = actorShell.getPlayer();
           String playerName = actorPlayer != null ? actorPlayer.getName() : "-";
           String ipAddress = actorShell.getIPAddress();
-          b.append(String.format("%12.12s %25.25s %s\n", actor.getUsername(),
-                                 playerName, ipAddress));
+          String loginTime = LOGIN_TIME_FORMATTER.format(actorShell.getStartTime());
+          b.append(String.format("%12.12s %20.20s %15s %s\n", username, playerName,
+                                 ipAddress, loginTime));
         }
       } else {
         InetAddress mostRecentIPAddress = actor.getMostRecentIPAddress();
         String ipAddress = mostRecentIPAddress != null ?
             InetAddresses.toAddrString(mostRecentIPAddress) : "-";
-        b.append(String.format("%12.12s %25.25s %s\n", actor.getUsername(), "-",
-                               ipAddress));
+        String lastLogin = actor.getLastLoginTime() != null ?
+            LOGIN_TIME_FORMATTER.format(actor.getLastLoginTime()) : "-";
+        b.append(String.format("%12.12s %20.20s %15s %s\n", username, "-",
+                               ipAddress, lastLogin));
       }
     }
     return b.toString();

@@ -34,6 +34,7 @@ public class ActorDatabase {
     private String password;
     private Set<UUID> players;
     private String mostRecentIPAddress;
+    private Instant lastLoginTime;
     private Instant lockedUntil;
     private Map<String, String> preferences;
 
@@ -50,12 +51,14 @@ public class ActorDatabase {
       @JsonProperty("password") String password,
       @JsonProperty("players") Set<UUID> players,
       @JsonProperty("mostRecentIPAddress") String mostRecentIPAddress,
+      @JsonProperty("lastLoginTime") Instant lastLoginTime,
       @JsonProperty("lockedUntil") Instant lockedUntil,
       @JsonProperty("preferences") Map<String, String> preferences) {
       this.username = Objects.requireNonNull(username);
       this.password = password;
       this.players = players != null ? new HashSet<>(players) : new HashSet<>();
       this.mostRecentIPAddress = mostRecentIPAddress;
+      this.lastLoginTime = lastLoginTime;
       this.lockedUntil = lockedUntil;
       this.preferences = preferences != null ?
           new HashMap<>(preferences) : new HashMap<>();
@@ -95,6 +98,15 @@ public class ActorDatabase {
 
     public void setMostRecentIPAddress(String mostRecentIPAddress) {
       this.mostRecentIPAddress = mostRecentIPAddress;
+    }
+
+    @JsonProperty
+    public Instant getLastLoginTime() {
+      return lastLoginTime;
+    }
+
+    public void setLastLoginTime(Instant lastLoginTime) {
+      this.lastLoginTime = lastLoginTime;
     }
 
     @JsonProperty

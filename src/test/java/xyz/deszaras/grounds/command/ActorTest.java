@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.net.InetAddresses;
 
 import java.net.InetAddress;
+import java.time.Instant;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,10 @@ public class ActorTest {
     InetAddress actorAddress = InetAddresses.forString("1.2.3.4");
     actor.setMostRecentIPAddress(actorAddress);
     assertEquals(actorAddress, actor.getMostRecentIPAddress());
+
+    Instant now = Instant.now();
+    actor.setLastLoginTime(now);
+    assertEquals(now, actor.getLastLoginTime());
 
     assertTrue(actor.getPreferences().isEmpty());
     actor.setPreference("this", "that");

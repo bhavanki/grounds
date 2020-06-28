@@ -41,7 +41,7 @@ public class IndexCommandTest extends AbstractCommandTest {
 
     PermissionException e = assertThrows(PermissionException.class,
                                          () -> command.execute());
-    assertEquals("You are not a wizard, so you may not index it",
+    assertEquals("You are not a wizard, so you may not index the universe",
                  e.getMessage());
   }
 }

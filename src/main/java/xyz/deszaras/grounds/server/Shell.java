@@ -4,6 +4,7 @@ import com.google.common.base.Throwables;
 import com.google.common.net.InetAddresses;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -52,6 +53,7 @@ public class Shell implements Runnable {
   private final LineReader lineReader;
 
   private Player player = null;
+  private Instant startTime;
   private String bannerContent = null;
   private Future<?> future = null;
   private int exitCode = 0;
@@ -87,6 +89,24 @@ public class Shell implements Runnable {
    */
   public LineReader getLineReader() {
     return lineReader;
+  }
+
+  /**
+   * Gets the start time for the shell.
+   *
+   * @return start time
+   */
+  public Instant getStartTime() {
+    return startTime;
+  }
+
+  /**
+   * Gets the start time for the shell.
+   *
+   * @param startTime start time
+   */
+  public void setStartTime(Instant startTime) {
+    this.startTime = startTime;
   }
 
   /**
