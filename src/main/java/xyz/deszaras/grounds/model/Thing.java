@@ -195,12 +195,22 @@ public class Thing {
 
   /**
    * Gets this thing's owner.
+   *
+   * @return owner, or empty if there is none
+   * @throws MissingThingException if an owner is set but not in the universe
    */
   @JsonIgnore
-  public Optional<Thing> getOwner() {
-    // TBD: what if owner is set but cannot be found?
-    return getAttr(AttrNames.OWNER).map(a ->
-        Universe.getCurrent().getThing(a.getValue()).orElse(null));
+  public Optional<Thing> getOwner() throws MissingThingException {
+    Optional<Attr> ownerAttr =  getAttr(AttrNames.OWNER);
+    if (ownerAttr.isEmpty()) {
+      return Optional.empty();
+    }
+    Optional<Thing> owner =
+        Universe.getCurrent().getThing(ownerAttr.get().getValue());
+    if (owner.isEmpty()) {
+      throw new MissingThingException("Owner is missing");
+    }
+    return owner;
   }
 
   /**
@@ -610,6 +620,7 @@ public class Thing {
    * @param player player to check permission for
    * @return true if the player is permitted for the category
    */
+  @SuppressWarnings("PMD.EmptyCatchBlock")
   public boolean passes(Policy.Category category, Player player) {
     if (player.equals(Player.GOD)) {
       LOG.debug("Permission check: category {}, player GOD, result true",
@@ -622,8 +633,12 @@ public class Thing {
       return true;
     }
     Set<Role> playerRoles = new HashSet<>(Universe.getCurrent().getRoles(player));
-    if (player.equals(getOwner().orElse(null))) {
-      playerRoles.add(Role.OWNER);
+    try {
+      if (player.equals(getOwner().orElse(null))) {
+        playerRoles.add(Role.OWNER);
+      }
+    } catch (MissingThingException e) {
+      // don't add the role
     }
     boolean result = policy.passes(category, playerRoles);
     LOG.debug("Permission check: category {}, player {}/{}, roles {}, result {}",

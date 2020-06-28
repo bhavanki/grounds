@@ -2,7 +2,10 @@ package xyz.deszaras.grounds.command;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+
 import xyz.deszaras.grounds.auth.Role;
+import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
@@ -30,8 +33,14 @@ public class ClaimCommand extends Command<Boolean> {
 
   // TBD express in policy?
   private void checkClaim() throws PermissionException {
-    if (thing.getOwner().isPresent()) {
-      if (thing.getOwner().get().equals(player)) {
+    Optional<Thing> owner;
+    try {
+      owner = thing.getOwner();
+    } catch (MissingThingException e) {
+      return; // missing owner => unowned
+    }
+    if (owner.isPresent()) {
+      if (owner.get().equals(player)) {
         player.sendMessage(newInfoMessage("You already own that"));
         return;
       }

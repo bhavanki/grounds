@@ -6,6 +6,7 @@ import java.util.Optional;
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Extension;
+import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 import xyz.deszaras.grounds.script.Script;
@@ -77,10 +78,16 @@ public class ScriptedCommand extends Command<String> {
 
     try {
       // Build a script from the command attribute.
-      Optional<Thing> scriptOwner = scriptExtension.getOwner();
-      if (scriptOwner.isEmpty()) {
+      Optional<Thing> scriptOwner;
+      try {
+        scriptOwner = scriptExtension.getOwner();
+        if (scriptOwner.isEmpty()) {
+          throw new CommandFactoryException("Cannot build command from script, extension " +
+                                            scriptExtension.getName() + " has no owner");
+        }
+      } catch (MissingThingException e) {
         throw new CommandFactoryException("Cannot build command from script, extension " +
-                                          scriptExtension.getName() + " has no owner");
+                                           scriptExtension.getName() + " has missing owner!");
       }
       Thing scriptOwnerThing = scriptOwner.get();
       if (!(scriptOwnerThing instanceof Player)) {

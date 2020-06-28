@@ -2,6 +2,8 @@ package xyz.deszaras.grounds.command;
 
 import java.util.List;
 import java.util.Objects;
+
+import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
@@ -22,7 +24,14 @@ public class AbandonCommand extends Command<Boolean> {
 
   @Override
   public Boolean execute() throws CommandException {
-    if (!player.equals(thing.getOwner().orElse(null))) {
+    Thing owner;
+    try {
+      owner = thing.getOwner().orElse(null);
+    } catch (MissingThingException e) {
+      // Whatever the owner is, it isn't the player
+      throw new CommandException("You do not own that");
+    }
+    if (!player.equals(owner)) {
       throw new CommandException("You do not own that");
     }
     thing.setOwner(null);

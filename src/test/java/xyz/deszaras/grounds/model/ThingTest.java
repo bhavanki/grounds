@@ -64,6 +64,24 @@ public class ThingTest {
   }
 
   @Test
+  public void testOwner() throws Exception {
+    assertTrue(thing.getOwner().isEmpty());
+
+    Player owner = new Player("manny");
+    universe.addThing(owner);
+
+    thing.setOwner(owner);
+    assertEquals(owner, thing.getOwner().get());
+
+    Player nobody = new Player("nobody");
+    thing.setOwner(nobody);
+    assertThrows(MissingThingException.class, () -> thing.getOwner());
+
+    thing.setOwner(null);
+    assertTrue(thing.getOwner().isEmpty());
+  }
+
+  @Test
   public void testHome() throws Exception {
     assertTrue(thing.getHome().isEmpty());
 
