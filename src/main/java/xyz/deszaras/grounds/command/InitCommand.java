@@ -50,7 +50,7 @@ public class InitCommand extends Command<Boolean> {
     origin.setDescription(
         "This is the first place to exist in its new universe. From here" +
         " you can start building more things to create a new world. Type" +
-        " `build help` to see what you can create.");
+        " `help build` to see what you can create.");
 
     player.sendMessage(newInfoMessage("Created origin place " + origin.getId()));
     return origin;
