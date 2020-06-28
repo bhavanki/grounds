@@ -16,9 +16,7 @@ import java.nio.file.Path;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -79,7 +77,6 @@ public class Server {
 
   private final ScheduledExecutorService adminExecutorService;
   private final long autosavePeriodSeconds;
-  private final Set<Actor> connectedActors;
   private final Multimap<Actor, Shell> openShells;
 
   private ScheduledFuture<?> autosaveFuture;
@@ -111,7 +108,6 @@ public class Server {
         serverProperties.getProperty("autosavePeriodSeconds",
                                      DEFAULT_AUTOSAVE_PERIOD_SECONDS));
 
-    connectedActors = new HashSet<>();
     openShells = Multimaps.synchronizedSetMultimap(HashMultimap.create());
 
     autosaveFuture = null;
@@ -181,14 +177,6 @@ public class Server {
       if (actor.equals(Actor.ROOT) &&
          !(remoteAddress.getAddress().getHostAddress().equals(LOCALHOST))) {
         throw new IOException("root may only connect from localhost");
-      }
-
-      // If the actor is already connected, reject.
-      synchronized (connectedActors) {
-        if (connectedActors.contains(actor)) {
-          throw new IOException(actor.getUsername() + " is already connected");
-        }
-        connectedActors.add(actor);
       }
 
       // Remember the actor's IP address.
@@ -441,11 +429,7 @@ public class Server {
 
     @Override
     public void destroy(ChannelSession session) {
-      shellFuture.cancel(true);
-
-      synchronized (connectedActors) {
-        connectedActors.remove(new Actor(session.getSessionContext().getUsername()));
-      }
+      terminate();
     }
 
     public void terminate() {
