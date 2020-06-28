@@ -68,6 +68,8 @@ public class CommandExecutor {
         .put("WHO", WhoCommand.class)
         .put("PREFERENCE", PreferenceCommand.class)
         .put("PREF", PreferenceCommand.class)
+        .put("MUTE", MuteCommand.class)
+        .put("UNMUTE", UnmuteCommand.class)
         .put("SHUTDOWN", ShutdownCommand.class)
         .put("HELP", HelpCommand.class)
         .build();

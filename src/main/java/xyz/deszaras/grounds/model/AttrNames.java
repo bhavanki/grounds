@@ -31,6 +31,10 @@ public final class AttrNames {
    * The attribute for the home of a thing (usually a player).
    */
   public static final String HOME = "home";
+  /**
+   * The attribute for the mute list of a thing (usually a player).
+   */
+  public static final String MUTE = "mute";
 
   /**
    * The names of all specially handled attributes as a set.
@@ -40,5 +44,7 @@ public final class AttrNames {
       .add(DESCRIPTION)
       .add(LOCATION)
       .add(OWNER)
+      .add(HOME)
+      .add(MUTE)
       .build();
 }

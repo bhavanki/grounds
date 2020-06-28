@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.util.List;
 import java.util.Objects;
@@ -85,14 +86,14 @@ public class Player extends Thing {
   }
 
   /**
-   * Sends a message to this player's current actor. The message is
-   * queued for delivery.
+   * Sends a message to this player's current actor, as long as the sender
+   * is not muted. The message is queued for delivery.
    *
    * @param message message to send
    * @throws NullPointerException if the message is null
    */
   public void sendMessage(Message message) {
-    if (actor != null) {
+    if (actor != null && !mutes(message.getSender())) {
       messages.offer(Objects.requireNonNull(message));
     }
   }
@@ -107,6 +108,11 @@ public class Player extends Thing {
   @JsonIgnore
   public Message getNextMessage() throws InterruptedException {
     return messages.take();
+  }
+
+  @VisibleForTesting
+  Message peekNextMessage() {
+    return messages.peek();
   }
 
   /**

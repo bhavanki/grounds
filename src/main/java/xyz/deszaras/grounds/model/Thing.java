@@ -10,6 +10,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableSet;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.deszaras.grounds.auth.Policy;
@@ -240,6 +243,64 @@ public class Thing {
     } else {
       removeAttr(AttrNames.HOME);
     }
+  }
+
+  /**
+   * Gets this thing's mute list.
+   *
+   * @return mute list, with any missing things in the list omitted
+   */
+  @JsonIgnore
+  public List<Thing> getMuteList() {
+    List<Thing> muteList = new ArrayList<Thing>();
+
+    Optional<Attr> muteAttr = getAttr(AttrNames.MUTE);
+    if (muteAttr.isEmpty() || muteAttr.get().getValue().isEmpty()) {
+      return muteList;
+    }
+
+    for (String id : muteAttr.get().getValue().split(",")) {
+      Optional<Thing> mutee = Universe.getCurrent().getThing(id);
+      if (mutee.isPresent()) {
+        muteList.add(mutee.get());
+      }
+    }
+    return muteList;
+  }
+
+  /**
+   * Sets this thing's mute list. Pass a null or empty list to unmute
+   * everything.
+   *
+   * @param muteList mute list
+   */
+  public void setMuteList(List<Thing> muteList) {
+    if (muteList == null) {
+      removeAttr(AttrNames.MUTE);
+    } else {
+      setAttr(AttrNames.MUTE, muteList.stream()
+                  .map(t -> t.getId().toString())
+                  .collect(Collectors.joining(",")));
+    }
+  }
+
+  /**
+   * Checks if this thing mutes the given thing. Prefer this method
+   * over {@link #getMuteList()} when possible, because this one
+   * does not require looking up each thing in the universe.
+   *
+   * @param  thing thing to check
+   * @return       true if thing is muted
+   */
+  public boolean mutes(Thing thing) {
+    Optional<Attr> muteAttr = getAttr(AttrNames.MUTE);
+    if (muteAttr.isEmpty() || muteAttr.get().getValue().isEmpty()) {
+      return false;
+    }
+
+    String thingId = thing.getId().toString();
+    return Arrays.stream(muteAttr.get().getValue().split(","))
+        .anyMatch(id -> thingId.equals(id));
   }
 
   private final Object attrMonitor = new Object();
