@@ -3,9 +3,12 @@ package xyz.deszaras.grounds.command;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Thing;
@@ -21,6 +24,8 @@ public class GetAttrCommandTest extends AbstractCommandTest {
   public void setUp() {
     super.setUp();
 
+    setPlayerRoles(Role.DENIZEN);
+
     attr = new Attr("foo", "bar");
 
     thing = newTestThing("testThing");
@@ -30,15 +35,12 @@ public class GetAttrCommandTest extends AbstractCommandTest {
   @Test
   public void testSuccess() throws Exception {
     thing.setAttr(attr);
-    testUniverse.addRole(Role.BARD, player); // expect DEFAULT policy on thing
 
     assertEquals(attr.toAttrSpec(), command.execute());
   }
 
   @Test
   public void testFailureAttributeMissing() throws Exception {
-    testUniverse.addRole(Role.BARD, player); // expect DEFAULT policy on thing
-
     CommandException e = assertThrows(CommandException.class,
                                       () -> command.execute());
     assertEquals("There is no attribute named foo on this",
@@ -48,7 +50,7 @@ public class GetAttrCommandTest extends AbstractCommandTest {
   @Test
   public void testFailurePermission() throws Exception {
     thing.setAttr(attr);
-    testUniverse.addRole(Role.GUEST, player); // expect DEFAULT policy on thing
+    thing.getPolicy().setRoles(Category.READ, Set.of(Role.BARD));
 
     PermissionException e = assertThrows(PermissionException.class,
                                          () -> command.execute());

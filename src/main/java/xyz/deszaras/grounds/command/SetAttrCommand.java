@@ -3,6 +3,7 @@ package xyz.deszaras.grounds.command;
 import java.util.List;
 import java.util.Objects;
 import xyz.deszaras.grounds.auth.Policy.Category;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.AttrNames;
 import xyz.deszaras.grounds.model.Player;
@@ -11,12 +12,12 @@ import xyz.deszaras.grounds.model.Thing;
 /**
  * Sets an attribute on a thing.<p>
  *
- * Arguments: name or ID of thing, attribute spec<br>
- * Checks: player passes WRITE for thing<p>
+ * Arguments: name or ID of thing, attribute spec
  *
  * For THING type attributes, this command will resolve a thing name in an
  * attribute spec into an ID. If resolution fails, the attribute is not set.
  */
+@PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class SetAttrCommand extends Command<Boolean> {
 
   private final Thing thing;
@@ -29,7 +30,7 @@ public class SetAttrCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() throws CommandException {
+  protected Boolean executeImpl() throws CommandException {
     if (AttrNames.ALL_NAMES.contains(attr.getName()) &&
         !player.equals(Player.GOD)) {
       throw new CommandException("Only GOD may set that attribute directly");

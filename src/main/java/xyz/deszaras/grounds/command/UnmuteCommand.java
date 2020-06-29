@@ -2,6 +2,7 @@ package xyz.deszaras.grounds.command;
 
 import java.util.List;
 
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
@@ -10,6 +11,7 @@ import xyz.deszaras.grounds.model.Thing;
  *
  * Arguments: thing to remove from the mute list
  */
+@PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class UnmuteCommand extends Command<String> {
 
   private final Thing mutee;
@@ -20,7 +22,7 @@ public class UnmuteCommand extends Command<String> {
   }
 
   @Override
-  public String execute() throws CommandException {
+  protected String executeImpl() throws CommandException {
 
     List<Thing> muteList = player.getMuteList();
     if (muteList.contains(mutee)) {

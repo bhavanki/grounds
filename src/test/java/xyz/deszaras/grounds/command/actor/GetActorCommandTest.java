@@ -11,12 +11,12 @@ import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.AbstractCommandTest;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandException;
-import xyz.deszaras.grounds.command.PermissionException;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.ActorDatabase;
 
 public class GetActorCommandTest extends AbstractCommandTest {
 
+  private static final String ROOT_USERNAME = Actor.ROOT.getUsername();
   private static final String USERNAME = "GetActorCommandTest.actor1";
 
   private GetActorCommand command;
@@ -25,11 +25,13 @@ public class GetActorCommandTest extends AbstractCommandTest {
   public void setUp() {
     super.setUp();
 
+    ActorDatabase.INSTANCE.createActorRecord(ROOT_USERNAME, "root_password");
     ActorDatabase.INSTANCE.createActorRecord(USERNAME, "password");
   }
 
   @AfterEach
   public void tearDown() {
+    ActorDatabase.INSTANCE.removeActorRecord(ROOT_USERNAME);
     ActorDatabase.INSTANCE.removeActorRecord(USERNAME);
   }
 
@@ -43,18 +45,18 @@ public class GetActorCommandTest extends AbstractCommandTest {
   }
 
   @Test
-  public void testFailureNotGod() throws Exception {
-    command = new GetActorCommand(actor, player, USERNAME);
-    setPlayerRoles(Role.THAUMATURGE);
+  public void testSuccessForRootActor() throws Exception {
+    command = new GetActorCommand(actor, Player.GOD, ROOT_USERNAME);
 
-    PermissionException e = assertThrows(PermissionException.class,
-                                         () -> command.execute());
-    assertEquals("Only GOD may work with actors", e.getMessage());
+    String record = command.execute();
+    assertEquals(ActorDatabase.INSTANCE.getActorRecord(ROOT_USERNAME).get().toString(),
+                 record);
   }
 
   @Test
   public void testFailureForRootActor() throws Exception {
-    command = new GetActorCommand(actor, Player.GOD, Actor.ROOT.getUsername());
+    setPlayerRoles(Role.THAUMATURGE);
+    command = new GetActorCommand(actor, player, ROOT_USERNAME);
 
     CommandException e = assertThrows(CommandException.class,
                                       () -> command.execute());

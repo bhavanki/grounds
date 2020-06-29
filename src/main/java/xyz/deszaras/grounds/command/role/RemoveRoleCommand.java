@@ -9,6 +9,7 @@ import xyz.deszaras.grounds.command.Command;
 import xyz.deszaras.grounds.command.CommandArgumentResolver;
 import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandFactoryException;
+import xyz.deszaras.grounds.command.PermittedRoles;
 import xyz.deszaras.grounds.command.RoleCommand;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Universe;
@@ -16,9 +17,9 @@ import xyz.deszaras.grounds.model.Universe;
 /**
  * Removes a role from a player.<p>
  *
- * Arguments: role and target player<br>
- * Checks: player is GOD or THAUMATURGE
+ * Arguments: role and target player
  */
+@PermittedRoles(roles = { Role.THAUMATURGE })
 public class RemoveRoleCommand extends Command<String> {
 
   private final Role role;
@@ -32,10 +33,7 @@ public class RemoveRoleCommand extends Command<String> {
   }
 
   @Override
-  public String execute() throws CommandException {
-    checkIfAnyRole("You are not a thaumaturge, so you may not " +
-                   "remove roles", Role.THAUMATURGE);
-
+  protected String executeImpl() throws CommandException {
     Set<Role> newRoles = Universe.getCurrent().removeRole(role, targetPlayer);
     return RoleCommand.reportRoles(actor, targetPlayer, newRoles);
   }

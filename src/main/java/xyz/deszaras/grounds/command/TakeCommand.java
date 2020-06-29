@@ -12,6 +12,7 @@ import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
+@PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class TakeCommand extends Command<Boolean> {
 
   private final Thing thing;
@@ -22,7 +23,7 @@ public class TakeCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() throws CommandException {
+  protected Boolean executeImpl() throws CommandException {
     if (player.has(thing)) {
       throw new CommandException("You are already holding that");
     }
@@ -39,6 +40,8 @@ public class TakeCommand extends Command<Boolean> {
     }
     // A non-wizard must be in the same location as a thing to take it.
     // (A wizard may take a thing from anywhere, even nowhere.)
+    // TBD: Rework this so that ADEPTS and THAUMATURGES may explicitly force
+    // a player to drop something.
     if (!Role.isWizard(player)) {
       Optional<Place> playerLocation;
       try {

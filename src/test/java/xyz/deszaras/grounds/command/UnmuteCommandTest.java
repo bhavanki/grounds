@@ -25,6 +25,8 @@ public class UnmuteCommandTest extends AbstractCommandTest {
   public void setUp() {
     super.setUp();
 
+    setPlayerRoles(Role.DENIZEN);
+
     mutee1 = newTestPlayer("mutee1", Role.DENIZEN);
     mutee2 = newTestPlayer("mutee2", Role.DENIZEN);
     List<Thing> muteList = new ArrayList<>();

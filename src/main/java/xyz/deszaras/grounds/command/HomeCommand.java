@@ -3,6 +3,7 @@ package xyz.deszaras.grounds.command;
 import java.util.List;
 import java.util.Optional;
 
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
@@ -12,6 +13,7 @@ import xyz.deszaras.grounds.model.Player;
  *
  * Arguments: new home; omit to teleport to current home
  */
+@PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class HomeCommand extends Command<String> {
 
   private final Place newHome;
@@ -22,7 +24,7 @@ public class HomeCommand extends Command<String> {
   }
 
   @Override
-  public String execute() throws CommandException {
+  protected String executeImpl() throws CommandException {
     if (newHome == null) {
 
       Place currentHome;
@@ -36,7 +38,7 @@ public class HomeCommand extends Command<String> {
         throw new CommandException("I cannot determine your current home location!");
       }
 
-      return new TeleportCommand(actor, player, currentHome).execute();
+      return new TeleportCommand(actor, player, currentHome).executeImpl();
     }
 
     // TBD: Check if newHome may be set as home

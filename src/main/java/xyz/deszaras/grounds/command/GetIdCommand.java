@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Link;
 import xyz.deszaras.grounds.model.Place;
@@ -16,9 +17,9 @@ import xyz.deszaras.grounds.model.Universe;
  * Gets the ID of a thing by its name and type. If there are
  * multiple matches, an arbitrary one is returned.
  *
- * Arguments: thing name, thing type<br>
- * Checks: player is not a GUEST
+ * Arguments: thing name, thing type
  */
+@PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class GetIdCommand extends Command<String> {
 
   private final String name;
@@ -31,8 +32,7 @@ public class GetIdCommand extends Command<String> {
   }
 
   @Override
-  public String execute() throws CommandException {
-    checkIfNonGuest("You may not get the ID of a thing");
+  protected String executeImpl() throws CommandException {
     Optional<? extends Thing> thing = Universe.getCurrent().getThingByName(name, type);
     if (!thing.isEmpty()) {
       return thing.get().getId().toString();

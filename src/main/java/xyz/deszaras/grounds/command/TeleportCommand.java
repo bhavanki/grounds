@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import xyz.deszaras.grounds.auth.Policy.Category;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
@@ -14,6 +15,7 @@ import xyz.deszaras.grounds.model.Player;
  * Arguments: ID of destination<br>
  * Checks: player passes GENERAL of destination
  */
+@PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class TeleportCommand extends Command<String> {
 
   private final Place destination;
@@ -30,7 +32,7 @@ public class TeleportCommand extends Command<String> {
   }
 
   @Override
-  public String execute() throws CommandException {
+  protected String executeImpl() throws CommandException {
     checkPermission(Category.GENERAL, destination, "You are not permitted to move there");
 
     Optional<Place> source;
@@ -49,7 +51,7 @@ public class TeleportCommand extends Command<String> {
     try {
       LookCommand lookCommand =
           testLookCommand != null ? testLookCommand : new LookCommand(actor, player);
-      return lookCommand.execute();
+      return lookCommand.executeImpl();
     } catch (CommandException e) {
       return e.getMessage();
     }

@@ -12,9 +12,9 @@ import xyz.deszaras.grounds.model.Thing;
 /**
  * Grants ownership of a thing to a player.<p>
  *
- * Arguments: name or ID of thing<br>
- * Checks: player is GOD or THAUMATURGE; thing is not already owned
+ * Arguments: name or ID of thing
  */
+@PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class ClaimCommand extends Command<Boolean> {
 
   private final Thing thing;
@@ -25,7 +25,7 @@ public class ClaimCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() throws CommandException {
+  protected Boolean executeImpl() throws CommandException {
     checkClaim();
     thing.setOwner(player);
     return true;
@@ -44,7 +44,8 @@ public class ClaimCommand extends Command<Boolean> {
         player.sendMessage(newInfoMessage("You already own that"));
         return;
       }
-      checkIfAnyRole("That is already owned by someone else", Role.THAUMATURGE);
+      checkIfAnyRole("That is already owned by someone else",
+                     Role.ADEPT, Role.THAUMATURGE);
     }
   }
 

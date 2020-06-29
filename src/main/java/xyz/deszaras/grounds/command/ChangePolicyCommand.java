@@ -15,9 +15,10 @@ import xyz.deszaras.grounds.model.Thing;
 /**
  * Changes the policy on a thing.<p>
  *
- * Arguments: thing, change instruction<br>
- * Checks: player is GOD or THAUMATURGE
+ * Arguments: thing, change instruction
  */
+@PermittedRoles(roles = { Role.BARD, Role.THAUMATURGE },
+                failureMessage = "You are not a bard or thaumaturge, so you may not change policies on things")
 public class ChangePolicyCommand extends Command<String> {
 
   @VisibleForTesting
@@ -116,10 +117,8 @@ public class ChangePolicyCommand extends Command<String> {
 
 
   @Override
-  public String execute() throws CommandException {
-    checkIfAnyRole("You are not a thaumaturge, so you may not " +
-                   "change policies on things", Role.THAUMATURGE);
-    // FUTURE: if allowing lower-level wizards, check for privilege escalation
+  protected String executeImpl() throws CommandException {
+    // TBD: check for privilege escalation
 
     Policy policy = thing.getPolicy();
     synchronized (policy) {

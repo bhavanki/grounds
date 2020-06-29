@@ -36,39 +36,24 @@ public abstract class Command<R> {
   }
 
   /**
-   * Executes the command.
+   * Executes the command. This does work around the call to
+   * {@link #execute()}, so outside code must call this method.
    *
    * @return result of command
    * @throws CommandException if the command fails
    */
-  public abstract R execute() throws CommandException;
-
-  /**
-   * Checks if the player running the command is a wizard, and if not, throws a
-   * {@link PermissionException}.
-   *
-   * @param message message to send to actor if permission check fails
-   * @throws PermissionException if the permission check fails
-   */
-  protected void checkIfWizard(String message) throws PermissionException {
-    if (!Role.isWizard(player)) {
-      throw new PermissionException(message);
-    }
+  public R execute() throws CommandException {
+    checkPermittedRoles();
+    return executeImpl();
   }
 
-  private static final Role[] NON_GUEST_ROLES_ARRAY =
-      Role.NON_GUEST_ROLES.toArray(new Role[Role.NON_GUEST_ROLES.size()]);
-
   /**
-   * Checks if the player running the command is a non-guest, and if not, throws
-   * a {@link PermissionException}.
+   * Executes the implementation of this command.
    *
-   * @param message message to send to actor if permission check fails
-   * @throws PermissionException if the permission check fails
+   * @return result of command
+   * @throws CommandException if the command fails
    */
-  protected void checkIfNonGuest(String message) throws PermissionException {
-    checkIfAnyRole(message, NON_GUEST_ROLES_ARRAY);
-  }
+  protected abstract R executeImpl() throws CommandException;
 
   /**
    * Checks if the player running the command has any of the given roles, and if
@@ -87,6 +72,23 @@ public abstract class Command<R> {
     if (Arrays.stream(roles).noneMatch(r -> playerRoles.contains(r))) {
       throw new PermissionException(message);
     }
+  }
+
+  /**
+   * Checks if the player running the command has any of the roles in the
+   * command's {@link PermittedRoles} annotation, and if not, throws a
+   * {@link PermissionException} with the annotation's failure message.
+   *
+   * @throws PermissionException if the permission check fails
+   */
+  protected void checkPermittedRoles() throws PermissionException {
+    PermittedRoles annotation = this.getClass().getAnnotation(PermittedRoles.class);
+    if (annotation == null) {
+      throw new PermissionException("@PermittedRoles annotation missing on command " +
+                                    "class " + this.getClass().getName());
+    }
+
+    checkIfAnyRole(annotation.failureMessage(), annotation.roles());
   }
 
   /**

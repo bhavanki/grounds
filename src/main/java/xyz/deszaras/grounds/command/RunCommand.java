@@ -18,9 +18,9 @@ import xyz.deszaras.grounds.util.CommandLineUtils;
 /**
  * Runs commands from a file.<p>
  *
- * Arguments: command file<br>
- * Checks: player is GOD
+ * Arguments: command file
  */
+@PermittedRoles(roles = {})
 public class RunCommand extends Command<Boolean> {
 
   private static final Logger LOG = LoggerFactory.getLogger(RunCommand.class);
@@ -33,11 +33,7 @@ public class RunCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() throws CommandException {
-    if (!player.equals(Player.GOD)) {
-      throw new CommandException("Only GOD can run commands from a file");
-    }
-
+  protected Boolean executeImpl() throws CommandException {
     CommandFactory commandFactory = CommandExecutor.getInstance().getCommandFactory();
 
     List<String> commandLines;

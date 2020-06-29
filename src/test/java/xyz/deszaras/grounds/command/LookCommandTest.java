@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Policy.Category;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Place;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
@@ -24,6 +25,8 @@ public class LookCommandTest extends AbstractCommandTest {
   @BeforeEach
   public void setUp() {
     super.setUp();
+
+    setPlayerRoles(Role.DENIZEN);
 
     location = mock(Place.class);
     when(location.getName()).thenReturn("somewhere");

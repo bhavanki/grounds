@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import xyz.deszaras.grounds.auth.Policy.Category;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Link;
 import xyz.deszaras.grounds.model.Place;
@@ -19,6 +20,7 @@ import xyz.deszaras.grounds.model.Universe;
  * Checks: player has a location; link at location has exit name;
  * place on other end of link exists; player passes USE of link
  */
+@PermittedRoles(roles = { Role.GUEST, Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class MoveCommand extends Command<String> {
 
   private final String exitName;
@@ -29,7 +31,7 @@ public class MoveCommand extends Command<String> {
   }
 
   @Override
-  public String execute() throws CommandException {
+  protected String executeImpl() throws CommandException {
     Place source = getPlayerLocation("move somewhere else");
 
     // Check that there is a link associated with the player's current
@@ -56,7 +58,7 @@ public class MoveCommand extends Command<String> {
     checkPermission(Category.USE, viaLink.get(),
                     "You are not permitted to traverse the exit to that place");
 
-    return new TeleportCommand(actor, player, moveDestination.get()).execute();
+    return new TeleportCommand(actor, player, moveDestination.get()).executeImpl();
   }
 
   public static MoveCommand newCommand(Actor actor, Player player,

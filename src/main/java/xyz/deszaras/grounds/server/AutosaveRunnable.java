@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.Command;
 import xyz.deszaras.grounds.command.CommandExecutor;
+import xyz.deszaras.grounds.command.PermittedRoles;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Universe;
 
@@ -29,6 +30,7 @@ public class AutosaveRunnable implements Runnable {
     this.commandExecutor = commandExecutor;
   }
 
+  @PermittedRoles(roles = {})
   private static class AutosaveCommand extends Command<Boolean> {
 
     private AutosaveCommand() {
@@ -36,7 +38,7 @@ public class AutosaveRunnable implements Runnable {
     }
 
     @Override
-    public Boolean execute() {
+    protected Boolean executeImpl() {
       try {
         Universe.saveCurrent();
         LOG.info("Autosaved current universe");

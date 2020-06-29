@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import xyz.deszaras.grounds.auth.Policy.Category;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Link;
 import xyz.deszaras.grounds.model.MissingThingException;
@@ -17,8 +18,9 @@ import xyz.deszaras.grounds.model.Universe;
  * Destroys a thing.<p>
  *
  * Arguments: thing
- * Checks: player is a wizard
  */
+@PermittedRoles(roles = { Role.BARD, Role.THAUMATURGE },
+                failureMessage = "You are not a bard or thaumaturge, so you may not destroy")
 public class DestroyCommand extends Command<Boolean> {
 
   private final Thing thing;
@@ -30,9 +32,7 @@ public class DestroyCommand extends Command<Boolean> {
 
   @SuppressWarnings("PMD.EmptyCatchBlock")
   @Override
-  public Boolean execute() throws CommandException {
-    checkIfWizard("You are not a wizard, so you may not destroy");
-
+  protected Boolean executeImpl() throws CommandException {
     String whyNot = mayDestroy(thing);
     if (whyNot != null) {
       throw new CommandException(String.format("This thing cannot be destroyed: %s",

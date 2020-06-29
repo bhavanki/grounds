@@ -3,20 +3,22 @@ package xyz.deszaras.grounds.command.actor;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.ActorCommand;
 import xyz.deszaras.grounds.command.Command;
 import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandFactoryException;
+import xyz.deszaras.grounds.command.PermittedRoles;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.ActorDatabase;
 
 /**
  * Removes a player from an existing actor.<p>
  *
- * Arguments: username and player ID<br>
- * Checks: player is GOD, actor is not ROOT
+ * Arguments: username and player ID
  */
+@PermittedRoles(roles = { Role.THAUMATURGE })
 public class RemovePlayerFromActorCommand extends Command<Boolean> {
 
   private final String username;
@@ -30,9 +32,8 @@ public class RemovePlayerFromActorCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() throws CommandException {
-    ActorCommand.checkIfGod(player);
-    ActorCommand.checkIfRoot(actor, username);
+  protected Boolean executeImpl() throws CommandException {
+    ActorCommand.checkIfRoot(player, username);
 
     boolean result = ActorDatabase.INSTANCE.updateActorRecord(username,
         r -> r.removePlayer(playerId));

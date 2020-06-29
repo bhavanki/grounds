@@ -2,20 +2,22 @@ package xyz.deszaras.grounds.command.actor;
 
 import java.util.List;
 import java.util.Objects;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.ActorCommand;
 import xyz.deszaras.grounds.command.Command;
 import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandFactoryException;
+import xyz.deszaras.grounds.command.PermittedRoles;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.ActorDatabase;
 
 /**
  * Unlocks an actor, so that they can log in.<p>
  *
- * Arguments: username<br>
- * Checks: player is GOD, actor is not ROOT
+ * Arguments: username
  */
+@PermittedRoles(roles = { Role.ADEPT, Role.THAUMATURGE })
 public class UnlockActorCommand extends Command<Boolean> {
 
   private final String username;
@@ -26,9 +28,8 @@ public class UnlockActorCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() throws CommandException {
-    ActorCommand.checkIfRoot(actor, username);
-    ActorCommand.checkIfGod(player);
+  protected Boolean executeImpl() throws CommandException {
+    ActorCommand.checkIfRoot(player, username);
 
     boolean result = ActorDatabase.INSTANCE.updateActorRecord(username,
         r -> r.setLockedUntil(null));

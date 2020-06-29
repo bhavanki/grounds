@@ -1,6 +1,7 @@
 package xyz.deszaras.grounds.command;
 
 import java.util.List;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.ActorDatabase;
 
@@ -11,6 +12,7 @@ import xyz.deszaras.grounds.server.ActorDatabase;
  * Checks: if the player is permitted for the actor (GOD and the root
  * actor may switch to any player)
  */
+@PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class SwitchPlayerCommand extends Command<Boolean> {
 
   private final Player newPlayer;
@@ -21,7 +23,7 @@ public class SwitchPlayerCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() throws CommandException {
+  protected Boolean executeImpl() throws CommandException {
     if (!actor.equals(Actor.ROOT) &&
         !player.equals(Player.GOD) &&
         !ActorDatabase.INSTANCE.getActorRecord(actor.getUsername()).get()

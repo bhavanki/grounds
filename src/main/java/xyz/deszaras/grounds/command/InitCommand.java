@@ -9,9 +9,8 @@ import xyz.deszaras.grounds.model.Universe;
 
 /**
  * Creates a new universe and sets it as the current one.
- *
- * Checks: player is GOD; universe name is not "VOID"
  */
+@PermittedRoles(roles = {})
 public class InitCommand extends Command<Boolean> {
 
   private final String name;
@@ -22,7 +21,10 @@ public class InitCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() throws CommandException {
+  protected Boolean executeImpl() throws CommandException {
+    if (!player.equals(Player.GOD)) {
+      throw new PermissionException("Only GOD may create a universe");
+    }
 
     if (Universe.VOID.getName().equals(name)) {
       throw new CommandException("You may not recreate the VOID universe");

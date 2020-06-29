@@ -3,6 +3,7 @@ package xyz.deszaras.grounds.command;
 import java.util.List;
 import java.util.Objects;
 
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
@@ -13,6 +14,7 @@ import xyz.deszaras.grounds.model.Thing;
  * Arguments: name or ID of thing<br>
  * Checks: player owns thing
  */
+@PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class AbandonCommand extends Command<Boolean> {
 
   private final Thing thing;
@@ -23,7 +25,7 @@ public class AbandonCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() throws CommandException {
+  protected Boolean executeImpl() throws CommandException {
     Thing owner;
     try {
       owner = thing.getOwner().orElse(null);
@@ -32,7 +34,7 @@ public class AbandonCommand extends Command<Boolean> {
       throw new CommandException("You do not own that");
     }
     if (!player.equals(owner)) {
-      throw new CommandException("You do not own that");
+      checkIfAnyRole("You do not own that", Role.ADEPT, Role.THAUMATURGE);
     }
     thing.setOwner(null);
     return true;

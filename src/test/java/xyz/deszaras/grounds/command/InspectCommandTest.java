@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Policy.Category;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Thing;
 
 public class InspectCommandTest extends AbstractCommandTest {
@@ -19,6 +20,8 @@ public class InspectCommandTest extends AbstractCommandTest {
   @BeforeEach
   public void setUp() {
     super.setUp();
+
+    setPlayerRoles(Role.DENIZEN);
 
     thing = mock(Thing.class);
     when(thing.toJson()).thenReturn("{}");

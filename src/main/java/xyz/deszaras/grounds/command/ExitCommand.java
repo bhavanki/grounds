@@ -1,8 +1,10 @@
 package xyz.deszaras.grounds.command;
 
 import java.util.List;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
 
+@PermittedRoles(roles = { Role.GUEST, Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class ExitCommand extends Command<Boolean> {
 
   public ExitCommand(Actor actor, Player player) {
@@ -10,7 +12,7 @@ public class ExitCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() {
+  protected Boolean executeImpl() {
     return true;
   }
 

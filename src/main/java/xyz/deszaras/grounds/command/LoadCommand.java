@@ -11,9 +11,9 @@ import xyz.deszaras.grounds.model.Universe;
 /**
  * Loads a universe from a file.<p>
  *
- * Arguments: file to load<br>
- * Checks: player is GOD
+ * Arguments: file to load
  */
+@PermittedRoles(roles = {})
 public class LoadCommand extends Command<Boolean> {
 
   private final File f;
@@ -24,11 +24,7 @@ public class LoadCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() throws CommandException {
-    if (!player.equals(Player.GOD)) {
-      throw new CommandException("Only GOD can load a universe");
-    }
-
+  protected Boolean executeImpl() throws CommandException {
     // TBD prohibit if any players besides GOD are in use, especially
     // because they are disconnected from their players
     Optional<Player> previousUniverseGodPlayer =

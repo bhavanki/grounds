@@ -8,9 +8,11 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import org.fusesource.jansi.Ansi;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.util.AnsiUtils;
 
+@PermittedRoles(roles = { Role.GUEST, Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class HelpCommand extends Command<String> {
 
   private static final ResourceBundle helpResource =
@@ -26,7 +28,7 @@ public class HelpCommand extends Command<String> {
   private static final String HELP_FORMAT = "%s\n\n%s\n\n%s";
 
   @Override
-  public String execute() throws CommandException {
+  protected String executeImpl() throws CommandException {
     if (commandName.equalsIgnoreCase("commands")) {
       List<String> commandNames =
           new ArrayList<>(CommandExecutor.getInstance().getCommandFactory().getCommandNames());

@@ -4,6 +4,7 @@ import java.util.List;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.Server;
 
+@PermittedRoles(roles = {})
 public class ShutdownCommand extends ServerCommand<Boolean> {
 
   public ShutdownCommand(Actor actor, Player player, Server server) {
@@ -11,11 +12,8 @@ public class ShutdownCommand extends ServerCommand<Boolean> {
   }
 
   @Override
-  public Boolean execute() throws CommandException {
+  protected Boolean executeImpl() throws CommandException {
     checkIfServer();
-    if (!player.equals(Player.GOD)) {
-      throw new CommandException("Only GOD may shutdown the game");
-    }
     server.requestServerShutdown();
     return true;
   }

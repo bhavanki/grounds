@@ -10,9 +10,9 @@ import xyz.deszaras.grounds.model.Universe;
 /**
  * Saves the universe to a file.<p>
  *
- * Arguments: file to save to<br>
- * Checks: player is GOD
+ * Arguments: file to save to
  */
+@PermittedRoles(roles = {})
 public class SaveCommand extends Command<Boolean> {
 
   private final File f;
@@ -23,10 +23,7 @@ public class SaveCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() throws CommandException {
-    if (!player.equals(Player.GOD)) {
-      throw new CommandException("Only GOD can save the universe");
-    }
+  protected Boolean executeImpl() throws CommandException {
     try {
       Universe.save(Universe.getCurrent(), f);
       Universe.setCurrentFile(f);

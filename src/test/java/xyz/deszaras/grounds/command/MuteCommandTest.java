@@ -25,6 +25,8 @@ public class MuteCommandTest extends AbstractCommandTest {
   @BeforeEach
   public void setUp() {
     super.setUp();
+
+    setPlayerRoles(Role.DENIZEN);
   }
 
   @Test

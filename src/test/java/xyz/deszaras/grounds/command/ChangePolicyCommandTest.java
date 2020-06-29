@@ -113,7 +113,7 @@ public class ChangePolicyCommandTest extends AbstractCommandTest {
     command = new ChangePolicyCommand(actor, player, thing, new ChangeInstruction("u+g"));
     Exception e = assertThrows(PermissionException.class,
                                () -> command.execute());
-    assertEquals("You are not a thaumaturge, " +
+    assertEquals("You are not a bard or thaumaturge, " +
                  "so you may not change policies on things", e.getMessage());
   }
 }

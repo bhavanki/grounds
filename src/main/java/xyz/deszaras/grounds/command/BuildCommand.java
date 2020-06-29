@@ -3,6 +3,7 @@ package xyz.deszaras.grounds.command;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Objects;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Link;
 import xyz.deszaras.grounds.model.Place;
@@ -15,8 +16,10 @@ import xyz.deszaras.grounds.model.Universe;
  *
  * Arguments: type of thing, name of thing, type-specific arguments<br>
  * Checks: type of thing is known; player is not in the VOID universe;
- * player is a wizard; player has a location
+ * player has a location
  */
+@PermittedRoles(roles = { Role.BARD, Role.THAUMATURGE },
+                failureMessage = "You are not a bard or thaumaturge, so you may not build")
 public class BuildCommand extends Command<Boolean> {
 
   public enum BuiltInType {
@@ -40,7 +43,7 @@ public class BuildCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() throws CommandException {
+  protected Boolean executeImpl() throws CommandException {
     BuiltInType thingType;
     try {
       thingType = BuiltInType.valueOf(type.toUpperCase());
@@ -50,8 +53,6 @@ public class BuildCommand extends Command<Boolean> {
     if (Universe.getCurrent().getName().equals(Universe.VOID.getName())) {
       throw new CommandException("Building is not permitted in the VOID universe");
     }
-
-    checkIfWizard("You are not a wizard, so you may not build");
 
     Place location = getPlayerLocation("build anything");
 

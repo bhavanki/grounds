@@ -3,15 +3,16 @@ package xyz.deszaras.grounds.command;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 import xyz.deszaras.grounds.model.Universe;
 
 /**
- * Shows a listing of all of the things in the universe.<p>
- *
- * Checks: player is wizard in universe
+ * Shows a listing of all of the things in the universe.
  */
+@PermittedRoles(roles = { Role.BARD, Role.ADEPT, Role.THAUMATURGE },
+                failureMessage = "You are not a wizard, so you may not index the universe")
 public class IndexCommand extends Command<String> {
 
   public IndexCommand(Actor actor, Player player) {
@@ -19,9 +20,7 @@ public class IndexCommand extends Command<String> {
   }
 
   @Override
-  public String execute() throws CommandException {
-    checkIfWizard("You are not a wizard, so you may not index the universe");
-
+  protected String executeImpl() throws CommandException {
     List<Thing> things = new ArrayList<>(Universe.getCurrent().getThings());
     Collections.sort(things,
                      (t1, t2) -> {

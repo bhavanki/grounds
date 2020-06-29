@@ -28,12 +28,13 @@ public class ActorCommand extends ServerCommand<Boolean> {
   }
 
   @Override
-  public Boolean execute() {
+  protected Boolean executeImpl() {
     throw new UnsupportedOperationException("This is a composite command");
   }
 
-  public static void checkIfRoot(Actor actor, String username) throws CommandException {
-    if (Actor.ROOT.getUsername().equals(username)) {
+  public static void checkIfRoot(Player player, String username) throws CommandException {
+    if (Actor.ROOT.getUsername().equals(username) &&
+        !player.equals(Player.GOD)) {
       throw new CommandException("Sorry, you may not work with the root actor");
     }
   }

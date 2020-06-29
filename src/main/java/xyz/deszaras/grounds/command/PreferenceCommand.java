@@ -2,6 +2,7 @@ package xyz.deszaras.grounds.command;
 
 import java.util.List;
 
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.ActorDatabase;
 
@@ -10,6 +11,7 @@ import xyz.deszaras.grounds.server.ActorDatabase;
  *
  * Arguments: preference string
  */
+@PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class PreferenceCommand extends Command<String> {
 
   private final String prefString;
@@ -20,7 +22,7 @@ public class PreferenceCommand extends Command<String> {
   }
 
   @Override
-  public String execute() throws CommandException {
+  protected String executeImpl() throws CommandException {
     if (prefString == null) {
       return actor.getPreferences().toString();
     }

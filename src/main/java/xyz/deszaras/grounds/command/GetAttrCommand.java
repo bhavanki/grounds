@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import xyz.deszaras.grounds.auth.Policy.Category;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
@@ -14,6 +15,8 @@ import xyz.deszaras.grounds.model.Thing;
  * Arguments: name or ID of thing, attribute name<br>
  * Checks: player passes READ for thing
  */
+@PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE },
+                failureMessage = "You are a guest, so you may not get attributes")
 public class GetAttrCommand extends Command<String> {
 
   private final Thing thing;
@@ -26,7 +29,7 @@ public class GetAttrCommand extends Command<String> {
   }
 
   @Override
-  public String execute() throws CommandException {
+  protected String executeImpl() throws CommandException {
     checkPermission(Category.READ, thing, "You are not permitted to get attributes on this");
     Optional<Attr> attr = thing.getAttr(attrName);
     if (attr.isEmpty()) {

@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Policy.Category;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Place;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
@@ -27,6 +28,8 @@ public class TeleportCommandTest extends AbstractCommandTest {
   public void setUp() {
     super.setUp();
 
+    setPlayerRoles(Role.DENIZEN);
+
     source = mock(Place.class);
     destination = mock(Place.class);
 
@@ -34,7 +37,7 @@ public class TeleportCommandTest extends AbstractCommandTest {
 
     testLookCommand = mock(LookCommand.class);
     try {
-      when(testLookCommand.execute()).thenReturn("here");
+      when(testLookCommand.executeImpl()).thenReturn("here");
       command.setTestLookCommand(testLookCommand);
     } catch (CommandException e) {
       fail(e.getMessage());

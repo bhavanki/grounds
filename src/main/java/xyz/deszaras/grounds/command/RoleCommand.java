@@ -17,7 +17,7 @@ public class RoleCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() {
+  protected Boolean executeImpl() {
     throw new UnsupportedOperationException("This is a composite command");
   }
 

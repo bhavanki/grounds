@@ -4,9 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.AttrNames;
@@ -22,13 +25,13 @@ public class SetAttrCommandTest extends AbstractCommandTest {
   public void setUp() {
     super.setUp();
 
+    setPlayerRoles(Role.BARD);
+
     thing = newTestThing("testThing");
   }
 
   @Test
   public void testSuccess() throws Exception {
-    testUniverse.addRole(Role.BARD, player); // expect DEFAULT policy on thing
-
     command = new SetAttrCommand(actor, player, thing, new Attr("foo", "bar"));
     assertTrue(command.execute());
 
@@ -47,8 +50,6 @@ public class SetAttrCommandTest extends AbstractCommandTest {
 
   @Test
   public void testFailureProtectedAttribute() throws Exception {
-    testUniverse.addRole(Role.BARD, player); // expect DEFAULT policy on thing
-
     command = new SetAttrCommand(actor,player, thing, new Attr(AttrNames.DESCRIPTION, "ok"));
     CommandException e = assertThrows(CommandException.class,
                                       () -> command.execute());
@@ -58,7 +59,7 @@ public class SetAttrCommandTest extends AbstractCommandTest {
 
   @Test
   public void testFailurePermission() throws Exception {
-    testUniverse.addRole(Role.GUEST, player); // expect DEFAULT policy on thing
+    thing.getPolicy().setRoles(Category.WRITE, Set.of(Role.THAUMATURGE));
 
     command = new SetAttrCommand(actor, player, thing, new Attr("foo", "bar"));
     PermissionException e = assertThrows(PermissionException.class,

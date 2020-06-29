@@ -9,6 +9,7 @@ import xyz.deszaras.grounds.command.Command;
 import xyz.deszaras.grounds.command.CommandArgumentResolver;
 import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandFactoryException;
+import xyz.deszaras.grounds.command.PermittedRoles;
 import xyz.deszaras.grounds.command.RoleCommand;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Universe;
@@ -16,9 +17,9 @@ import xyz.deszaras.grounds.model.Universe;
 /**
  * Gets the roles for a player.<p>
  *
- * Arguments: target player<br>
- * Checks: player is GOD or THAUMATURGE
+ * Arguments: target player
  */
+@PermittedRoles(roles = { Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class GetRolesCommand extends Command<String> {
 
   private final Player targetPlayer;
@@ -29,10 +30,7 @@ public class GetRolesCommand extends Command<String> {
   }
 
   @Override
-  public String execute() throws CommandException {
-    checkIfAnyRole("You are not a thaumaturge, so you may not " +
-                   "get roles", Role.THAUMATURGE);
-
+  protected String executeImpl() throws CommandException {
     Set<Role> newRoles = Universe.getCurrent().getRoles(targetPlayer);
     return RoleCommand.reportRoles(actor, targetPlayer, newRoles);
   }

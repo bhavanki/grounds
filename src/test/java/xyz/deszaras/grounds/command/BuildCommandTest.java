@@ -52,7 +52,7 @@ public class BuildCommandTest extends AbstractCommandTest {
 
     PermissionException e = assertThrows(PermissionException.class,
                                          () -> command.execute());
-    assertEquals("You are not a wizard, so you may not build",
+    assertEquals("You are not a bard or thaumaturge, so you may not build",
                  e.getMessage());
   }
 

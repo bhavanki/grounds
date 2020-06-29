@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import org.fusesource.jansi.Ansi;
 import xyz.deszaras.grounds.auth.Policy.Category;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Link;
 import xyz.deszaras.grounds.model.MissingThingException;
@@ -16,6 +17,7 @@ import xyz.deszaras.grounds.model.Thing;
 import xyz.deszaras.grounds.model.Universe;
 import xyz.deszaras.grounds.util.AnsiUtils;
 
+@PermittedRoles(roles = { Role.GUEST, Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class LookCommand extends Command<String> {
 
   public LookCommand(Actor actor, Player player) {
@@ -23,7 +25,7 @@ public class LookCommand extends Command<String> {
   }
 
   @Override
-  public String execute() throws CommandException {
+  protected String executeImpl() throws CommandException {
     try {
       Optional<Place> location = player.getLocation();
       if (location.isPresent()) {

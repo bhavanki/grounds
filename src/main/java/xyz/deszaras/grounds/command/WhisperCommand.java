@@ -3,6 +3,7 @@ package xyz.deszaras.grounds.command;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
 
 /**
@@ -12,6 +13,7 @@ import xyz.deszaras.grounds.model.Player;
  * Arguments: recipient player, message (quotes not necessary)
  * Checks: none at the moment, but that'll change
  */
+@PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class WhisperCommand extends Command<Boolean> {
 
   private static final String WHISPER_FORMAT = "%s whispers: %s";
@@ -27,7 +29,7 @@ public class WhisperCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() {
+  protected Boolean executeImpl() {
     String fullMessage = String.format(WHISPER_FORMAT, player.getName(), message);
     recipient.sendMessage(newMessage(Message.Style.WHISPER, fullMessage));
     return true;

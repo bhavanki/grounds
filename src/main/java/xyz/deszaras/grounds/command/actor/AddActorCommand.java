@@ -2,11 +2,13 @@ package xyz.deszaras.grounds.command.actor;
 
 import java.util.List;
 import java.util.Objects;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.ActorCommand;
 import xyz.deszaras.grounds.command.Command;
 import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandFactoryException;
+import xyz.deszaras.grounds.command.PermittedRoles;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.ActorDatabase;
 import xyz.deszaras.grounds.server.HashedPasswordAuthenticator;
@@ -14,9 +16,9 @@ import xyz.deszaras.grounds.server.HashedPasswordAuthenticator;
 /**
  * Adds a new actor.<p>
  *
- * Arguments: username and password<br>
- * Checks: player is GOD, actor is not ROOT
+ * Arguments: username and password
  */
+@PermittedRoles(roles = { Role.THAUMATURGE })
 public class AddActorCommand extends Command<Boolean> {
 
   private final String username;
@@ -30,9 +32,8 @@ public class AddActorCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() throws CommandException {
-    ActorCommand.checkIfGod(player);
-    ActorCommand.checkIfRoot(actor, username);
+  protected Boolean executeImpl() throws CommandException {
+    ActorCommand.checkIfRoot(player, username);
 
     boolean result =
         ActorDatabase.INSTANCE.createActorRecord(username,

@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import xyz.deszaras.grounds.auth.Role;
+
 public class InventoryCommandTest extends AbstractCommandTest {
 
   private InventoryCommand command;
@@ -12,6 +14,8 @@ public class InventoryCommandTest extends AbstractCommandTest {
   @BeforeEach
   public void setUp() {
     super.setUp();
+
+    setPlayerRoles(Role.DENIZEN);
 
     command = new InventoryCommand(actor, player);
   }

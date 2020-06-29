@@ -4,9 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.AttrNames;
 import xyz.deszaras.grounds.model.Player;
@@ -21,14 +24,14 @@ public class RemoveAttrCommandTest extends AbstractCommandTest {
   public void setUp() {
     super.setUp();
 
+    setPlayerRoles(Role.BARD);
+
     thing = newTestThing("testThing");
     thing.setAttr("foo", "bar");
   }
 
   @Test
   public void testSuccess() throws Exception {
-    testUniverse.addRole(Role.BARD, player); // expect DEFAULT policy on thing
-
     command = new RemoveAttrCommand(actor, player, thing, "foo");
     assertTrue(command.execute());
 
@@ -49,8 +52,6 @@ public class RemoveAttrCommandTest extends AbstractCommandTest {
   public void testFailureProtectedAttribute() throws Exception {
     thing.setAttr(AttrNames.NAME, "noway");
 
-    testUniverse.addRole(Role.BARD, player); // expect DEFAULT policy on thing
-
     command = new RemoveAttrCommand(actor, player, thing, AttrNames.NAME);
     CommandException e = assertThrows(CommandException.class,
                                       () -> command.execute());
@@ -60,7 +61,7 @@ public class RemoveAttrCommandTest extends AbstractCommandTest {
 
   @Test
   public void testFailurePermission() throws Exception {
-    testUniverse.addRole(Role.GUEST, player); // expect DEFAULT policy on thing
+    thing.getPolicy().setRoles(Category.WRITE, Set.of(Role.THAUMATURGE));
 
     command = new RemoveAttrCommand(actor, player, thing, "foo");
     PermissionException e = assertThrows(PermissionException.class,

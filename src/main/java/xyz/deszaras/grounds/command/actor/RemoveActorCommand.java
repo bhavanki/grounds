@@ -7,15 +7,16 @@ import xyz.deszaras.grounds.command.ActorCommand;
 import xyz.deszaras.grounds.command.Command;
 import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandFactoryException;
+import xyz.deszaras.grounds.command.PermittedRoles;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.ActorDatabase;
 
 /**
  * Removes an existing actor.<p>
  *
- * Arguments: username<br>
- * Checks: player is GOD, actor is not ROOT
+ * Arguments: username
  */
+@PermittedRoles(roles = {})
 public class RemoveActorCommand extends Command<Boolean> {
 
   private final String username;
@@ -26,9 +27,8 @@ public class RemoveActorCommand extends Command<Boolean> {
   }
 
   @Override
-  public Boolean execute() throws CommandException {
-    ActorCommand.checkIfGod(player);
-    ActorCommand.checkIfRoot(actor, username);
+  protected Boolean executeImpl() throws CommandException {
+    ActorCommand.checkIfRoot(player, username);
 
     // TBD: Check if actor is connected.
 

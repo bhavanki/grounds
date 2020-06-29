@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Optional;
 import xyz.deszaras.grounds.auth.Policy.Category;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.MissingThingException;
@@ -26,6 +27,7 @@ import xyz.deszaras.grounds.script.ScriptFactoryException;
  * A player may call a script if they pass the USE category on
  * the extension where the script is defined.
  */
+@PermittedRoles(roles = { Role.GUEST, Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class ScriptedCommand extends Command<String> {
 
   private final Extension scriptExtension;
@@ -50,7 +52,7 @@ public class ScriptedCommand extends Command<String> {
   }
 
   @Override
-  public String execute() throws CommandException {
+  protected String executeImpl() throws CommandException {
 
     if (!scriptExtension.passes(Category.USE, player)) {
       throw new CommandException("You do not have permission to run the script");

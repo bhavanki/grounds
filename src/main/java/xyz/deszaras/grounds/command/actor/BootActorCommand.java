@@ -4,12 +4,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.ActorCommand;
 import xyz.deszaras.grounds.command.Message;
 import xyz.deszaras.grounds.command.ServerCommand;
 import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandFactoryException;
+import xyz.deszaras.grounds.command.PermittedRoles;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.Server;
 import xyz.deszaras.grounds.server.Shell;
@@ -20,6 +22,7 @@ import xyz.deszaras.grounds.server.Shell;
  * Arguments: username<br>
  * Checks: player is GOD, actor is not ROOT
  */
+@PermittedRoles(roles = { Role.ADEPT, Role.THAUMATURGE })
 public class BootActorCommand extends ServerCommand<Boolean> {
 
   private final String username;
@@ -31,10 +34,9 @@ public class BootActorCommand extends ServerCommand<Boolean> {
   }
 
   @Override
-  public Boolean execute() throws CommandException {
+  protected Boolean executeImpl() throws CommandException {
     checkIfServer();
-    ActorCommand.checkIfRoot(actor, username);
-    ActorCommand.checkIfGod(player);
+    ActorCommand.checkIfRoot(player, username);
 
     Collection<Shell> actorShells = server.getOpenShells().get(new Actor(username));
     if (actorShells == null) {

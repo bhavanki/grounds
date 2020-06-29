@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.ActorDatabase;
 import xyz.deszaras.grounds.server.Server;
@@ -22,8 +23,8 @@ import xyz.deszaras.grounds.server.Shell;
  * Shows a listing of all connected actors or all actors.<p>
  *
  * Arguments: "all" to list all actors, omit for just connected ones
- * Checks: player is wizard (might relax later)
  */
+@PermittedRoles(roles = { Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class WhoCommand extends ServerCommand<String> {
 
   private static final DateTimeFormatter LOGIN_TIME_FORMATTER =
@@ -38,9 +39,8 @@ public class WhoCommand extends ServerCommand<String> {
   }
 
   @Override
-  public String execute() throws CommandException {
+  protected String executeImpl() throws CommandException {
     checkIfServer();
-    checkIfWizard("You are not a wizard, so you may not see who is on");
 
     Map<Actor, Collection<Shell>> openShells = server.getOpenShells();
     List<Actor> sortedConnectedActors = openShells.keySet().stream()

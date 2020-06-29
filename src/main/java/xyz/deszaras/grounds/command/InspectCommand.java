@@ -2,6 +2,7 @@ package xyz.deszaras.grounds.command;
 
 import java.util.List;
 import xyz.deszaras.grounds.auth.Policy.Category;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
@@ -11,6 +12,7 @@ import xyz.deszaras.grounds.model.Thing;
  * Arguments: name or ID of thing<br>
  * Checks: player passes WRITE for thing (intentionally not just READ)
  */
+@PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class InspectCommand extends Command<String> {
 
   private final Thing thing;
@@ -21,7 +23,7 @@ public class InspectCommand extends Command<String> {
   }
 
   @Override
-  public String execute() throws CommandException {
+  protected String executeImpl() throws CommandException {
     checkPermission(Category.WRITE, thing, "You are not permitted to inspect this");
     return thing.toJson();
   }

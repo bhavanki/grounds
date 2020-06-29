@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Policy.Category;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Thing;
 
@@ -26,6 +27,8 @@ public class DropCommandTest extends AbstractCommandTest {
   @BeforeEach
   public void setUp() {
     super.setUp();
+
+    setPlayerRoles(Role.DENIZEN);
 
     location = mock(Place.class);
 
