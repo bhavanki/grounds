@@ -27,7 +27,7 @@ public class LookCommand extends Command<String> {
   @Override
   protected String executeImpl() throws CommandException {
     try {
-      Optional<Place> location = player.getLocation();
+      Optional<Place> location = player.getLocationAsPlace();
       if (location.isPresent()) {
         checkPermission(Category.READ, location.get(),
                         "You are not permitted to look at where you are");

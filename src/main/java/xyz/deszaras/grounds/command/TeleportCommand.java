@@ -37,7 +37,7 @@ public class TeleportCommand extends Command<String> {
 
     Optional<Place> source;
     try {
-      source = player.getLocation();
+      source = player.getLocationAsPlace();
     } catch (MissingThingException e) {
       source = Optional.empty();
     }

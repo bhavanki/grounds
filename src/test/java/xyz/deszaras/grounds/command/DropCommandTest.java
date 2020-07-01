@@ -40,7 +40,7 @@ public class DropCommandTest extends AbstractCommandTest {
   public void testSuccess() throws Exception {
     when(player.has(thing)).thenReturn(true);
     when(thing.passes(Category.GENERAL, player)).thenReturn(true);
-    when(player.getLocation()).thenReturn(Optional.of(location));
+    when(player.getLocationAsPlace()).thenReturn(Optional.of(location));
 
     assertTrue(command.execute());
 
@@ -72,7 +72,7 @@ public class DropCommandTest extends AbstractCommandTest {
   public void testFailureNoLocation() throws Exception {
     when(player.has(thing)).thenReturn(true);
     when(thing.passes(Category.GENERAL, player)).thenReturn(true);
-    when(player.getLocation()).thenReturn(Optional.empty());
+    when(player.getLocationAsPlace()).thenReturn(Optional.empty());
 
     CommandException e = assertThrows(CommandException.class,
                                       () -> command.execute());

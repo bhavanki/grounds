@@ -46,7 +46,7 @@ public class TeleportCommandTest extends AbstractCommandTest {
 
   @Test
   public void testSuccess() throws Exception {
-    when(player.getLocation()).thenReturn(Optional.of(source));
+    when(player.getLocationAsPlace()).thenReturn(Optional.of(source));
     when(destination.passes(Category.GENERAL, player)).thenReturn(true);
 
     assertEquals("here", command.execute());
@@ -59,7 +59,7 @@ public class TeleportCommandTest extends AbstractCommandTest {
 
   @Test
   public void testSuccessNoSource() throws Exception {
-    when(player.getLocation()).thenReturn(Optional.empty());
+    when(player.getLocationAsPlace()).thenReturn(Optional.empty());
     when(destination.passes(Category.GENERAL, player)).thenReturn(true);
 
     assertEquals("here", command.execute());
@@ -71,7 +71,7 @@ public class TeleportCommandTest extends AbstractCommandTest {
 
   @Test
   public void testFailureNotPermitted() throws Exception {
-    when(player.getLocation()).thenReturn(Optional.of(source));
+    when(player.getLocationAsPlace()).thenReturn(Optional.of(source));
     when(destination.passes(Category.GENERAL, player)).thenReturn(false);
 
     PermissionException e = assertThrows(PermissionException.class,

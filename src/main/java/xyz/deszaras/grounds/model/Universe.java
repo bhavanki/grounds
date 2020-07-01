@@ -343,6 +343,11 @@ public class Universe {
     return Collections.unmodifiableSet(roles.getOrDefault(player.getId(), Collections.emptySet()));
   }
 
+  public boolean hasRole(Role role, Player player) {
+    return roles.getOrDefault(player.getId(), Collections.emptySet())
+        .contains(role);
+  }
+
   /**
    * Adds a role for a player in this universe.
    *

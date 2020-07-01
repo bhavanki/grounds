@@ -130,7 +130,7 @@ public abstract class Command<R> {
    */
   protected Place getPlayerLocation(String action) throws CommandException {
     try {
-      Optional<Place> locationOpt = player.getLocation();
+      Optional<Place> locationOpt = player.getLocationAsPlace();
       if (locationOpt.isEmpty()) {
         throw new CommandException("You have no location, so you may not " + action);
       }

@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Place;
+import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
@@ -40,18 +41,32 @@ public class TakeCommandTest extends AbstractCommandTest {
     when(player.has(thing)).thenReturn(false);
     when(thing.passes(Category.GENERAL, player)).thenReturn(true);
     when(thing.getLocation()).thenReturn(Optional.of(location));
-    when(player.getLocation()).thenReturn(Optional.of(location));
+    when(player.getLocationAsPlace()).thenReturn(Optional.of(location));
 
     assertTrue(command.execute());
 
     verify(location).take(thing);
     verify(player).give(thing);
-    verify(thing).setLocation(null);
+    verify(thing).setLocation(player);
   }
 
   @Test
   public void testFailureAlreadyHave() throws Exception {
     when(player.has(thing)).thenReturn(true);
+
+    CommandException e = assertThrows(CommandException.class,
+                                      () -> command.execute());
+    assertEquals("You are already holding that",
+                 e.getMessage());
+  }
+
+  @Test
+  public void testFailureAlreadyHaveNested() throws Exception {
+    when(player.has(thing)).thenReturn(false);
+    when(thing.passes(Category.GENERAL, player)).thenReturn(true);
+    Thing rucksack = mock(Thing.class);
+    when(rucksack.getLocation()).thenReturn(Optional.of(player));
+    when(thing.getLocation()).thenReturn(Optional.of(rucksack));
 
     CommandException e = assertThrows(CommandException.class,
                                       () -> command.execute());
@@ -87,7 +102,7 @@ public class TakeCommandTest extends AbstractCommandTest {
     when(player.has(thing)).thenReturn(false);
     when(thing.passes(Category.GENERAL, player)).thenReturn(true);
     when(thing.getLocation()).thenReturn(Optional.empty());
-    when(player.getLocation()).thenReturn(Optional.of(location));
+    when(player.getLocationAsPlace()).thenReturn(Optional.of(location));
 
     CommandException e = assertThrows(CommandException.class,
                                       () -> command.execute());
@@ -100,7 +115,7 @@ public class TakeCommandTest extends AbstractCommandTest {
     when(player.has(thing)).thenReturn(false);
     when(thing.passes(Category.GENERAL, player)).thenReturn(true);
     when(thing.getLocation()).thenReturn(Optional.of(location));
-    when(player.getLocation()).thenReturn(Optional.empty());
+    when(player.getLocationAsPlace()).thenReturn(Optional.empty());
 
     CommandException e = assertThrows(CommandException.class,
                                       () -> command.execute());
@@ -109,11 +124,46 @@ public class TakeCommandTest extends AbstractCommandTest {
   }
 
   @Test
+  public void testSuccessSeize() throws Exception {
+    Player holder = mock(Player.class);
+
+    when(player.has(thing)).thenReturn(false);
+    when(thing.passes(Category.GENERAL, player)).thenReturn(true);
+    when(thing.getLocation()).thenReturn(Optional.of(holder));
+    when(player.getLocationAsPlace()).thenReturn(Optional.of(location));
+
+    setPlayerRoles(Role.ADEPT);
+
+    assertTrue(command.execute());
+
+    verify(holder).take(thing);
+    verify(player).give(thing);
+    verify(thing).setLocation(player);
+  }
+
+  @Test
+  public void testFailureSeize() throws Exception {
+    Player holder = mock(Player.class);
+
+    when(player.has(thing)).thenReturn(false);
+    when(thing.passes(Category.GENERAL, player)).thenReturn(true);
+    when(thing.getLocation()).thenReturn(Optional.of(holder));
+    when(player.getLocationAsPlace()).thenReturn(Optional.of(location));
+
+    setPlayerRoles(Role.BARD);
+
+    CommandException e = assertThrows(CommandException.class,
+                                      () -> command.execute());
+    assertEquals("You may not take something from another player",
+                 e.getMessage());
+  }
+
+  @Test
   public void testSuccessWizardNotCollocated() throws Exception {
     when(player.has(thing)).thenReturn(false);
     when(thing.passes(Category.GENERAL, player)).thenReturn(true);
     when(thing.getLocation()).thenReturn(Optional.of(location));
-    when(player.getLocation()).thenReturn(Optional.of(mock(Place.class)));
+    when(player.getLocationAsPlace()).thenReturn(Optional.of(mock(Place.class)));
 
     setPlayerRoles(Role.BARD);
 
@@ -121,7 +171,7 @@ public class TakeCommandTest extends AbstractCommandTest {
 
     verify(location).take(thing);
     verify(player).give(thing);
-    verify(thing).setLocation(null);
+    verify(thing).setLocation(player);
   }
 
   @Test
@@ -129,7 +179,7 @@ public class TakeCommandTest extends AbstractCommandTest {
     when(player.has(thing)).thenReturn(false);
     when(thing.passes(Category.GENERAL, player)).thenReturn(true);
     when(thing.getLocation()).thenReturn(Optional.of(location));
-    when(player.getLocation()).thenReturn(Optional.of(mock(Place.class)));
+    when(player.getLocationAsPlace()).thenReturn(Optional.of(mock(Place.class)));
 
     CommandException e = assertThrows(CommandException.class,
                                       () -> command.execute());

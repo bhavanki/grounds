@@ -169,13 +169,13 @@ public class Thing {
    * @throws MissingThingException if a location is set but not in the universe
    */
   @JsonIgnore
-  public Optional<Place> getLocation() throws MissingThingException {
+  public Optional<Thing> getLocation() throws MissingThingException {
     Optional<Attr> locationAttr =  getAttr(AttrNames.LOCATION);
     if (locationAttr.isEmpty()) {
       return Optional.empty();
     }
-    Optional<Place> location =
-        Universe.getCurrent().getThing(locationAttr.get().getValue(), Place.class);
+    Optional<Thing> location =
+        Universe.getCurrent().getThing(locationAttr.get().getValue());
     if (location.isEmpty()) {
       throw new MissingThingException("Location is missing");
     }
@@ -185,7 +185,7 @@ public class Thing {
   /**
    * Sets this thing's location. Pass a null location to remove it.
    */
-  public void setLocation(Place location) {
+  public void setLocation(Thing location) {
     if (location != null) {
       setAttr(AttrNames.LOCATION, location);
     } else {
@@ -558,7 +558,7 @@ public class Thing {
   }
 
   /**
-   * Checks if this thing contains the given thing.
+   * Checks if this thing directly contains the given thing.
    *
    * @param thingId ID of other thing
    * @return true if this thing contains the other thing
@@ -570,7 +570,7 @@ public class Thing {
   }
 
   /**
-   * Checks if this thing contains the given thing.
+   * Checks if this thing directly contains the given thing.
    *
    * @param thing other thing
    * @return true if this thing contains the other thing

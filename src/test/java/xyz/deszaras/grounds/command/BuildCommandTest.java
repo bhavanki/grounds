@@ -36,7 +36,7 @@ public class BuildCommandTest extends AbstractCommandTest {
     place = newTestPlace("building_place");
     place.give(player);
     try {
-      when(player.getLocation()).thenReturn(Optional.of(place));
+      when(player.getLocationAsPlace()).thenReturn(Optional.of(place));
     } catch (MissingThingException e) {
       // won't happen
     }

@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.MissingThingException;
-import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 import xyz.deszaras.grounds.model.Universe;
@@ -87,12 +86,10 @@ public class ArgumentResolver {
     }
 
     // "here"
-    // The expected type must be Place.
-    Optional<Place> location;
+    Optional<Thing> location;
     try {
       location = context.getLocation();
-      if (name.equalsIgnoreCase(HERE) && type.isAssignableFrom(Place.class) &&
-          location.isPresent()) {
+      if (name.equalsIgnoreCase(HERE) && location.isPresent()) {
         LOG.debug("Resolved {} to {} {}", name, type.getSimpleName(), location.get().getId());
         return type.cast(location.get());
       }
@@ -157,12 +154,10 @@ public class ArgumentResolver {
     }
 
     // the context thing's location (analogous to "here")
-    // The expected type must be Place.
-    Optional<Place> location;
+    Optional<Thing> location;
     try {
       location = context.getLocation();
-      if (location.isPresent() && id.equals(location.get().getId()) &&
-          type.equals(Place.class)) {
+      if (location.isPresent() && id.equals(location.get().getId())) {
         LOG.debug("Resolved {} to {} {}", id, type.getSimpleName(), location.get().getId());
         return type.cast(location.get());
       }

@@ -65,6 +65,18 @@ public class Player extends Thing {
     messages = new LinkedBlockingQueue<>();
   }
 
+  public Optional<Place> getLocationAsPlace() throws MissingThingException {
+    Optional<Thing> location = getLocation();
+    if (location.isEmpty()) {
+      return Optional.empty();
+    }
+    if (location.get() instanceof Place) {
+      return Optional.of((Place) location.get());
+    }
+    throw new IllegalStateException("Player " + getName() + " is located at a " +
+                                    "non-place: " + location.get().getId());
+  }
+
   /**
    * Gets this player's current actor. An idling player does not have
    * any actor.

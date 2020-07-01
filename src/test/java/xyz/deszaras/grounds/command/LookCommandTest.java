@@ -38,7 +38,7 @@ public class LookCommandTest extends AbstractCommandTest {
 
   @Test
   public void testSuccess() throws Exception {
-    when(player.getLocation()).thenReturn(Optional.of(location));
+    when(player.getLocationAsPlace()).thenReturn(Optional.of(location));
     when(location.passes(Category.READ, player)).thenReturn(true);
 
     String lookResult = command.execute();
@@ -48,7 +48,7 @@ public class LookCommandTest extends AbstractCommandTest {
 
   @Test
   public void testFailureCannotLook() throws Exception {
-    when(player.getLocation()).thenReturn(Optional.of(location));
+    when(player.getLocationAsPlace()).thenReturn(Optional.of(location));
     when(location.passes(Category.READ, player)).thenReturn(false);
 
     PermissionException e = assertThrows(PermissionException.class,
@@ -59,7 +59,7 @@ public class LookCommandTest extends AbstractCommandTest {
 
   @Test
   public void testSuccessNowhere() throws Exception {
-    when(player.getLocation()).thenReturn(Optional.empty());
+    when(player.getLocationAsPlace()).thenReturn(Optional.empty());
 
     String lookResult = command.execute();
 
