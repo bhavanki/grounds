@@ -124,6 +124,7 @@ public class Universe {
   private final Map<UUID, Thing> things;
   private final Map<UUID, Set<Role>> roles;
   private UUID lostAndFoundId;
+  private UUID guestHomeId;
 
   /**
    * Creates an empty universe. Whoa.
@@ -135,6 +136,7 @@ public class Universe {
     things = new HashMap<>();
     roles = new HashMap<>();
     lostAndFoundId = null;
+    guestHomeId = null;
   }
 
   /**
@@ -144,13 +146,15 @@ public class Universe {
    * @param things things in the universe
    * @param roles player role assignments in the universe
    * @param lostAndFoundId the ID for the lost and found place in the universe
+   * @param guestHomeId the ID for the guest home in the universe
    */
   @JsonCreator
   public Universe(
       @JsonProperty("name") String name,
       @JsonProperty("things") Set<Thing> things,
       @JsonProperty("roleAssignments") Map<String, Set<Role>> roles,
-      @JsonProperty("lostAndFoundId") String lafId) {
+      @JsonProperty("lostAndFoundId") String lafId,
+      @JsonProperty("guestHomeId") String ghId) {
     this(name);
     if (things != null) {
       things.stream().forEach(thing -> this.things.put(thing.getId(), thing));
@@ -162,6 +166,9 @@ public class Universe {
     }
     if (lafId != null) {
       lostAndFoundId = UUID.fromString(lafId);
+    }
+    if (ghId != null) {
+      guestHomeId = UUID.fromString(ghId);
     }
   }
 
@@ -424,6 +431,38 @@ public class Universe {
    */
   public void setLostAndFoundId(UUID lostAndFoundId) {
     this.lostAndFoundId = lostAndFoundId;
+  }
+
+  /**
+   * Gets the ID for the guest home in this universe. This place is where
+   * guests appear.
+   *
+   * @return ID of guest home
+   */
+  public UUID getGuestHomeId() {
+    return guestHomeId;
+  }
+
+  /**
+   * Gets the guest home place in this universe. This place is where guests
+   * appear.
+   *
+   * @return guest home place
+   */
+  @JsonIgnore
+  public Optional<Place> getGuestHomePlace() {
+    return guestHomeId != null ?
+        getThing(guestHomeId, Place.class) : Optional.empty();
+  }
+
+  /**
+   * Sets the ID for the guest home place in this universe. This place is
+   * where guests appear.
+   *
+   * @param guestHomeId ID of guest home place
+   */
+  public void setGuestHomeId(UUID guestHomeId) {
+    this.guestHomeId = guestHomeId;
   }
 
   /**

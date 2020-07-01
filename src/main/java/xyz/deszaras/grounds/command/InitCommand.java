@@ -35,6 +35,7 @@ public class InitCommand extends Command<Boolean> {
 
     Place origin = createOrigin(universe);
     createLostAndFound(universe);
+    createGuestLounge(universe);
 
     Universe.setCurrent(universe);
     Universe.setCurrentFile(null);
@@ -67,6 +68,23 @@ public class InitCommand extends Command<Boolean> {
         "This is where the contents of destroyed things end up.");
 
     player.sendMessage(newInfoMessage("Created lost+found place " + laf.getId()));
+  }
+
+  private void createGuestLounge(Universe universe) {
+    Place glounge = new Place("GUEST LOUNGE");
+    universe.addThing(glounge);
+    universe.setGuestHomeId(glounge.getId());
+
+    glounge.setDescription(
+        "Welcome, guests! This is the guest lounge, where you may talk with " +
+        "players and other guests, and perhaps do a little exploring. Try " +
+        "these commands to get started.\n\n" +
+        "- `look` to see where you are and who is also here\n" +
+        "- `say Hi` to say \"Hi\" to everyone here\n" +
+        "- `help commands` to learn about other available commands\n" +
+        "- `exit` to log out of the server");
+
+    player.sendMessage(newInfoMessage("Created guest lounge place " + glounge.getId()));
   }
 
   public static InitCommand newCommand(Actor actor, Player player,
