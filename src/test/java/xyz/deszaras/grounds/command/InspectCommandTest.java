@@ -21,7 +21,7 @@ public class InspectCommandTest extends AbstractCommandTest {
   public void setUp() {
     super.setUp();
 
-    setPlayerRoles(Role.DENIZEN);
+    setPlayerRoles(Role.BARD);
 
     thing = mock(Thing.class);
     when(thing.toJson()).thenReturn("{}");

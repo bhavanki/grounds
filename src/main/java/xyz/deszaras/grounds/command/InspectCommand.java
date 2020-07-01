@@ -12,7 +12,7 @@ import xyz.deszaras.grounds.model.Thing;
  * Arguments: name or ID of thing<br>
  * Checks: player passes WRITE for thing (intentionally not just READ)
  */
-@PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
+@PermittedRoles(roles = { Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class InspectCommand extends Command<String> {
 
   private final Thing thing;

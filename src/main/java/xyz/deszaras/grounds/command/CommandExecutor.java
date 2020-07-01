@@ -31,6 +31,7 @@ public class CommandExecutor {
     COMMANDS = ImmutableMap.<String, Class<? extends Command>>builder()
         .put("LOOK", LookCommand.class)
         .put("L", LookCommand.class)
+        .put("DESCRIBE", DescribeCommand.class)
         .put("INSPECT", InspectCommand.class)
         .put("TELEPORT", TeleportCommand.class)
         .put("TP", TeleportCommand.class)
