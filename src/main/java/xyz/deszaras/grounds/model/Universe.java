@@ -343,6 +343,13 @@ public class Universe {
     return Collections.unmodifiableSet(roles.getOrDefault(player.getId(), Collections.emptySet()));
   }
 
+  /**
+   * Checks if a player has a role in this universe.
+   *
+   * @param  role   role to check for
+   * @param  player player
+   * @return        true if player has role
+   */
   public boolean hasRole(Role role, Player player) {
     return roles.getOrDefault(player.getId(), Collections.emptySet())
         .contains(role);

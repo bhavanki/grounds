@@ -65,6 +65,14 @@ public class Player extends Thing {
     messages = new LinkedBlockingQueue<>();
   }
 
+  /**
+   * Gets this player's location, which must always be a Place.
+   *
+   * @return location, or empty if there is none
+   * @throws IllegalStateException if the location is not a Place
+   * @throws MissingThingException if a location is set but not in the universe
+   */
+  @JsonIgnore
   public Optional<Place> getLocationAsPlace() throws MissingThingException {
     Optional<Thing> location = getLocation();
     if (location.isEmpty()) {
