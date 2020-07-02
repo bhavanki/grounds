@@ -58,7 +58,7 @@ public class Shell implements Runnable {
 
   private Player player = null;
   private Instant startTime;
-  private String bannerContent = null;
+  private String loginBannerContent = null;
   private Future<?> future = null;
   private int exitCode = 0;
 
@@ -132,12 +132,12 @@ public class Shell implements Runnable {
   }
 
   /**
-   * Sets the banner content for the shell.
+   * Sets the login banner content for the shell.
    *
-   * @param bannerContent banner content
+   * @param loginBannerContent banner content
    */
-  public void setBannerContent(String bannerContent) {
-    this.bannerContent = bannerContent;
+  public void setLoginBannerContent(String loginBannerContent) {
+    this.loginBannerContent = loginBannerContent;
   }
 
   /**
@@ -172,7 +172,7 @@ public class Shell implements Runnable {
     Future<?> emitterFuture = null;
 
     try {
-      emitBanner();
+      emitLoginBanner();
 
       if (actor.equals(Actor.GUEST)) {
         player = createGuestPlayer();
@@ -286,14 +286,14 @@ public class Shell implements Runnable {
     }
   }
 
-  private void emitBanner() {
-    if (bannerContent == null) {
+  private void emitLoginBanner() {
+    if (loginBannerContent == null) {
       return;
     }
-    String bannerToEmit = bannerContent
+    String loginBannerToEmit = loginBannerContent
         .replaceAll("_username_", actor.getUsername())
         .replaceAll("_ipaddress_", getIPAddress());
-    terminal.writer().println(bannerToEmit);
+    terminal.writer().println(loginBannerToEmit);
   }
 
   private static AtomicInteger guestCounter = new AtomicInteger();

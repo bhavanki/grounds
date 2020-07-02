@@ -4,12 +4,14 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import com.google.common.io.Resources;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.sshd.common.channel.PtyMode;
 import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.ExitCallback;
+import org.apache.sshd.server.ServerFactoryManager;
 import org.apache.sshd.server.Signal;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.channel.ChannelSession;
@@ -72,7 +75,7 @@ public class Server {
 
   private final SshServer sshServer;
   private final ExecutorService shellExecutorService;
-  private final String bannerContent;
+  private final String loginBannerContent;
   private final CountDownLatch shutdownLatch;
 
   private final ScheduledExecutorService adminExecutorService;
@@ -95,7 +98,7 @@ public class Server {
                                       .setDaemon(true)
                                       .setNameFormat("grounds-shell-%d")
                                       .build());
-    bannerContent = readBannerContent(serverProperties);
+    loginBannerContent = readLoginBannerContent(serverProperties);
     shutdownLatch = new CountDownLatch(1);
 
     adminExecutorService = Executors.newScheduledThreadPool(Integer.parseInt(
@@ -139,15 +142,26 @@ public class Server {
     ActorDatabase.INSTANCE.load(); // must be present, use SingleUser otherwise
     s.setPasswordAuthenticator(new HashedPasswordAuthenticator(ActorDatabase.INSTANCE));
 
+    Map<String, Object> sshServerProperties = s.getProperties();
+
+    String welcomeBannerFileProperty = serverProperties.getProperty("welcomeBannerFile");
+    if (welcomeBannerFileProperty != null) {
+      Path welcomeBannerFile = FileSystems.getDefault().getPath(welcomeBannerFileProperty);
+      sshServerProperties.put(ServerFactoryManager.WELCOME_BANNER, welcomeBannerFile);
+    } else {
+      URL defaultWelcomeBannerUrl = Resources.getResource("default_welcome_banner.txt");
+      sshServerProperties.put(ServerFactoryManager.WELCOME_BANNER, defaultWelcomeBannerUrl);
+    }
+
     s.setShellFactory(new ServerShellFactory());
     return s;
   }
 
-  private String readBannerContent(Properties serverProperties) throws IOException {
-    String bannerFileProperty = serverProperties.getProperty("bannerFile");
-    if (bannerFileProperty != null) {
-      Path bannerFile = FileSystems.getDefault().getPath(bannerFileProperty);
-      return Files.readString(bannerFile, StandardCharsets.UTF_8);
+  private String readLoginBannerContent(Properties serverProperties) throws IOException {
+    String loginBannerFileProperty = serverProperties.getProperty("loginBannerFile");
+    if (loginBannerFileProperty != null) {
+      Path loginBannerFile = FileSystems.getDefault().getPath(loginBannerFileProperty);
+      return Files.readString(loginBannerFile, StandardCharsets.UTF_8);
     } else {
       return null;
     }
@@ -299,7 +313,7 @@ public class Server {
       Shell shell = new Shell(actor, virtualTerminal, shellExecutorService);
       openShells.put(actor, shell);
       shell.setStartTime(actor.getLastLoginTime());
-      shell.setBannerContent(bannerContent);
+      shell.setLoginBannerContent(loginBannerContent);
 
       Runnable shellRunnable = new Runnable() {
         @Override
