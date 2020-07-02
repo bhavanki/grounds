@@ -207,4 +207,29 @@ public class UniverseTest {
     Universe.setCurrentFile(null);
     assertFalse(Universe.saveCurrent());
   }
+
+  @Test
+  public void testRemoveGuests() {
+    Place p = new Place("here");
+    u.addThing(p);
+
+    Player p1 = new Player("bob");
+    u.addRole(Role.DENIZEN, p1);
+    u.addThing(p1);
+    p1.setLocation(p);
+    p.give(p1);
+
+    Player p2 = new Player("guest1");
+    u.addRole(Role.GUEST, p2);
+    u.addThing(p2);
+    p2.setLocation(p);
+    p.give(p2);
+
+    assertEquals(Set.of(p1, p2), u.getThings(Player.class));
+
+    u.removeGuests();
+
+    assertEquals(Set.of(p1), u.getThings(Player.class));
+    assertEquals(Set.of(p1.getId()), p.getContents());
+  }
 }

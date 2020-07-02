@@ -466,6 +466,27 @@ public class Universe {
   }
 
   /**
+   * Removes all temporary guest players from this universe. This should be
+   * done for newly loaded universes.
+   */
+  public void removeGuests() {
+    getThings(Player.class).stream()
+      .filter(p -> getRoles(p).contains(Role.GUEST))
+      .forEach(p -> {
+        Optional<Attr> locationAttr = p.getAttr(AttrNames.LOCATION);
+        if (locationAttr.isPresent()) {
+          Optional<Thing> location =
+            getThing(locationAttr.get().getValue());
+          if (location.isPresent()) {
+            location.get().take(p);
+          }
+        }
+        removeAllRoles(p);
+        removeThing(p);
+      });
+  }
+
+  /**
    * Creates a JSON representation of this universe.
    *
    * @return JSON string

@@ -40,7 +40,11 @@ public class Main {
       properties.load(r);
     }
     if (jcArgs.universeFile != null) {
-      Universe.setCurrent(Universe.load(jcArgs.universeFile));
+      Universe universe = Universe.load(jcArgs.universeFile);
+
+      universe.removeGuests();
+
+      Universe.setCurrent(universe);
       Universe.setCurrentFile(jcArgs.universeFile);
     } else {
       Universe.setCurrent(Universe.VOID);

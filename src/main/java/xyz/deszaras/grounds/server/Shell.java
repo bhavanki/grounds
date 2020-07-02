@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import org.fusesource.jansi.Ansi;
 import org.jline.reader.EndOfFileException;
@@ -19,15 +20,18 @@ import org.jline.reader.UserInterruptException;
 import org.jline.terminal.Terminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.Command;
 import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.command.CommandResult;
+import xyz.deszaras.grounds.command.DestroyCommand;
 import xyz.deszaras.grounds.command.ExitCommand;
 import xyz.deszaras.grounds.command.Message;
 import xyz.deszaras.grounds.command.SwitchPlayerCommand;
+import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Universe;
 import xyz.deszaras.grounds.util.AnsiUtils;
@@ -170,6 +174,10 @@ public class Shell implements Runnable {
     try {
       emitBanner();
 
+      if (actor.equals(Actor.GUEST)) {
+        player = createGuestPlayer();
+      }
+
       if (player == null) {
         try {
           player = selectPlayer();
@@ -272,6 +280,9 @@ public class Shell implements Runnable {
       if (player != null) {
         player.setCurrentActor(null);
       }
+      if (actor.equals(Actor.GUEST)) {
+        destroyGuestPlayer(player);
+      }
     }
   }
 
@@ -283,6 +294,47 @@ public class Shell implements Runnable {
         .replaceAll("_username_", actor.getUsername())
         .replaceAll("_ipaddress_", getIPAddress());
     terminal.writer().println(bannerToEmit);
+  }
+
+  private static AtomicInteger guestCounter = new AtomicInteger();
+
+  private static String generateGuestName() {
+    return String.format("guest%d", guestCounter.incrementAndGet());
+  }
+
+  private Player createGuestPlayer() {
+    player = new Player(generateGuestName());
+    Universe universe = Universe.getCurrent();
+    universe.addRole(Role.GUEST, player);
+    universe.addThing(player);
+    Optional<Place> guestHome = universe.getGuestHomePlace();
+    if (guestHome.isPresent()) {
+      player.setLocation(guestHome.get());
+      guestHome.get().give(player);
+    }
+    return player;
+  }
+
+  @SuppressWarnings("PMD.EmptyCatchBlock")
+  private void destroyGuestPlayer(Player player) {
+    Command destroyCommand = new DestroyCommand(Actor.ROOT, Player.GOD, player);
+    Future<CommandResult> destroyCommandFuture =
+        CommandExecutor.getInstance().submit(destroyCommand);
+    try {
+      CommandResult destroyCommandResult = destroyCommandFuture.get();
+
+      if (!destroyCommandResult.isSuccessful()) {
+        Optional<CommandException> destroyCommandException =
+            destroyCommandResult.getCommandException();
+        if (destroyCommandException.isPresent()) {
+          LOG.error(destroyCommandException.get().getMessage());
+        }
+      }
+    } catch (ExecutionException e) {
+      LOG.error("Destruction of guest {} failed", player.getName(), e.getCause());
+    } catch (InterruptedException e) {
+      LOG.error("Interrupted while destroying guest {}", player.getName());
+    }
   }
 
   private Player selectPlayer() throws IOException {

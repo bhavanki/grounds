@@ -3,6 +3,8 @@ package xyz.deszaras.grounds.command;
 import java.util.List;
 import java.util.Objects;
 
+import xyz.deszaras.grounds.auth.Policy;
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Universe;
@@ -83,6 +85,10 @@ public class InitCommand extends Command<Boolean> {
         "- `say Hi` to say \"Hi\" to everyone here\n" +
         "- `help commands` to learn about other available commands\n" +
         "- `exit` to log out of the server");
+
+    Policy glPolicy = glounge.getPolicy();
+    glPolicy.setRoles(Policy.Category.GENERAL, Role.ALL_ROLES);
+    glPolicy.setRoles(Policy.Category.READ, Role.ALL_ROLES);
 
     player.sendMessage(newInfoMessage("Created guest lounge place " + glounge.getId()));
   }

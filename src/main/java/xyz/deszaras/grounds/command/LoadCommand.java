@@ -31,14 +31,17 @@ public class LoadCommand extends Command<Boolean> {
         Universe.getCurrent().getThing(Player.GOD.getId(), Player.class);
     try {
       Universe loadedUniverse = Universe.load(f);
-      Universe.setCurrent(loadedUniverse);
-      Universe.setCurrentFile(f);
 
       Optional<Player> newUniverseGodPlayer =
           loadedUniverse.getThing(Player.GOD.getId(), Player.class);
       if (newUniverseGodPlayer.isPresent() && previousUniverseGodPlayer.isPresent()) {
         newUniverseGodPlayer.get().setCurrentActor(previousUniverseGodPlayer.get().getCurrentActor().orElse(null));
       }
+
+      loadedUniverse.removeGuests();
+
+      Universe.setCurrent(loadedUniverse);
+      Universe.setCurrentFile(f);
 
       player.sendMessage(newInfoMessage("Loaded universe from " + f.getName()));
       return true;

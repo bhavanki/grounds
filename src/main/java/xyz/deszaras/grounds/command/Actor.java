@@ -20,6 +20,11 @@ public class Actor {
    */
   public static final Actor ROOT = new Actor("root");
 
+  /**
+   * The guest actor, shared by all guests.
+   */
+  public static final Actor GUEST = new Actor("guest");
+
   public static final String PREFERENCE_ANSI = "ansi";
 
   private final String username;
