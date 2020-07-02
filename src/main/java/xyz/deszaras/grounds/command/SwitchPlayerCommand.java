@@ -22,6 +22,10 @@ public class SwitchPlayerCommand extends Command<Boolean> {
     this.newPlayer = newPlayer;
   }
 
+  public Player getNewPlayer() {
+    return newPlayer;
+  }
+
   @Override
   protected Boolean executeImpl() throws CommandException {
     if (!actor.equals(Actor.ROOT) &&
@@ -38,7 +42,6 @@ public class SwitchPlayerCommand extends Command<Boolean> {
     }
 
     player.setCurrentActor(null);
-    actor.setCurrentPlayer(newPlayer);
     newPlayer.setCurrentActor(actor);
 
     return true;

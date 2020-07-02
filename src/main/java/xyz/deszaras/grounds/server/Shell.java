@@ -236,14 +236,15 @@ public class Shell implements Runnable {
           }
 
           if (commandResult.isSuccessful() &&
-              commandResult.getCommandClass().isPresent()) {
-            Optional<Class<? extends Command>> commandClassOpt = commandResult.getCommandClass();
-            Class<? extends Command> commandClass = commandClassOpt.get();
+              commandResult.getCommand().isPresent()) {
+            // javac bug? combining these statements doesn't work
+            Optional<Command> commandOpt = commandResult.getCommand();
+            Command command = commandOpt.get();
 
-            if (commandClass.equals(ExitCommand.class)) {
+            if (command instanceof ExitCommand) {
               break;
-            } else if (commandClass.equals(SwitchPlayerCommand.class)) {
-              player = actor.getCurrentPlayer();
+            } else if (command instanceof SwitchPlayerCommand) {
+              player = ((SwitchPlayerCommand) command).getNewPlayer();
               prompt = getPrompt(player);
 
               emitterFuture.cancel(true);

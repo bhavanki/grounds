@@ -68,7 +68,7 @@ public class CommandCallable implements Callable<CommandResult> {
     // Execute the command!
     try {
       return new CommandResult(commandToExecute.execute(),
-                               commandToExecute.getClass());
+                               commandToExecute);
     } catch (CommandException e) {
       return new CommandResult(e);
     }

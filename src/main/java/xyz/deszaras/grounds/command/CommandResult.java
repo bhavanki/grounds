@@ -12,19 +12,19 @@ public class CommandResult<R> {
   private final R result;
   private final CommandException commandException;
   private final CommandFactoryException commandFactoryException;
-  private final Class<? extends Command> commandClass;
+  private final Command command;
 
   /**
    * Creates a new result for a command that was executed.
    *
    * @param result command result
-   * @param commandClass type of the executed command
+   * @param command the executed command
    */
-  public CommandResult(R result, Class<? extends Command> commandClass) {
+  public CommandResult(R result, Command command) {
     this.result = result;
     commandException = null;
     commandFactoryException = null;
-    this.commandClass = commandClass;
+    this.command = command;
   }
 
   /**
@@ -36,7 +36,7 @@ public class CommandResult<R> {
     result = null;
     commandException = e;
     commandFactoryException = null;
-    this.commandClass = null;
+    this.command = null;
   }
 
   /**
@@ -48,7 +48,7 @@ public class CommandResult<R> {
     result = null;
     commandException = null;
     commandFactoryException = e;
-    this.commandClass = null;
+    this.command = null;
   }
 
   /**
@@ -88,11 +88,11 @@ public class CommandResult<R> {
   }
 
   /**
-   * Gets the type of the command executed.
+   * Gets the command executed.
    *
-   * @return command type
+   * @return command
    */
-  public Optional<Class<? extends Command>> getCommandClass() {
-    return Optional.ofNullable(commandClass);
+  public Optional<Command> getCommand() {
+    return Optional.ofNullable(command);
   }
 }

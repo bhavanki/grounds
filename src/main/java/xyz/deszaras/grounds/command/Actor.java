@@ -8,12 +8,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import xyz.deszaras.grounds.model.Player;
-
 /**
  * An active participant in the game, usually a human but not
- * necessarily. An actor should be associated with the player that
- * they are currently "driving".
+ * necessarily.
  */
 public class Actor {
 
@@ -28,7 +25,6 @@ public class Actor {
   private final String username;
   private final Map<String, String> preferences;
 
-  private Player currentPlayer;
   private InetAddress mostRecentIPAddress;
   private Instant lastLoginTime;
 
@@ -49,24 +45,6 @@ public class Actor {
    */
   public String getUsername() {
     return username;
-  }
-
-  /**
-   * Gets the current player for this actor.
-   *
-   * @return current player
-   */
-  public Player getCurrentPlayer() {
-    return currentPlayer;
-  }
-
-  /**
-   * Sets the current player for this actor.
-   *
-   * @return current player
-   */
-  public void setCurrentPlayer(Player player) {
-    currentPlayer = player;
   }
 
   /**

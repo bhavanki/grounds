@@ -82,13 +82,14 @@ public class RunCommand extends Command<Boolean> {
         if (result != null && !(result instanceof Boolean)) {
           player.sendMessage(new Message(player, Message.Style.INFO, result.toString()));
         }
-        Optional<Class<? extends Command>> commandClass = commandResult.getCommandClass();
-        if (commandClass.isPresent() &&
+        Optional<Command> command = commandResult.getCommand();
+        if (command.isPresent() &&
           // Problem: Need to catch shutdown command before it's executed!
-            (commandClass.get().equals(ExitCommand.class) ||
-             commandClass.get().equals(SwitchPlayerCommand.class))) {
+            (command.get() instanceof ExitCommand) ||
+             command.get() instanceof SwitchPlayerCommand) {
           player.sendMessage(new Message(player, Message.Style.INFO,
-                                         "Ignoring command of type " + commandClass.get().getSimpleName()));
+                                         "Ignoring command of type " +
+                                         command.get().getClass().getSimpleName()));
         }
       }
     }

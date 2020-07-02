@@ -12,8 +12,6 @@ import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import xyz.deszaras.grounds.model.Player;
-
 public class ActorTest {
 
   private Actor actor;
@@ -26,10 +24,6 @@ public class ActorTest {
   @Test
   public void testGettersAndSetters() {
     assertEquals("bob", actor.getUsername());
-
-    Player player = new Player("robobob");
-    actor.setCurrentPlayer(player);
-    assertEquals(player, actor.getCurrentPlayer());
 
     @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
     InetAddress actorAddress = InetAddresses.forString("1.2.3.4");
