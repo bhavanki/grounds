@@ -9,6 +9,7 @@ import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.ActorCommand;
 import xyz.deszaras.grounds.command.Message;
 import xyz.deszaras.grounds.command.ServerCommand;
+import xyz.deszaras.grounds.command.CommandArgumentResolver;
 import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.command.PermittedRoles;
@@ -19,18 +20,20 @@ import xyz.deszaras.grounds.server.Shell;
 /**
  * Boots an actor.<p>
  *
- * Arguments: username<br>
+ * Arguments: username, optional player<br>
  * Checks: player is GOD, actor is not ROOT
  */
 @PermittedRoles(roles = { Role.ADEPT, Role.THAUMATURGE })
 public class BootActorCommand extends ServerCommand<Boolean> {
 
   private final String username;
+  private final Player bootedPlayer;
 
   public BootActorCommand(Actor actor, Player player, Server server,
-                          String username) {
+                          String username, Player bootedPlayer) {
     super(actor, player, server);
     this.username = Objects.requireNonNull(username);
+    this.bootedPlayer = bootedPlayer;
   }
 
   @Override
@@ -43,6 +46,7 @@ public class BootActorCommand extends ServerCommand<Boolean> {
       actorShells = Collections.emptySet();
     }
     return actorShells.stream()
+        .filter(shell -> shell.getPlayer().equals(bootedPlayer))
         .map(shell -> {
           Player shellPlayer = shell.getPlayer();
           boolean terminated = shell.terminate();
@@ -62,6 +66,9 @@ public class BootActorCommand extends ServerCommand<Boolean> {
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
     String username = commandArgs.get(0);
-    return new BootActorCommand(actor, player, server, username);
+    Player bootedPlayer = commandArgs.size() > 1 ?
+        CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(1), Player.class, player) :
+        null;
+    return new BootActorCommand(actor, player, server, username, bootedPlayer);
   }
 }
