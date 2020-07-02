@@ -5,7 +5,7 @@
 
   <groupId>xyz.deszaras</groupId>
   <artifactId>grounds</artifactId>
-  <version>0.1.1-SNAPSHOT</version>
+  <version>0.2.0</version>
 
   <name>grounds</name>
   <description>A MUSH.</description>
@@ -29,7 +29,7 @@
 
   <scm>
     <developerConnection>scm:git:git@github.com:bhavanki/grounds.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>grounds-0.2.0</tag>
   </scm>
 
   <properties>
