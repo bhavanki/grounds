@@ -53,7 +53,7 @@ public class HelpCommand extends Command<String> {
                                        List<String> commandArgs)
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
-    String commandName = commandArgs.get(0);
+    String commandName = String.join("_", commandArgs);
     return new HelpCommand(actor, player, commandName);
   }
 }
