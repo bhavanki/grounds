@@ -6,7 +6,7 @@ A [MUSH](https://en.wikipedia.org/wiki/MUSH).
 
 ## Features
 
-Grounds is under active development, so features are all new and/or still being worked on to a large extent. There are definitely bugs and missing features, and many concepts are still subject to change.
+Grounds is under active development, so features are all new and/or still being worked on to a large extent. There are definitely bugs and missing features, and some concepts are still subject to change.
 
 * **Arbitrary attributes.** Every thing has an unlimited set of named, typed attributes. Some are special, like "name" and "description". Make up any others you need.
 * **Role-based permissions.** Every thing in a universe has a security policy that permits categories of actions that affect it only by specified roles. For example, a player can't read another thing's attributes unless the player has a role with READ permission. Roles include a few wizardly ones plus ordinary ones.
@@ -17,7 +17,8 @@ Grounds is under active development, so features are all new and/or still being 
 
 ## Requirements
 
-* [JDK](https://adoptopenjdk.net/) 11
+* [JDK](https://adoptopenjdk.net/) 11 or higher
+* [Apache Maven](https://maven.apache.org) 3.6.0 or higher (building only)
 
 ## Running
 
@@ -26,16 +27,18 @@ For now, you need to build Grounds yourself. See the Building section below.
 In normal multi-user mode:
 
 ```
-$ java -jar grounds.jar --properties etc/server.properties --universe mygame.json
+$ java -jar grounds-<version>.jar \
+  --properties etc/server.properties --universe mygame.json
 ```
 
 In single-user mode:
 
 ```
-$ java -jar grounds.jar --properties etc/server.properties --single-user
+$ java -jar grounds-<version>.jar \
+  --properties etc/server.properties --single-user
 ```
 
-Instructions on building a new universe will be written in the future.
+Instructions on building a new universe are in the works.
 
 ## Connecting
 
@@ -49,18 +52,15 @@ After authenticating with your password, you can pick the player you want to use
 
 ## Building
 
-Use [Apache Maven](https://maven.apache.org/).
-
 ```
 $ mvn package
 ```
 
 ## Plans
 
-* OOC messaging system
+* Mail and event systems
 * Tighter security around scripted commands
 * A combat system
-* Colors!
 * More fun stuff
 
 ## License
