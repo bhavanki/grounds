@@ -29,6 +29,7 @@ import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.command.CommandResult;
 import xyz.deszaras.grounds.command.DestroyCommand;
 import xyz.deszaras.grounds.command.ExitCommand;
+import xyz.deszaras.grounds.command.LookCommand;
 import xyz.deszaras.grounds.command.Message;
 import xyz.deszaras.grounds.command.SwitchPlayerCommand;
 import xyz.deszaras.grounds.model.Place;
@@ -196,6 +197,8 @@ public class Shell implements Runnable {
       String prePrompt = "";
       String prompt = getPrompt(player);
 
+      autoLook();
+
       while (true) {
         String line;
         try {
@@ -258,6 +261,8 @@ public class Shell implements Runnable {
               emitterFuture.cancel(true);
               emitterFuture = emitterExecutorService.submit(
                  new MessageEmitter(player, terminal, lineReader));
+
+              autoLook();
             }
           }
 
@@ -388,6 +393,22 @@ public class Shell implements Runnable {
 
     return chosenPlayer;
   }
+
+  @SuppressWarnings("PMD.EmptyCatchBlock")
+  private void autoLook() throws InterruptedException {
+    Future<CommandResult> lookCommandFuture =
+        CommandExecutor.getInstance().submit(new LookCommand(actor, player));
+    try {
+      CommandResult lookCommandResult = lookCommandFuture.get();
+      if (lookCommandResult.isSuccessful()) {
+        player.sendMessage(new Message(player, Message.Style.INFO,
+                                       lookCommandResult.getResult().toString()));
+      }
+    } catch (ExecutionException e) {
+      // oh well
+    }
+  }
+
 
   private static String getPrompt(Player player) {
     if (player.equals(Player.GOD)) {
