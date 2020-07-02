@@ -50,14 +50,19 @@ public class SingleUser implements Runnable {
       }
     } else {
       console.printf("Actor database does not yet exist, creating a new one\n\n");
-      ActorDatabase.INSTANCE.createActorRecord(Actor.ROOT.getUsername(), "grounds");
+      ActorDatabase.INSTANCE.createActorRecord(Actor.ROOT.getUsername(),
+                                               HashedPasswordAuthenticator.hashPassword("grounds"));
+      ActorDatabase.INSTANCE.createActorRecord(Actor.GUEST.getUsername(),
+                                               HashedPasswordAuthenticator.hashPassword("guest"));
       try {
         ActorDatabase.INSTANCE.save();
       } catch (IOException e) {
         console.printf("Failed to save new actor database", e);
         return;
       }
-      console.printf("Created new actor database. Please set the root password\n\n");
+      console.printf("Created new actor database. Please set the root password:\n\n" +
+                     "ACTOR SET_PASSWORD root <new-password>\n\n" +
+                     "Also created new guest actor with password 'guest'.\n");
     }
 
     CommandExecutor.create(null);
