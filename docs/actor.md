@@ -49,3 +49,5 @@ Terminated shell for actor wilma playing as Ahalish
 An alternative to locking an actor is to set their password to something they do not know.
 
 Grounds does not provide a way to ban IP addresses, although it does keep track of them for informational purposes. Instead, use the firewall capabilities of the operating system to block IP addresses or address ranges. On Linux, use the [`iptables`](https://linux.die.net/man/8/iptables) or [`ufw`](https://wiki.ubuntu.com/UncomplicatedFirewall) utilities to manage network access rules.
+
+→ [Server Operations](serverops.md)

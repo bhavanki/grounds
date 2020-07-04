@@ -22,8 +22,6 @@ Grounds is under active development, so features are all new and/or still being 
 
 ## Running
 
-For now, you need to build Grounds yourself. See the Building section below.
-
 In normal multi-user mode:
 
 ```
@@ -38,7 +36,7 @@ $ java -jar grounds-<version>.jar \
   --properties etc/server.properties --single-user
 ```
 
-Instructions on building a new universe are in the works.
+Instructions on building a new universe are in the [documentation](https://bhavanki.github.io/grounds).
 
 ## Connecting
 
@@ -55,6 +53,10 @@ After authenticating with your password, you can pick the player you want to use
 ```
 $ mvn package
 ```
+
+## Documentation
+
+[https://bhavanki.github.io/grounds](https://bhavanki.github.io/grounds)
 
 ## Plans
 
