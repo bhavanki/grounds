@@ -140,7 +140,7 @@ public class Server {
     Path actorDatabaseFile = FileSystems.getDefault().getPath(actorDatabaseFileProperty);
     ActorDatabase.INSTANCE.setPath(actorDatabaseFile);
     ActorDatabase.INSTANCE.load(); // must be present, use SingleUser otherwise
-    s.setPasswordAuthenticator(new HashedPasswordAuthenticator(ActorDatabase.INSTANCE));
+    s.setPasswordAuthenticator(new PasswordAuthenticator(ActorDatabase.INSTANCE));
 
     Map<String, Object> sshServerProperties = s.getProperties();
 
@@ -174,9 +174,6 @@ public class Server {
    */
   private class ServerShellFactory implements ShellFactory {
 
-    @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
-    private static final String LOCALHOST = "127.0.0.1";
-
     private ServerShellFactory() {
     }
 
@@ -186,12 +183,6 @@ public class Server {
 
       InetSocketAddress remoteAddress =
           (InetSocketAddress) session.getSessionContext().getRemoteAddress();
-
-      // If actor is root, only permit connecting from 127.0.0.1.
-      if (actor.equals(Actor.ROOT) &&
-         !(remoteAddress.getAddress().getHostAddress().equals(LOCALHOST))) {
-        throw new IOException("root may only connect from localhost");
-      }
 
       // Remember the actor's IP address and last login time (as now).
       String ipAddressString = InetAddresses.toAddrString(remoteAddress.getAddress());
@@ -224,21 +215,17 @@ public class Server {
       ActorDatabase.ActorRecord actorRecord =
           ActorDatabase.INSTANCE.getActorRecord(actor.getUsername()).get();
 
-      Instant lockedUntil = actorRecord.getLockedUntil();
-      if (lockedUntil != null) {
-        if (Instant.now().isBefore(lockedUntil)) {
-          throw new IOException("This account is locked until " +
-                                lockedUntil.toString());
-        } else {
-          LOG.info("Clearing lockout for actor {}", actor.getUsername());
-          ActorDatabase.INSTANCE.updateActorRecord(actorRecord.getUsername(),
-              r -> r.setLockedUntil(null));
-          try {
-            ActorDatabase.INSTANCE.save();
-          } catch (IOException e) {
-            LOG.error("Failed to save actor database to clear lockout for {}",
-                      actor.getUsername(), e);
-          }
+      // Clear the account lock if present. (Authentication would have
+      // failed if the account were locked.)
+      if (actorRecord.getLockedUntil() != null) {
+        LOG.info("Clearing lockout for actor {}", actor.getUsername());
+        ActorDatabase.INSTANCE.updateActorRecord(actorRecord.getUsername(),
+            r -> r.setLockedUntil(null));
+        try {
+          ActorDatabase.INSTANCE.save();
+        } catch (IOException e) {
+          LOG.error("Failed to save actor database to clear lockout for {}",
+                    actor.getUsername(), e);
         }
       }
 

@@ -15,6 +15,7 @@ import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Universe;
+import xyz.deszaras.grounds.util.Argon2Utils;
 
 /**
  * A single-user session, which doesn't involve starting the server.
@@ -51,9 +52,9 @@ public class SingleUser implements Runnable {
     } else {
       console.printf("Actor database does not yet exist, creating a new one\n\n");
       ActorDatabase.INSTANCE.createActorRecord(Actor.ROOT.getUsername(),
-                                               HashedPasswordAuthenticator.hashPassword("grounds"));
+                                               Argon2Utils.hashPassword("grounds"));
       ActorDatabase.INSTANCE.createActorRecord(Actor.GUEST.getUsername(),
-                                               HashedPasswordAuthenticator.hashPassword("guest"));
+                                               Argon2Utils.hashPassword("guest"));
       try {
         ActorDatabase.INSTANCE.save();
       } catch (IOException e) {

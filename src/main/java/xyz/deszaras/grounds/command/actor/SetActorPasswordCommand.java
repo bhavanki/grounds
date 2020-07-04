@@ -11,7 +11,7 @@ import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.command.PermittedRoles;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.ActorDatabase;
-import xyz.deszaras.grounds.server.HashedPasswordAuthenticator;
+import xyz.deszaras.grounds.util.Argon2Utils;
 
 /**
  * Sets an actor's password.<p>
@@ -39,14 +39,14 @@ public class SetActorPasswordCommand extends Command<Boolean> {
       player.sendMessage(newInfoMessage("Setting password for root actor!"));
       // Create the root actor in the database (OK if already present).
       ActorDatabase.INSTANCE.createActorRecord(username,
-          HashedPasswordAuthenticator.hashPassword(password));
+          Argon2Utils.hashPassword(password));
       // The root actor may only play as GOD.
       ActorDatabase.INSTANCE.updateActorRecord(username,
         r -> r.addPlayer(Player.GOD.getId()));
     }
 
     boolean result = ActorDatabase.INSTANCE.updateActorRecord(username,
-        r -> r.setPassword(HashedPasswordAuthenticator.hashPassword(password)));
+        r -> r.setPassword(Argon2Utils.hashPassword(password)));
     if (!result) {
       throw new CommandException("I could not find the actor named " + username);
     }

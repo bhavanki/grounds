@@ -11,7 +11,7 @@ import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.command.PermittedRoles;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.ActorDatabase;
-import xyz.deszaras.grounds.server.HashedPasswordAuthenticator;
+import xyz.deszaras.grounds.util.Argon2Utils;
 
 /**
  * Adds a new actor.<p>
@@ -37,7 +37,7 @@ public class AddActorCommand extends Command<Boolean> {
 
     boolean result =
         ActorDatabase.INSTANCE.createActorRecord(username,
-            HashedPasswordAuthenticator.hashPassword(password));
+            Argon2Utils.hashPassword(password));
     if (!result) {
       throw new CommandException("An actor named " + username + " already exists");
     }
