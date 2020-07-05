@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.net.InetAddresses;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.time.Instant;
 import java.util.Optional;
@@ -30,6 +29,7 @@ public class PasswordAuthenticatorTest {
   private ActorDatabase actorDatabase;
   private PasswordAuthenticator a;
 
+  @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
   @BeforeEach
   public void setUp() {
     remoteAddress = new InetSocketAddress(InetAddresses.forString("192.0.2.123"), 1234);
@@ -50,6 +50,7 @@ public class PasswordAuthenticatorTest {
     assertTrue(a.authenticate(USERNAME, PASSWORD, session));
   }
 
+  @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
   @Test
   public void testSuccessRoot() {
     remoteAddress = new InetSocketAddress(InetAddresses.forString("127.0.0.1"), 1234);
