@@ -2,6 +2,7 @@ package xyz.deszaras.grounds.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import xyz.deszaras.grounds.auth.Role;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 public class UniverseTest {
 
   private Universe u;
@@ -38,9 +40,54 @@ public class UniverseTest {
   }
 
   @Test
+  public void testOrigin() {
+    Place origin = u.getOriginPlace();
+    assertNotNull(origin);
+    assertEquals(origin.getId(), u.getOriginId());
+    assertEquals(origin, u.getThing(origin.getId(), Place.class).get());
+
+    Place newOrigin = new Place("NEW ORIGIN");
+    u.addThing(newOrigin);
+    u.setOrigin(newOrigin);
+
+    assertEquals(newOrigin, u.getOriginPlace());
+    assertEquals(newOrigin.getId(), u.getOriginId());
+  }
+
+  @Test
+  public void testLostAndFound() {
+    Place lostAndFound = u.getLostAndFoundPlace();
+    assertNotNull(lostAndFound);
+    assertEquals(lostAndFound.getId(), u.getLostAndFoundId());
+    assertEquals(lostAndFound, u.getThing(lostAndFound.getId(), Place.class).get());
+
+    Place newLostAndFound = new Place("NEW LOST+FOUND");
+    u.addThing(newLostAndFound);
+    u.setLostAndFound(newLostAndFound);
+
+    assertEquals(newLostAndFound, u.getLostAndFoundPlace());
+    assertEquals(newLostAndFound.getId(), u.getLostAndFoundId());
+  }
+
+  @Test
+  public void testGuestHome() {
+    Place guestHome = u.getGuestHomePlace();
+    assertNotNull(guestHome);
+    assertEquals(guestHome.getId(), u.getGuestHomeId());
+    assertEquals(guestHome, u.getThing(guestHome.getId(), Place.class).get());
+
+    Place newGuestHome = new Place("NEW GUEST HOME");
+    u.addThing(newGuestHome);
+    u.setGuestHome(newGuestHome);
+
+    assertEquals(newGuestHome, u.getGuestHomePlace());
+    assertEquals(newGuestHome.getId(), u.getGuestHomeId());
+  }
+
+  @Test
   public void testBasicAddAndGetThings() {
     Collection<Thing> allThings = u.getThings();
-    assertTrue(allThings.isEmpty());
+    assertEquals(3, allThings.size());
 
     Thing t1 = new Thing("item1");
     u.addThing(t1);
@@ -48,7 +95,7 @@ public class UniverseTest {
     assertEquals(t1, u.getThing(t1.getId()).get());
     assertEquals(t1, u.getThing(t1.getId().toString()).get());
     allThings = u.getThings();
-    assertEquals(1, allThings.size());
+    assertEquals(1 + 3, allThings.size());
     assertTrue(allThings.contains(t1));
 
     Thing t2 = new Thing("item2");
@@ -59,7 +106,7 @@ public class UniverseTest {
     assertEquals(t1, u.getThing(t1.getId()).get());
     assertEquals(t1, u.getThing(t1.getId().toString()).get());
     allThings = u.getThings();
-    assertEquals(2, allThings.size());
+    assertEquals(2 + 3, allThings.size());
     assertTrue(allThings.contains(t1));
     assertTrue(allThings.contains(t2));
   }
@@ -74,7 +121,7 @@ public class UniverseTest {
     u.removeThing(t1);
 
     Collection<Thing> allThings = u.getThings();
-    assertEquals(1, allThings.size());
+    assertEquals(1 + 3, allThings.size());
     assertTrue(allThings.contains(t2));
   }
 
@@ -169,7 +216,7 @@ public class UniverseTest {
     Universe u2 = Universe.load(saveFile);
 
     Collection<Thing> allThings = u2.getThings();
-    assertEquals(2, allThings.size());
+    assertEquals(2 + 3, allThings.size());
     assertTrue(allThings.contains(t1));
     assertTrue(allThings.contains(t2));
   }
@@ -186,7 +233,7 @@ public class UniverseTest {
 
     Universe u2 = Universe.load(saveFile);
     Collection<Thing> allThings = u2.getThings();
-    assertEquals(1, allThings.size());
+    assertEquals(1 + 3, allThings.size());
     assertTrue(allThings.contains(t1));
   }
 

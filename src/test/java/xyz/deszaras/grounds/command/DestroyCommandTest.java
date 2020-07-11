@@ -71,8 +71,8 @@ public class DestroyCommandTest extends AbstractCommandTest {
 
     assertTrue(command.execute());
 
-    assertTrue(testUniverse.getLostAndFoundPlace().get().has(mathom));
-    assertEquals(testUniverse.getLostAndFoundPlace().get(),
+    assertTrue(testUniverse.getLostAndFoundPlace().has(mathom));
+    assertEquals(testUniverse.getLostAndFoundPlace(),
                  mathom.getLocation().get());
   }
 

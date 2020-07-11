@@ -123,6 +123,7 @@ public class Universe {
   private final String name;
   private final Map<UUID, Thing> things;
   private final Map<UUID, Set<Role>> roles;
+  private UUID originId;
   private UUID lostAndFoundId;
   private UUID guestHomeId;
 
@@ -135,8 +136,22 @@ public class Universe {
     this.name = Objects.requireNonNull(name);
     things = new HashMap<>();
     roles = new HashMap<>();
-    lostAndFoundId = null;
-    guestHomeId = null;
+
+    buildSpecialPlaces();
+  }
+
+  private void buildSpecialPlaces() {
+    Place origin = new Place("ORIGIN");
+    things.put(origin.getId(), origin);
+    originId = origin.getId();
+
+    Place laf = new Place("LOST+FOUND");
+    things.put(laf.getId(), laf);
+    lostAndFoundId = laf.getId();
+
+    Place ghome = new Place("GUEST HOME");
+    things.put(ghome.getId(), ghome);
+    guestHomeId = ghome.getId();
   }
 
   /**
@@ -145,6 +160,7 @@ public class Universe {
    * @param name name
    * @param things things in the universe
    * @param roles player role assignments in the universe
+   * @param originId the ID for the origin in the universe
    * @param lostAndFoundId the ID for the lost and found place in the universe
    * @param guestHomeId the ID for the guest home in the universe
    */
@@ -153,23 +169,26 @@ public class Universe {
       @JsonProperty("name") String name,
       @JsonProperty("things") Set<Thing> things,
       @JsonProperty("roleAssignments") Map<String, Set<Role>> roles,
+      @JsonProperty("originId") String originId,
       @JsonProperty("lostAndFoundId") String lafId,
       @JsonProperty("guestHomeId") String ghId) {
-    this(name);
+    this.name = Objects.requireNonNull(name);
+
+    this.things = new HashMap<>();
     if (things != null) {
       things.stream().forEach(thing -> this.things.put(thing.getId(), thing));
     }
+
+    this.roles = new HashMap<>();
     if (roles != null) {
       roles.entrySet().stream()
           .forEach(entry -> this.roles.put(UUID.fromString(entry.getKey()),
                                            entry.getValue()));
     }
-    if (lafId != null) {
-      lostAndFoundId = UUID.fromString(lafId);
-    }
-    if (ghId != null) {
-      guestHomeId = UUID.fromString(ghId);
-    }
+
+    this.originId = UUID.fromString(originId);
+    this.lostAndFoundId = UUID.fromString(lafId);
+    this.guestHomeId = UUID.fromString(ghId);
   }
 
   /**
@@ -402,6 +421,44 @@ public class Universe {
   }
 
   /**
+   * Gets the ID for the origin in this universe. This place is the default
+   * place and starting point for the universe.
+   *
+   * @return ID of origin
+   */
+  public UUID getOriginId() {
+    return originId;
+  }
+
+  /**
+   * Gets the origin in this universe. This place is the default place and
+   * starting point for the universe.
+   *
+   * @return origin place
+   */
+  @JsonIgnore
+  public Place getOriginPlace() {
+    return getThing(originId, Place.class)
+        .orElseThrow(() -> new IllegalStateException("Cannot find origin " +
+                                                     originId));
+  }
+
+  /**
+   * Sets the origin in this universe. This place is the default place and
+   * starting point for the universe.
+   *
+   * @param origin origin place
+   * @throws IllegalArgumentException if the place is not in this universe
+   */
+  public void setOrigin(Place origin) {
+    if (!things.containsKey(Objects.requireNonNull(origin.getId()))) {
+      throw new IllegalArgumentException("Origin " + origin.getId() +
+                                         " is not in this universe");
+    }
+    this.originId = origin.getId();
+  }
+
+  /**
    * Gets the ID for the lost and found place in this universe. This place is
    * where the contents of destroyed things go.
    *
@@ -418,19 +475,25 @@ public class Universe {
    * @return lost and found place
    */
   @JsonIgnore
-  public Optional<Place> getLostAndFoundPlace() {
-    return lostAndFoundId != null ?
-        getThing(lostAndFoundId, Place.class) : Optional.empty();
+  public Place getLostAndFoundPlace() {
+    return getThing(lostAndFoundId, Place.class)
+        .orElseThrow(() -> new IllegalStateException("Cannot find lost+found " +
+                                                     lostAndFoundId));
   }
 
   /**
-   * Sets the ID for the lost and found place in this universe. This place is
-   * where the contents of destroyed things go.
+   * Sets the lost and found place in this universe. This place is where the
+   * contents of destroyed things go.
    *
-   * @param lostAndFoundId ID of lost and found place
+   * @param lostAndFound lost and found place
+   * @throws IllegalArgumentException if the place is not in this universe
    */
-  public void setLostAndFoundId(UUID lostAndFoundId) {
-    this.lostAndFoundId = lostAndFoundId;
+  public void setLostAndFound(Place lostAndFound) {
+    if (!things.containsKey(Objects.requireNonNull(lostAndFound.getId()))) {
+      throw new IllegalArgumentException("Lost+found " + lostAndFound.getId() +
+                                         " is not in this universe");
+    }
+    this.lostAndFoundId = lostAndFound.getId();
   }
 
   /**
@@ -450,19 +513,24 @@ public class Universe {
    * @return guest home place
    */
   @JsonIgnore
-  public Optional<Place> getGuestHomePlace() {
-    return guestHomeId != null ?
-        getThing(guestHomeId, Place.class) : Optional.empty();
+  public Place getGuestHomePlace() {
+    return getThing(guestHomeId, Place.class)
+        .orElseThrow(() -> new IllegalStateException("Cannot find guest home " +
+                                                     guestHomeId));
   }
 
   /**
-   * Sets the ID for the guest home place in this universe. This place is
-   * where guests appear.
+   * Sets the guest home place in this universe. This place is where guests
+   * appear.
    *
-   * @param guestHomeId ID of guest home place
+   * @param guestHome guest home place
    */
-  public void setGuestHomeId(UUID guestHomeId) {
-    this.guestHomeId = guestHomeId;
+  public void setGuestHome(Place guestHome) {
+    if (!things.containsKey(Objects.requireNonNull(guestHome.getId()))) {
+      throw new IllegalArgumentException("Guest home " + guestHome.getId() +
+                                         " is not in this universe");
+    }
+    this.guestHomeId = guestHome.getId();
   }
 
   /**

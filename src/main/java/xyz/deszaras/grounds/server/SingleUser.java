@@ -88,6 +88,8 @@ public class SingleUser implements Runnable {
     Shell shell = new Shell(actor, localTerminal, emitterExecutorService);
     shell.setPlayer(Player.GOD);
     Universe.getCurrent().addThing(Player.GOD);
+    Universe.getCurrent().getOriginPlace().give(Player.GOD);
+    Player.GOD.setLocation(Universe.getCurrent().getOriginPlace());
 
     try {
       shell.run();

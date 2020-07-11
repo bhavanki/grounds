@@ -2,7 +2,6 @@ package xyz.deszaras.grounds.command;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
@@ -39,11 +38,7 @@ public class DestroyCommand extends Command<Boolean> {
                                                whyNot));
     }
 
-    Optional<Place> lafOpt = Universe.getCurrent().getLostAndFoundPlace();
-    if (lafOpt.isEmpty()) {
-      throw new CommandException("The universe lacks a lost and found place");
-    }
-    Place laf = lafOpt.get();
+    Place laf = Universe.getCurrent().getLostAndFoundPlace();
     for (UUID contentThingId : thing.getContents()) {
       Thing contentThing = Universe.getCurrent().getThing(contentThingId).get();
       thing.take(contentThing);

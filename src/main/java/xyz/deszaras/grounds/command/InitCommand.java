@@ -35,9 +35,9 @@ public class InitCommand extends Command<Boolean> {
     Universe universe = new Universe(name);
     player.sendMessage(newInfoMessage("Created universe " + universe.getName()));
 
-    Place origin = createOrigin(universe);
-    createLostAndFound(universe);
-    createGuestLounge(universe);
+    Place origin = updateOrigin(universe);
+    updateLostAndFound(universe);
+    createGuestHome(universe);
 
     Universe.setCurrent(universe);
     Universe.setCurrentFile(null);
@@ -48,34 +48,33 @@ public class InitCommand extends Command<Boolean> {
     return true;
   }
 
-  private Place createOrigin(Universe universe) {
-    Place origin = new Place("ORIGIN");
-    universe.addThing(origin);
+  private Place updateOrigin(Universe universe) {
+    Place origin = universe.getOriginPlace();
 
     origin.setDescription(
         "This is the first place to exist in its new universe. From here" +
         " you can start building more things to create a new world. Type" +
         " `help build` to see what you can create.");
 
-    player.sendMessage(newInfoMessage("Created origin place " + origin.getId()));
+    player.sendMessage(newInfoMessage("Updated origin place " + origin.getId()));
     return origin;
   }
 
-  private void createLostAndFound(Universe universe) {
-    Place laf = new Place("LOST+FOUND");
-    universe.addThing(laf);
-    universe.setLostAndFoundId(laf.getId());
+  private void updateLostAndFound(Universe universe) {
+    Place laf = universe.getLostAndFoundPlace();
 
     laf.setDescription(
         "This is where the contents of destroyed things end up.");
 
-    player.sendMessage(newInfoMessage("Created lost+found place " + laf.getId()));
+    player.sendMessage(newInfoMessage("Updated lost+found place " + laf.getId()));
   }
 
-  private void createGuestLounge(Universe universe) {
+  private void createGuestHome(Universe universe) {
+    // This swaps out the place.
+    universe.removeThing(universe.getGuestHomePlace());
     Place glounge = new Place("GUEST LOUNGE");
     universe.addThing(glounge);
-    universe.setGuestHomeId(glounge.getId());
+    universe.setGuestHome(glounge);
 
     glounge.setDescription(
         "Welcome, guests! This is the guest lounge, where you may talk with " +

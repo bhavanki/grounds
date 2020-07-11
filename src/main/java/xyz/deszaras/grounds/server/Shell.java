@@ -312,11 +312,9 @@ public class Shell implements Runnable {
     Universe universe = Universe.getCurrent();
     universe.addRole(Role.GUEST, player);
     universe.addThing(player);
-    Optional<Place> guestHome = universe.getGuestHomePlace();
-    if (guestHome.isPresent()) {
-      player.setLocation(guestHome.get());
-      guestHome.get().give(player);
-    }
+    Place guestHome = universe.getGuestHomePlace();
+    player.setLocation(guestHome);
+    guestHome.give(player);
     return player;
   }
 
@@ -329,11 +327,8 @@ public class Shell implements Runnable {
       CommandResult destroyCommandResult = destroyCommandFuture.get();
 
       if (!destroyCommandResult.isSuccessful()) {
-        Optional<CommandException> destroyCommandException =
-            destroyCommandResult.getCommandException();
-        if (destroyCommandException.isPresent()) {
-          LOG.error(destroyCommandException.get().getMessage());
-        }
+        ((Optional<CommandException>) destroyCommandResult.getCommandException())
+            .ifPresent(e -> LOG.error(e.getMessage()));
       }
     } catch (ExecutionException e) {
       LOG.error("Destruction of guest {} failed", player.getName(), e.getCause());

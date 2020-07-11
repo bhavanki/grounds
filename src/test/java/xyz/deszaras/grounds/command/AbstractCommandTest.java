@@ -35,10 +35,6 @@ public abstract class AbstractCommandTest {
     testUniverse = new Universe("test");
     Universe.setCurrent(testUniverse);
 
-    Place laf = new Place("LOST+FOUND");
-    testUniverse.addThing(laf);
-    testUniverse.setLostAndFoundId(laf.getId());
-
     actor = mock(Actor.class);
     player = mock(Player.class);
     when(player.getId()).thenReturn(UUID.randomUUID());
