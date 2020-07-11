@@ -85,6 +85,8 @@ public class Player extends Thing {
                                     "non-place: " + location.get().getId());
   }
 
+  private final Object actorMonitor = new Object();
+
   /**
    * Gets this player's current actor. An idling player does not have
    * any actor.
@@ -93,7 +95,9 @@ public class Player extends Thing {
    */
   @JsonIgnore
   public Optional<Actor> getCurrentActor() {
-    return Optional.ofNullable(actor);
+    synchronized (actorMonitor) {
+      return Optional.ofNullable(actor);
+    }
   }
 
   /**
@@ -102,7 +106,27 @@ public class Player extends Thing {
    * @param actor current actor
    */
   public void setCurrentActor(Actor actor) {
-    this.actor = actor;
+    synchronized (actorMonitor) {
+      this.actor = actor;
+    }
+  }
+
+  /**
+   * Atomically sets this player's current actor, but only if there is no
+   * current actor. Use this method to have an actor occupy a player in a
+   * thread-safe manner.
+   *
+   * @param actor current actor
+   * @return true if actor was set, false if player is already occupied
+   */
+  public boolean trySetCurrentActor(Actor actor) {
+    synchronized (actorMonitor) {
+      if (this.actor != null) {
+        return false;
+      }
+      setCurrentActor(actor);
+      return true;
+    }
   }
 
   /**
@@ -113,7 +137,11 @@ public class Player extends Thing {
    * @throws NullPointerException if the message is null
    */
   public void sendMessage(Message message) {
-    if (actor != null && !mutes(message.getSender())) {
+    Actor currentActor;
+    synchronized (actorMonitor) {
+      currentActor = actor;
+    }
+    if (currentActor != null && !mutes(message.getSender())) {
       messages.offer(Objects.requireNonNull(message));
     }
   }

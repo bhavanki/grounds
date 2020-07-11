@@ -40,13 +40,11 @@ public class SwitchPlayerCommand extends Command<Boolean> {
                                  newPlayer.getName());
     }
 
-    if (newPlayer.getCurrentActor().isPresent()) {
+    if (!newPlayer.trySetCurrentActor(actor)) {
       throw new CommandException("Someone is already playing as " +
                                  newPlayer.getName());
     }
-
     player.setCurrentActor(null);
-    newPlayer.setCurrentActor(actor);
 
     return true;
   }

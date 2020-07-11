@@ -1,7 +1,9 @@
 package xyz.deszaras.grounds.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
@@ -21,6 +23,21 @@ public class PlayerTest {
     actor = new Actor("bob0");
     player = new Player("bob");
     player.setCurrentActor(actor);
+  }
+
+  @Test
+  public void testActor() {
+    assertEquals(actor, player.getCurrentActor().get());
+
+    Actor newActor = new Actor("bob1");
+    player.setCurrentActor(newActor);
+    assertEquals(newActor, player.getCurrentActor().get());
+
+    assertFalse(player.trySetCurrentActor(actor));
+    assertEquals(newActor, player.getCurrentActor().get());
+    player.setCurrentActor(null);
+    assertTrue(player.trySetCurrentActor(actor));
+    assertEquals(actor, player.getCurrentActor().get());
   }
 
   @Test

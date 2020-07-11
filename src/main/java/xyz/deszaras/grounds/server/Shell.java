@@ -191,7 +191,6 @@ public class Shell implements Runnable {
           return;
         }
       }
-      player.setCurrentActor(actor);
       bringOutPlayer(player);
 
       emitterFuture = emitterExecutorService.submit(
@@ -291,15 +290,15 @@ public class Shell implements Runnable {
       }
       if (player != null) {
         player.setCurrentActor(null);
-      }
-      if (actor.equals(Actor.GUEST)) {
-        destroyGuestPlayer(player);
-      } else {
-        try {
-          stowPlayer(player);
-        } catch (InterruptedException e) {
-          e.printStackTrace(err);
-          out.println("Interrupted stowing player");
+        if (actor.equals(Actor.GUEST)) {
+          destroyGuestPlayer(player);
+        } else {
+          try {
+            stowPlayer(player);
+          } catch (InterruptedException e) {
+            e.printStackTrace(err);
+            out.println("Interrupted stowing player");
+          }
         }
       }
     }
@@ -416,8 +415,12 @@ public class Shell implements Runnable {
     Player chosenPlayer = null;
     if (permittedPlayers.size() == 1) {
       chosenPlayer = permittedPlayers.get(0);
-      terminal.writer().printf("Auto-selecting initial player %s\n",
-                               chosenPlayer.getName());
+      if (chosenPlayer.trySetCurrentActor(actor)) {
+        terminal.writer().printf("Auto-selecting initial player %s\n",
+                                 chosenPlayer.getName());
+      } else {
+        chosenPlayer = null;
+      }
     }
     while (chosenPlayer == null) {
       terminal.writer().printf("Select your initial player (exit to disconnect): ");
@@ -431,12 +434,12 @@ public class Shell implements Runnable {
 
       for (Player p : permittedPlayers) {
         if (p.getName().equals(line)) {
-          if (p.getCurrentActor().isPresent()) {
+          if (p.trySetCurrentActor(actor)) {
+            chosenPlayer = p;
+          } else {
             String occupiedMessage = String.format("Someone is already playing as %s\n",
                                                    p.getName());
             terminal.writer().printf(AnsiUtils.color(occupiedMessage, Ansi.Color.RED, false));
-          } else {
-            chosenPlayer = p;
           }
           break;
         }
