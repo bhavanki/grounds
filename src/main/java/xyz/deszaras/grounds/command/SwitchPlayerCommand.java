@@ -1,9 +1,13 @@
 package xyz.deszaras.grounds.command;
 
 import java.util.List;
+import java.util.Optional;
+
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.model.Universe;
 import xyz.deszaras.grounds.server.ActorDatabase;
+import xyz.deszaras.grounds.util.UUIDUtils;
 
 /**
  * Switches to a different player.
@@ -51,8 +55,17 @@ public class SwitchPlayerCommand extends Command<Boolean> {
                                                List<String> commandArgs)
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
-    Player newPlayer =
-        CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Player.class, player);
-    return new SwitchPlayerCommand(actor, player, newPlayer);
+
+    String nameOrId = commandArgs.get(0);
+    Optional<Player> newPlayer;
+    if (UUIDUtils.isUUID(nameOrId)) {
+      newPlayer = Universe.getCurrent().getThing(nameOrId, Player.class);
+    } else {
+      newPlayer = Universe.getCurrent().getThingByName(nameOrId, Player.class);
+    }
+    if (newPlayer.isEmpty()) {
+      throw new CommandFactoryException("Player " + nameOrId + " not found");
+    }
+    return new SwitchPlayerCommand(actor, player, newPlayer.get());
   }
 }
