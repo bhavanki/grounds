@@ -32,6 +32,8 @@ import xyz.deszaras.grounds.command.ExitCommand;
 import xyz.deszaras.grounds.command.LookCommand;
 import xyz.deszaras.grounds.command.Message;
 import xyz.deszaras.grounds.command.SwitchPlayerCommand;
+import xyz.deszaras.grounds.command.YoinkCommand;
+import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Universe;
@@ -190,6 +192,7 @@ public class Shell implements Runnable {
         }
       }
       player.setCurrentActor(actor);
+      bringOutPlayer(player);
 
       emitterFuture = emitterExecutorService.submit(
           new MessageEmitter(player, terminal, lineReader));
@@ -255,7 +258,11 @@ public class Shell implements Runnable {
             if (command instanceof ExitCommand) {
               break;
             } else if (command instanceof SwitchPlayerCommand) {
+              stowPlayer(player);
+
               player = ((SwitchPlayerCommand) command).getNewPlayer();
+              bringOutPlayer(player);
+
               prompt = getPrompt(player);
 
               emitterFuture.cancel(true);
@@ -287,6 +294,13 @@ public class Shell implements Runnable {
       }
       if (actor.equals(Actor.GUEST)) {
         destroyGuestPlayer(player);
+      } else {
+        try {
+          stowPlayer(player);
+        } catch (InterruptedException e) {
+          e.printStackTrace(err);
+          out.println("Interrupted stowing player");
+        }
       }
     }
   }
@@ -334,6 +348,53 @@ public class Shell implements Runnable {
       LOG.error("Destruction of guest {} failed", player.getName(), e.getCause());
     } catch (InterruptedException e) {
       LOG.error("Interrupted while destroying guest {}", player.getName());
+    }
+  }
+
+  private void bringOutPlayer(Player player) throws InterruptedException {
+    Optional<Place> home;
+    try {
+      home = player.getHome();
+    } catch (MissingThingException e) {
+      home = Optional.empty();
+    }
+    if (home.isEmpty()) {
+      home = Optional.of(Universe.getCurrent().getOriginPlace());
+    }
+    LOG.info("Bringing out player {} to home {}", player.getName(),
+             home.get().getName());
+    Command bringOutCommand = new YoinkCommand(Actor.ROOT, Player.GOD, player,
+                                               home.get());
+    Future<CommandResult> bringOutCommandFuture =
+        CommandExecutor.getInstance().submit(bringOutCommand);
+    try {
+      CommandResult bringOutCommandResult = bringOutCommandFuture.get();
+
+      if (!bringOutCommandResult.isSuccessful()) {
+        ((Optional<CommandException>) bringOutCommandResult.getCommandException())
+            .ifPresent(e -> LOG.error(e.getMessage()));
+      }
+    } catch (ExecutionException e) {
+      LOG.error("Bringing out player {} failed", player.getName(), e.getCause());
+    }
+  }
+
+  private void stowPlayer(Player player) throws InterruptedException {
+    Place origin = Universe.getCurrent().getOriginPlace();
+    LOG.info("Stowing player {} at origin {}", player.getName(),
+             origin.getName());
+    Command stowCommand = new YoinkCommand(Actor.ROOT, Player.GOD, player, origin);
+    Future<CommandResult> stowCommandFuture =
+        CommandExecutor.getInstance().submit(stowCommand);
+    try {
+      CommandResult stowCommandResult = stowCommandFuture.get();
+
+      if (!stowCommandResult.isSuccessful()) {
+        ((Optional<CommandException>) stowCommandResult.getCommandException())
+            .ifPresent(e -> LOG.error(e.getMessage()));
+      }
+    } catch (ExecutionException e) {
+      LOG.error("Stowing player {} failed", player.getName(), e.getCause());
     }
   }
 
