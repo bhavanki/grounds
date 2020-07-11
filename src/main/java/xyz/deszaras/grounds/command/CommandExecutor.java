@@ -35,6 +35,7 @@ public class CommandExecutor {
         .put("INSPECT", InspectCommand.class)
         .put("TELEPORT", TeleportCommand.class)
         .put("TP", TeleportCommand.class)
+        .put("YOINK", YoinkCommand.class)
         .put("MOVE", MoveCommand.class)
         .put("GO", MoveCommand.class)
         .put("G", MoveCommand.class)
