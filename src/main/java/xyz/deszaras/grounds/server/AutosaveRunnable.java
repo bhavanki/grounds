@@ -40,7 +40,7 @@ public class AutosaveRunnable implements Runnable {
     @Override
     protected Boolean executeImpl() {
       try {
-        Universe.saveCurrent();
+        Universe.saveCurrent(true);
         LOG.info("Autosaved current universe");
         return true;
       } catch (IOException e) {

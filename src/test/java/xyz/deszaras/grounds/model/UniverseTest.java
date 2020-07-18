@@ -223,13 +223,22 @@ public class UniverseTest {
 
   @Test
   public void testSaveCurrent(@TempDir Path tempDir) throws Exception {
+    testSaveCurrent(tempDir, true);
+  }
+
+  @Test
+  public void testSaveCurrentUnsafe(@TempDir Path tempDir) throws Exception {
+    testSaveCurrent(tempDir, false);
+  }
+
+  private void testSaveCurrent(Path tempDir, boolean safe) throws Exception {
     Thing t1 = new Thing("item1");
     u.addThing(t1);
 
     File saveFile = tempDir.resolve("universe.json").toFile();
 
     Universe.setCurrentFile(saveFile);
-    assertTrue(Universe.saveCurrent());
+    assertTrue(Universe.saveCurrent(safe));
 
     Universe u2 = Universe.load(saveFile);
     Collection<Thing> allThings = u2.getThings();
@@ -240,19 +249,19 @@ public class UniverseTest {
   @Test
   public void testSaveCurrentNoCurrentUniverse() throws Exception {
     Universe.setCurrent(null);
-    assertFalse(Universe.saveCurrent());
+    assertFalse(Universe.saveCurrent(false));
   }
 
   @Test
   public void testSaveCurrentVoidUniverse() throws Exception {
     Universe.setCurrent(Universe.VOID);
-    assertFalse(Universe.saveCurrent());
+    assertFalse(Universe.saveCurrent(false));
   }
 
   @Test
   public void testSaveCurrentNoCurrentUniverseFile() throws Exception {
     Universe.setCurrentFile(null);
-    assertFalse(Universe.saveCurrent());
+    assertFalse(Universe.saveCurrent(false));
   }
 
   @Test

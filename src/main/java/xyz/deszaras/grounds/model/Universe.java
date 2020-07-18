@@ -5,8 +5,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -17,6 +21,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.util.UUIDUtils;
 
@@ -24,6 +32,8 @@ import xyz.deszaras.grounds.util.UUIDUtils;
  * A world full of things. The universe is stored in memory.
  */
 public class Universe {
+
+  private static final Logger LOG = LoggerFactory.getLogger(Universe.class);
 
   /**
    * The VOID universe, where there is NOTHING and EVERYTHING, and
@@ -60,6 +70,15 @@ public class Universe {
   }
 
   /**
+   * Gets the current universe's file.
+   *
+   * @return current universe's file
+   */
+  public static File getCurrentFile() {
+    return theUniverseFile;
+  }
+
+  /**
    * Sets the current universe's file.
    *
    * @param universeFile current universe's file
@@ -69,22 +88,49 @@ public class Universe {
   }
 
   /**
-   * Saves the current universe to its file.
+   * Saves the current universe to its file. If the safe parameters is true,
+   * then the universe is saved to a temporary file first (in the same directory
+   * as the universe file), and only if that succeeds is the original file
+   * replaced.
    *
+   * @param  safe true to save to a temporary file first
    * @return true if the current universe was saved; false if there
    *         is no current universe, or it's the VOID universe, or
-   *         if the current universe has no file
+   *         if the current universe has no file, or if the temporary
+   *         save file couldn't be copied to the original file
    * @throws IOException if the universe could not be saved
    * @see #save(Universe,File)
    */
-  public static boolean saveCurrent() throws IOException {
+  public static boolean saveCurrent(boolean safe) throws IOException {
     if (theUniverse == null || Universe.VOID.equals(theUniverse)) {
       return false;
     }
     if (theUniverseFile == null) {
       return false; // maybe should throw an exception
     }
-    Universe.save(theUniverse, theUniverseFile);
+
+    File saveFile = safe ?
+        Path.of(theUniverseFile.toPath().toString() + "." + System.currentTimeMillis()).toFile() :
+        theUniverseFile;
+    LOG.info("Writing universe to {}", saveFile);
+    Universe.save(theUniverse, saveFile);
+
+    if (safe) {
+      try {
+        LOG.info("Copying universe data from {} to {}", saveFile, theUniverseFile);
+        Files.copy(saveFile.toPath(), theUniverseFile.toPath(),
+                   StandardCopyOption.REPLACE_EXISTING);
+      } catch (IOException e) {
+        LOG.error("Failed to copy temporary universe file {}", saveFile);
+        return false;
+      }
+      try {
+        LOG.info("Deleting {}", saveFile);
+        Files.delete(saveFile.toPath());
+      } catch (IOException e) {
+        LOG.warn("Failed to delete temporary universe file {}", saveFile);
+      }
+    }
     return true;
   }
 
