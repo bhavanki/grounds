@@ -7,6 +7,15 @@
       }
       return getAttr(extensionId, n, "Channel $n not found")
     }
+    listChannels = {
+      getAttrNames(extensionId, "No channels found").findAll {n -> n.startsWith('#')}
+    }
+    listChannelsWithMember = {m ->
+      allChannelNames = listChannels()
+      return allChannelNames.findAll(n -> {
+        channel = getMembers(getChannel(n)).contains(m)
+      })
+    }
     getMembers = {c ->
       return c.getAttrListValueAsMap()['members'].getValue().split(',') as List
     }
@@ -49,6 +58,18 @@
           members.remove(callerName)
           setMembers(channel, members)
         }
+        break;
+      case "MINE":
+        channels = listChannelsWithMember(callerName)
+        sendMessageToCaller(channels.isEmpty() ? "No channels found" : channels.join(' '))
+        break;
+      case "LIST":
+        channels = listChannels()
+        sendMessageToCaller(channels.isEmpty() ? "No channels found" : channels.join(' '))
+        break;
+      case "MEMBERS":
+        members = getMembers(getChannel(arg1))
+        sendMessageToCaller(members.isEmpty() ? "No members found" : members.join(' '))
         break;
       default:
         throw failure("Unsupported command $subcommand")

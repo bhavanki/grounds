@@ -1,7 +1,10 @@
 package xyz.deszaras.grounds.script;
 
+import com.google.common.base.Splitter;
+
 import java.util.List;
 import java.util.Optional;
+
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandCallable;
 import xyz.deszaras.grounds.command.CommandException;
@@ -19,6 +22,8 @@ import xyz.deszaras.grounds.model.Universe;
  * Groovy binding.
  */
 public abstract class GroundsScript extends groovy.lang.Script {
+
+  private static final Splitter COMMA_SEP_SPLITTER = Splitter.on(",");
 
   private Actor actor;
   private Player caller;
@@ -70,6 +75,13 @@ public abstract class GroundsScript extends groovy.lang.Script {
     return caller.getName();
   }
 
+  /**
+   * Checks if a thing has an attribute.
+   *
+   * @param  thingId                 ID of thing
+   * @param  name                    attribute name
+   * @return                         true if thing has attribute
+   */
   public boolean hasAttr(String thingId, String name)
       throws CommandFactoryException {
     CommandResult getResult = exec(List.of("GET_ATTR", thingId, name));
@@ -84,8 +96,9 @@ public abstract class GroundsScript extends groovy.lang.Script {
   /**
    * Gets a thing's attributes by name. An attribute is immutable.
    *
-   * @param thingId ID of thing with attribute
-   * @param name attribute name
+   * @param  thingId                 ID of thing with attribute
+   * @param  name                    attribute name
+   * @param  notFoundMessage         exception message when thing is not found
    * @return attribute
    */
   public Attr getAttr(String thingId, String name, String notFoundMessage)
@@ -99,6 +112,31 @@ public abstract class GroundsScript extends groovy.lang.Script {
     return Attr.fromAttrSpec(getResult.getResult().toString());
   }
 
+  /**
+   * Gets the names of a thing's attributes.
+   *
+   * @param  thingId                 ID of thing with attributes
+   * @param  notFoundMessage         exception message when thing is not found
+   * @return                         attribute names
+   */
+  public List<String> getAttrNames(String thingId, String notFoundMessage)
+      throws CommandException, CommandFactoryException {
+    CommandResult getResult = exec(List.of("GET_ATTR_NAMES", thingId));
+    try {
+      throwFailureExceptionIfPresent(getResult);
+    } catch (CommandException e) {
+      throw new CommandException(notFoundMessage);
+    }
+    return COMMA_SEP_SPLITTER.splitToList(getResult.getResult().toString());
+  }
+
+  /**
+   * Creates a new attribute with a string value.
+   *
+   * @param  name  attribute name
+   * @param  value attribute value
+   * @return       new attribute
+   */
   public Attr newAttr(String name, String value) {
     return new Attr(name, value);
   }
@@ -136,6 +174,12 @@ public abstract class GroundsScript extends groovy.lang.Script {
     throwFailureExceptionIfPresent(setResult);
   }
 
+  /**
+   * Removes a thing's attribute.
+   *
+   * @param  thingId                 ID of thing
+   * @param  name                    attribute name
+   */
   public void removeAttr(String thingId, String name)
       throws CommandException, CommandFactoryException {
     CommandResult removeResult = exec(List.of("REMOVE_ATTR", thingId, name));
