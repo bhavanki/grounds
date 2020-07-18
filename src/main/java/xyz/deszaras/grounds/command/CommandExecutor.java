@@ -46,6 +46,7 @@ public class CommandExecutor {
         .put("POSE", PoseCommand.class)
         .put("BUILD", BuildCommand.class)
         .put("GET_ATTR", GetAttrCommand.class)
+        .put("GET_ATTR_NAMES", GetAttrNamesCommand.class)
         .put("SET_ATTR", SetAttrCommand.class)
         .put("REMOVE_ATTR", RemoveAttrCommand.class)
         .put("CHANGE_POLICY", ChangePolicyCommand.class)
