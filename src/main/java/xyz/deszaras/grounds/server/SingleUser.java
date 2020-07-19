@@ -90,6 +90,7 @@ public class SingleUser implements Runnable {
     Universe.getCurrent().addThing(Player.GOD);
     Universe.getCurrent().getOriginPlace().give(Player.GOD);
     Player.GOD.setLocation(Universe.getCurrent().getOriginPlace());
+    Player.GOD.setCurrentActor(Actor.ROOT);
 
     try {
       shell.run();
