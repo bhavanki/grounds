@@ -27,3 +27,16 @@
     callerName = getCallerName()
     exec(["POSE", "${callerName} shakes the magic eight ball: ${result}"])
     return null
+- name: scriptHelp
+  type: ATTRLIST
+  value: |
+    - name: $8BALL
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $8BALL [<question>]
+        - name: summary
+          value: Calls upon the Magic 8-ball for a prediction
+        - name: description
+          value: |
+            The prediction is posed by the command in the caller's name.

@@ -12,3 +12,16 @@
         break;
     }
     return null
+- name: scriptHelp
+  type: ATTRLIST
+  value: |
+    - name: $COINFLIP
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $COINFLIP
+        - name: summary
+          value: Flips a coin
+        - name: description
+          value: |
+            The outcome of the flip is posed by the command in the caller's name.
