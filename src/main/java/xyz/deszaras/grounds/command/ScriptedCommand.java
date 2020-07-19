@@ -1,19 +1,17 @@
 package xyz.deszaras.grounds.command;
 
 import com.google.common.collect.ImmutableList;
+
 import java.util.List;
-import java.util.Optional;
+
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Extension;
-import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Player;
-import xyz.deszaras.grounds.model.Thing;
 import xyz.deszaras.grounds.script.Script;
 import xyz.deszaras.grounds.script.ScriptCallable;
 import xyz.deszaras.grounds.script.ScriptFactory;
-import xyz.deszaras.grounds.script.ScriptFactoryException;
 
 /**
  * Runs a scripted command.<p>
@@ -39,15 +37,14 @@ public class ScriptedCommand extends Command<String> {
    *
    * @param actor actor executing the command
    * @param player player executing the command
-   * @param scriptExtension extension where the script is defined
    * @param script script to run
    * @param scriptArguments arguments to pass to the script
    */
-  public ScriptedCommand(Actor actor, Player player, Extension scriptExtension,
-                         Script script, List<String> scriptArguments) {
+  public ScriptedCommand(Actor actor, Player player, Script script,
+                         List<String> scriptArguments) {
     super(actor, player);
-    this.scriptExtension = scriptExtension;
     this.script = script;
+    this.scriptExtension = script.getExtension();
     this.scriptArguments = ImmutableList.copyOf(scriptArguments);
   }
 
@@ -68,39 +65,14 @@ public class ScriptedCommand extends Command<String> {
    *
    * @param actor actor submitting the command
    * @param player player currently assumed by the actor
-   * @param scriptExtension script extension
-   * @param scriptAttr attribute defining the script to run
+   * @param script the script to run
    * @param scriptArguments unresolved script arguments
    * @return scripted command
    * @throws CommandFactoryException if the command cannot be built
    */
-  public static ScriptedCommand newCommand(Actor actor, Player player, Extension scriptExtension,
-                                           Attr scriptAttr, List<String> scriptArguments)
+  public static ScriptedCommand newCommand(Actor actor, Player player, Script script,
+                                           List<String> scriptArguments)
       throws CommandFactoryException {
-
-    try {
-      // Build a script from the command attribute.
-      Optional<Thing> scriptOwner;
-      try {
-        scriptOwner = scriptExtension.getOwner();
-        if (scriptOwner.isEmpty()) {
-          throw new CommandFactoryException("Cannot build command from script, extension " +
-                                            scriptExtension.getName() + " has no owner");
-        }
-      } catch (MissingThingException e) {
-        throw new CommandFactoryException("Cannot build command from script, extension " +
-                                           scriptExtension.getName() + " has missing owner!");
-      }
-      Thing scriptOwnerThing = scriptOwner.get();
-      if (!(scriptOwnerThing instanceof Player)) {
-        throw new CommandFactoryException("Cannot build command from script, extension " +
-                                          scriptExtension.getName() + " has a non-player owner");
-      }
-      Script script = new ScriptFactory().newScript(scriptAttr, (Player) scriptOwnerThing, scriptExtension);
-
-      return new ScriptedCommand(actor, player, scriptExtension, script, scriptArguments);
-    } catch (ScriptFactoryException e) {
-      throw new CommandFactoryException("Failed to build script", e);
-    }
+    return new ScriptedCommand(actor, player, script, scriptArguments);
   }
 }

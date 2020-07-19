@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import org.fusesource.jansi.Ansi;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.script.Script;
+import xyz.deszaras.grounds.script.ScriptFactoryException;
 import xyz.deszaras.grounds.util.AnsiUtils;
 
 @PermittedRoles(roles = { Role.GUEST, Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
@@ -37,13 +39,32 @@ public class HelpCommand extends Command<String> {
     }
 
     String upperCommandName = commandName.toUpperCase();
-    if (helpResource.containsKey(upperCommandName + ".syntax")) {
-      String syntax = AnsiUtils.color(helpResource.getString(upperCommandName + ".syntax"),
+
+    ResourceBundle bundle;
+    if (commandName.startsWith("$")) {
+      String baseCommandName = commandName.replaceAll("_.*", "");
+      try {
+        Script commandScript =
+            CommandExecutor.getInstance().getCommandFactory().findScript(baseCommandName)
+            .orElseThrow(() -> new CommandException("Scripted command " + baseCommandName +
+                                                    " not found"));
+
+        bundle = commandScript.getHelpBundle();
+      } catch (ScriptFactoryException e) {
+        throw new CommandException("Could not build script for command " + baseCommandName +
+                                   " in order to get help text", e);
+      }
+    } else {
+      bundle = helpResource;
+    }
+
+    if (bundle.containsKey(upperCommandName + ".syntax")) {
+      String syntax = AnsiUtils.color(bundle.getString(upperCommandName + ".syntax"),
                                       Ansi.Color.CYAN, false);
       return String.format(HELP_FORMAT,
                            syntax,
-                           helpResource.getString(upperCommandName + ".summary"),
-                           helpResource.getString(upperCommandName + ".description"));
+                           bundle.getString(upperCommandName + ".summary"),
+                           bundle.getString(upperCommandName + ".description"));
     }
 
     throw new CommandException("Help is not available for " + upperCommandName);

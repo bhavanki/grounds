@@ -13,6 +13,9 @@ import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Universe;
+import xyz.deszaras.grounds.script.Script;
+import xyz.deszaras.grounds.script.ScriptFactory;
+import xyz.deszaras.grounds.script.ScriptFactoryException;
 import xyz.deszaras.grounds.server.Server;
 
 /**
@@ -54,7 +57,8 @@ public class CommandFactory {
   }
 
   /**
-   * Gets all of the command names supported by this factory.
+   * Gets all of the command names supported by this factory. This does not
+   * include the names of scripted commands.
    *
    * @return supported command names
    */
@@ -129,9 +133,28 @@ public class CommandFactory {
     String commandName = line.get(0);
     List<String> scriptArguments = line.subList(1, line.size());
 
+    Script script;
+    try {
+      script = findScript(commandName).orElseThrow(() ->
+          new CommandFactoryException("Failed to locate script for command " + commandName));
+    } catch (ScriptFactoryException e) {
+      throw new CommandFactoryException("Failed to build script for command " + commandName, e);
+    }
+
+    return ScriptedCommand.newCommand(actor, player, script, scriptArguments);
+  }
+
+  /**
+   * Finds a script for the given command name among the extensions in the
+   * universe.
+   *
+   * @param  commandName            command name
+   * @return                        script implementing the command
+   * @throws ScriptFactoryException if the script could not be constructed
+   */
+  public Optional<Script> findScript(String commandName) throws ScriptFactoryException {
     // Find the attribute defining the command. It must be attached
-    // to an extension and have an attribute list as a value. The
-    // extension must also have an owner, which is the script's owner.
+    // to an extension and have an attribute list as a value.
     Optional<Attr> scriptAttr = Optional.empty();
     Extension scriptExtension = null;
     // this is inefficient :(
@@ -142,10 +165,11 @@ public class CommandFactory {
         break;
       }
     }
+
     if (scriptAttr.isEmpty()) {
-      throw new CommandFactoryException("Failed to locate script attribute for command " + commandName);
+      return Optional.empty();
     }
 
-    return ScriptedCommand.newCommand(actor, player, scriptExtension, scriptAttr.get(), scriptArguments);
+    return Optional.of(new ScriptFactory().newScript(scriptAttr.get(), scriptExtension));
   }
 }
