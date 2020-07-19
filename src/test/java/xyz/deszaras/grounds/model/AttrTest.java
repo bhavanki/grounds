@@ -91,6 +91,15 @@ public class AttrTest {
   }
 
   @Test
+  public void testFromStringAttrSpec() {
+    String attrSpec = "a=b";
+    attr = Attr.fromAttrSpec(attrSpec);
+    assertEquals("a", attr.getName());
+    assertEquals(Attr.Type.STRING, attr.getType());
+    assertEquals("b", attr.getValue());
+  }
+
+  @Test
   public void testFromAttrSpecJsonFile() throws Exception {
     String attrSpec = "a[ATTR]=@" +
         Paths.get(ClassLoader.getSystemResource("attrvalue.json").toURI());
@@ -120,5 +129,62 @@ public class AttrTest {
   public void testToAttrSpec() {
     attr = new Attr("a", "b");
     assertEquals("a[STRING]=b", attr.toAttrSpec());
+  }
+
+  @Test
+  public void testFromJson() {
+    String attrJson = "{\"name\": \"a\", \"type\": \"STRING\", \"value\": \"b\"}";
+    attr = Attr.fromJson(attrJson);
+    assertEquals("a", attr.getName());
+    assertEquals(Attr.Type.STRING, attr.getType());
+    assertEquals("b", attr.getValue());
+  }
+
+  @Test
+  public void testFromJsonNoType() {
+    String attrJson = "{\"name\": \"a\", \"value\": \"b\"}";
+    attr = Attr.fromJson(attrJson);
+    assertEquals("a", attr.getName());
+    assertEquals(Attr.Type.STRING, attr.getType());
+    assertEquals("b", attr.getValue());
+  }
+
+  @Test
+  public void testFromJsonYaml() {
+    String attrYaml =
+        "name: a\n" +
+        "type: STRING\n" +
+        "value: b";
+    attr = Attr.fromJson(attrYaml);
+    assertEquals("a", attr.getName());
+    assertEquals(Attr.Type.STRING, attr.getType());
+    assertEquals("b", attr.getValue());
+  }
+
+  @Test
+  public void testListFromJson() {
+    String listAttrJson = "[" +
+        "{\"name\": \"a1\", \"type\": \"STRING\", \"value\": \"b1\"}," +
+        "{\"name\": \"a2\", \"type\": \"STRING\", \"value\": \"b2\"}" +
+        "]";
+    List<Attr> attrs = Attr.listFromJson(listAttrJson);
+    assertEquals(2, attrs.size());
+    assertTrue(attrs.stream().anyMatch(a -> a.getName().equals("a1") && a.getValue().equals("b1")));
+    assertTrue(attrs.stream().anyMatch(a -> a.getName().equals("a2") && a.getValue().equals("b2")));
+  }
+
+  @Test
+  public void testListFromJsonYaml() {
+    String listAttrYaml =
+        "- name: a1\n" +
+        "  type: STRING\n" +
+        "  value: b1\n" +
+        "- name: a2\n" +
+        "  type: STRING\n" +
+        "  value: b2\n";
+    List<Attr> attrs = Attr.listFromJson(listAttrYaml);
+    assertEquals(2, attrs.size());
+    assertTrue(attrs.stream().anyMatch(a -> a.getName().equals("a1") && a.getValue().equals("b1")));
+    assertTrue(attrs.stream().anyMatch(a -> a.getName().equals("a2") && a.getValue().equals("b2")));
   }
 }

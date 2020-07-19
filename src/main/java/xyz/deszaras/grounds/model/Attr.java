@@ -51,7 +51,7 @@ public final class Attr {
       @JsonProperty("type") Type type) {
     this.name = Objects.requireNonNull(name);
     this.value = Objects.requireNonNull(value);
-    this.type = type;
+    this.type = type != null ? type : Type.STRING;
   }
 
   /**
@@ -257,6 +257,8 @@ public final class Attr {
   private static final Pattern ATTR_SPEC_PATTERN =
       Pattern.compile("([^\\[]+)\\[([^]]+)\\]=(.*)",
                       Pattern.DOTALL);
+  private static final Pattern STRING_ATTR_SPEC_PATTERN =
+      Pattern.compile("([^\\[]+)=(.*)", Pattern.DOTALL);
 
   private static final ObjectMapper YAML_OBJECT_MAPPER = new ObjectMapper(new YAMLFactory());
 
@@ -270,6 +272,9 @@ public final class Attr {
    * attributes, the value is the JSON representation of the
    * attribute or list of attributes, respectively.<p>
    *
+   * The "[type]" portion may be omitted, in which case the type
+   * is assumed to be {@code Attr.Type.STRING}.
+   *
    * If the value begins with the '@' character, then the rest of
    * the value is treated as the path to a file, and the content
    * of the file is loaded and used as the attribute value. For
@@ -282,13 +287,25 @@ public final class Attr {
    * or the value cannot be loaded from a file
    */
   public static Attr fromAttrSpec(String attrSpec) {
+    String name;
+    Type type;
+    String value;
+
     Matcher m = ATTR_SPEC_PATTERN.matcher(attrSpec);
-    if (!m.matches()) {
-      throw new IllegalArgumentException("Invalid attrSpec " + attrSpec);
+    if (m.matches()) {
+      name = m.group(1);
+      type = Type.valueOf(m.group(2));
+      value = m.group(3);
+    } else {
+      m = STRING_ATTR_SPEC_PATTERN.matcher(attrSpec);
+      if (m.matches()) {
+        name = m.group(1);
+        type = Type.STRING;
+        value = m.group(2);
+      } else {
+        throw new IllegalArgumentException("Invalid attrSpec " + attrSpec);
+      }
     }
-    String name = m.group(1);
-    Type type = Type.valueOf(m.group(2));
-    String value = m.group(3);
 
     if (value.startsWith("@") && value.length() > 1) {
       try {
@@ -340,30 +357,30 @@ public final class Attr {
   }
 
   /**
-   * Creates a new attribute from a JSON representation.
+   * Creates a new attribute from a JSON or YAML representation.
    *
-   * @param s JSON string
+   * @param s JSON or YAML string
    * @return attribute
    * @throws IllegalArgumentException if conversion fails
    */
   public static Attr fromJson(String s) {
     try {
-      return OBJECT_MAPPER.readValue(s, Attr.class);
+      return YAML_OBJECT_MAPPER.readValue(s, Attr.class);
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException("Failed to create attribute from JSON", e);
     }
   }
 
   /**
-   * Creates a new list of attributes from a JSON representation.
+   * Creates a new list of attributes from a JSON or YAML representation.
    *
-   * @param s JSON string
+   * @param s JSON or YAML string
    * @return attribute list
    * @throws IllegalArgumentException if conversion fails
    */
   public static List<Attr> listFromJson(String s) {
     try {
-      return OBJECT_MAPPER.readValue(s, new TypeReference<List<Attr>>(){});
+      return YAML_OBJECT_MAPPER.readValue(s, new TypeReference<List<Attr>>(){});
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException("Failed to create attribute list from JSON", e);
     }
