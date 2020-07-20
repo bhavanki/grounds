@@ -13,6 +13,16 @@
       }
       return getAttr(extensionId, n, "Channel $n not found")
     }
+    getMembers = {c ->
+      return c.getAttrListValueAsMap()['members'].getValue().split(',') as List
+    }
+    setMembers = {c, members ->
+      newMembersAttr = newAttr('members', members.join(','))
+      newAttrList = c.getAttrListValue().findAll {it -> !it.getName().equals('members')}
+      newAttrList << newMembersAttr
+      setAttr(extensionId, c.name, newAttrList)
+    }
+    runAsOwner()
     subcommand = arg0
     switch (subcommand.toUpperCase()) {
       case "CREATE":
@@ -30,6 +40,26 @@
         }
         removeAttr(extensionId, arg1);
         sendMessageToCaller("Deleted channel ${arg1}")
+        break;
+      case "ADD_MEMBER":
+        channel = getChannel(arg2)
+        members = getMembers(channel)
+        if (members.contains(arg1)) {
+          sendMessageToCaller("${arg1} is already joined to that channel")
+        } else {
+          members.add(arg1)
+          setMembers(channel, members)
+        }
+        break;
+      case "REMOVE_MEMBER":
+        channel = getChannel(arg2)
+        members = getMembers(channel)
+        if (!members.contains(arg1)) {
+          sendMessageToCaller("${arg1} is not joined to that channel")
+        } else {
+          members.remove(arg1)
+          setMembers(channel, members)
+        }
         break;
       default:
         throw failure("Unsupported command $subcommand")
@@ -65,3 +95,21 @@
           value: Deletes a new chat channel
         - name: description
           value: The membership of the channel is lost on deletion.
+    - name: $CHATADMIN_ADD_MEMBER
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $CHATADMIN ADD_MEMBER <player> <channel>
+        - name: summary
+          value: Adds a player to a chat channel
+        - name: description
+          value: This has the same effect as the player themself joining.
+    - name: $CHATADMIN_REMOVE_MEMBER
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $CHATADMIN REMOVE_MEMBER <player> <channel>
+        - name: summary
+          value: Removes a player from a chat channel
+        - name: description
+          value: This has the same effect as the player themself leaving.
