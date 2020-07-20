@@ -8,43 +8,46 @@ import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.model.Thing;
 
 /**
- * Forcibly moves a player to a destination anywhere in the universe.<p>
+ * Forcibly moves a thing to a destination anywhere in the universe.<p>
  *
- * Arguments: player to yoink, ID of destination
+ * Arguments: thing to yoink, ID of destination
  */
 @PermittedRoles(roles = { Role.THAUMATURGE },
                 failureMessage = "You are not a thaumaturge, so you may not yoink")
 public class YoinkCommand extends Command<Boolean> {
 
-  private final Player yoinkedPlayer;
+  private final Thing yoinkedThing;
   private final Place destination;
 
-  public YoinkCommand(Actor actor, Player player, Player yoinkedPlayer,
+  public YoinkCommand(Actor actor, Player player, Thing yoinkedThing,
                       Place destination) {
     super(actor, player);
-    this.yoinkedPlayer = Objects.requireNonNull(yoinkedPlayer);
+    this.yoinkedThing = Objects.requireNonNull(yoinkedThing);
     this.destination = Objects.requireNonNull(destination);
   }
 
   @Override
   protected Boolean executeImpl() {
-    Optional<Place> source;
+    Optional<Thing> source;
     try {
-      source = yoinkedPlayer.getLocationAsPlace();
+      source = yoinkedThing.getLocation();
     } catch (MissingThingException e) {
       source = Optional.empty();
     }
     if (source.isPresent()) {
-      source.get().take(yoinkedPlayer);
+      source.get().take(yoinkedThing);
     }
 
-    destination.give(yoinkedPlayer);
-    yoinkedPlayer.setLocation(destination);
-    yoinkedPlayer.sendMessage(new Message(player, Message.Style.INFO,
-                                          "You have been relocated to " +
-                                          destination.getName()));
+    destination.give(yoinkedThing);
+    yoinkedThing.setLocation(destination);
+    if (yoinkedThing instanceof Player) {
+      ((Player) yoinkedThing).sendMessage(new Message(player, Message.Style.INFO,
+                                                      "You have been relocated to " +
+                                                      destination.getName()));
+    }
 
     return true;
   }
@@ -53,10 +56,10 @@ public class YoinkCommand extends Command<Boolean> {
                                         List<String> commandArgs)
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 2);
-    Player yoinkedPlayer =
-        CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Player.class, player);
+    Thing yoinkedThing =
+        CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Thing.class, player);
     Place destination =
         CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(1), Place.class, player);
-    return new YoinkCommand(actor, player, yoinkedPlayer, destination);
+    return new YoinkCommand(actor, player, yoinkedThing, destination);
   }
 }

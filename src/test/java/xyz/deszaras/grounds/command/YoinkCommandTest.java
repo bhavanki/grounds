@@ -37,7 +37,7 @@ public class YoinkCommandTest extends AbstractCommandTest {
 
   @Test
   public void testSuccess() throws Exception {
-    when(yoinkedPlayer.getLocationAsPlace()).thenReturn(Optional.of(source));
+    when(yoinkedPlayer.getLocation()).thenReturn(Optional.of(source));
 
     assertTrue(command.execute());
 
@@ -49,7 +49,7 @@ public class YoinkCommandTest extends AbstractCommandTest {
 
   @Test
   public void testSuccessNoSource() throws Exception {
-    when(yoinkedPlayer.getLocationAsPlace()).thenReturn(Optional.empty());
+    when(yoinkedPlayer.getLocation()).thenReturn(Optional.empty());
 
     assertTrue(command.execute());
 
