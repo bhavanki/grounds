@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -66,6 +68,7 @@ public class CommandTest extends AbstractCommandTest {
     setPlayerRoles(Role.DENIZEN, Role.ADEPT);
 
     assertTrue(command.checkIfAnyRole(Role.ADEPT, Role.THAUMATURGE));
+    assertTrue(command.checkIfAnyRole(Set.of(Role.ADEPT, Role.THAUMATURGE)));
     command.checkIfAnyRole("Adept or greater, please",
                          Role.ADEPT, Role.THAUMATURGE);
   }
@@ -75,6 +78,7 @@ public class CommandTest extends AbstractCommandTest {
     command = new TestCommand(actor, Player.GOD);
 
     assertTrue(command.checkIfAnyRole(Role.ADEPT, Role.THAUMATURGE));
+    assertTrue(command.checkIfAnyRole(Set.of(Role.ADEPT, Role.THAUMATURGE)));
     command.checkIfAnyRole("Adept or greater, please",
                          Role.ADEPT, Role.THAUMATURGE);
   }
@@ -84,6 +88,7 @@ public class CommandTest extends AbstractCommandTest {
     setPlayerRoles(Role.DENIZEN, Role.BARD);
 
     assertFalse(command.checkIfAnyRole(Role.ADEPT, Role.THAUMATURGE));
+    assertFalse(command.checkIfAnyRole(Set.of(Role.ADEPT, Role.THAUMATURGE)));
 
     PermissionException e = assertThrows(PermissionException.class,
         () -> command.checkIfAnyRole("Adept or higher", Role.ADEPT, Role.THAUMATURGE));

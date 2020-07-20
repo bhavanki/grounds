@@ -1,6 +1,7 @@
 package xyz.deszaras.grounds.command;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -67,6 +68,20 @@ public abstract class Command<R> {
     }
     Set<Role> playerRoles = Universe.getCurrent().getRoles(player);
     return Arrays.stream(roles).anyMatch(r -> playerRoles.contains(r));
+  }
+
+  /**
+   * Checks if the player running the command has any of the given roles.
+   *
+   * @param roles roles to check for
+   * @return true if player has at least one of the given roles
+   */
+  protected boolean checkIfAnyRole(Collection<Role> roles) {
+    if (player.equals(Player.GOD)) {
+      return true;
+    }
+    Set<Role> playerRoles = Universe.getCurrent().getRoles(player);
+    return roles.stream().anyMatch(r -> playerRoles.contains(r));
   }
 
   /**

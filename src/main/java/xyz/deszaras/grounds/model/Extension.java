@@ -6,11 +6,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import xyz.deszaras.grounds.auth.Policy;
+import xyz.deszaras.grounds.auth.Role;
 
 /**
  * A thing that houses extensions to the game.
  */
 public class Extension extends Thing {
+
+  /**
+   * Only certain roles may work with extensions.
+   */
+  public static final Set<Role> PERMITTED_ROLES = Set.of(Role.BARD, Role.THAUMATURGE);
 
   public Extension(String name) {
     super(name);

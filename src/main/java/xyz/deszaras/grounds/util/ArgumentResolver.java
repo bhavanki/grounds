@@ -1,10 +1,14 @@
 package xyz.deszaras.grounds.util;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import xyz.deszaras.grounds.auth.Role;
+import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
@@ -34,7 +38,9 @@ import xyz.deszaras.grounds.model.Universe;
  * <li>The resolver looks through the context things's contents for a
  *     name / ID match.</li>
  * <li>If no contents match, the resolver looks through the things that
- *     share the context things's location.</li>
+ *     share the context things's location. Here, if the context thing is a
+ *     player, then extensions may be resolved only if the player has a
+ *     permitted role.</li>
  * <li>If no nearby things match, and the thing is the GOD player or is a
  *     wizard, then the resolver falls back to looking throughout the universe.
  * <li>If two things in a set have a matching name, the resolver picks
@@ -99,7 +105,7 @@ public class ArgumentResolver {
     }
 
     // Try to resolve among the context thing's contents.
-    Optional<T> contentThing = resolveAmong(name, null, type, context.getContents());
+    Optional<T> contentThing = resolveAmong(name, null, type, context.getContents(), context);
     if (contentThing.isPresent()) {
       LOG.debug("Resolved {} to {} {} in context thing's contents",
                 name, type.getSimpleName(), contentThing.get().getId());
@@ -109,7 +115,8 @@ public class ArgumentResolver {
     // If the context thing is located somewhere, try to resolve among the
     // things in that location.
     if (location.isPresent()) {
-      Optional<T> nearbyThing = resolveAmong(name, null, type, location.get().getContents());
+      Set<UUID> contents = location.get().getContents();
+      Optional<T> nearbyThing = resolveAmong(name, null, type, contents, context);
       if (nearbyThing.isPresent()) {
         LOG.debug("Resolved {} to {} {} nearby",
                   name, type.getSimpleName(), nearbyThing.get().getId());
@@ -167,7 +174,7 @@ public class ArgumentResolver {
     }
 
     // Try to resolve among the context thing's contents.
-    Optional<T> contentThing = resolveAmong(null, id, type, context.getContents());
+    Optional<T> contentThing = resolveAmong(null, id, type, context.getContents(), context);
     if (contentThing.isPresent()) {
       LOG.debug("Resolved {} to {} {} in context thing's contents",
                 id, type.getSimpleName(), contentThing.get().getId());
@@ -177,7 +184,8 @@ public class ArgumentResolver {
     // If the context thing is located somewhere, try to resolve among the
     // things in that location.
     if (location.isPresent()) {
-      Optional<T> nearbyThing = resolveAmong(null, id, type, location.get().getContents());
+      Set<UUID> contents = location.get().getContents();
+      Optional<T> nearbyThing = resolveAmong(null, id, type, contents, context);
       if (nearbyThing.isPresent()) {
         LOG.debug("Resolved {} to {} {} nearby",
                   id, type.getSimpleName(), nearbyThing.get().getId());
@@ -209,10 +217,11 @@ public class ArgumentResolver {
    * @param  id       ID for a thing
    * @param  type     expected type of thing to resolve
    * @param  ids      IDs of candidate things
+   * @param  context  thing providing context for resolution
    * @return          resolved thing (empty if unresolved)
    */
   private <T extends Thing> Optional<T> resolveAmong(String name,
-      UUID id, Class<T> type, Iterable<UUID> ids) {
+      UUID id, Class<T> type, Iterable<UUID> ids, Thing context) {
     for (UUID iid : ids) {
       // Find the candidate thing.
       Optional<Thing> thingOpt = Universe.getCurrent().getThing(iid);
@@ -222,6 +231,14 @@ public class ArgumentResolver {
       Thing thing = thingOpt.get();
       // Check its type.
       if (!type.isAssignableFrom(thing.getClass())) {
+        continue;
+      }
+      // If the context thing is a player, check if the candidate is an
+      // extension, which may not be seen by some roles.
+      if (context instanceof Player && thing instanceof Extension &&
+          !(Player.GOD.equals(context)) &&
+          !Universe.getCurrent().getRoles((Player) context).stream()
+              .anyMatch(r -> Extension.PERMITTED_ROLES.contains(r))) {
         continue;
       }
       // Check if it matches the name / ID.

@@ -43,11 +43,6 @@ public class LookCommand extends Command<String> {
     }
   }
 
-  private static final Role[] EXTENSION_SEEING_ROLES = new Role[] {
-    Role.BARD,
-    Role.THAUMATURGE
-  };
-
   private String buildMessage(Place location) {
     String name = AnsiUtils.color(location.getName(), Ansi.Color.CYAN, false);
     StringBuilder b = new StringBuilder(name);
@@ -66,7 +61,7 @@ public class LookCommand extends Command<String> {
         if (tt instanceof Player) {
           players.add((Player) tt);
         } else if (!(tt instanceof Extension) ||
-                   checkIfAnyRole(EXTENSION_SEEING_ROLES)) {
+                   checkIfAnyRole(Extension.PERMITTED_ROLES)) {
           theRest.add(tt);
         }
       }
