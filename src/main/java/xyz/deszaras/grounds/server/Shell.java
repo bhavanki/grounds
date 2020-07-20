@@ -360,8 +360,8 @@ public class Shell implements Runnable {
     if (home.isEmpty()) {
       home = Optional.of(Universe.getCurrent().getOriginPlace());
     }
-    LOG.info("Bringing out player {} to home {}", player.getName(),
-             home.get().getName());
+    LOG.debug("Bringing out player {} to home {}", player.getName(),
+              home.get().getName());
     Command bringOutCommand = new YoinkCommand(Actor.ROOT, Player.GOD, player,
                                                home.get());
     Future<CommandResult> bringOutCommandFuture =
@@ -380,8 +380,8 @@ public class Shell implements Runnable {
 
   private void stowPlayer(Player player) throws InterruptedException {
     Place origin = Universe.getCurrent().getOriginPlace();
-    LOG.info("Stowing player {} at origin {}", player.getName(),
-             origin.getName());
+    LOG.debug("Stowing player {} at origin {}", player.getName(),
+              origin.getName());
     Command stowCommand = new YoinkCommand(Actor.ROOT, Player.GOD, player, origin);
     Future<CommandResult> stowCommandFuture =
         CommandExecutor.getInstance().submit(stowCommand);

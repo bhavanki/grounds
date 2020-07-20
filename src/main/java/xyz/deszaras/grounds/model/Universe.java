@@ -112,12 +112,12 @@ public class Universe {
     File saveFile = safe ?
         Path.of(theUniverseFile.toPath().toString() + "." + System.currentTimeMillis()).toFile() :
         theUniverseFile;
-    LOG.info("Writing universe to {}", saveFile);
+    LOG.debug("Writing universe to {}", saveFile);
     Universe.save(theUniverse, saveFile);
 
     if (safe) {
       try {
-        LOG.info("Copying universe data from {} to {}", saveFile, theUniverseFile);
+        LOG.debug("Copying universe data from {} to {}", saveFile, theUniverseFile);
         Files.copy(saveFile.toPath(), theUniverseFile.toPath(),
                    StandardCopyOption.REPLACE_EXISTING);
       } catch (IOException e) {
@@ -125,7 +125,7 @@ public class Universe {
         return false;
       }
       try {
-        LOG.info("Deleting {}", saveFile);
+        LOG.debug("Deleting {}", saveFile);
         Files.delete(saveFile.toPath());
       } catch (IOException e) {
         LOG.warn("Failed to delete temporary universe file {}", saveFile);
