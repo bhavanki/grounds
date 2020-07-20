@@ -1,6 +1,7 @@
 package xyz.deszaras.grounds.command;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -64,6 +65,7 @@ public class CommandTest extends AbstractCommandTest {
   public void testCheckIfAnyRoleSuccess() throws Exception {
     setPlayerRoles(Role.DENIZEN, Role.ADEPT);
 
+    assertTrue(command.checkIfAnyRole(Role.ADEPT, Role.THAUMATURGE));
     command.checkIfAnyRole("Adept or greater, please",
                          Role.ADEPT, Role.THAUMATURGE);
   }
@@ -72,6 +74,7 @@ public class CommandTest extends AbstractCommandTest {
   public void testCheckIfAnyRoleSuccessForGOD() throws Exception {
     command = new TestCommand(actor, Player.GOD);
 
+    assertTrue(command.checkIfAnyRole(Role.ADEPT, Role.THAUMATURGE));
     command.checkIfAnyRole("Adept or greater, please",
                          Role.ADEPT, Role.THAUMATURGE);
   }
@@ -79,6 +82,8 @@ public class CommandTest extends AbstractCommandTest {
   @Test
   public void testCheckIfAnyRoleFailure() throws Exception {
     setPlayerRoles(Role.DENIZEN, Role.BARD);
+
+    assertFalse(command.checkIfAnyRole(Role.ADEPT, Role.THAUMATURGE));
 
     PermissionException e = assertThrows(PermissionException.class,
         () -> command.checkIfAnyRole("Adept or higher", Role.ADEPT, Role.THAUMATURGE));

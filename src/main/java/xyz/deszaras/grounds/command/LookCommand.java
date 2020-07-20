@@ -5,10 +5,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
 import org.fusesource.jansi.Ansi;
+
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Attr;
+import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Link;
 import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Place;
@@ -40,6 +43,11 @@ public class LookCommand extends Command<String> {
     }
   }
 
+  private static final Role[] EXTENSION_SEEING_ROLES = new Role[] {
+    Role.BARD,
+    Role.THAUMATURGE
+  };
+
   private String buildMessage(Place location) {
     String name = AnsiUtils.color(location.getName(), Ansi.Color.CYAN, false);
     StringBuilder b = new StringBuilder(name);
@@ -57,7 +65,8 @@ public class LookCommand extends Command<String> {
         Thing tt = t.get();
         if (tt instanceof Player) {
           players.add((Player) tt);
-        } else {
+        } else if (!(tt instanceof Extension) ||
+                   checkIfAnyRole(EXTENSION_SEEING_ROLES)) {
           theRest.add(tt);
         }
       }

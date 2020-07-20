@@ -56,6 +56,20 @@ public abstract class Command<R> {
   protected abstract R executeImpl() throws CommandException;
 
   /**
+   * Checks if the player running the command has any of the given roles.
+   *
+   * @param roles roles to check for
+   * @return true if player has at least one of the given roles
+   */
+  protected boolean checkIfAnyRole(Role... roles) {
+    if (player.equals(Player.GOD)) {
+      return true;
+    }
+    Set<Role> playerRoles = Universe.getCurrent().getRoles(player);
+    return Arrays.stream(roles).anyMatch(r -> playerRoles.contains(r));
+  }
+
+  /**
    * Checks if the player running the command has any of the given roles, and if
    * not, throws a {@link PermissionException}.
    *
@@ -65,11 +79,7 @@ public abstract class Command<R> {
    */
   protected void checkIfAnyRole(String message, Role... roles)
       throws PermissionException {
-    if (player.equals(Player.GOD)) {
-      return;
-    }
-    Set<Role> playerRoles = Universe.getCurrent().getRoles(player);
-    if (Arrays.stream(roles).noneMatch(r -> playerRoles.contains(r))) {
+    if (!checkIfAnyRole(roles)) {
       throw new PermissionException(message);
     }
   }
