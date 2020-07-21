@@ -66,6 +66,8 @@ public class SingleUser implements Runnable {
                      "Also created new guest actor with password 'guest'.\n");
     }
 
+    Universe.setCurrent(Universe.VOID);
+    Universe.setCurrentFile(null);
     CommandExecutor.create(null);
 
     console.printf("Welcome to Grounds.\n");

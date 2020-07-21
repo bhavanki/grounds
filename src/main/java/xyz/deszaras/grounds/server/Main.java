@@ -6,7 +6,6 @@ import com.beust.jcommander.converters.FileConverter;
 import java.io.File;
 import java.io.FileReader;
 import java.util.Properties;
-import xyz.deszaras.grounds.model.Universe;
 
 /**
  * The entry point for the application.
@@ -39,23 +38,12 @@ public class Main {
     try (FileReader r = new FileReader(jcArgs.propertiesFile)) {
       properties.load(r);
     }
-    if (jcArgs.universeFile != null) {
-      Universe universe = Universe.load(jcArgs.universeFile);
-
-      universe.removeGuests();
-
-      Universe.setCurrent(universe);
-      Universe.setCurrentFile(jcArgs.universeFile);
-    } else {
-      Universe.setCurrent(Universe.VOID);
-      Universe.setCurrentFile(null);
-    }
 
     if (jcArgs.singleUser) {
       new SingleUser(properties).run();
     } else {
       Server server = new Server(properties);
-      server.start();
+      server.start(jcArgs.universeFile);
       server.shutdownOnCommand();
     }
   }

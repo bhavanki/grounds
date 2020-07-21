@@ -38,9 +38,10 @@ public class LoadCommand extends Command<Boolean> {
     try {
       Universe loadedUniverse = Universe.load(f);
 
-      Player currentGod =
+      Player currentGod = Universe.getCurrent() != null ?
           Universe.getCurrent().getThing(Player.GOD.getId(), Player.class)
-          .orElse(Player.GOD);
+              .orElse(Player.GOD) :
+          Player.GOD;
 
       Optional<Player> newGod =
           loadedUniverse.getThing(Player.GOD.getId(), Player.class);

@@ -7,6 +7,7 @@ import com.google.common.collect.Multimaps;
 import com.google.common.io.Resources;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -49,6 +50,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandExecutor;
+import xyz.deszaras.grounds.command.LoadCommand;
+import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.model.Universe;
 
 /**
  * The multi-user server for the game. Connections happen over SSH,
@@ -451,8 +455,16 @@ public class Server {
    *
    * @throws IOException if the server fails to start
    */
-  public void start() throws IOException {
+  public void start(File universeFile) throws IOException {
     CommandExecutor.create(this);
+
+    if (universeFile != null) {
+      CommandExecutor.getInstance()
+          .submit(new LoadCommand(Actor.ROOT, Player.GOD, universeFile));
+    } else {
+      Universe.setCurrent(Universe.VOID);
+      Universe.setCurrentFile(null);
+    }
 
     if (autosavePeriodSeconds >= 0L) {
       autosaveFuture = adminExecutorService.scheduleAtFixedRate(
