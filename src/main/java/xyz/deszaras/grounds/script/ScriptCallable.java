@@ -1,12 +1,18 @@
 package xyz.deszaras.grounds.script;
 
 import com.google.common.collect.ImmutableList;
+
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+
 import org.codehaus.groovy.control.CompilerConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.model.Player;
 
@@ -14,6 +20,8 @@ import xyz.deszaras.grounds.model.Player;
  * A callable for executing a {@link Script}. Groovy is supported.
  */
 public class ScriptCallable implements Callable<String> {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ScriptCallable.class);
 
   private final Actor actor;
   private final Player player;
@@ -61,13 +69,27 @@ public class ScriptCallable implements Callable<String> {
     compilerConfig.setScriptBaseClass(GroundsScript.class.getName());
 
     GroovyShell commandShell = new GroovyShell(binding, compilerConfig);
-    GroundsScript gscript = (GroundsScript) commandShell.parse(script.getContent());
+    GroundsScript gscript;
+    try {
+      gscript = (GroundsScript) commandShell.parse(script.getContent());
+    } catch (Exception e) {
+      LOG.error("Failed to parse script in extension {}",
+                script.getExtension().getId(), e);
+      return null;
+    }
     gscript.setActor(actor);
     gscript.setPlayer(player);
     gscript.setOwner(script.getOwner());
 
     // Run it!
-    Object result = gscript.run();
+    Object result;
+    try {
+      result = gscript.run();
+    } catch (Exception e) {
+      LOG.error("Failed to run script in extension {}",
+                script.getExtension().getId(), e);
+      return null;
+    }
 
     if (result == null) {
       return null;
