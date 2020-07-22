@@ -34,7 +34,9 @@ public class CommandFactory {
   /**
    * Creates a new command factory.
    *
-   * @param  commands map of command classes to support, keyed by command name
+   * @param  transforms    functions to transform command lines
+   * @param  commands      map of command classes to support, keyed by command name
+   * @param  server        server instance, if not in single-user mode
    */
   public CommandFactory(List<BiFunction<List<String>, Player, List<String>>> transforms,
                         Map<String, Class<? extends Command>> commands,

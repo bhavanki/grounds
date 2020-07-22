@@ -15,8 +15,7 @@ import java.util.Optional;
 public class Actor {
 
   /**
-   * The administrative actor for the system. No user should be
-   * granted this username.
+   * The administrative actor for the system.
    */
   public static final Actor ROOT = new Actor("root");
 
