@@ -2,6 +2,7 @@ package xyz.deszaras.grounds.command;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -24,6 +25,7 @@ public abstract class Command<R> {
 
   protected final Actor actor;
   protected final Player player;
+  private final Set<Event> events;
 
   /**
    * Creates a new command.
@@ -34,6 +36,7 @@ public abstract class Command<R> {
   protected Command(Actor actor, Player player) {
     this.actor = Objects.requireNonNull(actor);
     this.player = Objects.requireNonNull(player);
+    events = new HashSet<>();
   }
 
   /**
@@ -55,6 +58,35 @@ public abstract class Command<R> {
    * @throws CommandException if the command fails
    */
   protected abstract R executeImpl() throws CommandException;
+
+  /**
+   * Remembers the given event. Use this during command execute to record an
+   * event to be published for listeners.
+   *
+   * @param es events to remember
+   */
+  public void postEvent(Event e) {
+    postEvents(Set.of(e));
+  }
+
+  /**
+   * Remembers the given events. Use this during command execute to record
+   * events to be published for listeners.
+   *
+   * @param es events to remember
+   */
+  public void postEvents(Collection<Event> es) {
+    events.addAll(es);
+  }
+
+  /**
+   * Gets the events remembered during command execution.
+   *
+   * @return remembered events
+   */
+  public Set<Event> getEvents() {
+    return events;
+  }
 
   /**
    * Checks if the player running the command has any of the given roles.

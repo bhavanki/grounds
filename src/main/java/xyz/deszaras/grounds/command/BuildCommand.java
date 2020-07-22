@@ -1,8 +1,10 @@
 package xyz.deszaras.grounds.command;
 
 import com.google.common.collect.ImmutableList;
+
 import java.util.List;
 import java.util.Objects;
+
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Link;
@@ -86,6 +88,8 @@ public class BuildCommand extends Command<Boolean> {
           thingType == BuiltInType.PLAYER) {
         built.setLocation(location);
         location.give(built);
+      } else if (thingType == BuiltInType.EXTENSION) {
+        CommandExecutor.getInstance().getCommandEventBus().register(built);
       }
       player.sendMessage(newInfoMessage("Created " + built.getId()));
       return true;

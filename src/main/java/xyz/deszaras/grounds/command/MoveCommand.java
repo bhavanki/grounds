@@ -58,7 +58,12 @@ public class MoveCommand extends Command<String> {
     checkPermission(Category.USE, viaLink.get(),
                     "You are not permitted to traverse the exit to that place");
 
-    return new TeleportCommand(actor, player, moveDestination.get()).executeImpl();
+    TeleportCommand teleportCommand = new TeleportCommand(actor, player, moveDestination.get());
+    String result = teleportCommand.executeImpl();
+
+    postEvents(teleportCommand.getEvents());
+
+    return result;
   }
 
   public static MoveCommand newCommand(Actor actor, Player player,

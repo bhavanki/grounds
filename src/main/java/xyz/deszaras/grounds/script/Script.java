@@ -4,7 +4,6 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 
 import xyz.deszaras.grounds.model.Extension;
-import xyz.deszaras.grounds.model.Player;
 
 /**
  * A script to be run by the application. It could be the implementation
@@ -14,7 +13,6 @@ public class Script {
 
   private final String content;
   private final ResourceBundle helpBundle;
-  private final Player owner;
   private final Extension extension;
 
   /**
@@ -22,15 +20,12 @@ public class Script {
    *
    * @param content script content
    * @param helpBundle resource bundle with help text
-   * @param owner owner of script
    * @param extension extension where script is stored as an attribute
    * @throws NullPointerException if any argument is null
    */
-  public Script(String content, ResourceBundle helpBundle, Player owner,
-                Extension extension) {
+  public Script(String content, ResourceBundle helpBundle, Extension extension) {
     this.content = Objects.requireNonNull(content);
     this.helpBundle = Objects.requireNonNull(helpBundle);
-    this.owner = Objects.requireNonNull(owner);
     this.extension = Objects.requireNonNull(extension);
   }
 
@@ -50,15 +45,6 @@ public class Script {
    */
   public ResourceBundle getHelpBundle() {
     return helpBundle;
-  }
-
-  /**
-   * Gets the script owner.
-   *
-   * @return owner
-   */
-  public Player getOwner() {
-    return owner;
   }
 
   /**

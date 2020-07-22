@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.eventbus.EventBus;
+
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -17,12 +19,14 @@ import xyz.deszaras.grounds.model.Player;
 public class CommandExecutorTest {
 
   private CommandFactory factory;
+  private EventBus eventBus;
   private CommandExecutor executor;
 
   @BeforeEach
   public void setUp() {
     factory = mock(CommandFactory.class);
-    executor = new CommandExecutor(factory);
+    eventBus = mock(EventBus.class);
+    executor = new CommandExecutor(factory, eventBus);
   }
 
   @AfterEach
@@ -31,8 +35,9 @@ public class CommandExecutorTest {
   }
 
   @Test
-  public void testGetCommandFactory() {
+  public void testGetters() {
     assertEquals(factory, executor.getCommandFactory());
+    assertEquals(eventBus, executor.getCommandEventBus());
   }
 
   @Test

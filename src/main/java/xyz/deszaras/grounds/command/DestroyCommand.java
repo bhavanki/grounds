@@ -3,6 +3,7 @@ package xyz.deszaras.grounds.command;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Extension;
@@ -55,6 +56,8 @@ public class DestroyCommand extends Command<Boolean> {
     }
     if (thing.getClass().equals(Player.class)) {
       Universe.getCurrent().removeAllRoles((Player) thing);
+    } else if (thing.getClass().equals(Extension.class)) {
+      CommandExecutor.getInstance().getCommandEventBus().unregister(thing);
     }
     Universe.getCurrent().removeThing(thing);
 

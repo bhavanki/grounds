@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,8 @@ public class TeleportCommandTest extends AbstractCommandTest {
 
     source = mock(Place.class);
     destination = mock(Place.class);
+    when(destination.getName()).thenReturn("dest");
+    when(destination.getId()).thenReturn(UUID.randomUUID());
 
     command = new TeleportCommand(actor, player, destination);
 

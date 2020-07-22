@@ -20,6 +20,12 @@ public class Actor {
   public static final Actor ROOT = new Actor("root");
 
   /**
+   * The actor behind autonomous actions in the game. No user
+   * should be granted this username.
+   */
+  public static final Actor INTERNAL = new Actor("_internal");
+
+  /**
    * The guest actor, shared by all guests.
    */
   public static final Actor GUEST = new Actor("guest");

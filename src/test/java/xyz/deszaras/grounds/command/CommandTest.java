@@ -32,12 +32,26 @@ public class CommandTest extends AbstractCommandTest {
     }
   }
 
+  private static class TestEvent extends Event<String> {
+    private TestEvent() {
+      super(Player.GOD, "test");
+    }
+  }
+
   private Command command;
 
   @BeforeEach
   public void setUp() {
     super.setUp();
     command = new TestCommand(actor, player);
+  }
+
+  @Test
+  public void testEvents() {
+    command.postEvents(Set.of(new TestEvent(), new TestEvent()));
+    assertEquals(2, command.getEvents().size());
+    command.postEvent(new TestEvent());
+    assertEquals(3, command.getEvents().size());
   }
 
   // @Test

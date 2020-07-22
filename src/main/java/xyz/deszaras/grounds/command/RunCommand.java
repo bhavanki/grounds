@@ -34,8 +34,6 @@ public class RunCommand extends Command<Boolean> {
 
   @Override
   protected Boolean executeImpl() throws CommandException {
-    CommandFactory commandFactory = CommandExecutor.getInstance().getCommandFactory();
-
     List<String> commandLines;
     try (Stream<String> lineStream = Files.lines(f.toPath())) {
       commandLines = lineStream.collect(Collectors.toList());
@@ -55,7 +53,7 @@ public class RunCommand extends Command<Boolean> {
       player.sendMessage(new Message(player, Message.Style.INFO,
                                      String.format("Running command:\n%s", line)));
       CommandCallable commandCallable =
-          new CommandCallable(actor, player, tokens, commandFactory);
+          new CommandCallable(actor, player, tokens, CommandExecutor.getInstance());
       CommandResult commandResult = commandCallable.call();
 
       // TBD: refactor with Shell

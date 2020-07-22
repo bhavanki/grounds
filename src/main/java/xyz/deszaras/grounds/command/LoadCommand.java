@@ -1,5 +1,7 @@
 package xyz.deszaras.grounds.command;
 
+import com.google.common.eventbus.EventBus;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -9,6 +11,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
@@ -51,6 +54,18 @@ public class LoadCommand extends Command<Boolean> {
       }
 
       loadedUniverse.removeGuests();
+
+      EventBus commandEventBus = CommandExecutor.getInstance().getCommandEventBus();
+      if (Universe.getCurrent() != null) {
+        for (Extension extension : Universe.getCurrent().getThings(Extension.class)) {
+          LOG.info("Unregistering extension {}", extension.getName());
+          commandEventBus.unregister(extension);
+        }
+      }
+      for (Extension extension : loadedUniverse.getThings(Extension.class)) {
+        LOG.info("Registering extension {}", extension.getName());
+        commandEventBus.register(extension);
+      }
 
       Universe.setCurrent(loadedUniverse);
       Universe.setCurrentFile(f);

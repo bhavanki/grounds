@@ -25,7 +25,7 @@
       newAttrList << newMembersAttr
       setAttr(extensionId, c.name, newAttrList)
     }
-    runAsOwner()
+    runAsExtension()
     callerName = getCallerName()
     subcommand = arg0
     switch (subcommand.toUpperCase()) {

@@ -22,7 +22,6 @@
       newAttrList << newMembersAttr
       setAttr(extensionId, c.name, newAttrList)
     }
-    runAsOwner()
     subcommand = arg0
     switch (subcommand.toUpperCase()) {
       case "CREATE":

@@ -79,7 +79,7 @@ public class ScriptCallable implements Callable<String> {
     }
     gscript.setActor(actor);
     gscript.setPlayer(player);
-    gscript.setOwner(script.getOwner());
+    gscript.setExtension(script.getExtension());
 
     // Run it!
     Object result;

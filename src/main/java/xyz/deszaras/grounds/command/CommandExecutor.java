@@ -3,7 +3,9 @@ package xyz.deszaras.grounds.command;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -11,6 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BiFunction;
+
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.Server;
 
@@ -136,7 +139,8 @@ public class CommandExecutor {
     if (theExecutor != null) {
       throw new IllegalStateException("The command executor has already been created");
     }
-    theExecutor = new CommandExecutor(new CommandFactory(TRANSFORMS, COMMANDS, server));
+    theExecutor = new CommandExecutor(new CommandFactory(TRANSFORMS, COMMANDS, server),
+                                      new EventBus("commandEvents"));
   }
 
   public static synchronized CommandExecutor getInstance() {
@@ -148,15 +152,17 @@ public class CommandExecutor {
 
   private final CommandFactory commandFactory;
   private final ExecutorService commandExecutorService;
+  private final EventBus commandEventBus;
 
   @VisibleForTesting
-  CommandExecutor(CommandFactory commandFactory) {
+  CommandExecutor(CommandFactory commandFactory, EventBus commandEventBus) {
     this.commandFactory = Objects.requireNonNull(commandFactory);
     commandExecutorService =
         Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
                                           .setDaemon(false)
                                           .setNameFormat("grounds-command")
                                           .build());
+    this.commandEventBus = commandEventBus;
   }
 
   /**
@@ -169,6 +175,15 @@ public class CommandExecutor {
   }
 
   /**
+   * Gets this executor's command event bus.
+   *
+   * @return command event bus
+   */
+  public EventBus getCommandEventBus() {
+    return commandEventBus;
+  }
+
+  /**
    * Submits a new command to be run.
    *
    * @param actor actor submitting the command
@@ -178,8 +193,7 @@ public class CommandExecutor {
    */
   public Future<CommandResult> submit(Actor actor, Player player,
                                       List<String> commandLine) {
-    CommandCallable callable = new CommandCallable(actor, player, commandLine,
-                                                   commandFactory);
+    CommandCallable callable = new CommandCallable(actor, player, commandLine, this);
     return commandExecutorService.submit(callable);
   }
 
@@ -190,7 +204,7 @@ public class CommandExecutor {
    * @return future for the command result
    */
   public Future<CommandResult> submit(Command command) {
-    CommandCallable callable = new CommandCallable(command);
+    CommandCallable callable = new CommandCallable(command, this);
     return commandExecutorService.submit(callable);
   }
 

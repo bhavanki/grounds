@@ -9,9 +9,6 @@ import java.util.ResourceBundle;
 
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Extension;
-import xyz.deszaras.grounds.model.MissingThingException;
-import xyz.deszaras.grounds.model.Player;
-import xyz.deszaras.grounds.model.Thing;
 
 /**
  * A factory for {@link Script} objects.
@@ -27,7 +24,7 @@ public class ScriptFactory {
    * must be of type ATTRLIST. Valid attrs in the list value are:<p>
    * <ul>
    * <li>"scriptContent" string attribute containing script content</li>
-   * <li>"help" attrlist attribute containing help text</li>
+   * <li>"scriptHelp" attrlist attribute containing help text</li>
    * </ul>
    *
    * @param scriptAttr script attribute
@@ -43,22 +40,6 @@ public class ScriptFactory {
           " but is of type " + scriptAttr.getType());
     }
     List<Attr> attrs = scriptAttr.getAttrListValue();
-
-    // The script's owner is the extension's owner.
-    Thing scriptOwner;
-    try {
-      scriptOwner = scriptExtension.getOwner().orElseThrow(() ->
-          new ScriptFactoryException("Cannot build script, extension " +
-                                     scriptExtension.getName() + " has no owner"));
-    } catch (MissingThingException e) {
-      throw new ScriptFactoryException("Cannot build script, extension " +
-                                       scriptExtension.getName() + " has missing owner!");
-    }
-
-    if (!(scriptOwner instanceof Player)) {
-      throw new ScriptFactoryException("Cannot build script, extension " +
-                                       scriptExtension.getName() + " has a non-player owner");
-    }
 
     // Get the script from the scriptContent attribute.
     Optional<Attr> contentAttr = attrs.stream()
@@ -82,7 +63,7 @@ public class ScriptFactory {
     }
 
     return new Script(contentAttr.get().getValue(), helpBundle,
-                      (Player) scriptOwner, scriptExtension);
+                      scriptExtension);
   }
 
   /**

@@ -2,6 +2,8 @@ package xyz.deszaras.grounds.script;
 
 import com.google.common.base.Splitter;
 
+import groovy.json.JsonSlurper;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +15,7 @@ import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.command.CommandResult;
 import xyz.deszaras.grounds.command.Message;
 import xyz.deszaras.grounds.model.Attr;
+import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Universe;
 
@@ -28,7 +31,7 @@ public abstract class GroundsScript extends groovy.lang.Script {
   private Actor actor;
   private Player caller;
   private Player runner;
-  private Player owner;
+  private Extension extension;
 
   /**
    * Sets the actor for the script.
@@ -50,20 +53,20 @@ public abstract class GroundsScript extends groovy.lang.Script {
   }
 
   /**
-   * Sets the owner for the script.
+   * Sets the extension for the script.
    *
-   * @param owner owner of the script
+   * @param extension extension of the script
    */
-  public void setOwner(Player owner) {
-    this.owner = owner;
+  public void setExtension(Extension extension) {
+    this.extension = extension;
   }
 
   /**
-   * Continues execution of this script as the script's owner. This allows for
-   * scripts to execute commands that the original caller cannot.
+   * Continues execution of this script as the script's extension. This allows
+   * for scripts to execute commands that the original caller cannot.
    */
-  public void runAsOwner() {
-    this.runner = owner;
+  public void runAsExtension() {
+    this.runner = extension;
   }
 
   /**
@@ -73,6 +76,16 @@ public abstract class GroundsScript extends groovy.lang.Script {
    */
   public String getCallerName() {
     return caller.getName();
+  }
+
+  /**
+   * Parses the given JSON string.
+   *
+   * @param  s JSON string
+   * @return   parsed JSON
+   */
+  public Object parseJson(String s) {
+    return new JsonSlurper().parseText(s);
   }
 
   /**
@@ -211,7 +224,7 @@ public abstract class GroundsScript extends groovy.lang.Script {
 
   /**
    * Executes a command line. Command execution occurs in the current thread,
-   * not through the game's global command executor; in other words, the
+   * not directly through the game's global command executor; in other words, the
    * command runs in the same thread running this script's command. The command
    * is run as the player running this script.
    *
@@ -220,7 +233,7 @@ public abstract class GroundsScript extends groovy.lang.Script {
    */
   public CommandResult exec(List<String> commandLine) {
     return new CommandCallable(actor, runner, commandLine,
-                               CommandExecutor.getInstance().getCommandFactory()).call();
+                               CommandExecutor.getInstance()).call();
   }
 
   /**

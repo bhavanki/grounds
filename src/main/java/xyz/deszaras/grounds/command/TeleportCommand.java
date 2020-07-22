@@ -1,8 +1,11 @@
 package xyz.deszaras.grounds.command;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.MissingThingException;
@@ -47,6 +50,7 @@ public class TeleportCommand extends Command<String> {
 
     destination.give(player);
     player.setLocation(destination);
+    postEvent(new TeleportArrivalEvent(player, destination));
 
     try {
       LookCommand lookCommand =
@@ -64,5 +68,41 @@ public class TeleportCommand extends Command<String> {
     Place destination =
         CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Place.class, player);
     return new TeleportCommand(actor, player, destination);
+  }
+
+  /**
+   * The payload for TeleportArrivalEvent.
+   */
+  public static class TeleportArrival {
+    /**
+     * The name of the player arriving.
+     */
+    @JsonProperty
+    public final String player;
+    /**
+     * The name of the destination.
+     */
+    @JsonProperty
+    public final String destination;
+    /**
+     * The ID of the destination.
+     */
+    @JsonProperty
+    public final String destinationId;
+
+    private TeleportArrival(Player player, Place destination) {
+      this.player = player.getName();
+      this.destination = destination.getName();
+      this.destinationId = destination.getId().toString();
+    }
+  }
+
+  /**
+   * An event posted when a player arrives at a destination.
+   */
+  public static class TeleportArrivalEvent extends Event<TeleportArrival> {
+    private TeleportArrivalEvent(Player player, Place destination) {
+      super(player, new TeleportArrival(player, destination));
+    }
   }
 }

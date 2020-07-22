@@ -8,7 +8,6 @@ import java.util.ResourceBundle;
 import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.model.Extension;
-import xyz.deszaras.grounds.model.Player;
 
 public class ScriptTest {
 
@@ -21,14 +20,12 @@ public class ScriptTest {
         return new Object[0][];
       }
     };
-    Player owner = new Player("owner");
     Extension extension = new Extension("extension");
 
-    Script s = new Script(content, helpBundle, owner, extension);
+    Script s = new Script(content, helpBundle, extension);
 
     assertEquals(content, s.getContent());
     assertEquals(helpBundle, s.getHelpBundle());
-    assertEquals(owner, s.getOwner());
     assertEquals(extension, s.getExtension());
   }
 

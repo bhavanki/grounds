@@ -2,6 +2,7 @@ package xyz.deszaras.grounds.command;
 
 import java.util.List;
 import java.util.concurrent.Callable;
+
 import xyz.deszaras.grounds.model.Player;
 
 /**
@@ -14,7 +15,7 @@ public class CommandCallable implements Callable<CommandResult> {
   private final Actor actor;
   private final Player player;
   private final List<String> commandLine;
-  private final CommandFactory commandFactory;
+  private final CommandExecutor commandExecutor;
   private final Command command;
 
   /**
@@ -24,30 +25,31 @@ public class CommandCallable implements Callable<CommandResult> {
    * @param actor actor submitting the command
    * @param player player currently assumed by the actor
    * @param commandLine command line entered in the shell
-   * @param commandFactory command factory
+   * @param commandExecutor command executor
    */
   public CommandCallable(Actor actor, Player player, List<String> commandLine,
-                         CommandFactory commandFactory) {
+                         CommandExecutor commandExecutor) {
     this.actor = actor;
     this.player = player;
     this.commandLine = commandLine;
-    this.commandFactory = commandFactory;
-
     this.command = null;
+
+    this.commandExecutor = commandExecutor;
   }
 
   /**
    * Creates a new callable. The command is already constructed.
    *
    * @param command command to execute
+   * @param commandExecutor command executor
    */
-  public CommandCallable(Command command) {
+  public CommandCallable(Command command, CommandExecutor commandExecutor) {
     this.command = command;
-
     this.actor = null;
     this.player = null;
     this.commandLine = null;
-    this.commandFactory = null;
+
+    this.commandExecutor = commandExecutor;
   }
 
   @Override
@@ -59,18 +61,27 @@ public class CommandCallable implements Callable<CommandResult> {
     } else {
       // Create the command using the factory.
       try {
-        commandToExecute = commandFactory.getCommand(actor, player, commandLine);
+        commandToExecute = commandExecutor.getCommandFactory()
+            .getCommand(actor, player, commandLine);
       } catch (CommandFactoryException e) {
         return new CommandResult(e);
       }
     }
 
     // Execute the command!
+    CommandResult commandResult;
     try {
-      return new CommandResult(commandToExecute.execute(),
-                               commandToExecute);
+      commandResult = new CommandResult(commandToExecute.execute(),
+                                        commandToExecute);
     } catch (CommandException e) {
       return new CommandResult(e);
     }
+
+    // Post the events from the executed command to the event bus.
+    commandToExecute.getEvents().forEach(e -> {
+      commandExecutor.getCommandEventBus().post(e);
+    });
+
+    return commandResult;
   }
 }
