@@ -385,28 +385,4 @@ public final class Attr {
       throw new IllegalArgumentException("Failed to create attribute list from JSON", e);
     }
   }
-
-  private static final String LISTENER_PATTERN = "listenerPattern";
-  private static final String LISTENER_COMMAND_LINE = "listenerCommandLine";
-
-  @JsonIgnore
-  public boolean isListener() {
-    return type == Type.ATTRLIST &&
-        getAttrListValue().stream().anyMatch(a -> a.getName().equals(LISTENER_PATTERN)) &&
-        getAttrListValue().stream().anyMatch(a -> a.getName().equals(LISTENER_COMMAND_LINE));
-  }
-
-  @JsonIgnore
-  public String getListenerPattern() {
-    return getAttrListValue().stream()
-        .filter(a -> a.getName().equals(LISTENER_PATTERN))
-        .findFirst().get().getValue();
-  }
-
-  @JsonIgnore
-  public String getListenerCommandLine() {
-    return getAttrListValue().stream()
-        .filter(a -> a.getName().equals(LISTENER_COMMAND_LINE))
-        .findFirst().get().getValue();
-  }
 }

@@ -649,40 +649,6 @@ public class Thing {
     return result;
   }
 
-  /**
-   * Sends a message to this thing. The default implementation looks
-   * for matching listener attributes and, for each found, executes its command.
-   *
-   * @param message message to send
-   * @return true if at least one listener was found
-   * @throws NullPointerException if the message is null
-   */
-  // public boolean sendMessage(Message message) {
-  //   Objects.requireNonNull(message);
-
-  //   Set<Attr> listenerAttrs = new HashSet<>();
-  //   for (Attr attr : getAttrs()) {
-  //     if (attr.getType() == Attr.Type.ATTRLIST && attr.isListener()) {
-  //       listenerAttrs.add(attr);
-  //     }
-  //   }
-  //   if (listenerAttrs.isEmpty()) {
-  //     return false;
-  //   }
-
-  //   for (Attr listenerAttr : listenerAttrs) {
-  //     // Check the message against the listener pattern from the attribute.
-  //     if (!message.getMessage().matches(listenerAttr.getListenerPattern())) {
-  //       continue;
-  //     }
-
-  //     List<String> commandLine = CommandLineUtils.tokenize(listenerAttr.getListenerCommandLine());
-  //     // TBD: need to get actor and player
-  //     CommandExecutor.getInstance().submit(null, null, commandLine);
-  //   }
-  //   return true;
-  // }
-
   @Override
   public boolean equals(Object other) {
     if (this == other) return true;
