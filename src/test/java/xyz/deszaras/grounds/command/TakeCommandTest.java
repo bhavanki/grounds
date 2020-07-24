@@ -1,13 +1,9 @@
 package xyz.deszaras.grounds.command;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,29 +26,30 @@ public class TakeCommandTest extends AbstractCommandTest {
     super.setUp();
     setPlayerRoles(Role.DENIZEN);
 
-    location = mock(Place.class);
+    location = newTestPlace("there");
 
-    thing = mock(Thing.class);
+    thing = newTestThing("saber");
     command = new TakeCommand(actor, player, thing);
   }
 
   @Test
   public void testSuccess() throws Exception {
-    when(player.has(thing)).thenReturn(false);
-    when(thing.passes(Category.GENERAL, player)).thenReturn(true);
-    when(thing.getLocation()).thenReturn(Optional.of(location));
-    when(player.getLocationAsPlace()).thenReturn(Optional.of(location));
+    location.give(thing);
+    thing.setLocation(location);
+    location.give(player);
+    player.setLocation(location);
 
     assertTrue(command.execute());
 
-    verify(location).take(thing);
-    verify(player).give(thing);
-    verify(thing).setLocation(player);
+    assertFalse(location.has(thing));
+    assertTrue(player.has(thing));
+    assertEquals(player, thing.getLocation().get());
   }
 
   @Test
   public void testFailureAlreadyHave() throws Exception {
-    when(player.has(thing)).thenReturn(true);
+    player.give(thing);
+    thing.setLocation(player);
 
     CommandException e = assertThrows(CommandException.class,
                                       () -> command.execute());
@@ -62,11 +59,11 @@ public class TakeCommandTest extends AbstractCommandTest {
 
   @Test
   public void testFailureAlreadyHaveNested() throws Exception {
-    when(player.has(thing)).thenReturn(false);
-    when(thing.passes(Category.GENERAL, player)).thenReturn(true);
-    Thing rucksack = mock(Thing.class);
-    when(rucksack.getLocation()).thenReturn(Optional.of(player));
-    when(thing.getLocation()).thenReturn(Optional.of(rucksack));
+    Thing rucksack = newTestThing("rucksack");
+    player.give(rucksack);
+    rucksack.setLocation(player);
+    rucksack.give(thing);
+    thing.setLocation(rucksack);
 
     CommandException e = assertThrows(CommandException.class,
                                       () -> command.execute());
@@ -76,8 +73,6 @@ public class TakeCommandTest extends AbstractCommandTest {
 
   @Test
   public void testFailureNotAPlainThing() throws Exception {
-    when(player.has(location)).thenReturn(false);
-
     command = new TakeCommand(actor, player, location);
 
     CommandException e = assertThrows(CommandException.class,
@@ -88,8 +83,7 @@ public class TakeCommandTest extends AbstractCommandTest {
 
   @Test
   public void testFailureUntakable() throws Exception {
-    when(player.has(thing)).thenReturn(false);
-    when(thing.passes(Category.GENERAL, player)).thenReturn(false);
+    thing.getPolicy().setRoles(Category.GENERAL, Role.WIZARD_ROLES);
 
     PermissionException e = assertThrows(PermissionException.class,
                                          () -> command.execute());
@@ -99,10 +93,8 @@ public class TakeCommandTest extends AbstractCommandTest {
 
   @Test
   public void testFailureNoThingLocation() throws Exception {
-    when(player.has(thing)).thenReturn(false);
-    when(thing.passes(Category.GENERAL, player)).thenReturn(true);
-    when(thing.getLocation()).thenReturn(Optional.empty());
-    when(player.getLocationAsPlace()).thenReturn(Optional.of(location));
+    location.give(player);
+    player.setLocation(location);
 
     CommandException e = assertThrows(CommandException.class,
                                       () -> command.execute());
@@ -112,10 +104,8 @@ public class TakeCommandTest extends AbstractCommandTest {
 
   @Test
   public void testFailureNoPlayerLocation() throws Exception {
-    when(player.has(thing)).thenReturn(false);
-    when(thing.passes(Category.GENERAL, player)).thenReturn(true);
-    when(thing.getLocation()).thenReturn(Optional.of(location));
-    when(player.getLocationAsPlace()).thenReturn(Optional.empty());
+    location.give(thing);
+    thing.setLocation(location);
 
     CommandException e = assertThrows(CommandException.class,
                                       () -> command.execute());
@@ -125,30 +115,28 @@ public class TakeCommandTest extends AbstractCommandTest {
 
   @Test
   public void testSuccessSeize() throws Exception {
-    Player holder = mock(Player.class);
-
-    when(player.has(thing)).thenReturn(false);
-    when(thing.passes(Category.GENERAL, player)).thenReturn(true);
-    when(thing.getLocation()).thenReturn(Optional.of(holder));
-    when(player.getLocationAsPlace()).thenReturn(Optional.of(location));
+    Player holder = newTestPlayer("holder", Role.DENIZEN);
+    holder.give(thing);
+    thing.setLocation(holder);
+    location.give(player);
+    player.setLocation(location);
 
     setPlayerRoles(Role.ADEPT);
 
     assertTrue(command.execute());
 
-    verify(holder).take(thing);
-    verify(player).give(thing);
-    verify(thing).setLocation(player);
+    assertFalse(holder.has(thing));
+    assertTrue(player.has(thing));
+    assertEquals(player, thing.getLocation().get());
   }
 
   @Test
   public void testFailureSeize() throws Exception {
-    Player holder = mock(Player.class);
-
-    when(player.has(thing)).thenReturn(false);
-    when(thing.passes(Category.GENERAL, player)).thenReturn(true);
-    when(thing.getLocation()).thenReturn(Optional.of(holder));
-    when(player.getLocationAsPlace()).thenReturn(Optional.of(location));
+    Player holder = newTestPlayer("holder", Role.DENIZEN);
+    holder.give(thing);
+    thing.setLocation(holder);
+    location.give(player);
+    player.setLocation(location);
 
     setPlayerRoles(Role.BARD);
 
@@ -160,26 +148,28 @@ public class TakeCommandTest extends AbstractCommandTest {
 
   @Test
   public void testSuccessWizardNotCollocated() throws Exception {
-    when(player.has(thing)).thenReturn(false);
-    when(thing.passes(Category.GENERAL, player)).thenReturn(true);
-    when(thing.getLocation()).thenReturn(Optional.of(location));
-    when(player.getLocationAsPlace()).thenReturn(Optional.of(mock(Place.class)));
+    location.give(thing);
+    thing.setLocation(location);
+    Place otherPlace = newTestPlace("otherPlace");
+    otherPlace.give(player);
+    player.setLocation(otherPlace);
 
     setPlayerRoles(Role.BARD);
 
     assertTrue(command.execute());
 
-    verify(location).take(thing);
-    verify(player).give(thing);
-    verify(thing).setLocation(player);
+    assertFalse(location.has(thing));
+    assertTrue(player.has(thing));
+    assertEquals(player, thing.getLocation().get());
   }
 
   @Test
   public void testFailureNotCollocated() throws Exception {
-    when(player.has(thing)).thenReturn(false);
-    when(thing.passes(Category.GENERAL, player)).thenReturn(true);
-    when(thing.getLocation()).thenReturn(Optional.of(location));
-    when(player.getLocationAsPlace()).thenReturn(Optional.of(mock(Place.class)));
+    location.give(thing);
+    thing.setLocation(location);
+    Place otherPlace = newTestPlace("otherPlace");
+    otherPlace.give(player);
+    player.setLocation(otherPlace);
 
     CommandException e = assertThrows(CommandException.class,
                                       () -> command.execute());

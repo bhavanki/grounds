@@ -1,9 +1,6 @@
 package xyz.deszaras.grounds.command;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import java.util.UUID;
 
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Extension;
@@ -27,17 +24,17 @@ public abstract class AbstractCommandTest {
    * Sets up useful things for a command test.<p>
    * <ul>
    * <li>A test universe is created, with a lost and found place.</li>
-   * <li>An actor and player are mocked.</li>
-   * <li>The mock player gets a random ID and is joined to the test universe.</li>
+   * <li>An actor and player are created.</li>
+   * <li>The player is joined to the test universe.</li>
    * </ul>
    */
   public void setUp() {
     testUniverse = new Universe("test");
     Universe.setCurrent(testUniverse);
 
-    actor = mock(Actor.class);
-    player = mock(Player.class);
-    when(player.getId()).thenReturn(UUID.randomUUID());
+    actor = new Actor("actor1");
+    player = new Player("player");
+    testUniverse.addThing(player);
   }
 
   /**

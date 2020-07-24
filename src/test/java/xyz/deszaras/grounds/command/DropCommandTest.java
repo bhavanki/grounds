@@ -1,13 +1,9 @@
 package xyz.deszaras.grounds.command;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,29 +26,28 @@ public class DropCommandTest extends AbstractCommandTest {
 
     setPlayerRoles(Role.DENIZEN);
 
-    location = mock(Place.class);
+    location = newTestPlace("there");
 
-    thing = mock(Thing.class);
+    thing = newTestThing("saber");
     command = new DropCommand(actor, player, thing);
   }
 
   @Test
   public void testSuccess() throws Exception {
-    when(player.has(thing)).thenReturn(true);
-    when(thing.passes(Category.GENERAL, player)).thenReturn(true);
-    when(player.getLocationAsPlace()).thenReturn(Optional.of(location));
+    player.give(thing);
+    thing.setLocation(player);
+    location.give(player);
+    player.setLocation(location);
 
     assertTrue(command.execute());
 
-    verify(player).take(thing);
-    verify(location).give(thing);
-    verify(thing).setLocation(location);
+    assertFalse(player.has(thing));
+    assertTrue(location.has(thing));
+    assertEquals(location, thing.getLocation().get());
   }
 
   @Test
   public void testFailureDoNotHave() throws Exception {
-    when(player.has(thing)).thenReturn(false);
-
     CommandException e = assertThrows(CommandException.class,
                                       () -> command.execute());
     assertEquals("You aren't holding that", e.getMessage());
@@ -60,8 +55,9 @@ public class DropCommandTest extends AbstractCommandTest {
 
   @Test
   public void testFailureUndroppable() throws Exception {
-    when(player.has(thing)).thenReturn(true);
-    when(thing.passes(Category.GENERAL, player)).thenReturn(false);
+    player.give(thing);
+    thing.setLocation(player);
+    thing.getPolicy().setRoles(Category.GENERAL, Role.WIZARD_ROLES);
 
     PermissionException e = assertThrows(PermissionException.class,
                                          () -> command.execute());
@@ -70,9 +66,8 @@ public class DropCommandTest extends AbstractCommandTest {
 
   @Test
   public void testFailureNoLocation() throws Exception {
-    when(player.has(thing)).thenReturn(true);
-    when(thing.passes(Category.GENERAL, player)).thenReturn(true);
-    when(player.getLocationAsPlace()).thenReturn(Optional.empty());
+    player.give(thing);
+    thing.setLocation(player);
 
     CommandException e = assertThrows(CommandException.class,
                                       () -> command.execute());

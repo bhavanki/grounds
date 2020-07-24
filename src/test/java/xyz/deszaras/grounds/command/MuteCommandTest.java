@@ -1,10 +1,7 @@
 package xyz.deszaras.grounds.command;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,14 +28,12 @@ public class MuteCommandTest extends AbstractCommandTest {
 
   @Test
   public void testSuccess() throws Exception {
-    when(player.getMuteList()).thenReturn(new ArrayList<>());
-
     mutee = newTestPlayer("mutee", Role.DENIZEN);
     command = new MuteCommand(actor, player, mutee);
 
     command.execute();
 
-    verify(player).setMuteList(List.of(mutee));
+    assertEquals(List.of(mutee), player.getMuteList());
   }
 
   @Test
@@ -48,19 +43,17 @@ public class MuteCommandTest extends AbstractCommandTest {
     List<Thing> muteList = new ArrayList<>();
     muteList.add(mutee1);
     muteList.add(mutee2);
-    when(player.getMuteList()).thenReturn(muteList);
+    player.setMuteList(muteList);
 
     command = new MuteCommand(actor, player, mutee2);
 
     command.execute();
 
-    verify(player, never()).setMuteList(any(List.class));
+    assertEquals(List.of(mutee1, mutee2), player.getMuteList());
   }
 
   @Test
   public void testFailureGOD() throws Exception {
-    when(player.getMuteList()).thenReturn(new ArrayList<>());
-
     command = new MuteCommand(actor, player, Player.GOD);
 
     assertThrows(CommandException.class, () -> command.execute());

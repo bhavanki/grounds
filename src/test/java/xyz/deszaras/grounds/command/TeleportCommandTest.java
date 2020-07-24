@@ -1,14 +1,13 @@
 package xyz.deszaras.grounds.command;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.Optional;
-import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,10 +30,8 @@ public class TeleportCommandTest extends AbstractCommandTest {
 
     setPlayerRoles(Role.DENIZEN);
 
-    source = mock(Place.class);
-    destination = mock(Place.class);
-    when(destination.getName()).thenReturn("dest");
-    when(destination.getId()).thenReturn(UUID.randomUUID());
+    source = newTestPlace("src");
+    destination = newTestPlace("dest");
 
     command = new TeleportCommand(actor, player, destination);
 
@@ -49,33 +46,32 @@ public class TeleportCommandTest extends AbstractCommandTest {
 
   @Test
   public void testSuccess() throws Exception {
-    when(player.getLocationAsPlace()).thenReturn(Optional.of(source));
-    when(destination.passes(Category.GENERAL, player)).thenReturn(true);
+    player.setLocation(source);
+    source.give(player);
 
     assertEquals("here", command.execute());
 
-    verify(source).take(player);
-    verify(destination).give(player);
+    assertFalse(source.has(player));
+    assertTrue(destination.has(player));
+    assertEquals(destination, player.getLocation().get());
 
-    verify(player).setLocation(destination);
   }
 
   @Test
   public void testSuccessNoSource() throws Exception {
-    when(player.getLocationAsPlace()).thenReturn(Optional.empty());
-    when(destination.passes(Category.GENERAL, player)).thenReturn(true);
 
     assertEquals("here", command.execute());
 
-    verify(destination).give(player);
+    assertTrue(destination.has(player));
+    assertEquals(destination, player.getLocation().get());
 
-    verify(player).setLocation(destination);
   }
 
   @Test
   public void testFailureNotPermitted() throws Exception {
-    when(player.getLocationAsPlace()).thenReturn(Optional.of(source));
-    when(destination.passes(Category.GENERAL, player)).thenReturn(false);
+    player.setLocation(source);
+    source.give(player);
+    destination.getPolicy().setRoles(Category.GENERAL, Role.WIZARD_ROLES);
 
     PermissionException e = assertThrows(PermissionException.class,
                                          () -> command.execute());

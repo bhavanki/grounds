@@ -1,9 +1,6 @@
 package xyz.deszaras.grounds.command;
 
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +29,7 @@ public class UnmuteCommandTest extends AbstractCommandTest {
     List<Thing> muteList = new ArrayList<>();
     muteList.add(mutee1);
     muteList.add(mutee2);
-    when(player.getMuteList()).thenReturn(muteList);
+    player.setMuteList(muteList);
   }
 
   @Test
@@ -41,7 +38,7 @@ public class UnmuteCommandTest extends AbstractCommandTest {
 
     command.execute();
 
-    verify(player).setMuteList(List.of(mutee1));
+    assertEquals(List.of(mutee1), player.getMuteList());
   }
 
   @Test
@@ -52,6 +49,6 @@ public class UnmuteCommandTest extends AbstractCommandTest {
 
     command.execute();
 
-    verify(player, never()).setMuteList(any(List.class));
+    assertEquals(List.of(mutee1, mutee2), player.getMuteList());
   }
 }

@@ -3,11 +3,6 @@ package xyz.deszaras.grounds.command;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
-import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,18 +23,15 @@ public class LookCommandTest extends AbstractCommandTest {
 
     setPlayerRoles(Role.DENIZEN);
 
-    location = mock(Place.class);
-    when(location.getName()).thenReturn("somewhere");
-    when(location.getDescription()).thenReturn(Optional.empty());
-    when(location.getContents()).thenReturn(Set.of());
+    location = newTestPlace("somewhere");
 
     command = new LookCommand(actor, player);
   }
 
   @Test
   public void testSuccess() throws Exception {
-    when(player.getLocationAsPlace()).thenReturn(Optional.of(location));
-    when(location.passes(Category.READ, player)).thenReturn(true);
+    location.give(player);
+    player.setLocation(location);
 
     String lookResult = command.execute();
 
@@ -48,8 +40,9 @@ public class LookCommandTest extends AbstractCommandTest {
 
   @Test
   public void testFailureCannotLook() throws Exception {
-    when(player.getLocationAsPlace()).thenReturn(Optional.of(location));
-    when(location.passes(Category.READ, player)).thenReturn(false);
+    location.give(player);
+    player.setLocation(location);
+    location.getPolicy().setRoles(Category.READ, Role.WIZARD_ROLES);
 
     PermissionException e = assertThrows(PermissionException.class,
                                          () -> command.execute());
@@ -59,8 +52,6 @@ public class LookCommandTest extends AbstractCommandTest {
 
   @Test
   public void testSuccessNowhere() throws Exception {
-    when(player.getLocationAsPlace()).thenReturn(Optional.empty());
-
     String lookResult = command.execute();
 
     assertTrue(lookResult.contains("nowhere"));

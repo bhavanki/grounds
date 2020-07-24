@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import xyz.deszaras.grounds.auth.Role;
 // import xyz.deszaras.grounds.model.Extension;
 // import xyz.deszaras.grounds.model.Link;
-import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Place;
 // import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
@@ -35,11 +33,7 @@ public class BuildCommandTest extends AbstractCommandTest {
 
     place = newTestPlace("building_place");
     place.give(player);
-    try {
-      when(player.getLocationAsPlace()).thenReturn(Optional.of(place));
-    } catch (MissingThingException e) {
-      // won't happen
-    }
+    player.setLocation(place);
   }
 
   @Test
