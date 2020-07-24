@@ -18,6 +18,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
@@ -29,8 +30,8 @@ public class CommandCallableTest {
   private CommandCallable callable;
 
   private static class TestEvent extends Event<String> {
-    private TestEvent(Player player) {
-      super(player, "test");
+    private TestEvent(Player player, Place place) {
+      super(player, place, "test");
     }
   }
 
@@ -55,7 +56,8 @@ public class CommandCallableTest {
     when(commandFactory.getCommand(actor, player, commandLine))
         .thenReturn(command);
     when(command.execute()).thenReturn(true);
-    when(command.getEvents()).thenReturn(Set.of(new TestEvent(player)));
+    Place place = new Place("there");
+    when(command.getEvents()).thenReturn(Set.of(new TestEvent(player, place)));
 
     CommandResult result = callable.call();
 
@@ -77,7 +79,8 @@ public class CommandCallableTest {
     CommandFactoryException e = new CommandFactoryException();
     when(commandFactory.getCommand(actor, player, commandLine)).thenThrow(e);
     when(command.execute()).thenReturn(true);
-    when(command.getEvents()).thenReturn(Set.of(new TestEvent(player)));
+    Place place = new Place("there");
+    when(command.getEvents()).thenReturn(Set.of(new TestEvent(player, place)));
 
     CommandResult result = callable.call();
 
@@ -92,7 +95,8 @@ public class CommandCallableTest {
     callable = new CommandCallable(command, commandExecutor);
 
     when(command.execute()).thenReturn(true);
-    when(command.getEvents()).thenReturn(Set.of(new TestEvent(Player.GOD)));
+    Place place = new Place("there");
+    when(command.getEvents()).thenReturn(Set.of(new TestEvent(Player.GOD, place)));
 
     CommandResult result = callable.call();
 

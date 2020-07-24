@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
+import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
@@ -34,7 +35,7 @@ public class CommandTest extends AbstractCommandTest {
 
   private static class TestEvent extends Event<String> {
     private TestEvent() {
-      super(Player.GOD, "test");
+      super(Player.GOD, new Place("there"), "test");
     }
   }
 

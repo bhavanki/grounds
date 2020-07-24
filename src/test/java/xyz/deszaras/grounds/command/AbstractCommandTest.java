@@ -1,6 +1,9 @@
 package xyz.deszaras.grounds.command;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.Optional;
 
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Extension;
@@ -121,5 +124,19 @@ public abstract class AbstractCommandTest {
     for (Role role : roles) {
       testUniverse.addRole(role, player);
     }
+  }
+
+  protected <T extends Event> T verifyEvent(T expectedEvent, Command command) {
+    Optional<T> actualEventOpt =
+        command.getEvents().stream()
+            .filter(e -> e.getClass().equals(expectedEvent.getClass()))
+            .findFirst();
+    if (actualEventOpt.isEmpty()) {
+      fail("Expected event of type " + expectedEvent.getClass() + " not found");
+    }
+    T actualEvent = actualEventOpt.get();
+    assertEquals(expectedEvent.getPlayer(), actualEvent.getPlayer());
+    assertEquals(expectedEvent.getPlace(), actualEvent.getPlace());
+    return actualEvent;
   }
 }

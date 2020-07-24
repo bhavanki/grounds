@@ -8,12 +8,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
+import xyz.deszaras.grounds.command.TeleportCommand.TeleportArrivalEvent;
+import xyz.deszaras.grounds.command.TeleportCommand.TeleportDepartureEvent;
 import xyz.deszaras.grounds.model.Place;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
@@ -55,16 +56,18 @@ public class TeleportCommandTest extends AbstractCommandTest {
     assertTrue(destination.has(player));
     assertEquals(destination, player.getLocation().get());
 
+    verifyEvent(new TeleportDepartureEvent(player, source), command);
+    verifyEvent(new TeleportArrivalEvent(player, destination), command);
   }
 
   @Test
   public void testSuccessNoSource() throws Exception {
-
     assertEquals("here", command.execute());
 
     assertTrue(destination.has(player));
     assertEquals(destination, player.getLocation().get());
 
+    verifyEvent(new TeleportArrivalEvent(player, destination), command);
   }
 
   @Test

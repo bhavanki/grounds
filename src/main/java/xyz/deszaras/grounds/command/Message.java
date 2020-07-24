@@ -91,6 +91,10 @@ public class Message {
     return sender;
   }
 
+  public Style getStyle() {
+    return style;
+  }
+
   public String getMessage() {
     return message;
   }

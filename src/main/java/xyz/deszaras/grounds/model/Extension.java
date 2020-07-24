@@ -98,14 +98,14 @@ public class Extension extends Player {
       }
 
       // Create a scripted command for the listener attribute's script. Pass the
-      // event payload JSON string as the sole argument. Then, submit the
-      // command to be run later. This is asynchronous, so this handler should
-      // return reasonably quickly.
+      // augmented event payload JSON string as the sole argument. Then, submit
+      // the command to be run later. This is asynchronous, so this handler
+      // should return reasonably quickly.
       try {
         Script listenerScript = scriptFactory.newScript(a, this);
         ScriptedCommand command =
             new ScriptedCommand(Actor.INTERNAL, this, listenerScript,
-                                List.of(event.getPayloadJsonString()));
+                                List.of(event.getAugmentedPayloadJsonString()));
         LOG.debug("Submitting scripted command for listener {}", a.getName());
         commandExecutor.submit(command);
       } catch (ScriptFactoryException e) {

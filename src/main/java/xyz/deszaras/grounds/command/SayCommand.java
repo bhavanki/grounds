@@ -1,8 +1,11 @@
 package xyz.deszaras.grounds.command;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
@@ -11,8 +14,8 @@ import xyz.deszaras.grounds.model.Universe;
 /**
  * Says a message in the player's current location. Similar to
  * posing in that what is said is received as a message by all players
- * in the same location. If the message is not OOC, it also activates
- * any listening scripts from things in the location.
+ * in the same location. If the message is not OOC, it also produces
+ * an event to be handled by listener attributes.
  *
  * Arguments: message (quotes not necessary)
  * Checks: none at the moment, but that'll change
@@ -54,7 +57,9 @@ public class SayCommand extends Command<Boolean> {
         .filter(t -> t.get() instanceof Player)
         .forEach(p -> ((Player) p.get()).sendMessage(sayMessage));
 
-    // TBD: listeners (ic only)
+    if (!ooc) {
+      postEvent(new SayMessageEvent(player, location, message));
+    }
 
     return true;
   }
@@ -73,5 +78,23 @@ public class SayCommand extends Command<Boolean> {
       message = commandArgs.stream().collect(Collectors.joining(" "));
     }
     return new SayCommand(actor, player, message, ooc);
+  }
+
+  public static class SayMessage {
+    /**
+     * What was said.
+     */
+    @JsonProperty
+    public final String message;
+
+    SayMessage(String message) {
+      this.message = message;
+    }
+  }
+
+  public static class SayMessageEvent extends Event<SayMessage> {
+    SayMessageEvent(Player player, Place place, String message) {
+      super(player, place, new SayMessage(message));
+    }
   }
 }

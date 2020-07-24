@@ -1,7 +1,5 @@
 package xyz.deszaras.grounds.command;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -46,6 +44,7 @@ public class TeleportCommand extends Command<String> {
     }
     if (source.isPresent()) {
       source.get().take(player);
+      postEvent(new TeleportDepartureEvent(player, source.get()));
     }
 
     destination.give(player);
@@ -71,38 +70,34 @@ public class TeleportCommand extends Command<String> {
   }
 
   /**
+   * The payload for TeleportDepartureEvent.
+   */
+  public static class TeleportDeparture {
+    // No additional fields are needed at this time.
+  }
+
+  /**
+   * An event posted when a player arrives at a destination.
+   */
+  public static class TeleportDepartureEvent extends Event<TeleportDeparture> {
+    TeleportDepartureEvent(Player player, Place source) {
+      super(player, source, new TeleportDeparture());
+    }
+  }
+
+  /**
    * The payload for TeleportArrivalEvent.
    */
   public static class TeleportArrival {
-    /**
-     * The name of the player arriving.
-     */
-    @JsonProperty
-    public final String player;
-    /**
-     * The name of the destination.
-     */
-    @JsonProperty
-    public final String destination;
-    /**
-     * The ID of the destination.
-     */
-    @JsonProperty
-    public final String destinationId;
-
-    private TeleportArrival(Player player, Place destination) {
-      this.player = player.getName();
-      this.destination = destination.getName();
-      this.destinationId = destination.getId().toString();
-    }
+    // No additional fields are needed at this time.
   }
 
   /**
    * An event posted when a player arrives at a destination.
    */
   public static class TeleportArrivalEvent extends Event<TeleportArrival> {
-    private TeleportArrivalEvent(Player player, Place destination) {
-      super(player, new TeleportArrival(player, destination));
+    TeleportArrivalEvent(Player player, Place destination) {
+      super(player, destination, new TeleportArrival());
     }
   }
 }

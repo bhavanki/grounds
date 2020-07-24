@@ -1,4 +1,4 @@
-package xyz.deszaras.grounds.model;
+/**/package xyz.deszaras.grounds.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.any;
@@ -24,9 +24,17 @@ public class ExtensionTest {
 
   private Extension e;
 
-  private static class TestEvent extends Event<String> {
-    private TestEvent(Player player) {
-      super(player, "test");
+  private static class TestPayload {
+    public final String s;
+
+    private TestPayload(String s) {
+      this.s = s;
+    }
+  }
+
+  private static class TestEvent extends Event<TestPayload> {
+    private TestEvent(Player player, Place place) {
+      super(player, place, new TestPayload("test"));
     }
   }
 
@@ -46,7 +54,8 @@ public class ExtensionTest {
     when(scriptFactory.newScript(listenerAttr, e)).thenReturn(script);
     when(script.getExtension()).thenReturn(e);
 
-    Event event = new TestEvent(Player.GOD);
+    Place place = new Place("there");
+    Event event = new TestEvent(Player.GOD, place);
 
     CommandExecutor commandExecutor = mock(CommandExecutor.class);
 
@@ -67,7 +76,8 @@ public class ExtensionTest {
     when(scriptFactory.newScript(listenerAttr, e)).thenReturn(script);
     when(script.getExtension()).thenReturn(e);
 
-    Event event = new TestEvent(Player.GOD);
+    Place place = new Place("there");
+    Event event = new TestEvent(Player.GOD, place);
 
     CommandExecutor commandExecutor = mock(CommandExecutor.class);
 
@@ -88,7 +98,8 @@ public class ExtensionTest {
     when(scriptFactory.newScript(listenerAttr, e)).thenReturn(script);
     when(script.getExtension()).thenReturn(e);
 
-    Event event = new TestEvent(Player.GOD);
+    Place place = new Place("there");
+    Event event = new TestEvent(Player.GOD, place);
 
     CommandExecutor commandExecutor = mock(CommandExecutor.class);
 
