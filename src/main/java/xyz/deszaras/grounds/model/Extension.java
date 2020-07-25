@@ -107,16 +107,16 @@ public class Extension extends Player {
                         la.getType() == Attr.Type.BOOLEAN)
           .findFirst();
       if (localizedAttr.isPresent() && localizedAttr.get().getBooleanValue() &&
-          event.getPlace() != null) {
+          event.getLocation() != null) {
         try {
           Optional<Thing> extensionLocation = getLocation();
           if (extensionLocation.isEmpty()) {
             LOG.warn("Extension {} has no location, cannot check if event " +
                      "of type {} is local", getName(), event.getClass());
-          } else if (!extensionLocation.get().equals(event.getPlace())) {
+          } else if (!extensionLocation.get().equals(event.getLocation())) {
             LOG.debug("Listener attribute {} of extension {} wants localized " +
                       "event, but received event from {}, so not creating command",
-                      a.getName(), getName(), event.getPlace().getName());
+                      a.getName(), getName(), event.getLocation().getName());
             continue;
           }
         } catch (MissingThingException e) {

@@ -79,7 +79,9 @@ public class SayCommand extends Command<Boolean> {
     }
     return new SayCommand(actor, player, message, ooc);
   }
-
+  /**
+   * The payload for {@link SayMessageEvent}.
+   */
   public static class SayMessage {
     /**
      * What was said.
@@ -92,9 +94,12 @@ public class SayCommand extends Command<Boolean> {
     }
   }
 
+  /**
+   * An event posted when a player says something.
+   */
   public static class SayMessageEvent extends Event<SayMessage> {
-    SayMessageEvent(Player player, Place place, String message) {
-      super(player, place, new SayMessage(message));
+    SayMessageEvent(Player player, Place location, String message) {
+      super(player, location, new SayMessage(message));
     }
   }
 }

@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
+import xyz.deszaras.grounds.command.TakeCommand.TakenThing;
+import xyz.deszaras.grounds.command.TakeCommand.TakenThingEvent;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
@@ -44,6 +46,11 @@ public class TakeCommandTest extends AbstractCommandTest {
     assertFalse(location.has(thing));
     assertTrue(player.has(thing));
     assertEquals(player, thing.getLocation().get());
+
+    TakenThingEvent takeEvent =
+        verifyEvent(new TakenThingEvent(player, location, thing), command);
+    assertEquals(thing.getName(), ((TakenThing) takeEvent.getPayload()).thingName);
+    assertEquals(thing.getId().toString(), ((TakenThing) takeEvent.getPayload()).thingId);
   }
 
   @Test

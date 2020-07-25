@@ -70,7 +70,7 @@ public class TeleportCommand extends Command<String> {
   }
 
   /**
-   * The payload for TeleportDepartureEvent.
+   * The payload for {@link TeleportDepartureEvent}.
    */
   public static class TeleportDeparture {
     // No additional fields are needed at this time.
@@ -86,7 +86,7 @@ public class TeleportCommand extends Command<String> {
   }
 
   /**
-   * The payload for TeleportArrivalEvent.
+   * The payload for {@link TeleportArrivalEvent}.
    */
   public static class TeleportArrival {
     // No additional fields are needed at this time.

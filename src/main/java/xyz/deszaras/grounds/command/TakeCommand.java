@@ -2,6 +2,8 @@ package xyz.deszaras.grounds.command;
 
 import static xyz.deszaras.grounds.util.TestabilityUtils.nonmock;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -85,6 +87,7 @@ public class TakeCommand extends Command<Boolean> {
     }
     player.give(thing);
     thing.setLocation(player);
+    postEvent(new TakenThingEvent(player, thingLocation.orElse(null), thing));
     return true;
   }
 
@@ -108,5 +111,36 @@ public class TakeCommand extends Command<Boolean> {
     Thing droppedThing =
         CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Thing.class, player);
     return new TakeCommand(actor, player, droppedThing);
+  }
+
+  /**
+   * The payload for {@link TakenThingEvent}.
+   */
+  public static class TakenThing {
+    /**
+     * The name of what was taken.
+     */
+    @JsonProperty
+    public final String thingName;
+    /**
+     * The ID of what was taken.
+     */
+    @JsonProperty
+    public final String thingId;
+
+    TakenThing(Thing takenThing) {
+      thingName = takenThing.getName();
+      thingId = takenThing.getId().toString();
+    }
+  }
+
+  /**
+   * An event posted when someone takes a thing. The event location refers to
+   * where the thing was taken from.
+   */
+  public static class TakenThingEvent extends Event<TakenThing> {
+    TakenThingEvent(Player player, Thing location, Thing takenThing) {
+      super(player, location, new TakenThing(takenThing));
+    }
   }
 }

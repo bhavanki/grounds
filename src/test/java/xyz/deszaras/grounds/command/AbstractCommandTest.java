@@ -136,7 +136,7 @@ public abstract class AbstractCommandTest {
     }
     T actualEvent = actualEventOpt.get();
     assertEquals(expectedEvent.getPlayer(), actualEvent.getPlayer());
-    assertEquals(expectedEvent.getPlace(), actualEvent.getPlace());
+    assertEquals(expectedEvent.getLocation(), actualEvent.getLocation());
     return actualEvent;
   }
 }

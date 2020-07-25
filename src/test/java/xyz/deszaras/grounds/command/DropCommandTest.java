@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
+import xyz.deszaras.grounds.command.DropCommand.DroppedThing;
+import xyz.deszaras.grounds.command.DropCommand.DroppedThingEvent;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Thing;
 
@@ -44,6 +46,11 @@ public class DropCommandTest extends AbstractCommandTest {
     assertFalse(player.has(thing));
     assertTrue(location.has(thing));
     assertEquals(location, thing.getLocation().get());
+
+    DroppedThingEvent dropEvent =
+        verifyEvent(new DroppedThingEvent(player, location, thing), command);
+    assertEquals(thing.getName(), ((DroppedThing) dropEvent.getPayload()).thingName);
+    assertEquals(thing.getId().toString(), ((DroppedThing) dropEvent.getPayload()).thingId);
   }
 
   @Test

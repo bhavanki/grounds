@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.model.Thing;
 
 public class EventTest {
 
@@ -26,8 +27,8 @@ public class EventTest {
   }
 
   private static class TestEvent extends Event<TestPayload> {
-    private TestEvent(Player player, Place place, TestPayload payload) {
-      super(player, place, payload);
+    private TestEvent(Player player, Thing location, TestPayload payload) {
+      super(player, location, payload);
     }
   }
 
@@ -45,7 +46,7 @@ public class EventTest {
   @Test
   public void testGetters() {
     assertEquals(Player.GOD, event.getPlayer());
-    assertEquals(place, event.getPlace());
+    assertEquals(place, event.getLocation());
     assertEquals(payload, event.getPayload());
   }
 
@@ -71,7 +72,7 @@ public class EventTest {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-  private void verifyJson(String json, Player player, Place place,
+  private void verifyJson(String json, Player player, Thing location,
                           TestPayload payload) throws Exception {
     JsonNode jsonNode = OBJECT_MAPPER.readTree(json);
     assertTrue(jsonNode.isObject());
@@ -80,9 +81,9 @@ public class EventTest {
       assertEquals(player.getName(), objectNode.get("player").asText());
       assertEquals(player.getId().toString(), objectNode.get("playerId").asText());
     }
-    if (place != null) {
-      assertEquals(place.getName(), objectNode.get("place").asText());
-      assertEquals(place.getId().toString(), objectNode.get("placeId").asText());
+    if (location != null) {
+      assertEquals(location.getName(), objectNode.get("location").asText());
+      assertEquals(location.getId().toString(), objectNode.get("locationId").asText());
     }
     if (payload != null) {
       assertEquals(payload.theNumber, objectNode.get("theNumber").asInt());
