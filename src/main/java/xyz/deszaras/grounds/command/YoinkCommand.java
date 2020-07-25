@@ -39,10 +39,12 @@ public class YoinkCommand extends Command<Boolean> {
     }
     if (source.isPresent()) {
       source.get().take(yoinkedThing);
+      postEvent(new YoinkDepartureEvent(player, source.get()));
     }
 
     destination.give(yoinkedThing);
     yoinkedThing.setLocation(destination);
+    postEvent(new YoinkArrivalEvent(player, destination));
     if (yoinkedThing instanceof Player) {
       ((Player) yoinkedThing).sendMessage(new Message(player, Message.Style.INFO,
                                                       "You have been relocated to " +
@@ -61,5 +63,37 @@ public class YoinkCommand extends Command<Boolean> {
     Place destination =
         CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(1), Place.class, player);
     return new YoinkCommand(actor, player, yoinkedThing, destination);
+  }
+
+  /**
+   * The payload for {@link YoinkDepartureEvent}.
+   */
+  public static class YoinkDeparture {
+    // No additional fields are needed at this time.
+  }
+
+  /**
+   * An event posted when a player is yoinked from a source.
+   */
+  public static class YoinkDepartureEvent extends Event<YoinkDeparture> {
+    YoinkDepartureEvent(Player player, Thing source) {
+      super(player, source, new YoinkDeparture());
+    }
+  }
+
+  /**
+   * The payload for {@link YoinkArrivalEvent}.
+   */
+  public static class YoinkArrival {
+    // No additional fields are needed at this time.
+  }
+
+  /**
+   * An event posted when a player is yoinked to a destination.
+   */
+  public static class YoinkArrivalEvent extends Event<YoinkArrival> {
+    YoinkArrivalEvent(Player player, Place destination) {
+      super(player, destination, new YoinkArrival());
+    }
   }
 }

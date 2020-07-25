@@ -77,7 +77,7 @@ public class TeleportCommand extends Command<String> {
   }
 
   /**
-   * An event posted when a player arrives at a destination.
+   * An event posted when a player leaves a source.
    */
   public static class TeleportDepartureEvent extends Event<TeleportDeparture> {
     TeleportDepartureEvent(Player player, Place source) {

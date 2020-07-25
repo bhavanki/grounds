@@ -11,6 +11,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Role;
+import xyz.deszaras.grounds.command.YoinkCommand.YoinkArrivalEvent;
+import xyz.deszaras.grounds.command.YoinkCommand.YoinkDepartureEvent;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 
@@ -45,6 +47,9 @@ public class YoinkCommandTest extends AbstractCommandTest {
     verify(destination).give(yoinkedPlayer);
 
     verify(yoinkedPlayer).setLocation(destination);
+
+    verifyEvent(new YoinkDepartureEvent(player, source), command);
+    verifyEvent(new YoinkArrivalEvent(player, destination), command);
   }
 
   @Test
@@ -56,5 +61,7 @@ public class YoinkCommandTest extends AbstractCommandTest {
     verify(destination).give(yoinkedPlayer);
 
     verify(yoinkedPlayer).setLocation(destination);
+
+    verifyEvent(new YoinkArrivalEvent(player, destination), command);
   }
 }
