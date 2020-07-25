@@ -2,6 +2,7 @@ package xyz.deszaras.grounds.command;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -60,7 +61,8 @@ public abstract class Event<T> {
     return payload;
   }
 
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+      .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
   /**
    * Gets the payload as a JSON string. Information on the event's player and
@@ -71,9 +73,6 @@ public abstract class Event<T> {
    * @throws IllegalStateException if the payload cannot be converted to JSON
    */
   public String getAugmentedPayloadJsonString() {
-    if (payload != null) {
-      System.out.println("Getting tree from object type " + payload.getClass());
-    }
     try {
       ObjectNode node = payload != null ? OBJECT_MAPPER.valueToTree(payload) :
           JsonNodeFactory.instance.objectNode();
