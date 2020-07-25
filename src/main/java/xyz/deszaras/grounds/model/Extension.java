@@ -92,9 +92,37 @@ public class Extension extends Player {
           .findFirst();
       if (eventTypeAttr.isPresent() &&
           !eventTypeAttr.get().getValue().equals(event.getClass().getSimpleName())){
-        LOG.debug("Event type {} does not match {}, not creating command",
-                 event.getClass(), eventTypeAttr.get().getValue());
+        LOG.debug("Listener attribute {} of extension {} wants event type {}, " +
+                  "but received {}, so not creating command",
+                  a.getName(), getName(), eventTypeAttr.get().getValue(),
+                  event.getClass());
         continue;
+      }
+
+      // For similar reasons, if the attribute has a "localized" attribute in
+      // its list, check if the event's place is the same as this extension's
+      // location, and do nothing if they don't match.
+      Optional<Attr> localizedAttr = a.getAttrListValue().stream()
+          .filter(la -> la.getName().equals("localized") &&
+                        la.getType() == Attr.Type.BOOLEAN)
+          .findFirst();
+      if (localizedAttr.isPresent() && localizedAttr.get().getBooleanValue() &&
+          event.getPlace() != null) {
+        try {
+          Optional<Thing> extensionLocation = getLocation();
+          if (extensionLocation.isEmpty()) {
+            LOG.warn("Extension {} has no location, cannot check if event " +
+                     "of type {} is local", getName(), event.getClass());
+          } else if (!extensionLocation.get().equals(event.getPlace())) {
+            LOG.debug("Listener attribute {} of extension {} wants localized " +
+                      "event, but received event from {}, so not creating command",
+                      a.getName(), getName(), event.getPlace().getName());
+            continue;
+          }
+        } catch (MissingThingException e) {
+          LOG.warn("Extension {} has a missing location, cannot check if event " +
+                   "of type {} is local", getName(), event.getClass());
+        }
       }
 
       // Create a scripted command for the listener attribute's script. Pass the

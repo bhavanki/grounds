@@ -1,0 +1,14 @@
+- name: eventType
+  type: STRING
+  value: TeleportArrivalEvent
+- name: localized
+  type: BOOLEAN
+  value: true
+- name: scriptContent
+  type: STRING
+  value: |
+    payload = parseJson(arg0)
+
+    runAsExtension()
+    exec(["POSE", "The magic fiddle plays a ditty as ${payload.player} arrives."])
+    return null
