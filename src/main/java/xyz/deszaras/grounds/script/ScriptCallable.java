@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import xyz.deszaras.grounds.command.Actor;
+import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.model.Player;
 
 /**
@@ -56,7 +57,7 @@ public class ScriptCallable implements Callable<String> {
    * @return return value of script
    */
   @Override
-  public String call() {
+  public String call() throws CommandException {
     // Create a binding for the script, including each argument.
     Binding binding = new Binding();
     for (int i = 0; i < scriptArguments.size(); i++) {
@@ -86,9 +87,11 @@ public class ScriptCallable implements Callable<String> {
     try {
       result = gscript.run();
     } catch (Exception e) {
-      LOG.error("Failed to run script in extension {}",
-                script.getExtension().getId(), e);
-      return null;
+      if (e instanceof CommandException) {
+        throw (CommandException) e;
+      }
+      throw new CommandException("Failed to run script in extension " +
+                                 script.getExtension().getId(), e);
     }
 
     if (result == null) {
