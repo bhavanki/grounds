@@ -7,6 +7,9 @@ import groovy.json.JsonSlurper;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandCallable;
 import xyz.deszaras.grounds.command.CommandException;
@@ -25,6 +28,8 @@ import xyz.deszaras.grounds.model.Universe;
  * Groovy binding.
  */
 public abstract class GroundsScript extends groovy.lang.Script {
+
+  private static final Logger LOG = LoggerFactory.getLogger(GroundsScript.class);
 
   private static final Splitter COMMA_SEP_SPLITTER = Splitter.on(",");
 
@@ -267,5 +272,13 @@ public abstract class GroundsScript extends groovy.lang.Script {
     }
     Optional<CommandException> cfe = result.getCommandFactoryException();
     throw cfe.get();
+  }
+
+  public void logDebug(String message) {
+    LOG.debug(message);
+  }
+
+  public void logError(String message) {
+    LOG.error(message);
   }
 }
