@@ -9,6 +9,7 @@
 
 build extension chat_system
 change_policy chat_system w-dBA
+change_policy chat_system u+g
 set_attr chat_system $chat[ATTRLIST]=@etc/ext/chat/chat.yaml
 set_attr chat_system $chatadmin[ATTRLIST]=@etc/ext/chat/chatadmin.yaml
 role add adept chat_system
