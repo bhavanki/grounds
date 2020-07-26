@@ -75,7 +75,7 @@
         - name: summary
           value: Administers the chat system
         - name: description
-          value: "Available subcommands: create, delete"
+          value: "Available subcommands: create, delete, add_member, remove_member"
     - name: $CHATADMIN_CREATE
       type: ATTRLIST
       value: |

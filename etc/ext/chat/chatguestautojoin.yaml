@@ -1,0 +1,32 @@
+- name: eventType
+  type: STRING
+  value: YoinkArrivalEvent
+- name: scriptContent
+  type: STRING
+  value: |
+    payload = parseJson(arg0)
+    runAsExtension()
+
+    if (payload.yoinkedThingName.startsWith('guest') &&
+        payload.yoinkedThingType.equals("Player")) {
+
+      if (hasAttr(extensionId, '#guest')) {
+        gc = getAttr(extensionId, '#guest', "Channel #guest not found?")
+        members = gc.getAttrListValueAsMap()['members'].getValue().split(',') as List
+        if (!members.contains(payload.yoinkedThingName)) {
+          logDebug("Auto-joining ${payload.yoinkedThingName}")
+          members.add(payload.yoinkedThingName)
+          newMembersAttr = newAttr('members', members.join(','))
+          newAttrList = gc.getAttrListValue().findAll {it -> !it.getName().equals('members')}
+          newAttrList << newMembersAttr
+          setAttr(extensionId, gc.name, newAttrList)
+        } else {
+          logDebug("Player is already in the channel")
+        }
+      } else {
+        logDebug("No guest channel")
+      }
+
+    } else {
+      logDebug("Yoinked thing is not a guest")
+    }
