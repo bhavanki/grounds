@@ -1,5 +1,7 @@
 package xyz.deszaras.grounds.command;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -39,12 +41,12 @@ public class YoinkCommand extends Command<Boolean> {
     }
     if (source.isPresent()) {
       source.get().take(yoinkedThing);
-      postEvent(new YoinkDepartureEvent(player, source.get()));
+      postEvent(new YoinkDepartureEvent(yoinkedThing, source.get()));
     }
 
     destination.give(yoinkedThing);
     yoinkedThing.setLocation(destination);
-    postEvent(new YoinkArrivalEvent(player, destination));
+    postEvent(new YoinkArrivalEvent(yoinkedThing, destination));
     if (yoinkedThing instanceof Player) {
       ((Player) yoinkedThing).sendMessage(new Message(player, Message.Style.INFO,
                                                       "You have been relocated to " +
@@ -69,15 +71,35 @@ public class YoinkCommand extends Command<Boolean> {
    * The payload for {@link YoinkDepartureEvent}.
    */
   public static class YoinkDeparture {
-    // No additional fields are needed at this time.
+    /**
+     * The name of what was yoinked.
+     */
+    @JsonProperty
+    public final String yoinkedThingName;
+    /**
+     * The ID of what was yoinked.
+     */
+    @JsonProperty
+    public final String yoinkedThingId;
+    /**
+     * The type of what was yoinked.
+     */
+    @JsonProperty
+    public final String yoinkedThingType;
+
+    YoinkDeparture(Thing yoinkedThing) {
+      yoinkedThingName = yoinkedThing.getName();
+      yoinkedThingId = yoinkedThing.getId().toString();
+      yoinkedThingType = yoinkedThing.getClass().getSimpleName();
+    }
   }
 
   /**
-   * An event posted when a player is yoinked from a source.
+   * An event posted when a thing is yoinked from a source.
    */
   public static class YoinkDepartureEvent extends Event<YoinkDeparture> {
-    YoinkDepartureEvent(Player player, Thing source) {
-      super(player, source, new YoinkDeparture());
+    YoinkDepartureEvent(Thing yoinkedThing, Thing source) {
+      super(null, source, new YoinkDeparture(yoinkedThing));
     }
   }
 
@@ -85,15 +107,35 @@ public class YoinkCommand extends Command<Boolean> {
    * The payload for {@link YoinkArrivalEvent}.
    */
   public static class YoinkArrival {
-    // No additional fields are needed at this time.
+    /**
+     * The name of what was yoinked.
+     */
+    @JsonProperty
+    public final String yoinkedThingName;
+    /**
+     * The ID of what was yoinked.
+     */
+    @JsonProperty
+    public final String yoinkedThingId;
+    /**
+     * The type of what was yoinked.
+     */
+    @JsonProperty
+    public final String yoinkedThingType;
+
+    YoinkArrival(Thing yoinkedThing) {
+      yoinkedThingName = yoinkedThing.getName();
+      yoinkedThingId = yoinkedThing.getId().toString();
+      yoinkedThingType = yoinkedThing.getClass().getSimpleName();
+    }
   }
 
   /**
-   * An event posted when a player is yoinked to a destination.
+   * An event posted when a thing is yoinked to a destination.
    */
   public static class YoinkArrivalEvent extends Event<YoinkArrival> {
-    YoinkArrivalEvent(Player player, Place destination) {
-      super(player, destination, new YoinkArrival());
+    YoinkArrivalEvent(Thing yoinkedThing, Place destination) {
+      super(null, destination, new YoinkArrival(yoinkedThing));
     }
   }
 }

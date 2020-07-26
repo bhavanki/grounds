@@ -1,17 +1,16 @@
 package xyz.deszaras.grounds.command;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.auth.Role;
+import xyz.deszaras.grounds.command.YoinkCommand.YoinkArrival;
 import xyz.deszaras.grounds.command.YoinkCommand.YoinkArrivalEvent;
+import xyz.deszaras.grounds.command.YoinkCommand.YoinkDeparture;
 import xyz.deszaras.grounds.command.YoinkCommand.YoinkDepartureEvent;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
@@ -30,38 +29,47 @@ public class YoinkCommandTest extends AbstractCommandTest {
 
     setPlayerRoles(Role.THAUMATURGE);
 
-    yoinkedPlayer = mock(Player.class);
-    source = mock(Place.class);
-    destination = mock(Place.class);
+    yoinkedPlayer = newTestPlayer("yoinkee", Role.DENIZEN);
+    source = newTestPlace("source");
+    destination = newTestPlace("destination");
 
     command = new YoinkCommand(actor, player, yoinkedPlayer, destination);
   }
 
   @Test
   public void testSuccess() throws Exception {
-    when(yoinkedPlayer.getLocation()).thenReturn(Optional.of(source));
+    source.give(yoinkedPlayer);
+    yoinkedPlayer.setLocation(source);
 
     assertTrue(command.execute());
 
-    verify(source).take(yoinkedPlayer);
-    verify(destination).give(yoinkedPlayer);
+    assertFalse(source.has(yoinkedPlayer));
+    assertTrue(destination.has(yoinkedPlayer));
+    assertEquals(destination, yoinkedPlayer.getLocation().get());
 
-    verify(yoinkedPlayer).setLocation(destination);
-
-    verifyEvent(new YoinkDepartureEvent(player, source), command);
-    verifyEvent(new YoinkArrivalEvent(player, destination), command);
+    YoinkDepartureEvent yoinkDepartureEvent =
+        verifyEvent(new YoinkDepartureEvent(yoinkedPlayer, source), command);
+    assertEquals(yoinkedPlayer.getName(), ((YoinkDeparture) yoinkDepartureEvent.getPayload()).yoinkedThingName);
+    assertEquals(yoinkedPlayer.getId().toString(), ((YoinkDeparture) yoinkDepartureEvent.getPayload()).yoinkedThingId);
+    assertEquals(yoinkedPlayer.getClass().getSimpleName(), ((YoinkDeparture) yoinkDepartureEvent.getPayload()).yoinkedThingType);
+    YoinkArrivalEvent yoinkArrivalEvent =
+        verifyEvent(new YoinkArrivalEvent(yoinkedPlayer, destination), command);
+    assertEquals(yoinkedPlayer.getName(), ((YoinkArrival) yoinkArrivalEvent.getPayload()).yoinkedThingName);
+    assertEquals(yoinkedPlayer.getId().toString(), ((YoinkArrival) yoinkArrivalEvent.getPayload()).yoinkedThingId);
+    assertEquals(yoinkedPlayer.getClass().getSimpleName(), ((YoinkArrival) yoinkArrivalEvent.getPayload()).yoinkedThingType);
   }
 
   @Test
   public void testSuccessNoSource() throws Exception {
-    when(yoinkedPlayer.getLocation()).thenReturn(Optional.empty());
-
     assertTrue(command.execute());
 
-    verify(destination).give(yoinkedPlayer);
+    assertTrue(destination.has(yoinkedPlayer));
+    assertEquals(destination, yoinkedPlayer.getLocation().get());
 
-    verify(yoinkedPlayer).setLocation(destination);
-
-    verifyEvent(new YoinkArrivalEvent(player, destination), command);
+    YoinkArrivalEvent yoinkArrivalEvent =
+        verifyEvent(new YoinkArrivalEvent(yoinkedPlayer, destination), command);
+    assertEquals(yoinkedPlayer.getName(), ((YoinkArrival) yoinkArrivalEvent.getPayload()).yoinkedThingName);
+    assertEquals(yoinkedPlayer.getId().toString(), ((YoinkArrival) yoinkArrivalEvent.getPayload()).yoinkedThingId);
+    assertEquals(yoinkedPlayer.getClass().getSimpleName(), ((YoinkArrival) yoinkArrivalEvent.getPayload()).yoinkedThingType);
   }
 }
