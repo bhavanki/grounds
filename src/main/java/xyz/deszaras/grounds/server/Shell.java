@@ -322,12 +322,11 @@ public class Shell implements Runnable {
 
   private Player createGuestPlayer() {
     player = new Player(generateGuestName());
+    player.setCurrentActor(Actor.GUEST);
     Universe universe = Universe.getCurrent();
     universe.addRole(Role.GUEST, player);
     universe.addThing(player);
-    Place guestHome = universe.getGuestHomePlace();
-    player.setLocation(guestHome);
-    guestHome.give(player);
+    player.setHome(universe.getGuestHomePlace());
     return player;
   }
 
