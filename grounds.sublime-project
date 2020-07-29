@@ -1,0 +1,16 @@
+{
+  "folders": [
+    {
+      "path": "src",
+      "file_exclude_patterns": [
+        "*.class"
+      ],
+      "index_exclude_patterns": [
+        "*.class"
+      ]
+    },
+    {
+      "path": "etc"
+    }
+  ]
+}

@@ -3,3 +3,4 @@ dependency-reduced-pom.xml
 etc/host.key
 etc/actors
 .DS_Store
+*.sublime-workspace
