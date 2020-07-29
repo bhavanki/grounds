@@ -42,6 +42,7 @@ public class LineBreaker {
    * @param s string to break
    * @return list of lines
    */
+  @SuppressWarnings("PMD.UselessParentheses")
   public List<String> lineBreak(String s) {
     if (s.isEmpty()) {
       return Collections.singletonList(s);
@@ -57,11 +58,24 @@ public class LineBreaker {
            start = end, end = breakIterator.next()) {
       String subs = s.substring(start, end);
 
+      // Handle substrings specially when they end with a space (very often) or
+      // with an explicit newline.
+      boolean trailingSpace = subs.endsWith(" ");
+      boolean trailingNewline = subs.endsWith("\n");
+
+      // See if the current substring shall be added to the line being built
+      // now. It shall be if any of these conditions hold:
+      // 1. The substring fits into the line as is.
+      // 2. The substring ends with a space, and without that space fits into
+      //    the line.
+      // 3. The substring ends with an explicit newline, and without that
+      //    newline fits into the line.
+      // 4. The line is empty - in this case, the substring is longer but has to
+      //    be put on anyway or we'll never progress.
       if (line.length() + (end - start) <= terminalWidth ||
+          (trailingSpace && line.length() + (end - start - 1) <= terminalWidth) ||
+          (trailingNewline && line.length() + (end - start - 1) <= terminalWidth) ||
           line.length() == 0) {
-        // Either there is room on the line for this substring, or
-        // the line is empty and the substring is longer so it'll have to
-        // be put on anyway.
         line.append(subs);
       } else {
         // There is no room on the current line, so close it out and
@@ -70,8 +84,17 @@ public class LineBreaker {
         line = new StringBuilder(subs);
       }
 
+      // If the substring added to the line has a trailing space and that makes
+      // the line length too long, chop the space off.
+      if (trailingSpace && line.length() > terminalWidth) {
+        line.deleteCharAt(line.length() - 1);
+      }
+
       // If the current line ends with a "natural" newline, respect it,
-      // and start a new blank line.
+      // and start a new blank line. This works even for the case when the
+      // "natural" newline extends beyond the maximum line width, i.e., when
+      // trailingNewline == true and the line's length is now one longers than
+      // the permitted maximum.
       if (line.charAt(line.length() - 1) == '\n') {
         line.deleteCharAt(line.length() - 1);
         lines.add(line.toString());
@@ -79,24 +102,12 @@ public class LineBreaker {
       }
     }
 
-    // The loop above ends with one last line under construction.
-    lines.add(line.toString());
+    // The loop above ends with one last line under construction. Add it if it
+    // has content.
+    if (line.length() > 0) {
+      lines.add(line.toString());
+    }
 
     return Collections.unmodifiableList(lines);
   }
-
-  public static void main(String[] args) {
-    int width = Integer.parseInt(args[0]);
-    String s = args[1];
-
-    for (int i = 0; i < width; i++) {
-      System.out.print("X");
-    }
-    System.out.println("");
-
-    for (String line : new LineBreaker(width).lineBreak(s)) {
-      System.out.println(line);
-    }
-  }
-
 }
