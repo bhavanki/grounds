@@ -25,7 +25,7 @@ public class InspectCommandTest extends AbstractCommandTest {
 
     thing = mock(Thing.class);
     when(thing.toJson()).thenReturn("{}");
-    command = new InspectCommand(actor, player, thing);
+    command = new InspectCommand(actor, player, thing, null);
   }
 
   @Test
