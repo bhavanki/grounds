@@ -13,6 +13,7 @@ Grounds is under active development, so features are all new and/or still being 
 * **SSH connectivity.** The game server accepts connections over SSH, so that all traffic is encrypted.
 * **Command-line editing.** Grounds uses [JLine](https://github.com/jline/jline3) to deliver powerful command line editing features.
 * **Extensibility through softcode (scripted) commands.** Extensions in a universe can hold Groovy scripts that may be executed as commands.
+* **Reaction to events.** Extensions can also listen for events, such as players arriving or leaving locations, or saying things, and react by running scripts to respond.
 * **Chat.** Players can message each other over OOC, named chat channels. *This feature is implemented completely in softcode!*
 
 ## Requirements
