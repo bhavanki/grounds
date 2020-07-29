@@ -229,15 +229,20 @@ public class Shell implements Runnable {
               Optional<CommandFactoryException> commandFactoryException =
                   commandResult.getCommandFactoryException();
               if (commandFactoryException.isPresent()) {
-                err.printf("SYNTAX ERROR: %s\n", joinMessages(commandFactoryException.get()));
-                LOG.info("Command build failed for actor {}", actor.getUsername(),
-                         commandFactoryException);
+                String syntaxErrorMessage =
+                    String.format("SYNTAX ERROR: %s", joinMessages(commandFactoryException.get()));
+                player.sendMessage(new Message(player, Message.Style.COMMAND_FACTORY_EXCEPTION,
+                                               syntaxErrorMessage));
+                LOG.debug("Command build failed for actor {}", actor.getUsername(),
+                          commandFactoryException.get());
               }
             }
           } catch (ExecutionException e) {
-            err.printf("ERROR: %s\n", joinMessages(e.getCause()));
-            LOG.info("Command execution failed for actor {}", actor.getUsername(),
-                     e.getCause());
+            String execErrorMessage = String.format("ERROR: %s", joinMessages(e.getCause()));
+            player.sendMessage(new Message(player, Message.Style.EXECUTION_EXCEPTION,
+                                           execErrorMessage));
+            LOG.debug("Command execution failed for actor {}", actor.getUsername(),
+                      e.getCause());
             commandResult = new CommandResult(false, null);
           }
 

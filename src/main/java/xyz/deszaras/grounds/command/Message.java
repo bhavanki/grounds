@@ -49,6 +49,10 @@ public class Message {
     public static final Style INFO = new Style("%s");
     public static final Style COMMAND_EXCEPTION =
         new Style(AnsiUtils.color("! %s", Ansi.Color.RED, true));
+    public static final Style COMMAND_FACTORY_EXCEPTION =
+        new Style(AnsiUtils.color("! %s", Ansi.Color.RED, true));
+    public static final Style EXECUTION_EXCEPTION =
+        new Style(AnsiUtils.color("! %s", Ansi.Color.RED, true));
     public static final Style SCRIPT = new Style("* %s");
 
     public static final Style POSE =
