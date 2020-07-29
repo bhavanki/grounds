@@ -1,11 +1,32 @@
 - name: scriptContent
   type: STRING
   value: |
+    isVisible = { c, callerName ->
+      visibleIf = c.getAttrInAttrListValue('visibleIf')
+      if (visibleIf.isEmpty()) {
+        return true
+      }
+      return (Boolean) Eval.xy(c, callerName, visibleIf.get().getValue())
+    }
+    mayJoin = { c, callerName ->
+      joinableIf = c.getAttrInAttrListValue('joinableIf')
+      if (joinableIf.isEmpty()) {
+        return true
+      }
+      return (Boolean) Eval.xy(c, callerName, joinableIf.get().getValue())
+    }
     getChannel = { n ->
       if (!n.startsWith('#')) {
         throw failure("That is not a valid channel name")
       }
       return getAttr(extensionId, n, "Channel $n not found")
+    }
+    getChannelIfVisible = { n, callerName ->
+      c = getChannel(n)
+      if (!isVisible(c, callerName)) {
+        throw failure("Channel $n not found")
+      }
+      return c
     }
     listChannels = {
       getAttrNames(extensionId, "No channels found").findAll {n -> n.startsWith('#')}
@@ -16,44 +37,51 @@
         channel = getMembers(getChannel(n)).contains(m)
       })
     }
+    listVisibleChannels = { callerName ->
+      allChannelNames = listChannels()
+      return allChannelNames.findAll(n -> {
+        c = getChannel(n)
+        return isVisible(c, callerName)
+      })
+    }
     getMembers = {c ->
-      return c.getAttrListValueAsMap()['members'].getValue().split(',') as List
+      return c.getAttrInAttrListValue('members').get().getValue().split(',') as List
     }
     setMembers = {c, members ->
-      newMembersAttr = newAttr('members', members.join(','))
-      newAttrList = c.getAttrListValue().findAll {it -> !it.getName().equals('members')}
-      newAttrList << newMembersAttr
-      setAttr(extensionId, c.name, newAttrList)
+      setAttrInAttrListValue(extensionId, c.name, 'members', members.join(','))
     }
     runAsExtension()
     callerName = getCallerName()
     subcommand = arg0
     switch (subcommand.toUpperCase()) {
       case "SAY":
-        channel = getChannel(arg1)
+        channel = getChannelIfVisible(arg1, callerName)
         members = getMembers(channel)
         if (!members.contains(callerName)) {
-          throw failure("You do not belong to that channel")
+          throw failure("You do not belong to $arg1")
         }
         for (m in members) {
           sendMessageTo(m, "[$channel.name] $callerName: $arg2")
         }
         break;
       case "JOIN":
-        channel = getChannel(arg1)
+        channel = getChannelIfVisible(arg1, callerName)
+        if (!mayJoin(channel, callerName)) {
+          throw failure("You may not join $arg1")
+        }
         members = getMembers(channel)
         if (members.contains(callerName)) {
-          sendMessageToCaller('You are already joined to that channel')
+          sendMessageToCaller('You are already a member of $arg1')
         } else {
           members.add(callerName)
           setMembers(channel, members)
         }
         break;
       case "LEAVE":
-        channel = getChannel(arg1)
+        channel = getChannelIfVisible(arg1, callerName)
         members = getMembers(channel)
         if (!members.contains(callerName)) {
-          sendMessageToCaller('You are not joined to that channel')
+          sendMessageToCaller("You are not a member of $arg1")
         } else {
           members.remove(callerName)
           setMembers(channel, members)
@@ -64,13 +92,13 @@
         sendMessageToCaller(channels.isEmpty() ? "No channels found" : channels.join(' '))
         break;
       case "LIST":
-        channels = listChannels()
+        channels = listVisibleChannels(callerName)
         sendMessageToCaller(channels.isEmpty() ? "No channels found" : channels.join(' '))
         break;
       case "MEMBERS":
-        members = getMembers(getChannel(arg1))
+        members = getMembers(getChannelIfVisible(arg1, callerName))
         if (!members.contains(callerName)) {
-          sendMessageToCaller('You are not joined to that channel')
+          sendMessageToCaller("You are not a member of $arg1")
         } else {
           sendMessageToCaller(members.isEmpty() ? "No members found" : members.join(' '))
         }

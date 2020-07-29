@@ -1,12 +1,14 @@
 package xyz.deszaras.grounds.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -79,6 +81,25 @@ public class AttrTest {
     assertEquals(2, m.size());
     assertEquals("b1", m.get("x1").getValue());
     assertEquals("b2", m.get("x2").getValue());
+  }
+
+  @Test
+  public void testAttrInAttrListValue() {
+    List<Attr> setAttrs = new ArrayList<>();
+    setAttrs.add(new Attr("x1", "b1"));
+    setAttrs.add(new Attr("x2", "b2"));
+    attr = new Attr("a", setAttrs);
+    assertEquals("a", attr.getName());
+    assertEquals(Attr.Type.ATTRLIST, attr.getType());
+
+
+    Optional<Attr> subAttr = attr.getAttrInAttrListValue("x1");
+    assertTrue(subAttr.isPresent());
+    assertEquals("x1", subAttr.get().getName());
+    assertEquals("b1", subAttr.get().getValue());
+
+    subAttr = attr.getAttrInAttrListValue("x3");
+    assertFalse(subAttr.isPresent());
   }
 
   @Test

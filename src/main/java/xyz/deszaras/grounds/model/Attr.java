@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
@@ -15,9 +16,11 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -225,6 +228,22 @@ public final class Attr {
   @JsonIgnore
   public Map<String, Attr> getAttrListValueAsMap() {
     return getAttrListValue().stream().collect(Collectors.toMap(a -> a.getName(), a -> a));
+  }
+
+  /**
+   * Gets an attribute from the value of this attribute, which is expected to be
+   * a list of attributes. In other words, looks through the list of attributes
+   * that is the value of this attribute for one with the specified name. An
+   * example: if this attribute has a value which is a list of attributes named
+   * "a", "b", and "c", then {@code getAttrInAttrListValue("a")} will return the
+   * attribute in that list named "a".
+   *
+   * @param  name name of attribute in list of attributes to get
+   * @return      attribute
+   * @throws IllegalStateException if this attribute is not an attrlist type
+   */
+  public Optional<Attr> getAttrInAttrListValue(String name) {
+    return getAttrListValue().stream().filter(a -> a.getName().equals(name)).findFirst();
   }
 
   @Override

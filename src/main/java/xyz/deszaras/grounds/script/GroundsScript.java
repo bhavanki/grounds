@@ -4,6 +4,7 @@ import com.google.common.base.Splitter;
 
 import groovy.json.JsonSlurper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -131,6 +132,28 @@ public abstract class GroundsScript extends groovy.lang.Script {
   }
 
   /**
+   * Gets an attribute from a thing's attribute list value. Here, "name" is the
+   * name of the attribute whose value is a list of attributes, and "subname"
+   * is the name of the attribute to get in that list.
+   *
+   * @param  thingId                 ID of thing
+   * @param  name                    name of top-level attribute
+   * @param  subname                 name of attribute in list
+   * @param  notFoundMessage         exception message when thing or attribute is not found
+   * @return                         attribute from list
+   */
+  public Attr getAttrInAttrList(String thingId, String name, String subname, String notFoundMessage)
+      throws CommandException, CommandFactoryException {
+    Attr attr = getAttr(thingId, name, notFoundMessage);
+    for (Attr subAttr : attr.getAttrListValue()) {
+      if (subAttr.getName().equals(subname)) {
+        return subAttr;
+      }
+    }
+    throw new CommandException(notFoundMessage);
+  }
+
+  /**
    * Gets the names of a thing's attributes.
    *
    * @param  thingId                 ID of thing with attributes
@@ -173,7 +196,7 @@ public abstract class GroundsScript extends groovy.lang.Script {
   }
 
   /**
-   * Set's a thing's attribute with an attribute list value.
+   * Sets a thing's attribute with an attribute list value.
    *
    * @param  thingId ID of thing
    * @param  name    attribute name
@@ -190,6 +213,33 @@ public abstract class GroundsScript extends groovy.lang.Script {
       throws CommandException, CommandFactoryException {
     CommandResult setResult = exec(List.of("SET_ATTR", thingId, newAttr.toAttrSpec()));
     throwFailureExceptionIfPresent(setResult);
+  }
+
+  /**
+   * Sets an attribute in a thing's attribute list value. Here, "name" is the
+   * name of the attribute whose value is a list of attributes, and "subname"
+   * is the name of the attribute to set in that list. If subvalue is null, the
+   * attribute is removed from the list.
+   *
+   * @param  thingId                 ID of thing
+   * @param  name                    name of top-level attribute
+   * @param  subname                 name of attribute in list
+   * @param  subvalue                value of attribute in list (null to remove)
+   */
+  public void setAttrInAttrListValue(String thingId, String name, String subname, String subvalue)
+      throws CommandException, CommandFactoryException {
+    Attr attr = getAttr(thingId, name, "Thing " + name + " not found");
+    List<Attr> value = new ArrayList<>();
+    for (Attr a : attr.getAttrListValue()) {
+      if (!a.getName().equals(subname)) {
+        value.add(a);
+      }
+    }
+    if (subvalue != null) {
+      Attr newSubAttr = new Attr(subname, subvalue);
+      value.add(newSubAttr);
+    }
+    setAttr(thingId, name, value);
   }
 
   /**
