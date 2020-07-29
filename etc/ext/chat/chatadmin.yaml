@@ -41,7 +41,7 @@
         if (!hasChannel(arg1)) {
           throw failure("Channel ${arg1} does not exist");
         }
-        if (hasProperty('arg2')) {
+        if (binding.hasVariable('arg2')) {
           setAttrInAttrListValue(extensionId, arg1, 'visibleIf', arg2)
         } else {
           setAttrInAttrListValue(extensionId, arg1, 'visibleIf', null)
@@ -51,7 +51,7 @@
         if (!hasChannel(arg1)) {
           throw failure("Channel ${arg1} does not exist");
         }
-        if (hasProperty('arg2')) {
+        if (binding.hasVariable('arg2')) {
           setAttrInAttrListValue(extensionId, arg1, 'joinableIf', arg2)
         } else {
           setAttrInAttrListValue(extensionId, arg1, 'joinableIf', null)
