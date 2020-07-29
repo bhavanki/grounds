@@ -90,8 +90,10 @@ public class ScriptCallable implements Callable<String> {
       if (e instanceof CommandException) {
         throw (CommandException) e;
       }
+      LOG.error("Failed to run script for {} in extension {}", player.getName(),
+                script.getExtension().getId(), e);
       throw new CommandException("Failed to run script in extension " +
-                                 script.getExtension().getId(), e);
+                                 script.getExtension().getId().toString(), e);
     }
 
     if (result == null) {
