@@ -2,8 +2,11 @@ package xyz.deszaras.grounds.server;
 
 import java.io.PrintWriter;
 import java.util.Objects;
+
 import org.jline.reader.LineReader;
 import org.jline.terminal.Terminal;
+
+import xyz.deszaras.grounds.command.Message;
 import xyz.deszaras.grounds.model.Player;
 
 /**
@@ -42,13 +45,14 @@ public class MessageEmitter implements Runnable {
 
     try {
       while (true) {
-        String sentMessage = player.getNextMessage().getFormattedMessage();
+        Message nextMessage = player.getNextMessage();
         LineBreaker lineBreaker = new LineBreaker(terminal.getWidth());
-        String message = lineBreaker.insertLineBreaks(sentMessage);
+        String message = lineBreaker.insertLineBreaks(nextMessage.getMessage());
+        String styledMessage = nextMessage.getStyle().format(message);
         if (lineReader != null) {
-          lineReader.printAbove(message);
+          lineReader.printAbove(styledMessage);
         } else {
-          out.printf("%s\n", message);
+          out.printf("%s\n", styledMessage);
         }
       }
     } catch (InterruptedException e) { // NOPMD

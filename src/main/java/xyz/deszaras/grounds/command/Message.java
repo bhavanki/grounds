@@ -98,13 +98,4 @@ public class Message {
   public String getMessage() {
     return message;
   }
-
-  /**
-   * Gets the message text, formatted according to this message's style.
-   *
-   * @return formatted message
-   */
-  public String getFormattedMessage() {
-    return style.format(message);
-  }
 }
