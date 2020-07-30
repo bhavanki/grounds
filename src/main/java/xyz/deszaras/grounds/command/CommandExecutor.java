@@ -15,13 +15,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.function.BiFunction;
 
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.security.CommandExecutorPermission;
 import xyz.deszaras.grounds.server.Server;
 
 /**
  * This class is responsible for executing commands. It is a singleton,
  * to have all commands executed through a single controlling entity.
  * Internally, this class uses only a single thread for command execution,
- * thereby serializing changes to the state of the game.
+ * thereby serializing changes to the state of the game.<p>
+ *
+ * When running with a security manager, many methods of this class are
+ * guarded by {@link CommandExecutorPermission}.
  *
  * @see CommandFactory
  */
@@ -133,9 +137,43 @@ public class CommandExecutor {
         .build();
   }
 
+  /**
+   * Permission needed to call {@link #create(Server)}.
+   */
+  public static final CommandExecutorPermission CREATE_PERMISSION =
+      new CommandExecutorPermission("create");
+  /**
+   * Permission needed to call {@link #getInstance()}.
+   */
+  public static final CommandExecutorPermission GET_INSTANCE_PERMISSION =
+      new CommandExecutorPermission("getInstance");
+  /**
+   * Permission needed to call {@link #submit(Actor,Player,List)} or
+   * {@link #submit(Command)}.
+   */
+  public static final CommandExecutorPermission SUBMIT_PERMISSION =
+      new CommandExecutorPermission("submit");
+  /**
+   * Permission needed to call {@link #shutdown()}.
+   */
+  public static final CommandExecutorPermission SHUTDOWN_PERMISSION =
+      new CommandExecutorPermission("shutdown");
+
   private static CommandExecutor theExecutor = null;
 
+  /**
+   * Creates the single command executor for the game, if it doesn't already
+   * exist.
+   *
+   * @param server server instance, if not in single-user mode
+   * @throws IllegalStateException if the executor was already created
+   */
   public static synchronized void create(Server server) {
+    SecurityManager sm = System.getSecurityManager();
+    if (sm != null) {
+      sm.checkPermission(CREATE_PERMISSION);
+    }
+
     if (theExecutor != null) {
       throw new IllegalStateException("The command executor has already been created");
     }
@@ -143,7 +181,18 @@ public class CommandExecutor {
                                       new EventBus("commandEvents"));
   }
 
+  /**
+   * Gets the single command executor for the game.
+   *
+   * @return command executor
+   * @throws IllegalStateException if the executor has not been created yet
+   */
   public static synchronized CommandExecutor getInstance() {
+    SecurityManager sm = System.getSecurityManager();
+    if (sm != null) {
+      sm.checkPermission(GET_INSTANCE_PERMISSION);
+    }
+
     if (theExecutor == null) {
       throw new IllegalStateException("The command executor has not yet been created");
     }
@@ -193,6 +242,11 @@ public class CommandExecutor {
    */
   public Future<CommandResult> submit(Actor actor, Player player,
                                       List<String> commandLine) {
+    SecurityManager sm = System.getSecurityManager();
+    if (sm != null) {
+      sm.checkPermission(SUBMIT_PERMISSION);
+    }
+
     CommandCallable callable = new CommandCallable(actor, player, commandLine, this);
     return commandExecutorService.submit(callable);
   }
@@ -204,6 +258,11 @@ public class CommandExecutor {
    * @return future for the command result
    */
   public Future<CommandResult> submit(Command command) {
+    SecurityManager sm = System.getSecurityManager();
+    if (sm != null) {
+      sm.checkPermission(SUBMIT_PERMISSION);
+    }
+
     CommandCallable callable = new CommandCallable(command, this);
     return commandExecutorService.submit(callable);
   }
@@ -212,6 +271,11 @@ public class CommandExecutor {
    * Shuts down this executor.
    */
   public void shutdown() {
+    SecurityManager sm = System.getSecurityManager();
+    if (sm != null) {
+      sm.checkPermission(SHUTDOWN_PERMISSION);
+    }
+
     commandExecutorService.shutdown();
   }
 }

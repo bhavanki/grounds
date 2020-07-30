@@ -62,7 +62,6 @@ $ mvn package
 ## Plans
 
 * Mail and event systems
-* Tighter security around scripted commands
 * A combat system
 * More fun stuff
 

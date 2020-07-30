@@ -26,14 +26,37 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import xyz.deszaras.grounds.auth.Role;
+import xyz.deszaras.grounds.security.UniversePermission;
 import xyz.deszaras.grounds.util.UUIDUtils;
 
 /**
- * A world full of things. The universe is stored in memory.
+ * A world full of things. The universe is stored in memory.<p>
+ *
+ * When running with a security manager, some methods of this class are
+ * guarded by {@link UniversePermission}.
  */
 public class Universe {
 
   private static final Logger LOG = LoggerFactory.getLogger(Universe.class);
+
+  /**
+   * Permission needed to call {@link #getCurrent()} or
+   * {@link #getCurrentFile()}.
+   */
+  public static final UniversePermission GET_CURRENT_PERMISSION =
+      new UniversePermission("getCurrent");
+  /**
+   * Permission needed to call {@link #setCurrent(Universe)} or
+   * {@link #setCurrentFile(File)}.
+   */
+  public static final UniversePermission SET_CURRENT_PERMISSION =
+      new UniversePermission("setCurrent");
+  /**
+   * Permission needed to call {@link #saveCurrent(boolean)} or
+   * {@link #save(Universe,File)}.
+   */
+  public static final UniversePermission SAVE_PERMISSION =
+      new UniversePermission("save");
 
   /**
    * The VOID universe, where there is NOTHING and EVERYTHING, and
@@ -57,6 +80,10 @@ public class Universe {
    * @return current universe
    */
   public static Universe getCurrent() {
+    SecurityManager sm = System.getSecurityManager();
+    if (sm != null) {
+      sm.checkPermission(GET_CURRENT_PERMISSION);
+    }
     return theUniverse;
   }
 
@@ -66,6 +93,10 @@ public class Universe {
    * @param universe current universe
    */
   public static void setCurrent(Universe universe) {
+    SecurityManager sm = System.getSecurityManager();
+    if (sm != null) {
+      sm.checkPermission(SET_CURRENT_PERMISSION);
+    }
     theUniverse = universe;
   }
 
@@ -75,6 +106,10 @@ public class Universe {
    * @return current universe's file
    */
   public static File getCurrentFile() {
+    SecurityManager sm = System.getSecurityManager();
+    if (sm != null) {
+      sm.checkPermission(GET_CURRENT_PERMISSION);
+    }
     return theUniverseFile;
   }
 
@@ -84,6 +119,10 @@ public class Universe {
    * @param universeFile current universe's file
    */
   public static void setCurrentFile(File universeFile) {
+    SecurityManager sm = System.getSecurityManager();
+    if (sm != null) {
+      sm.checkPermission(SET_CURRENT_PERMISSION);
+    }
     theUniverseFile = universeFile;
   }
 
@@ -102,6 +141,10 @@ public class Universe {
    * @see #save(Universe,File)
    */
   public static boolean saveCurrent(boolean safe) throws IOException {
+    SecurityManager sm = System.getSecurityManager();
+    if (sm != null) {
+      sm.checkPermission(SAVE_PERMISSION);
+    }
     if (theUniverse == null || Universe.VOID.equals(theUniverse)) {
       return false;
     }
@@ -159,6 +202,11 @@ public class Universe {
    * @throws IOException if the universe could not be saved
    */
   public static void save(Universe universe, File f) throws IOException {
+    SecurityManager sm = System.getSecurityManager();
+    if (sm != null) {
+      sm.checkPermission(SAVE_PERMISSION);
+    }
+
     try {
       OBJECT_MAPPER.writeValue(f, universe);
     } catch (JsonProcessingException e) {

@@ -4,6 +4,9 @@ import com.google.common.base.Splitter;
 
 import groovy.json.JsonSlurper;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -201,7 +204,6 @@ public abstract class GroundsScript extends groovy.lang.Script {
    * @param  thingId ID of thing
    * @param  name    attribute name
    * @param  value   attribute value
-   * @return       new attribute
    */
   public void setAttr(String thingId, String name, List<Attr> value)
       throws CommandException, CommandFactoryException {
@@ -271,7 +273,12 @@ public abstract class GroundsScript extends groovy.lang.Script {
    */
   public void sendMessageTo(String playerName, String message) {
     Optional<Player> targetPlayer =
-        Universe.getCurrent().getThingByName(playerName, Player.class);
+        AccessController.doPrivileged(new PrivilegedAction<Optional<Player>>() {
+          @Override
+          public Optional<Player> run() {
+            return Universe.getCurrent().getThingByName(playerName, Player.class);
+          }
+        });
     if (targetPlayer.isPresent()) {
       targetPlayer.get().sendMessage(new Message(runner, Message.Style.SCRIPT, message));
     }
@@ -287,8 +294,14 @@ public abstract class GroundsScript extends groovy.lang.Script {
    * @return command result
    */
   public CommandResult exec(List<String> commandLine) {
-    return new CommandCallable(actor, runner, commandLine,
-                               CommandExecutor.getInstance()).call();
+    return AccessController.doPrivileged(new PrivilegedAction<CommandResult>() {
+      @Override
+      public CommandResult run() {
+        CommandCallable callable =
+            new CommandCallable(actor, runner, commandLine, CommandExecutor.getInstance());
+        return callable.call();
+      }
+    });
   }
 
   /**
@@ -324,10 +337,20 @@ public abstract class GroundsScript extends groovy.lang.Script {
     throw cfe.get();
   }
 
+  /**
+   * Emits a DEBUG-level log message.
+   *
+   * @param message log message
+   */
   public void logDebug(String message) {
     LOG.debug(message);
   }
 
+  /**
+   * Emits an ERROR-level log message.
+   *
+   * @param message log message
+   */
   public void logError(String message) {
     LOG.error(message);
   }

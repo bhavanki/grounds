@@ -9,6 +9,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -21,8 +22,13 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import xyz.deszaras.grounds.security.ActorDatabasePermission;
+
 /**
- * A simple database holding actor records. It is thread-safe.
+ * A simple database holding actor records. It is thread-safe.<p>
+ *
+ * When running with a security manager, many methods of this class are
+ * guarded by {@link ActorDatabasePermission}.
  */
 public class ActorDatabase {
 
@@ -141,6 +147,27 @@ public class ActorDatabase {
     }
   }
 
+  /**
+   * Permission needed to call {@link #load()}.
+   */
+  public static final ActorDatabasePermission LOAD_PERMISSION =
+      new ActorDatabasePermission("load");
+  /**
+   * Permission needed to call {@link #save()}.
+   */
+  public static final ActorDatabasePermission SAVE_PERMISSION =
+      new ActorDatabasePermission("save");
+  /**
+   * Permission needed to get records from the actor database.
+   */
+  public static final ActorDatabasePermission READ_PERMISSION =
+      new ActorDatabasePermission("read");
+  /**
+   * Permission needed to change records in the actor database.
+   */
+  public static final ActorDatabasePermission WRITE_PERMISSION =
+      new ActorDatabasePermission("write");
+
   public static final ActorDatabase INSTANCE = new ActorDatabase();
 
   private final Map<String, ActorRecord> actors = new HashMap<>();
@@ -163,6 +190,10 @@ public class ActorDatabase {
   }
 
   public synchronized void load() throws IOException {
+    SecurityManager sm = System.getSecurityManager();
+    if (sm != null) {
+      sm.checkPermission(LOAD_PERMISSION);
+    }
     if (path == null) {
       throw new IOException("Path to actor database not specified");
     }
@@ -176,6 +207,10 @@ public class ActorDatabase {
   }
 
   public synchronized void save() throws IOException {
+    SecurityManager sm = System.getSecurityManager();
+    if (sm != null) {
+      sm.checkPermission(SAVE_PERMISSION);
+    }
     if (path == null) {
       throw new IOException("Path to actor database not specified");
     }
@@ -187,6 +222,10 @@ public class ActorDatabase {
   }
 
   public synchronized boolean createActorRecord(String username, String password) {
+    SecurityManager sm = System.getSecurityManager();
+    if (sm != null) {
+      sm.checkPermission(WRITE_PERMISSION);
+    }
     if (actors.containsKey(username)) {
       return false;
     }
@@ -195,15 +234,27 @@ public class ActorDatabase {
   }
 
   public synchronized Optional<ActorRecord> getActorRecord(String username) {
+    SecurityManager sm = System.getSecurityManager();
+    if (sm != null) {
+      sm.checkPermission(READ_PERMISSION);
+    }
     return Optional.ofNullable(actors.get(username));
   }
 
   public synchronized Set<ActorRecord> getAllActorRecords() {
+    SecurityManager sm = System.getSecurityManager();
+    if (sm != null) {
+      sm.checkPermission(READ_PERMISSION);
+    }
     return ImmutableSet.copyOf(actors.values());
   }
 
   public synchronized boolean updateActorRecord(String username,
                                                 Consumer<ActorRecord> mutation) {
+    SecurityManager sm = System.getSecurityManager();
+    if (sm != null) {
+      sm.checkPermission(WRITE_PERMISSION);
+    }
     Optional<ActorRecord> actorRecord = getActorRecord(username);
     if (!actorRecord.isPresent()) {
       return false;
@@ -213,6 +264,10 @@ public class ActorDatabase {
   }
 
   public synchronized void removeActorRecord(String username) {
+    SecurityManager sm = System.getSecurityManager();
+    if (sm != null) {
+      sm.checkPermission(WRITE_PERMISSION);
+    }
     actors.remove(username);
   }
 }
