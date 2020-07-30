@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
@@ -344,7 +345,10 @@ public final class Attr {
     return new Attr(name, value, type);
   }
 
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  // Disallow overriding access modifiers so that the mapper works under a
+  // security manager.
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+      .configure(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS, false);
 
   /**
    * Creates a JSON representation of this attribute.

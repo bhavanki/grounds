@@ -86,7 +86,7 @@ public class ScriptCallable implements Callable<String> {
     Object result;
     try {
       result = gscript.run();
-    } catch (Exception e) {
+    } catch (Throwable e) {
       if (e instanceof CommandException) {
         throw (CommandException) e;
       }

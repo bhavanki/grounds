@@ -1,0 +1,14 @@
+grant codeBase "file:${jar.dir}/*" {
+  permission java.security.AllPermission;
+};
+
+grant codeBase "file:/groovy/shell" {
+  // For Groovy to work
+  permission groovy.security.GroovyCodeSourcePermission "*";
+  // For Jackson to serialize to JSON
+  permission java.lang.RuntimePermission "accessDeclaredMembers";
+  // For Groovy to work
+  permission java.util.PropertyPermission "groovy.*", "read";
+  // For Groovy's LazyMap, used in JSON parsing
+  permission java.util.PropertyPermission "jdk.map.althashing.threshold", "read";
+};
