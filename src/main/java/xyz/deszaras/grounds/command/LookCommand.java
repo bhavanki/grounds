@@ -70,16 +70,19 @@ public class LookCommand extends Command<String> {
     Collections.sort(players, (p1, p2) -> p1.getName().compareTo(p2.getName()));
     Collections.sort(theRest, (t1, t2) -> t1.getName().compareTo(t2.getName()));
 
+    boolean showId =
+        Boolean.parseBoolean(actor.getPreference(Actor.PREFERENCE_SHOW_IDS).orElse("false"));
+
     if (players.size() > 0) {
       b.append("\n\n" + AnsiUtils.color("Players present:", Ansi.Color.CYAN, false));
       for (Player p : players) {
-        b.append("\n- " + AnsiUtils.listing(p));
+        b.append("\n- " + AnsiUtils.listing(p, showId));
       }
     }
     if (theRest.size() > 0) {
       b.append("\n\n" + AnsiUtils.color("Contents:", Ansi.Color.CYAN, false));
       for (Thing t : theRest) {
-        b.append("\n- " + AnsiUtils.listing(t));
+        b.append("\n- " + AnsiUtils.listing(t, showId));
       }
     }
 
@@ -95,7 +98,7 @@ public class LookCommand extends Command<String> {
           if (otherPlace.isPresent()) {
             String otherPlaceName =
                 AnsiUtils.color(otherPlaceAttr.get().getName(), Ansi.Color.GREEN, false);
-            b.append("\n- (" + otherPlaceName + ") " + AnsiUtils.listing(otherPlace.get()));
+            b.append("\n- (" + otherPlaceName + ") " + AnsiUtils.listing(otherPlace.get(), showId));
           }
         }
       }

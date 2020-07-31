@@ -17,11 +17,14 @@ public class InventoryCommand extends Command<String> {
 
   @Override
   protected String executeImpl() {
+    boolean showId =
+        Boolean.parseBoolean(actor.getPreference(Actor.PREFERENCE_SHOW_IDS).orElse("false"));
+
     StringBuilder b = new StringBuilder();
     player.getContents().forEach(id -> {
       Optional<Thing> t = Universe.getCurrent().getThing(id);
       if (t.isPresent()) {
-        b.append("- " + AnsiUtils.listing(t.get()) + "\n");
+        b.append("- " + AnsiUtils.listing(t.get(), showId) + "\n");
       }
     });
     return b.toString();

@@ -30,7 +30,17 @@ public class Actor {
    */
   public static final Actor GUEST = new Actor("guest");
 
+  /**
+   * The actor preference controlling whether ANSI escape sequences for color
+   * are sent to the actor's terminal ("true") or not ("false" / default).
+   */
   public static final String PREFERENCE_ANSI = "ansi";
+
+  /**
+   * The actor preference controlling whether thing IDs are provided in output
+   * ("true") or not ("false" / default).
+   */
+  public static final String PREFERENCE_SHOW_IDS = "showIds";
 
   private final String username;
   private final Map<String, String> preferences;

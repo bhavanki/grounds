@@ -35,7 +35,7 @@ public class AnsiUtils {
    * @return          color string
    */
   public static String color(String s, Ansi.Color fgColor, boolean fgBright,
-                               Ansi.Color bgColor, boolean bgBright) {
+                             Ansi.Color bgColor, boolean bgBright) {
     Ansi a = Ansi.ansi();
     if (fgBright) {
       a.fgBright(fgColor);
@@ -55,10 +55,15 @@ public class AnsiUtils {
   /**
    * Returns the (color) listing of a thing.
    *
-   * @param  t thing being listed
+   * @param  t      thing being listed
+   * @param  showId whether to include the thing ID in the listing
    * @return   listing string
    */
-  public static String listing(Thing t) {
-    return t.getName() + color(" [" + t.getId() + "]", Ansi.Color.BLACK, true);
+  public static String listing(Thing t, boolean showId) {
+    String listItem = t.getName();
+    if (showId) {
+      listItem += color(" [" + t.getId() + "]", Ansi.Color.BLACK, true);
+    }
+    return listItem;
   }
 }
