@@ -65,7 +65,7 @@ These new places are floating free in the universe at the moment. To move to eit
 Town Square
 
 Players present:
-- GOD [00000000-0000-0001-0000-000000000000]
+- GOD
 ```
 
 The output of the "teleport" command is the same as what you get from the "look" command at the destination. At the moment, there isn't much to mention here. First, let's add a description to this place.
@@ -82,7 +82,7 @@ better-maintained structures is the tavern on the eastern side of the
 cobblestoned surface.
 
 Players present:
-- GOD [00000000-0000-0001-0000-000000000000]
+- GOD
 ```
 
 Better. However, even though the tavern is in plain sight, you cannot move there yet except by teleporting. To create a path between the two places, build a link between them.
@@ -99,10 +99,10 @@ better-maintained structures is the tavern on the eastern side of the
 cobblestoned surface.
 
 Players present:
-- GOD [00000000-0000-0001-0000-000000000000]
+- GOD
 
 Exits:
-- (TAV) Tavern [0f90601d-11d1-4d8b-9b94-1e34e3c3f0ad]
+- (TAV) Tavern
 ```
 
 The build command requires five arguments for a link:
@@ -131,10 +131,10 @@ clean and tidy bar stretches across the far wall across from the entrance.
 Stout kegs and shelves bearing bottles of potent liquids stand behind the bar.
 
 Players present:
-- GOD [00000000-0000-0001-0000-000000000000]
+- GOD
 
 Exits:
-- (TS) Town Square [456b38c2-febf-4f21-8778-62d61d1a1dcc]
+- (TS) Town Square
 ```
 
 You can continue creating places and linking them to construct your complete setting. For now, though, let's create a couple of props to put on the stage.
@@ -159,14 +159,14 @@ clean and tidy bar stretches across the far wall across from the entrance.
 Stout kegs and shelves bearing bottles of potent liquids stand behind the bar.
 
 Players present:
-- GOD [00000000-0000-0001-0000-000000000000]
+- GOD
 
 Contents:
-- key [f2b11fe8-c925-45aa-89ea-1dd4d544d182]
-- tankard [f182fcc1-0994-4834-b8ab-c81cb5d1d6e0]
+- key
+- tankard
 
 Exits:
-- (TS) Town Square [456b38c2-febf-4f21-8778-62d61d1a1dcc]
+- (TS) Town Square
 ```
 
 The new things you built are located in the tavern and listed when you look around. These things can be taken and dropped by players, among other actions.
@@ -189,16 +189,16 @@ clean and tidy bar stretches across the far wall across from the entrance.
 Stout kegs and shelves bearing bottles of potent liquids stand behind the bar.
 
 Players present:
-- Ahalish [a14950c2-44a5-4933-bc5a-49538cd5f89b]
-- GOD [00000000-0000-0001-0000-000000000000]
-- Rehtaoh [9107e827-f890-4b42-afa0-60aec7359577]
+- Ahalish
+- GOD
+- Rehtaoh
 
 Contents:
-- key [f2b11fe8-c925-45aa-89ea-1dd4d544d182]
-- tankard [f182fcc1-0994-4834-b8ab-c81cb5d1d6e0]
+- key
+- tankard
 
 Exits:
-- (TS) Town Square [456b38c2-febf-4f21-8778-62d61d1a1dcc]
+- (TS) Town Square
 ```
 
 When you build a player, you must define their role in the game. There are a handful of roles; "DENIZEN" is used for an ordinary player with no special permissions, and is appropriate for player characters (PCs).
