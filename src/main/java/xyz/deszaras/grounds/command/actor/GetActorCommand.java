@@ -45,7 +45,6 @@ public class GetActorCommand extends Command<String> {
   public static GetActorCommand newCommand(Actor actor, Player player,
                                            List<String> commandArgs)
       throws CommandFactoryException {
-    ensureMinArgs(commandArgs, 1);
     return new GetActorCommand(actor, player, commandArgs.get(0));
   }
 }

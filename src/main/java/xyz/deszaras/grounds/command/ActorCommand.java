@@ -10,6 +10,7 @@ import xyz.deszaras.grounds.command.actor.AddActorCommand;
 import xyz.deszaras.grounds.command.actor.AddPlayerToActorCommand;
 import xyz.deszaras.grounds.command.actor.BootActorCommand;
 import xyz.deszaras.grounds.command.actor.GetActorCommand;
+import xyz.deszaras.grounds.command.actor.ListActorsCommand;
 import xyz.deszaras.grounds.command.actor.LockActorCommand;
 import xyz.deszaras.grounds.command.actor.RemoveActorCommand;
 import xyz.deszaras.grounds.command.actor.RemovePlayerFromActorCommand;
@@ -57,6 +58,7 @@ public class ActorCommand extends ServerCommand<Boolean> {
         .put("ADD", AddActorCommand.class)
         .put("SET_PASSWORD", SetActorPasswordCommand.class)
         .put("PASSWORD", SetActorPasswordCommand.class)
+        .put("LIST", ListActorsCommand.class)
         .put("GET", GetActorCommand.class)
         .put("ADD_PLAYER", AddPlayerToActorCommand.class)
         .put("REMOVE_PLAYER", RemovePlayerFromActorCommand.class)
