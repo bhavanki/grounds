@@ -29,9 +29,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.apache.sshd.common.channel.PtyMode;
+import org.apache.sshd.core.CoreModuleProperties;
 import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.ExitCallback;
-import org.apache.sshd.server.ServerFactoryManager;
 import org.apache.sshd.server.Signal;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.channel.ChannelSession;
@@ -151,10 +151,10 @@ public class Server {
     String welcomeBannerFileProperty = serverProperties.getProperty("welcomeBannerFile");
     if (welcomeBannerFileProperty != null) {
       Path welcomeBannerFile = FileSystems.getDefault().getPath(welcomeBannerFileProperty);
-      sshServerProperties.put(ServerFactoryManager.WELCOME_BANNER, welcomeBannerFile);
+      CoreModuleProperties.WELCOME_BANNER.set(s, welcomeBannerFile);
     } else {
       URL defaultWelcomeBannerUrl = Resources.getResource("default_welcome_banner.txt");
-      sshServerProperties.put(ServerFactoryManager.WELCOME_BANNER, defaultWelcomeBannerUrl);
+      CoreModuleProperties.WELCOME_BANNER.set(s, defaultWelcomeBannerUrl);
     }
 
     s.setShellFactory(new ServerShellFactory());
