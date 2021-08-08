@@ -146,8 +146,6 @@ public class Server {
     ActorDatabase.INSTANCE.load(); // must be present, use SingleUser otherwise
     s.setPasswordAuthenticator(new PasswordAuthenticator(ActorDatabase.INSTANCE));
 
-    Map<String, Object> sshServerProperties = s.getProperties();
-
     String welcomeBannerFileProperty = serverProperties.getProperty("welcomeBannerFile");
     if (welcomeBannerFileProperty != null) {
       Path welcomeBannerFile = FileSystems.getDefault().getPath(welcomeBannerFileProperty);
