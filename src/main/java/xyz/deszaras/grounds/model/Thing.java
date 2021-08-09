@@ -628,7 +628,7 @@ public class Thing {
   }
 
   /**
-   * Gives the given thing to this thing.
+   * Unconditionally gives the given thing to this thing.
    *
    * @param thing other thing
    */
@@ -639,13 +639,45 @@ public class Thing {
   }
 
   /**
-   * Takes the given thing from this thing.
+   * Gives the given thing to this thing only if it hasn't already been.
+   *
+   * @param thing other thing
+   * @return true if given successfully, false if already given
+   */
+  public boolean giveIfNotPresent(Thing thing) {
+    synchronized (contentsMonitor) {
+      if (contents.contains(thing.getId())) {
+        return false;
+      }
+      contents.add(thing.getId());
+      return true;
+    }
+  }
+
+  /**
+   * Unconditionally takes the given thing from this thing.
    *
    * @param thing other thing
    */
   public void take(Thing thing) {
     synchronized (contentsMonitor) {
       contents.remove(thing.getId());
+    }
+  }
+
+  /**
+   * Takes the given thing from this thing only if it hasn't already been.
+   *
+   * @param thing other thing
+   * @return true if taken successfully, false if already taken
+   */
+  public boolean takeIfPresent(Thing thing) {
+    synchronized (contentsMonitor) {
+      if (!contents.contains(thing.getId())) {
+        return false;
+      }
+      contents.remove(thing.getId());
+      return true;
     }
   }
 
