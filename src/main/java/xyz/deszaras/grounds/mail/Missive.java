@@ -1,5 +1,7 @@
 package xyz.deszaras.grounds.mail;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 
@@ -32,8 +34,8 @@ public class Missive {
 
   private final Thing t;
 
-  Missive(String sender, String subject, List<String> recipients,
-          Instant timestamp, String body) {
+  public Missive(String sender, String subject, List<String> recipients,
+                 Instant timestamp, String body) {
     t = new Thing(Objects.requireNonNull(subject));
 
     t.setAttr(SENDER, Objects.requireNonNull(sender));
@@ -55,7 +57,7 @@ public class Missive {
     return new Missive(t);
   }
 
-  Thing getThing() {
+  public Thing getThing() {
     return t;
   }
 

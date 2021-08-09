@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.deszaras.grounds.command.mail.ListMailCommand;
+import xyz.deszaras.grounds.command.mail.SendMailCommand;
 import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
@@ -56,7 +57,7 @@ public class MailCommand extends Command<Boolean> {
 
   static {
     MAIL_COMMANDS = ImmutableMap.<String, Class<? extends Command>>builder()
-        // .put("SEND", SendMailCommand.class)
+        .put("SEND", SendMailCommand.class)
         .put("LIST", ListMailCommand.class)
         // .put("GET", GetMailCommand.class)
         // .put("SHOW", GetMailCommand.class)

@@ -9,7 +9,6 @@ import xyz.deszaras.grounds.command.MailCommand;
 import xyz.deszaras.grounds.command.PermittedRoles;
 import xyz.deszaras.grounds.mail.Mailbox;
 import xyz.deszaras.grounds.mail.Missive;
-import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Player;
 
 /**
