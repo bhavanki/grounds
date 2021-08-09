@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,14 @@ public class AttrTest {
     assertEquals("a", attr.getName());
     assertEquals(Attr.Type.BOOLEAN, attr.getType());
     assertTrue(attr.getBooleanValue());
+  }
+
+  @Test
+  public void testTimestampAttr() {
+    Instant ts = Instant.ofEpochSecond(123456L);
+    attr = new Attr("a", ts);
+    assertEquals(Attr.Type.TIMESTAMP, attr.getType());
+    assertEquals(ts, attr.getInstantValue());
   }
 
   @Test

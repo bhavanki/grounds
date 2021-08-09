@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -40,6 +41,7 @@ public final class Attr {
     STRING,
     INTEGER,
     BOOLEAN,
+    TIMESTAMP,
     THING,
     ATTR,
     ATTRLIST;
@@ -86,6 +88,16 @@ public final class Attr {
    */
   public Attr(String name, int value) {
     this(name, Integer.toString(value, 10), Type.INTEGER);
+  }
+
+  /**
+   * Creates a new timestamp attribute.
+   *
+   * @param name attribute name
+   * @param value attribute value
+   */
+  public Attr(String name, Instant value) {
+    this(name, Long.toString(value.getEpochSecond()), Type.TIMESTAMP);
   }
 
   /**
@@ -175,6 +187,20 @@ public final class Attr {
       throw new IllegalStateException("Attribute " + name + " is type " + type);
     }
     return Boolean.parseBoolean(value);
+  }
+
+  /**
+   * Gets the value of this attribute as a timestamp.
+   *
+   * @return attribute value as a timestamp
+   * @throws IllegalStateException if this attribute is not a timestamp type
+   */
+  @JsonIgnore
+  public Instant getInstantValue() {
+    if (type != Type.TIMESTAMP) {
+      throw new IllegalStateException("Attribute " + name + " is type " + type);
+    }
+    return Instant.ofEpochSecond(Long.parseLong(value));
   }
 
   /**

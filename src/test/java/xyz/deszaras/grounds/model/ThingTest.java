@@ -6,7 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -124,5 +126,67 @@ public class ThingTest {
 
     thing.setMuteList(null);
     assertTrue(thing.getMuteList().isEmpty());
+  }
+
+  @Test
+  public void testAttrStringValue() {
+    thing.setAttr("a", "b");
+    Optional<Attr> a = thing.getAttr("a", Attr.Type.STRING);
+    assertTrue(a.isPresent());
+    assertEquals("b", a.get().getValue());
+  }
+
+  @Test
+  public void testAttrIntValue() {
+    thing.setAttr("a", 42);
+    Optional<Attr> a = thing.getAttr("a", Attr.Type.INTEGER);
+    assertTrue(a.isPresent());
+    assertEquals(42, a.get().getIntValue());
+  }
+
+  @Test
+  public void testAttrBooleanValue() {
+    thing.setAttr("a", true);
+    Optional<Attr> a = thing.getAttr("a", Attr.Type.BOOLEAN);
+    assertTrue(a.isPresent());
+    assertEquals(true, a.get().getBooleanValue());
+  }
+
+  @Test
+  public void testAttrInstantValue() {
+    Instant ts = Instant.ofEpochSecond(123456L);
+    thing.setAttr("a", ts);
+    Optional<Attr> a = thing.getAttr("a", Attr.Type.TIMESTAMP);
+    assertTrue(a.isPresent());
+    assertEquals(ts, a.get().getInstantValue());
+  }
+
+  @Test
+  public void testAttrThingValue() {
+    Thing aThing = new Thing("doohickey");
+    thing.setAttr("a", aThing);
+    Optional<Attr> a = thing.getAttr("a", Attr.Type.THING);
+    assertTrue(a.isPresent());
+    assertEquals(aThing.getId().toString(), a.get().getThingValue());
+  }
+
+  @Test
+  public void testAttrAttrValue() {
+    Attr nested = new Attr("n", "v");
+    thing.setAttr("a", nested);
+    Optional<Attr> a = thing.getAttr("a", Attr.Type.ATTR);
+    assertTrue(a.isPresent());
+    assertEquals(nested, a.get().getAttrValue());
+  }
+
+  @Test
+  public void testAttrAttrListValue() {
+    Attr nested1 = new Attr("n1", "v1");
+    Attr nested2 = new Attr("n2", "v2");
+    List<Attr> nested = List.of(nested1, nested2);
+    thing.setAttr("a", nested);
+    Optional<Attr> a = thing.getAttr("a", Attr.Type.ATTRLIST);
+    assertTrue(a.isPresent());
+    assertEquals(nested, a.get().getAttrListValue());
   }
 }

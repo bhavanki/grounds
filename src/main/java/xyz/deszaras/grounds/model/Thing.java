@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableSet;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -413,7 +414,20 @@ public class Thing {
    * exists with the same name, it is replaced.
    *
    * @param name attribute name
-   * @param value attribute value, as a Boolean
+   * @param value attribute value, as an Instant
+   */
+  public final void setAttr(String name, Instant value) {
+    synchronized (attrMonitor) {
+      attrs.put(name, new Attr(name, value));
+    }
+  }
+
+  /**
+   * Sets an attribute for this thing. If an attribute already
+   * exists with the same name, it is replaced.
+   *
+   * @param name attribute name
+   * @param value attribute value, as a Thing
    */
   public final void setAttr(String name, Thing value) {
     synchronized (attrMonitor) {
@@ -426,7 +440,7 @@ public class Thing {
    * exists with the same name, it is replaced.
    *
    * @param name attribute name
-   * @param value attribute value, as a Boolean
+   * @param value attribute value, as a Attr
    */
   public final void setAttr(String name, Attr value) {
     synchronized (attrMonitor) {
@@ -439,7 +453,7 @@ public class Thing {
    * exists with the same name, it is replaced.
    *
    * @param name attribute name
-   * @param value attribute value, as a Boolean
+   * @param value attribute value, as a list of Attr
    */
   public final void setAttr(String name, List<Attr> value) {
     synchronized (attrMonitor) {
