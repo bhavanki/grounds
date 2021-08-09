@@ -75,6 +75,7 @@ public class CommandExecutor {
         .put("GET_ID", GetIdCommand.class)
         .put("ROLE", RoleCommand.class)
         .put("ACTOR", ActorCommand.class)
+        .put("MAIL", MailCommand.class)
         .put("WHO", WhoCommand.class)
         .put("PREFERENCE", PreferenceCommand.class)
         .put("PREF", PreferenceCommand.class)
