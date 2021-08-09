@@ -317,6 +317,37 @@ public class Thing {
         .anyMatch(id -> thingId.equals(id));
   }
 
+  /**
+   * Gets this thing's mailbox.
+   *
+   * @return mailbox, or empty if there is none
+   * @throws MissingThingException if a mailbox is set but not in the universe
+   */
+  @JsonIgnore
+  public Optional<Thing> getMailbox() throws MissingThingException {
+    Optional<Attr> mailboxAttr =  getAttr(AttrNames.MAILBOX);
+    if (mailboxAttr.isEmpty()) {
+      return Optional.empty();
+    }
+    Optional<Thing> mailbox =
+        Universe.getCurrent().getThing(mailboxAttr.get().getValue());
+    if (mailbox.isEmpty()) {
+      throw new MissingThingException("Mailbox is missing");
+    }
+    return mailbox;
+  }
+
+  /**
+   * Sets this thing's mailbox. Pass a null mailbox to remove it.
+   */
+  public void setMailbox(Thing mailbox) {
+    if (mailbox != null) {
+      setAttr(AttrNames.MAILBOX, mailbox);
+    } else {
+      removeAttr(AttrNames.MAILBOX);
+    }
+  }
+
   private final Object attrMonitor = new Object();
 
   /**

@@ -35,6 +35,10 @@ public final class AttrNames {
    * The attribute for the mute list of a thing (usually a player).
    */
   public static final String MUTE = "mute";
+  /**
+   * The attribute for the mailbox of a thing (usually a player).
+   */
+  public static final String MAILBOX = "mailbox";
 
   /**
    * The names of all specially handled attributes as a set.
@@ -46,5 +50,6 @@ public final class AttrNames {
       .add(OWNER)
       .add(HOME)
       .add(MUTE)
+      .add(MAILBOX)
       .build();
 }

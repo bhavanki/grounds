@@ -129,6 +129,24 @@ public class ThingTest {
   }
 
   @Test
+  public void testMailbox() throws Exception {
+    assertTrue(thing.getMailbox().isEmpty());
+
+    Thing mailbox = new Thing("manny's mailbox");
+    universe.addThing(mailbox);
+
+    thing.setMailbox(mailbox);
+    assertEquals(mailbox, thing.getMailbox().get());
+
+    Thing devnull = new Thing("/dev/null");
+    thing.setMailbox(devnull);
+    assertThrows(MissingThingException.class, () -> thing.getMailbox());
+
+    thing.setMailbox(null);
+    assertTrue(thing.getMailbox().isEmpty());
+  }
+
+  @Test
   public void testAttrStringValue() {
     thing.setAttr("a", "b");
     Optional<Attr> a = thing.getAttr("a", Attr.Type.STRING);
