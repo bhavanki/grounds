@@ -1,6 +1,7 @@
 package xyz.deszaras.grounds.command.mail;
 
 import java.util.List;
+import org.fusesource.jansi.Ansi;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.Command;
@@ -10,6 +11,7 @@ import xyz.deszaras.grounds.command.PermittedRoles;
 import xyz.deszaras.grounds.mail.Mailbox;
 import xyz.deszaras.grounds.mail.Missive;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.util.AnsiUtils;
 
 /**
  * Lists mail in a player's mailbox.<p>
@@ -31,9 +33,16 @@ public class ListMailCommand extends Command<String> {
       return "Your mailbox is empty.";
     }
     StringBuilder b = new StringBuilder();
+    String header = "#\tSent              Sender\tSubject\n" +
+        "-\t----              ------\t-------\n";
+    b.append(AnsiUtils.color(header, Ansi.Color.CYAN, false));
+    String unread = AnsiUtils.color("*", Ansi.Color.GREEN, true);
     for (int i = 1; i <= missives.size(); i++) {
       Missive missive = missives.get(i - 1);
-      b.append(String.format("%d\t%s\t%s", i, missive.getSender(),
+      b.append(String.format("%d%s\t%s %s\t%s", i,
+                             missive.isRead() ? "" : unread,
+                             MailCommand.timestampToShortString(missive.getTimestamp()),
+                             missive.getSender(),
                              missive.getSubject()));
       if (i < missives.size()) {
         b.append("\n");

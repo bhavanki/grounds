@@ -44,7 +44,7 @@ public class Missive {
     if (recipients != null && !recipients.isEmpty()) {
       t.setAttr(RECIPIENTS, RECIPIENTS_JOINER.join(recipients));
     }
-    if (body != null) {
+    if (body != null && body.length() > 0) {
       t.setAttr(BODY, body);
     }
   }
