@@ -42,14 +42,13 @@ public class GetMailCommand extends Command<String> {
   @Override
   protected String executeImpl() throws CommandException {
     Mailbox mailbox = new Mailbox(MailCommand.getMailbox(player));
-    List<Missive> missives = mailbox.getAllInReverseChronoOrder();
-    if (missives.isEmpty()) {
+    if (mailbox.size() == 0) {
       return NO_MESSAGES;
     }
-    if (missives.size() < indexNumber) {
-      return String.format(NOT_ENOUGH_MESSAGES_FORMAT, missives.size());
+    if (mailbox.size() < indexNumber) {
+      return String.format(NOT_ENOUGH_MESSAGES_FORMAT, mailbox.size());
     }
-    Missive missive = missives.get(indexNumber - 1);
+    Missive missive = mailbox.get(indexNumber).get();
 
     StringBuilder b = new StringBuilder();
     b.append(AnsiUtils.color("From:    ", Ansi.Color.CYAN, false))

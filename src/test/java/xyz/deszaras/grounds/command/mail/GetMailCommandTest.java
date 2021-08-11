@@ -11,11 +11,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.command.AbstractCommandTest;
-import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.MailCommand;
 import xyz.deszaras.grounds.mail.Mailbox;
 import xyz.deszaras.grounds.mail.Missive;
-import xyz.deszaras.grounds.model.Player;
 
 import xyz.deszaras.grounds.auth.Role;
 

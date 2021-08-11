@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.command.AbstractCommandTest;
-import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.MailCommand;
 import xyz.deszaras.grounds.mail.Mailbox;
 import xyz.deszaras.grounds.mail.Missive;
@@ -55,7 +54,7 @@ public class SendMailCommandTest extends AbstractCommandTest {
     assertEquals("player", missive1.getSender());
     assertEquals("subject1", missive1.getSubject());
     assertEquals("body1", missive1.getBody().get());
-    List<String> recipientNames1 = missive1.getRecipients().get();
+    List<String> recipientNames1 = missive1.getRecipients();
     assertEquals(2, recipientNames1.size());
     assertTrue(recipientNames1.contains("recipient1"));
     assertTrue(recipientNames1.contains("recipient2"));
@@ -66,7 +65,7 @@ public class SendMailCommandTest extends AbstractCommandTest {
     assertEquals("player", missive2.getSender());
     assertEquals("subject1", missive2.getSubject());
     assertEquals("body1", missive2.getBody().get());
-    List<String> recipientNames2 = missive1.getRecipients().get();
+    List<String> recipientNames2 = missive1.getRecipients();
     assertEquals(2, recipientNames2.size());
     assertTrue(recipientNames2.contains("recipient1"));
     assertTrue(recipientNames2.contains("recipient2"));
