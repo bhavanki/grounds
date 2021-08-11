@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xyz.deszaras.grounds.command.mail.DeleteMailCommand;
 import xyz.deszaras.grounds.command.mail.GetMailCommand;
 import xyz.deszaras.grounds.command.mail.ListMailCommand;
 import xyz.deszaras.grounds.command.mail.SendMailCommand;
@@ -83,8 +84,8 @@ public class MailCommand extends Command<Boolean> {
         .put("LIST", ListMailCommand.class)
         .put("GET", GetMailCommand.class)
         .put("SHOW", GetMailCommand.class)
-        // .put("DELETE", DeleteMailCommand.class)
-        // .put("REMOVE", DeleteMailCommand.class)
+        .put("DELETE", DeleteMailCommand.class)
+        .put("REMOVE", DeleteMailCommand.class)
         .build();
   }
 

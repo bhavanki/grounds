@@ -81,6 +81,18 @@ public class MailboxTest {
     assertEquals(m2.getThing(), mailbox.get(1).get().getThing());
   }
 
+  @Test
+  public void testDeleteByNumber() {
+    Missive m1 = getTestMissive("subject1", Instant.ofEpochSecond(1L));
+    assertTrue(mailbox.deliver(m1));
+    Missive m2 = getTestMissive("subject2", Instant.ofEpochSecond(2L));
+    assertTrue(mailbox.deliver(m2));
+
+    mailbox.delete(2);
+    assertEquals(1, mailbox.size());
+    assertEquals(m2.getThing(), mailbox.get(1).get().getThing());
+  }
+
   private Missive getTestMissive(String subject, Instant timestamp) {
     Missive m = new Missive("sender", subject, List.of("recipient"),
                             timestamp, "body");

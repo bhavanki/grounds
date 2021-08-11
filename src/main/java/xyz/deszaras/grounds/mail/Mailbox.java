@@ -75,6 +75,21 @@ public class Mailbox {
   }
 
   /**
+   * Deletes the message at the given index number, where messages are indexed
+   * in reverse chronological order.
+   *
+   * @param  num message index number
+   * @throws IllegalArgumentException if num is non-positive or is larger than
+   *         the number of available messages
+   */
+  public void delete(int num) {
+    checkArgument(num >= 1, "Number must be positive");
+    checkArgument(num <= size(), "Number must be no more than " + size());
+    List<Missive> missives = getAllInReverseChronoOrder();
+    delete(missives.get(num - 1));
+  }
+
+  /**
    * Gets all messages in this mailbox in reverse chronological order.
    *
    * @return messages in reverse chronological order
