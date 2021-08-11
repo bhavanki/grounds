@@ -1,5 +1,6 @@
 package xyz.deszaras.grounds.command.mail;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import org.fusesource.jansi.Ansi;
 import xyz.deszaras.grounds.auth.Role;
@@ -21,6 +22,9 @@ import xyz.deszaras.grounds.util.AnsiUtils;
 @PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class ListMailCommand extends Command<String> {
 
+  @VisibleForTesting
+  static final String NO_MESSAGES = "Your mailbox is empty.";
+
   public ListMailCommand(Actor actor, Player player) {
     super(actor, player);
   }
@@ -30,12 +34,13 @@ public class ListMailCommand extends Command<String> {
     Mailbox mailbox = new Mailbox(MailCommand.getMailbox(player));
     List<Missive> missives = mailbox.getAllInReverseChronoOrder();
     if (missives.isEmpty()) {
-      return "Your mailbox is empty.";
+      return NO_MESSAGES;
     }
     StringBuilder b = new StringBuilder();
     String header = "#\tSent              Sender\tSubject\n" +
-        "-\t----              ------\t-------\n";
-    b.append(AnsiUtils.color(header, Ansi.Color.CYAN, false));
+        "-\t----              ------\t-------";
+    b.append(AnsiUtils.color(header, Ansi.Color.CYAN, false))
+        .append("\n");
     String unread = AnsiUtils.color("*", Ansi.Color.GREEN, true);
     for (int i = 1; i <= missives.size(); i++) {
       Missive missive = missives.get(i - 1);

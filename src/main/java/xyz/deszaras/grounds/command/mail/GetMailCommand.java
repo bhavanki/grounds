@@ -1,5 +1,7 @@
 package xyz.deszaras.grounds.command.mail;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import java.util.List;
 import java.util.Optional;
 import org.fusesource.jansi.Ansi;
@@ -23,6 +25,13 @@ import xyz.deszaras.grounds.util.AnsiUtils;
 @PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class GetMailCommand extends Command<String> {
 
+  @VisibleForTesting
+  static final String NO_MESSAGES = "Your mailbox is empty.";
+
+  @VisibleForTesting
+  static final String NOT_ENOUGH_MESSAGES_FORMAT =
+      "There are only %d messages in your mailbox.";
+
   private final int indexNumber;
 
   public GetMailCommand(Actor actor, Player player, int indexNumber) {
@@ -35,10 +44,10 @@ public class GetMailCommand extends Command<String> {
     Mailbox mailbox = new Mailbox(MailCommand.getMailbox(player));
     List<Missive> missives = mailbox.getAllInReverseChronoOrder();
     if (missives.isEmpty()) {
-      return "Your mailbox is empty.";
+      return NO_MESSAGES;
     }
     if (missives.size() < indexNumber) {
-      return "There are only " + missives.size() + " messages in your mailbox.";
+      return String.format(NOT_ENOUGH_MESSAGES_FORMAT, missives.size());
     }
     Missive missive = missives.get(indexNumber - 1);
 

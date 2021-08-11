@@ -30,6 +30,10 @@ public class Mailbox {
     return t.takeIfPresent(Objects.requireNonNull(missive).getThing());
   }
 
+  public int size() {
+    return t.getContents().size();
+  }
+
   public Optional<Missive> get(int num) {
     checkArgument(num >= 1, "Number must be positive");
     List<Missive> missives = getAllInReverseChronoOrder();
