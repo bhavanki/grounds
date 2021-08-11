@@ -5,12 +5,12 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.Command;
-import xyz.deszaras.grounds.command.CommandArgumentResolver;
 import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.command.MailCommand;
@@ -58,6 +58,7 @@ public class SendMailCommand extends Command<Boolean> {
       Universe.getCurrent().addThing(missive.getThing());
       missive.getThing().setOwner(recipient);
       mailbox.deliver(missive);
+      recipient.sendMessage(newInfoMessage("You have new mail."));
     }
 
     player.sendMessage(newInfoMessage("Sent to " + recipients.size() +
@@ -73,9 +74,12 @@ public class SendMailCommand extends Command<Boolean> {
     // TBD: maximum recipient count?
     Set<Player> recipients = new HashSet<>();
     for (int i = 0; i < commandArgs.size() - 2; i++) {
-      // FIXME: resolution only works for players in the same location!
-      recipients.add(CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(i),
-                                                              Player.class, player));
+      Optional<Player> recipientPlayer =
+          Universe.getCurrent().getThingByName(commandArgs.get(i), Player.class);
+      if (recipientPlayer.isEmpty()) {
+        throw new CommandFactoryException("Unknown player: " + commandArgs.get(i));
+      }
+      recipients.add(recipientPlayer.get());
     }
 
     String subject = commandArgs.get(commandArgs.size() - 2);
