@@ -1,6 +1,7 @@
 package xyz.deszaras.grounds.command.mail;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +25,8 @@ import xyz.deszaras.grounds.util.AnsiUtils;
  */
 @PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class GetMailCommand extends Command<String> {
+
+  private static final Joiner RECIPIENTS_JOINER = Joiner.on(", ");
 
   @VisibleForTesting
   static final String NO_MESSAGES = "Your mailbox is empty.";
@@ -53,6 +56,8 @@ public class GetMailCommand extends Command<String> {
     StringBuilder b = new StringBuilder();
     b.append(AnsiUtils.color("From:    ", Ansi.Color.CYAN, false))
         .append(missive.getSender()).append("\n");
+    b.append(AnsiUtils.color("To:      ", Ansi.Color.CYAN, false))
+        .append(RECIPIENTS_JOINER.join(missive.getRecipients())).append("\n");
     b.append(AnsiUtils.color("Sent:    ", Ansi.Color.CYAN, false))
         .append(MailCommand.timestampToMediumString(missive.getTimestamp()))
         .append("\n");

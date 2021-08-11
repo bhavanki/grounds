@@ -39,27 +39,29 @@ public class GetMailCommandTest extends AbstractCommandTest {
 
     Pattern p1 = Pattern.compile("^.*From:.*sender1$", Pattern.MULTILINE);
     assertTrue(p1.matcher(listing).find());
-    Pattern p2 = Pattern.compile("^.*Sent:.*$", Pattern.MULTILINE);
+    Pattern p2 = Pattern.compile("^.*To:.*player1, player2$", Pattern.MULTILINE);
     assertTrue(p2.matcher(listing).find());
-    Pattern p3 = Pattern.compile("^.*Subject.*subject1$", Pattern.MULTILINE);
+    Pattern p3 = Pattern.compile("^.*Sent:.*$", Pattern.MULTILINE);
     assertTrue(p3.matcher(listing).find());
-    Pattern p4 = Pattern.compile("^body1$", Pattern.MULTILINE);
+    Pattern p4 = Pattern.compile("^.*Subject.*subject1$", Pattern.MULTILINE);
     assertTrue(p4.matcher(listing).find());
+    Pattern p5 = Pattern.compile("^body1$", Pattern.MULTILINE);
+    assertTrue(p5.matcher(listing).find());
   }
 
   private void fillMailbox() {
     Instant ts1 = Instant.ofEpochSecond(1L);
-    Missive m1 = new Missive("sender1", "subject1", List.of("player"),
+    Missive m1 = new Missive("sender1", "subject1", List.of("player1", "player2"),
                              ts1, "body1");
     testUniverse.addThing(m1.getThing());
     mailbox.deliver(m1);
     Instant ts2 = Instant.ofEpochSecond(2L);
-    Missive m2 = new Missive("sender2", "subject2", List.of("player"),
+    Missive m2 = new Missive("sender2", "subject2", List.of("player1", "player2"),
                              ts2, "body2");
     testUniverse.addThing(m2.getThing());
     mailbox.deliver(m2);
     Instant ts3 = Instant.ofEpochSecond(3L);
-    Missive m3 = new Missive("sender3", "subject3", List.of("player"),
+    Missive m3 = new Missive("sender3", "subject3", List.of("player1", "player2"),
                              ts3, "body3");
     testUniverse.addThing(m3.getThing());
     mailbox.deliver(m3);
