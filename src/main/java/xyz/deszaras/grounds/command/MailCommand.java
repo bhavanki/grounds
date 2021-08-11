@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import xyz.deszaras.grounds.command.mail.DeleteMailCommand;
 import xyz.deszaras.grounds.command.mail.GetMailCommand;
 import xyz.deszaras.grounds.command.mail.ListMailCommand;
+import xyz.deszaras.grounds.command.mail.MarkReadMailCommand;
 import xyz.deszaras.grounds.command.mail.SendMailCommand;
 import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Player;
@@ -83,7 +84,9 @@ public class MailCommand extends Command<Boolean> {
         .put("SEND", SendMailCommand.class)
         .put("LIST", ListMailCommand.class)
         .put("GET", GetMailCommand.class)
+        .put("READ", GetMailCommand.class)
         .put("SHOW", GetMailCommand.class)
+        .put("MARK_READ", MarkReadMailCommand.class)
         .put("DELETE", DeleteMailCommand.class)
         .put("REMOVE", DeleteMailCommand.class)
         .build();
