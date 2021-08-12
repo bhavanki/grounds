@@ -1,6 +1,7 @@
 package xyz.deszaras.grounds.command.mail;
 
 import com.google.common.collect.ImmutableSet;
+
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
@@ -8,6 +9,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.Command;
@@ -27,6 +32,8 @@ import xyz.deszaras.grounds.model.Universe;
  */
 @PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class SendMailCommand extends Command<Boolean> {
+
+  private static final Logger LOG = LoggerFactory.getLogger(SendMailCommand.class);
 
   private final Set<Player> recipients;
   private final String subject;
@@ -50,7 +57,13 @@ public class SendMailCommand extends Command<Boolean> {
     for (Player recipient : recipients) {
       // TBD: Don't create if doesn't already exist?
       Mailbox mailbox = new Mailbox(MailCommand.getMailbox(recipient));
-      // TBD: policy check in case sender is blocked
+
+      if (recipient.mutes(player)) {
+        LOG.info("Mail from player {} to recipient {} is muted",
+                 player.getName(), recipient.getName());
+        // sender does not see effect of muting
+        continue;
+      }
 
       // Each player gets their own copy (thing) of the mail.
       Missive missive = new Missive(player.getName(), subject, recipientNames,
