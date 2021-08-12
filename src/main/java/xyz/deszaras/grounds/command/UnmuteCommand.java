@@ -33,6 +33,8 @@ public class UnmuteCommand extends Command<String> {
   public static UnmuteCommand newCommand(Actor actor, Player player,
                                        List<String> commandArgs)
       throws CommandFactoryException {
+    ensureMinArgs(commandArgs, 1);
+
     Thing mutee = CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0),
                                                            Thing.class, player);
     return new UnmuteCommand(actor, player, mutee);

@@ -58,4 +58,29 @@ public class MuteCommandTest extends AbstractCommandTest {
 
     assertThrows(CommandException.class, () -> command.execute());
   }
+
+  @Test
+  public void testMuteList() throws Exception {
+    Player mutee1 = newTestPlayer("mutee1", Role.DENIZEN);
+    Player mutee2 = newTestPlayer("mutee2", Role.DENIZEN);
+    List<Thing> muteList = new ArrayList<>();
+    muteList.add(mutee1);
+    muteList.add(mutee2);
+    player.setMuteList(muteList);
+
+    command = new MuteCommand(actor, player, null);
+
+    String muteListing = command.execute();
+
+    assertEquals("mutee1, mutee2", muteListing);
+  }
+
+  @Test
+  public void testMuteListEmpty() throws Exception {
+    command = new MuteCommand(actor, player, null);
+
+    String muteListing = command.execute();
+
+    assertEquals("Your mute list is empty.", muteListing);
+  }
 }
