@@ -73,4 +73,32 @@ public class SendMailCommandTest extends AbstractCommandTest {
     Mailbox mailbox3 = new Mailbox(MailCommand.getMailbox(recipient3));
     assertEquals(0, mailbox3.size());
   }
+
+  @Test
+  public void testSendMuted() throws Exception {
+    recipient1.mute(player);
+    recipient3.mute(player);
+
+    String subject = "subject1";
+    String body = "body1";
+
+    command = new SendMailCommand(actor, player,
+                                  Set.of(recipient1, recipient2),
+                                  subject, body);
+    assertTrue(command.execute());
+
+    Mailbox mailbox1 = new Mailbox(MailCommand.getMailbox(recipient1));
+    assertEquals(0, mailbox1.size());
+
+    Mailbox mailbox2 = new Mailbox(MailCommand.getMailbox(recipient2));
+    assertEquals(1, mailbox2.size());
+    Missive missive2 = mailbox2.get(1).get();
+    List<String> recipientNames2 = missive2.getRecipients();
+    assertEquals(2, recipientNames2.size());
+    assertTrue(recipientNames2.contains("recipient1"));
+    assertTrue(recipientNames2.contains("recipient2"));
+
+    Mailbox mailbox3 = new Mailbox(MailCommand.getMailbox(recipient3));
+    assertEquals(0, mailbox3.size());
+  }
 }

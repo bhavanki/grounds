@@ -1,11 +1,8 @@
 package xyz.deszaras.grounds.command.mail;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Joiner;
 
 import java.util.List;
-import java.util.Optional;
-import org.fusesource.jansi.Ansi;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.Command;
@@ -16,7 +13,6 @@ import xyz.deszaras.grounds.command.PermittedRoles;
 import xyz.deszaras.grounds.mail.Mailbox;
 import xyz.deszaras.grounds.mail.Missive;
 import xyz.deszaras.grounds.model.Player;
-import xyz.deszaras.grounds.util.AnsiUtils;
 
 /**
  * Marks mail in a player's mailbox as read or unread.<p>
