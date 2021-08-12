@@ -23,14 +23,11 @@ public class UnmuteCommand extends Command<String> {
 
   @Override
   protected String executeImpl() throws CommandException {
-
-    List<Thing> muteList = player.getMuteList();
-    if (muteList.contains(mutee)) {
-      muteList.remove(mutee);
-      player.setMuteList(muteList);
+    if (player.unmute(mutee)) {
+      return "Unmuted " + mutee.getName();
+    } else {
+      return "Already unmuted " + mutee.getName();
     }
-
-    return "Unmuted " + mutee.getName();
   }
 
   public static UnmuteCommand newCommand(Actor actor, Player player,

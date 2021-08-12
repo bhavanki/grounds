@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 import java.time.Instant;
@@ -295,6 +296,43 @@ public class Thing {
       setAttr(AttrNames.MUTE, muteList.stream()
                   .map(t -> t.getId().toString())
                   .collect(Collectors.joining(",")));
+    }
+  }
+
+  public boolean mute(Thing thing) {
+    Optional<Attr> muteAttr = getAttr(AttrNames.MUTE);
+    if (muteAttr.isEmpty() || muteAttr.get().getValue().isEmpty()) {
+      setMuteList(ImmutableList.of(thing));
+      return true;
+    } else {
+      List<String> ids =
+          new ArrayList<String>(Arrays.stream(muteAttr.get().getValue().split(","))
+                                .collect(Collectors.toList()));
+      if (!ids.contains(thing.getId().toString())) {
+        ids.add(thing.getId().toString());
+        setAttr(AttrNames.MUTE, ids.stream().collect(Collectors.joining(",")));
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+
+  public boolean unmute(Thing thing) {
+    Optional<Attr> muteAttr = getAttr(AttrNames.MUTE);
+    if (muteAttr.isEmpty() || muteAttr.get().getValue().isEmpty()) {
+      return false;
+    } else {
+      List<String> ids =
+          new ArrayList<String>(Arrays.stream(muteAttr.get().getValue().split(","))
+                                .collect(Collectors.toList()));
+      if (ids.contains(thing.getId().toString())) {
+        ids.remove(thing.getId().toString());
+        setAttr(AttrNames.MUTE, ids.stream().collect(Collectors.joining(",")));
+        return true;
+      } else {
+        return false;
+      }
     }
   }
 

@@ -27,13 +27,11 @@ public class MuteCommand extends Command<String> {
       throw new CommandException("You may not mute GOD");
     }
 
-    List<Thing> muteList = player.getMuteList();
-    if (!muteList.contains(mutee)) {
-      muteList.add(mutee);
-      player.setMuteList(muteList);
+    if (player.mute(mutee)) {
+      return "Muted " + mutee.getName();
+    } else {
+      return "Already muted " + mutee.getName();
     }
-
-    return "Muted " + mutee.getName();
   }
 
   public static MuteCommand newCommand(Actor actor, Player player,
