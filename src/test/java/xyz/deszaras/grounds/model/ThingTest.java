@@ -129,6 +129,39 @@ public class ThingTest {
   }
 
   @Test
+  public void testMuteAndUnmute() {
+    assertTrue(thing.getMuteList().isEmpty());
+
+    Player player1 = new Player("annoying1");
+    universe.addThing(player1);
+    Player player2 = new Player("annoying2");
+    universe.addThing(player2);
+    Player player3 = new Player("normal");
+    universe.addThing(player3);
+
+    assertTrue(thing.mute(player1));
+    assertEquals(List.of(player1), thing.getMuteList());
+    assertTrue(thing.mutes(player1));
+    assertFalse(thing.mutes(player2));
+    assertFalse(thing.mutes(player3));
+
+    assertTrue(thing.mute(player2));
+    assertEquals(List.of(player1, player2), thing.getMuteList());
+
+    assertFalse(thing.mute(player1));
+
+    assertTrue(thing.unmute(player1));
+    assertEquals(List.of(player2), thing.getMuteList());
+
+    assertFalse(thing.unmute(player1));
+
+    assertTrue(thing.unmute(player2));
+    assertTrue(thing.getMuteList().isEmpty());
+
+    assertFalse(thing.unmute(player3));
+  }
+
+  @Test
   public void testMailbox() throws Exception {
     assertTrue(thing.getMailbox().isEmpty());
 
