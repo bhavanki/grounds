@@ -77,7 +77,6 @@ public class SayCommandTest extends AbstractCommandTest {
     command = new SayCommand(actor, player, MESSAGE, false);
     CommandException e = assertThrows(CommandException.class,
                                       () -> command.execute());
-    System.out.println(e.getMessage());
     assertTrue(e.getMessage().contains("say anything to anyone"));
   }
 }
