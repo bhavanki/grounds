@@ -81,6 +81,15 @@ public class Shell implements Runnable {
   }
 
   /**
+   * Gets the actor using this shell
+   *
+   * @return actor
+   */
+  public Actor getActor() {
+    return actor;
+  }
+
+  /**
    * Gets the IP address for the actor using this shell.
    *
    * @return IP address
