@@ -15,6 +15,7 @@ Grounds is under active development, so features are all new and/or still being 
 * **Extensibility through softcode (scripted) commands.** Extensions in a universe can hold Groovy scripts that may be executed as commands.
 * **Reaction to events.** Extensions can also listen for events, such as players arriving or leaving locations, or saying things, and react by running scripts to respond.
 * **Chat.** Players can message each other over OOC, named chat channels. *This feature is implemented completely in softcode!*
+* **Mail.** Players can communicate over an internal mail system.
 
 ## Requirements
 
@@ -61,7 +62,7 @@ $ mvn package
 
 ## Plans
 
-* Mail and event systems
+* Fleshed-out event systems
 * A combat system
 * More fun stuff
 
