@@ -2,6 +2,9 @@ package xyz.deszaras.grounds.command.actor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +16,7 @@ import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.server.ActorDatabase;
+// import xyz.deszaras.grounds.server.ActorDatabase.ActorRecord;
 
 public class GetActorCommandTest extends AbstractCommandTest {
 
@@ -39,18 +43,22 @@ public class GetActorCommandTest extends AbstractCommandTest {
   public void testSuccess() throws Exception {
     command = new GetActorCommand(actor, Player.GOD, USERNAME);
 
-    String record = command.execute();
-    assertEquals(ActorDatabase.INSTANCE.getActorRecord(USERNAME).get().toString(),
-                 record);
+    String details = command.execute();
+    // ActorRecord record = ActorDatabase.INSTANCE.getActorRecord(USERNAME).get();
+
+    Pattern p1 = Pattern.compile("^.*Username:.*" + USERNAME + "$", Pattern.MULTILINE);
+    assertTrue(p1.matcher(details).find());
   }
 
   @Test
   public void testSuccessForRootActor() throws Exception {
     command = new GetActorCommand(actor, Player.GOD, ROOT_USERNAME);
 
-    String record = command.execute();
-    assertEquals(ActorDatabase.INSTANCE.getActorRecord(ROOT_USERNAME).get().toString(),
-                 record);
+    String details = command.execute();
+    // ActorRecord record = ActorDatabase.INSTANCE.getActorRecord(ROOT_USERNAME).get();
+
+    Pattern p1 = Pattern.compile("^.*Username:.*" + ROOT_USERNAME + "$", Pattern.MULTILINE);
+    assertTrue(p1.matcher(details).find());
   }
 
   @Test
