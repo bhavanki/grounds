@@ -104,9 +104,11 @@ public class TabularOutput {
       h.append(String.format(columnDef.formatString, columnDef.header));
       l.append(String.format(columnDef.formatString, lineFor(columnDef.header)));
     }
+    String hline = h.toString().stripTrailing();
+    String lline = l.toString().stripTrailing();
     b.append(String.format("%s\n%s\n",
-                           AnsiUtils.color(h.toString(), Ansi.Color.CYAN, false),
-                           AnsiUtils.color(l.toString(), Ansi.Color.CYAN, false)));
+                           AnsiUtils.color(hline, Ansi.Color.CYAN, false),
+                           AnsiUtils.color(lline, Ansi.Color.CYAN, false)));
 
     if (rows.isEmpty()) {
       b.append(AnsiUtils.color("<no data>", Ansi.Color.RED, false));
@@ -114,12 +116,14 @@ public class TabularOutput {
       int numRows = rows.size();
       for (int i = 0; i < numRows; i++) {
         List<String> row = rows.get(i);
+        StringBuilder r = new StringBuilder();
         for (int j = 0; j < numColumns; j++) {
           if (j != 0) {
-            b.append(" ");
+            r.append(" ");
           }
-          b.append(String.format(columnDefs.get(j).formatString, row.get(j)));
+          r.append(String.format(columnDefs.get(j).formatString, row.get(j)));
         }
+        b.append(r.toString().stripTrailing());
         if (i < numRows - 1) {
           b.append("\n");
         }
