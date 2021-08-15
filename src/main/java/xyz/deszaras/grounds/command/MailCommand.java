@@ -61,16 +61,8 @@ public class MailCommand extends Command<Boolean> {
     return newMailbox;
   }
 
-  private static final DateTimeFormatter TS_SHORT_FORMATTER =
-      DateTimeFormatter.ofPattern("yy-MM-dd hh:mm a");
-
   private static final DateTimeFormatter TS_MED_FORMATTER =
       DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
-
-  public static String timestampToShortString(Instant timestamp) {
-    ZonedDateTime zdt = ZonedDateTime.ofInstant(timestamp, ZoneOffset.UTC);
-    return TS_SHORT_FORMATTER.format(zdt);
-  }
 
   public static String timestampToMediumString(Instant timestamp) {
     ZonedDateTime zdt = ZonedDateTime.ofInstant(timestamp, ZoneOffset.UTC);

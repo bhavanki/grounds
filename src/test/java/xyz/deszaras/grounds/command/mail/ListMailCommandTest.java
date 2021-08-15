@@ -52,11 +52,11 @@ public class ListMailCommandTest extends AbstractCommandTest {
 
     String listing = command.execute();
 
-    Pattern p1 = Pattern.compile("^1.*sender3.*subject3$", Pattern.MULTILINE);
+    Pattern p1 = Pattern.compile("^.*1.*sender3.*subject3$", Pattern.MULTILINE);
     assertTrue(p1.matcher(listing).find());
-    Pattern p2 = Pattern.compile("^2.*sender2.*subject2$", Pattern.MULTILINE);
+    Pattern p2 = Pattern.compile("^.*2.*sender2.*subject2$", Pattern.MULTILINE);
     assertTrue(p2.matcher(listing).find());
-    Pattern p3 = Pattern.compile("^3.*sender1.*subject1$", Pattern.MULTILINE);
+    Pattern p3 = Pattern.compile("^.*3.*sender1.*subject1$", Pattern.MULTILINE);
     assertTrue(p3.matcher(listing).find());
   }
 
