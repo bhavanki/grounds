@@ -17,6 +17,7 @@ import xyz.deszaras.grounds.mail.Mailbox;
 import xyz.deszaras.grounds.mail.Missive;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.util.AnsiUtils;
+import xyz.deszaras.grounds.util.TimeUtils;
 
 /**
  * Gets mail in a player's mailbox.<p>
@@ -59,7 +60,7 @@ public class GetMailCommand extends Command<String> {
     b.append(AnsiUtils.color("To:      ", Ansi.Color.CYAN, false))
         .append(RECIPIENTS_JOINER.join(missive.getRecipients())).append("\n");
     b.append(AnsiUtils.color("Sent:    ", Ansi.Color.CYAN, false))
-        .append(MailCommand.timestampToMediumString(missive.getTimestamp()))
+        .append(TimeUtils.toString(missive.getTimestamp()))
         .append("\n");
     b.append(AnsiUtils.color("Subject: ", Ansi.Color.CYAN, false))
         .append(missive.getSubject()).append("\n\n");

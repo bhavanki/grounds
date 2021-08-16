@@ -2,11 +2,6 @@ package xyz.deszaras.grounds.command;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -59,14 +54,6 @@ public class MailCommand extends Command<Boolean> {
     player.setMailbox(newMailbox);
     LOG.info("Created new mailbox for {}", player.getName());
     return newMailbox;
-  }
-
-  private static final DateTimeFormatter TS_MED_FORMATTER =
-      DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM);
-
-  public static String timestampToMediumString(Instant timestamp) {
-    ZonedDateTime zdt = ZonedDateTime.ofInstant(timestamp, ZoneOffset.UTC);
-    return TS_MED_FORMATTER.format(zdt);
   }
 
   private static final Map<String, Class<? extends Command>> MAIL_COMMANDS;

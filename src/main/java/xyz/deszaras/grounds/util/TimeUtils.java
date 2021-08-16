@@ -6,7 +6,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-// import java.time.format.FormatStyle;
 
 /**
  * Utility methods for handling time data.
@@ -18,20 +17,86 @@ public class TimeUtils {
       DateTimeFormatter.ofPattern(TS_SHORT_FORMAT);
   private static final int TS_SHORT_FORMAT_LEN = TS_SHORT_FORMAT.length();
 
+  private static final String TS_MED_FORMAT = "MMM dd, yyyy hh:mm:ss a";
+  private static final DateTimeFormatter TS_MED_FORMATTER =
+      DateTimeFormatter.ofPattern(TS_MED_FORMAT);
+  private static final int TS_MED_FORMAT_LEN = TS_MED_FORMAT.length();
+
   private TimeUtils() {
   }
 
-  public static String toShortString(Instant timestamp) {
-    return toShortString(timestamp, ZoneOffset.UTC);
+  /**
+   * Formats a timestamp instant as a short string, using UTC as the timezone.
+   *
+   * @param  t timestamp
+   * @return formatted string
+   */
+  public static String toShortString(Instant t) {
+    return toShortString(t, ZoneOffset.UTC);
   }
 
-  public static String toShortString(Instant timestamp, ZoneId zone) {
-    ZonedDateTime zdt = ZonedDateTime.ofInstant(timestamp, zone);
+  /**
+   * Formats a timestamp instant as a string.
+   *
+   * @param  t    timestamp
+   * @param  zone timezone
+   * @return formatted string
+   */
+  public static String toShortString(Instant t, ZoneId zone) {
+    if (t == null) {
+      return "?";
+    }
+    if (zone == null) {
+      zone = ZoneOffset.UTC;
+    }
+    ZonedDateTime zdt = ZonedDateTime.ofInstant(t, zone);
     return TS_SHORT_FORMATTER.format(zdt);
   }
 
+  /**
+   * Gets the length of a timestamp instant formatted as a short string.
+   *
+   * @return length of a timestamp instant formatted as a short string
+   */
   public static int getInstantShortStringLength() {
     return TS_SHORT_FORMAT_LEN;
+  }
+
+  /**
+   * Formats a timestamp instant as a string, using UTC as the timezone.
+   *
+   * @param  t timestamp
+   * @return formatted string
+   */
+  public static String toString(Instant t) {
+    return toString(t, ZoneOffset.UTC);
+  }
+
+  /**
+   * Formats a timestamp instant as a string.
+   *
+   * @param  t    timestamp
+   * @param  zone timezone
+   * @return formatted string
+   */
+  public static String toString(Instant t, ZoneId zone) {
+    if (t == null) {
+      return "?";
+    }
+    if (zone == null) {
+      zone = ZoneOffset.UTC;
+    }
+    ZonedDateTime zdt = ZonedDateTime.ofInstant(t, zone);
+    return TS_MED_FORMATTER.format(zdt);
+  }
+
+  /**
+   * Gets the length of a timestamp instant formatted as a string.
+   *
+   * @return length of a timestamp instant formatted as a string
+   */
+  public static int getInstantStringLength() {
+    return TS_MED_FORMAT_LEN;
   }
 
   /**
