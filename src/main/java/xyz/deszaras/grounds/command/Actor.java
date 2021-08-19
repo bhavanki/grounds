@@ -3,7 +3,10 @@ package xyz.deszaras.grounds.command;
 import com.google.common.collect.ImmutableMap;
 
 import java.net.InetAddress;
+import java.time.DateTimeException;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -41,6 +44,11 @@ public class Actor {
    * ("true") or not ("false" / default).
    */
   public static final String PREFERENCE_SHOW_IDS = "showIds";
+
+  /**
+   * The actor preference setting the preferred timezone.
+   */
+  public static final String PREFERENCE_TIMEZONE = "tz";
 
   private final String username;
   private final Map<String, String> preferences;
@@ -145,6 +153,18 @@ public class Actor {
   public void setPreferences(Map<String, String> preferences) {
     this.preferences.clear();
     this.preferences.putAll(preferences);
+  }
+
+  public ZoneId getTimezone() {
+    Optional<String> tz = getPreference(PREFERENCE_TIMEZONE);
+    if (tz.isEmpty()) {
+      return ZoneOffset.UTC;
+    }
+    try {
+      return ZoneId.of(tz.get());
+    } catch (DateTimeException e) {
+      return ZoneOffset.UTC;
+    }
   }
 
   @Override

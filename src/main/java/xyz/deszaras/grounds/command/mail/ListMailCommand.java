@@ -55,7 +55,7 @@ public class ListMailCommand extends Command<String> {
       Missive missive = missives.get(i - 1);
       table.addRow(missive.isRead() ? " " : UNREAD,
                    Integer.toString(i),
-                   TimeUtils.toShortString(missive.getTimestamp()),
+                   TimeUtils.toShortString(missive.getTimestamp(), actor.getTimezone()),
                    missive.getSender(),
                    missive.getSubject());
     }

@@ -60,7 +60,7 @@ public class GetMailCommand extends Command<String> {
     b.append(AnsiUtils.color("To:      ", Ansi.Color.CYAN, false))
         .append(RECIPIENTS_JOINER.join(missive.getRecipients())).append("\n");
     b.append(AnsiUtils.color("Sent:    ", Ansi.Color.CYAN, false))
-        .append(TimeUtils.toString(missive.getTimestamp()))
+        .append(TimeUtils.toString(missive.getTimestamp(), actor.getTimezone()))
         .append("\n");
     b.append(AnsiUtils.color("Subject: ", Ansi.Color.CYAN, false))
         .append(missive.getSubject()).append("\n\n");

@@ -8,6 +8,8 @@ import com.google.common.net.InetAddresses;
 
 import java.net.InetAddress;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,5 +48,16 @@ public class ActorTest {
     assertTrue(actor.getPreference("this").isEmpty());
     actor.setPreference("hi", null);
     assertTrue(actor.getPreference("hi").isEmpty());
+  }
+
+  @Test
+  public void testTimezone() {
+    assertEquals(ZoneOffset.UTC, actor.getTimezone());
+
+    actor.setPreference(Actor.PREFERENCE_TIMEZONE, "America/New_York");
+    assertEquals(ZoneId.of("America/New_York"), actor.getTimezone());
+
+    actor.setPreference(Actor.PREFERENCE_TIMEZONE, "My area");
+    assertEquals(ZoneOffset.UTC, actor.getTimezone());
   }
 }
