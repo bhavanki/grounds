@@ -1,0 +1,89 @@
+- name: scriptContent
+  type: STRING
+  value: |
+    eventName = { n ->
+      '#' + n
+    }
+    hasEvent = { n ->
+      return hasAttr(extensionId, eventName(n))
+    }
+    getEvent = { n ->
+      getAttr(extensionId, eventName(n), 'Event $n not found')
+    }
+    getEventOwner = { n ->
+      getAttrInAttrList(extensionId, eventName(n), 'owner', 'No owner for $n').getValue()
+    }
+    listEvents = {
+      getAttrNames(extensionId, "No events found").findAll {n -> n.startsWith('#')}
+    }
+    subcommand = arg0
+    switch (subcommand.toUpperCase()) {
+      case "CREATE":
+        if (hasEvent(arg1)) {
+          throw failure("Event '${arg1}' already exists")
+        }
+        descAttr = newAttr('description', arg2)
+        startAttr = newAttr('startTimestamp', java.time.Instant.parse(arg3))
+        locationAttr = newAttr('location', arg4) // fixme should be Place / Thing
+        ownerAttr = newAttr('owner', getCallerName())
+        eventAttrList = [ descAttr, startAttr, locationAttr, ownerAttr ]
+        setAttr(extensionId, eventName(arg1), eventAttrList)
+        sendMessageToCaller("Created event '${arg1}'")
+        break;
+      case "LIST":
+        events = listEvents()
+        sendMessageToCaller(events.isEmpty() ? "No events found" : events.join('\n'))
+        break;
+      case "GET":
+        e = getEvent(arg1)
+        description = e.getAttrInAttrListValue('description').get().getValue()
+        startTime = e.getAttrInAttrListValue('startTimestamp').get().getValue()
+        sendMessageToCaller("${arg1}\n${description}\n${startTime}")
+        break;
+      case "DELETE":
+        if (!hasEvent(arg1)) {
+          throw failure("Event '${arg1}' does not exist")
+        }
+        if (getCallerName() != getEventOwner(arg1)) {
+          throw failure("You do not own this event")
+        }
+        removeAttr(extensionId, eventName(arg1));
+        sendMessageToCaller("Deleted event '${arg1}'")
+        break;
+      default:
+        throw failure("Unsupported command $subcommand")
+    }
+    return null
+- name: scriptHelp
+  type: ATTRLIST
+  value: |
+    - name: $EVENT
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $EVENT <subcommand> [<arguments>]
+        - name: summary
+          value: Manages the event calendar
+        - name: description
+          value: |
+            Available subcommands:
+            - create
+            - delete
+    - name: $EVENT_CREATE
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $EVENT CREATE <tbd>
+        - name: summary
+          value: Creates a new event
+        - name: description
+          value: TBD
+    - name: $EVENT_DELETE
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $EVENT DELETE <channel>
+        - name: summary
+          value: Deletes (cancels) an event
+        - name: description
+          value: TBD

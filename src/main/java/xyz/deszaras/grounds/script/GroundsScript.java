@@ -7,6 +7,7 @@ import groovy.json.JsonSlurper;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +25,7 @@ import xyz.deszaras.grounds.command.Message;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.model.Thing;
 import xyz.deszaras.grounds.model.Universe;
 
 /**
@@ -182,6 +184,28 @@ public abstract class GroundsScript extends groovy.lang.Script {
    * @return       new attribute
    */
   public Attr newAttr(String name, String value) {
+    return new Attr(name, value);
+  }
+
+  /**
+   * Creates a new attribute with a timestamp value.
+   *
+   * @param  name  attribute name
+   * @param  value attribute value
+   * @return       new attribute
+   */
+  public Attr newAttr(String name, Instant value) {
+    return new Attr(name, value);
+  }
+
+  /**
+   * Creates a new attribute with a thing value.
+   *
+   * @param  name  attribute name
+   * @param  value attribute value
+   * @return       new attribute
+   */
+  public Attr newAttr(String name, Thing value) {
     return new Attr(name, value);
   }
 
