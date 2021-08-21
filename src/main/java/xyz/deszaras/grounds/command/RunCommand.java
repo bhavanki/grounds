@@ -9,11 +9,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.jline.reader.impl.DefaultParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import xyz.deszaras.grounds.model.Player;
-import xyz.deszaras.grounds.util.CommandLineUtils;
 
 /**
  * Runs commands from a file.<p>
@@ -41,11 +41,12 @@ public class RunCommand extends Command<Boolean> {
       throw new CommandException("Failed to read command file: " + e.getMessage());
     }
 
+    DefaultParser parser = new DefaultParser();
     for (String line : commandLines) {
       if (line.startsWith("#") || line.startsWith("//")) {
         continue;
       }
-      List<String> tokens = CommandLineUtils.tokenize(line);
+      List<String> tokens = parser.parse(line, line.length()).words();
       if (tokens.isEmpty()) {
         continue;
       }
