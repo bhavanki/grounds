@@ -49,7 +49,11 @@ public class AnsiUtils {
         a.bg(bgColor);
       }
     }
-    return a.a(s).bgDefault().fgDefault().toString();
+    a.a(s);
+    if (bgColor != null) {
+      a.bgDefault();
+    }
+    return a.fgDefault().toString();
   }
 
   /**
@@ -60,10 +64,14 @@ public class AnsiUtils {
    * @return   listing string
    */
   public static String listing(Thing t, boolean showId) {
-    String listItem = t.getName();
+    StringBuilder b = new StringBuilder(t.getName());
     if (showId) {
-      listItem += color(" [" + t.getId() + "]", Ansi.Color.BLACK, true);
+      b.append(" ").append(id(t));
     }
-    return listItem;
+    return b.toString();
+  }
+
+  public static String id(Thing t) {
+    return color("[" + t.getId() + "]", Ansi.Color.BLACK, true);
   }
 }
