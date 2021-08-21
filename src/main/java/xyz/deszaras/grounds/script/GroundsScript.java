@@ -8,6 +8,8 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +29,7 @@ import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 import xyz.deszaras.grounds.model.Universe;
+import xyz.deszaras.grounds.util.TabularOutput;
 
 /**
  * The custom script class for Groovy scripts run by the game. This class
@@ -87,6 +90,20 @@ public abstract class GroundsScript extends groovy.lang.Script {
    */
   public String getCallerName() {
     return caller.getName();
+  }
+
+  /**
+   * Gets the timezone of the caller of this script.
+   *
+   * @return caller timezone
+   */
+  public ZoneId getCallerTimezone() {
+    Optional<Actor> actor = caller.getCurrentActor();
+    if (actor.isPresent()) {
+      return actor.get().getTimezone();
+    } else {
+      return ZoneOffset.UTC;
+    }
   }
 
   /**
@@ -306,6 +323,10 @@ public abstract class GroundsScript extends groovy.lang.Script {
     if (targetPlayer.isPresent()) {
       targetPlayer.get().sendMessage(new Message(runner, Message.Style.SCRIPT, message));
     }
+  }
+
+  public TabularOutput newTabularOutput() {
+    return new TabularOutput();
   }
 
   /**

@@ -8,14 +8,17 @@
       return hasAttr(extensionId, eventName(n))
     }
     getEvent = { n ->
-      getAttr(extensionId, eventName(n), 'Event $n not found')
+      getAttr(extensionId, eventName(n), "Event $n not found")
     }
     getEventOwner = { n ->
-      getAttrInAttrList(extensionId, eventName(n), 'owner', 'No owner for $n').getValue()
+      getAttrInAttrList(extensionId, eventName(n), 'owner', "No owner for $n").getValue()
     }
     listEvents = {
-      getAttrNames(extensionId, "No events found").findAll {n -> n.startsWith('#')}
+      getAttrNames(extensionId, "No events found")
+        .findAll {n -> n.startsWith('#')}
+        .collect {n -> n.substring(1)}
     }
+    runAsExtension()
     subcommand = arg0
     switch (subcommand.toUpperCase()) {
       case "CREATE":
@@ -32,13 +35,28 @@
         break;
       case "LIST":
         events = listEvents()
-        sendMessageToCaller(events.isEmpty() ? "No events found" : events.join('\n'))
+        if (events.isEmpty()) {
+          sendMessageToCaller("No events found")
+        } else {
+          tz = getCallerTimezone();
+          table = newTabularOutput()
+            .defineColumn("NAME", "%-40.40s")
+            .defineColumn("TIME", "%s")
+          events.each {
+            e = getEvent(it)
+            startTime = e.getAttrInAttrListValue('startTimestamp').get().getInstantValue()
+            table.addRow(it, xyz.deszaras.grounds.util.TimeUtils.toString(startTime, tz))
+          }
+          sendMessageToCaller('Events:\n' + table.toString())
+        }
         break;
       case "GET":
         e = getEvent(arg1)
         description = e.getAttrInAttrListValue('description').get().getValue()
-        startTime = e.getAttrInAttrListValue('startTimestamp').get().getValue()
-        sendMessageToCaller("${arg1}\n${description}\n${startTime}")
+        owner = e.getAttrInAttrListValue('owner').get().getValue()
+        startTime = e.getAttrInAttrListValue('startTimestamp').get().getInstantValue()
+        startTimeStr = xyz.deszaras.grounds.util.TimeUtils.toString(startTime)
+        sendMessageToCaller("Event details:\nName: ${arg1}\nTime: ${startTimeStr}\nOrganizer: ${owner}\n\n${description}")
         break;
       case "DELETE":
         if (!hasEvent(arg1)) {
