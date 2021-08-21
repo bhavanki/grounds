@@ -38,7 +38,7 @@
         if (events.isEmpty()) {
           sendMessageToCaller("No events found")
         } else {
-          tz = getCallerTimezone();
+          tz = getCallerTimezone()
           table = newTabularOutput()
             .defineColumn("NAME", "%-40.40s")
             .defineColumn("TIME", "%s")
@@ -47,16 +47,23 @@
             startTime = e.getAttrInAttrListValue('startTimestamp').get().getInstantValue()
             table.addRow(it, xyz.deszaras.grounds.util.TimeUtils.toString(startTime, tz))
           }
-          sendMessageToCaller('Events:\n' + table.toString())
+          sendMessageToCaller("Events:\n${table}")
         }
         break;
       case "GET":
         e = getEvent(arg1)
-        description = e.getAttrInAttrListValue('description').get().getValue()
-        owner = e.getAttrInAttrListValue('owner').get().getValue()
+        tz = getCallerTimezone()
         startTime = e.getAttrInAttrListValue('startTimestamp').get().getInstantValue()
-        startTimeStr = xyz.deszaras.grounds.util.TimeUtils.toString(startTime)
-        sendMessageToCaller("Event details:\nName: ${arg1}\nTime: ${startTimeStr}\nOrganizer: ${owner}\n\n${description}")
+        startTimeStr = xyz.deszaras.grounds.util.TimeUtils.toString(startTime, tz)
+        owner = e.getAttrInAttrListValue('owner').get().getValue()
+        description = e.getAttrInAttrListValue('description').get().getValue()
+        record = newRecordOutput()
+          .addField("Name", arg1)
+          .addField("Time", startTimeStr)
+          .addField("Organizer", owner)
+          .addBlankLine()
+          .addValue(description)
+        sendMessageToCaller("Event details:\n${record}")
         break;
       case "DELETE":
         if (!hasEvent(arg1)) {

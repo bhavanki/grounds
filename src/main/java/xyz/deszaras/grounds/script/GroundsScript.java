@@ -29,6 +29,7 @@ import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 import xyz.deszaras.grounds.model.Universe;
+import xyz.deszaras.grounds.util.RecordOutput;
 import xyz.deszaras.grounds.util.TabularOutput;
 
 /**
@@ -325,10 +326,23 @@ public abstract class GroundsScript extends groovy.lang.Script {
     }
   }
 
+  /**
+   * Gets an empty tabular output for constructing formatted table data.
+   *
+   * @return new tabular output
+   */
   public TabularOutput newTabularOutput() {
     return new TabularOutput();
   }
 
+  /**
+   * Gets an empty record output for constructing formatted key/value data.
+   *
+   * @return new recor output
+   */
+  public RecordOutput newRecordOutput() {
+    return new RecordOutput();
+  }
   /**
    * Executes a command line. Command execution occurs in the current thread,
    * not directly through the game's global command executor; in other words, the
