@@ -5,7 +5,6 @@ import com.google.common.base.Joiner;
 
 import java.util.List;
 import java.util.Optional;
-import org.fusesource.jansi.Ansi;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.Command;
@@ -16,7 +15,7 @@ import xyz.deszaras.grounds.command.PermittedRoles;
 import xyz.deszaras.grounds.mail.Mailbox;
 import xyz.deszaras.grounds.mail.Missive;
 import xyz.deszaras.grounds.model.Player;
-import xyz.deszaras.grounds.util.AnsiUtils;
+import xyz.deszaras.grounds.util.RecordOutput;
 import xyz.deszaras.grounds.util.TimeUtils;
 
 /**
@@ -54,25 +53,22 @@ public class GetMailCommand extends Command<String> {
     }
     Missive missive = mailbox.get(indexNumber).get();
 
-    StringBuilder b = new StringBuilder();
-    b.append(AnsiUtils.color("From:    ", Ansi.Color.CYAN, false))
-        .append(missive.getSender()).append("\n");
-    b.append(AnsiUtils.color("To:      ", Ansi.Color.CYAN, false))
-        .append(RECIPIENTS_JOINER.join(missive.getRecipients())).append("\n");
-    b.append(AnsiUtils.color("Sent:    ", Ansi.Color.CYAN, false))
-        .append(TimeUtils.toString(missive.getTimestamp(), actor.getTimezone()))
-        .append("\n");
-    b.append(AnsiUtils.color("Subject: ", Ansi.Color.CYAN, false))
-        .append(missive.getSubject()).append("\n\n");
+    RecordOutput recordOutput = new RecordOutput()
+        .addField("From", missive.getSender())
+        .addField("To", RECIPIENTS_JOINER.join(missive.getRecipients()))
+        .addField("Sent", TimeUtils.toString(missive.getTimestamp(), actor.getTimezone()))
+        .addField("Subject", missive.getSubject())
+        .addBlankLine();
+
     Optional<String> body = missive.getBody();
     if (body.isEmpty()) {
-      b.append("<no content>").append("\n");
+      recordOutput.addValue("<no content>");
     } else {
-      b.append(body.get()).append("\n");
+      recordOutput.addValue(body.get());
     }
 
     missive.setRead(true);
-    return b.toString();
+    return recordOutput.toString();
   }
 
   public static GetMailCommand newCommand(Actor actor, Player player,
