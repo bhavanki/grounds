@@ -17,6 +17,7 @@ import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
+import org.jline.reader.impl.DefaultParser;
 import org.jline.terminal.Terminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,6 @@ import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Universe;
 import xyz.deszaras.grounds.util.AnsiUtils;
-import xyz.deszaras.grounds.util.CommandLineUtils;
 
 /**
  * A shell interface for an actor. When run, a shell receives and
@@ -77,6 +77,9 @@ public class Shell implements Runnable {
     this.emitterExecutorService = emitterExecutorService;
     lineReader = LineReaderBuilder.builder()
         .terminal(terminal)
+        .parser(new DefaultParser()
+                .eofOnEscapedNewLine(true)
+                .eofOnUnclosedQuote(true))
         .build();
   }
 
@@ -211,13 +214,13 @@ public class Shell implements Runnable {
       autoLook();
 
       while (true) {
-        String line;
         try {
-          line = lineReader.readLine(prePrompt + prompt);
+          lineReader.readLine(prePrompt + prompt);
         } catch (UserInterruptException | EndOfFileException e) {
           break;
         }
-        List<String> tokens = CommandLineUtils.tokenize(line);
+
+        List<String> tokens = lineReader.getParsedLine().words();
         prePrompt = AnsiUtils.color("√ ", Ansi.Color.GREEN, true);
         if (!tokens.isEmpty()) {
 
