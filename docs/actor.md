@@ -30,7 +30,7 @@ Let's give this actor someone to play as. You will need the ID of the player; th
 # actor add_player wilma a14950c2-44a5-4933-bc5a-49538cd5f89b
 ```
 
-Now when "wilma" logs in to Grounds, they can play as the player with that ID. When a actors has multiple options for players, the server presents them with their choices. Also, while already logged in, an actor can use the "switch_player" command to flip over to a different (unoccupied) player.
+Now when "wilma" logs in to Grounds, they can play as the player with that ID. When an actor has multiple options for players, the server presents them with their choices. Also, while already logged in, an actor can use the "switch_player" command to flip over to a different (unoccupied) player.
 
 ## Actor Relations
 
