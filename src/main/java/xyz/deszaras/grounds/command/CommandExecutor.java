@@ -70,6 +70,7 @@ public class CommandExecutor {
         .put("LOAD", LoadCommand.class)
         .put("SAVE", SaveCommand.class)
         .put("RUN", RunCommand.class)
+        .put("CHANGE_PASSWORD", ChangePasswordCommand.class)
         .put("SWITCH_PLAYER", SwitchPlayerCommand.class)
         .put("EXIT", ExitCommand.class)
         .put("INDEX", IndexCommand.class)

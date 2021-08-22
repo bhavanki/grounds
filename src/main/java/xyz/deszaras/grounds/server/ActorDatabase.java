@@ -179,7 +179,8 @@ public class ActorDatabase {
     path = null;
   }
 
-  synchronized void setPath(Path path) {
+  @VisibleForTesting
+  public synchronized void setPath(Path path) {
     this.path = path;
   }
 
