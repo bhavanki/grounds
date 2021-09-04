@@ -2,6 +2,7 @@ package xyz.deszaras.grounds.combat;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
@@ -127,28 +128,41 @@ public class EngineTest {
 
   @Test
   public void testSkillActionSelf() {
-    when(rules.skill(any(SkillActionInput.class)))
-        .thenReturn(new SkillActionOutput(true, 3, 2));
     Stats p1Stats = team1.getMemberStats(player1);
-    p1Stats.setAd(3);
+    Stats newP1Stats = new StatsDecorator(p1Stats) {
+      @Override
+      public int getDefense() {
+        return delegate.getDefense() + 1;
+      }
+    };
+    when(rules.skill(any(SkillActionInput.class)))
+        .thenReturn(new SkillActionOutput(true, 3, 2, newP1Stats, null));
 
-    moveResult = engine.move(player1, List.of("skill", "3", "courage"));
+    moveResult = engine.move(player1, List.of("skill", "3", "endurance"));
 
     ArgumentCaptor<SkillActionInput> inputCaptor =
         ArgumentCaptor.forClass(SkillActionInput.class);
     verify(rules).skill(inputCaptor.capture());
     SkillActionInput input = inputCaptor.getValue();
-    assertEquals(team1.getMemberStats(player1), input.stats);
+    assertEquals(p1Stats, input.stats);
     assertEquals(3, input.sd);
-    assertEquals(Skills.COURAGE, input.skill);
+    assertEquals(Skills.ENDURANCE, input.skill);
+    assertNull(input.dStats);
 
-    assertEquals(9, team1.getMemberStats(player1).getAd());
+    assertEquals(4, team1.getMemberStats(player1).getDefense());
   }
 
   @Test
   public void testSkillActionOther() {
+    Stats m1Stats = team2.getMemberStats(monster1);
+    Stats newM1Stats = new StatsDecorator(m1Stats) {
+      @Override
+      public int getDefense() {
+        return delegate.getDefense() - 1;
+      }
+    };
     when(rules.skill(any(SkillActionInput.class)))
-        .thenReturn(new SkillActionOutput(true, 3, 2));
+        .thenReturn(new SkillActionOutput(true, 3, 2, null, newM1Stats));
 
     moveResult = engine.move(player1, List.of("skill", "3", "accuracy", "monster1"));
 
@@ -159,6 +173,7 @@ public class EngineTest {
     assertEquals(team1.getMemberStats(player1), input.stats);
     assertEquals(3, input.sd);
     assertEquals(Skills.ACCURACY, input.skill);
+    assertEquals(m1Stats, input.dStats);
 
     assertEquals(1, team2.getMemberStats(monster1).getDefense());
   }

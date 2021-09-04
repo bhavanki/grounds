@@ -2,8 +2,11 @@ package xyz.deszaras.grounds.combat;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.function.Function;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,13 +20,31 @@ import xyz.deszaras.grounds.combat.Rules.SkillActionOutput;
 import xyz.deszaras.grounds.combat.Rules.StrikeInput;
 import xyz.deszaras.grounds.combat.Rules.StrikeOutput;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 public class RulesTest {
 
-  private static final Skill FIGHTIN = new Skill("fightin", 2, false, null);
+  private static final Function<Stats, Stats> DROP_DEF =
+    s -> new StatsDecorator(s) {
+      @Override
+      public int getDefense() {
+        return delegate.getDefense() - 1;
+      }
+    };
+
+  private static final Function<Stats, Stats> RAISE_DEF =
+    s -> new StatsDecorator(s) {
+      @Override
+      public int getDefense() {
+        return delegate.getDefense() + 1;
+      }
+    };
+
+  private static final Skill FIGHTIN = new Skill("fightin", 2, true, RAISE_DEF);
   private static final Skill SMACKIN = new Skill("smackin", 3, false, null);
-  private static final Skill BRAWLIN = new Skill("brawlin", 4, false, null);
+  private static final Skill BRAWLIN = new Skill("brawlin", 4, false, DROP_DEF);
 
   private BaseStats s;
+  private BaseStats ds;
   private Rules r;
 
   @BeforeEach
@@ -37,6 +58,16 @@ public class RulesTest {
         .maxWounds(3)
         .build();
     s.init(9, 5, 0);
+
+    ds = BaseStats.builder()
+        .skill(BRAWLIN, 2)
+        .skill(SMACKIN, 3)
+        .skill(FIGHTIN, 4)
+        .apMaxSize(10)
+        .defense(2)
+        .maxWounds(3)
+        .build();
+    ds.init(9, 5, 0);
   }
 
   @Test
@@ -178,7 +209,7 @@ public class RulesTest {
   }
 
   @Test
-  public void testSkillActionSuccess() {
+  public void testSkillActionSuccessSelf() {
     r = new Rules() {
       @Override
       public int[] roll(int n) {
@@ -186,12 +217,35 @@ public class RulesTest {
       }
     };
 
-    SkillActionOutput o = r.skill(new SkillActionInput(s, 2, BRAWLIN));
+    SkillActionOutput o = r.skill(new SkillActionInput(s, 2, FIGHTIN, null));
 
     assertTrue(o.success);
     assertEquals(2, o.sdSpent);
     assertEquals(3, s.getSd());
     assertEquals(4, o.numSuccs);
+
+    assertEquals(3, o.newStats.getDefense());
+    assertNull(o.newDStats);
+  }
+
+  @Test
+  public void testSkillActionSuccessOther() {
+    r = new Rules() {
+      @Override
+      public int[] roll(int n) {
+        return new int[] { 5, 5, 5, 5 };
+      }
+    };
+
+    SkillActionOutput o = r.skill(new SkillActionInput(s, 2, BRAWLIN, ds));
+
+    assertTrue(o.success);
+    assertEquals(2, o.sdSpent);
+    assertEquals(3, s.getSd());
+    assertEquals(4, o.numSuccs);
+
+    assertNull(o.newStats);
+    assertEquals(1, o.newDStats.getDefense());
   }
 
   @Test
@@ -203,12 +257,15 @@ public class RulesTest {
       }
     };
 
-    SkillActionOutput o = r.skill(new SkillActionInput(s, 2, BRAWLIN));
+    SkillActionOutput o = r.skill(new SkillActionInput(s, 2, BRAWLIN, ds));
 
     assertFalse(o.success);
     assertEquals(0, o.sdSpent);
     assertEquals(5, s.getSd());
     assertEquals(0, o.numSuccs);
+
+    assertNull(o.newStats);
+    assertNull(o.newDStats);
   }
 
   @Test
@@ -217,7 +274,7 @@ public class RulesTest {
     s.setSd(1);
 
     assertThrows(IllegalArgumentException.class,
-                 () -> r.skill(new SkillActionInput(s, 2, BRAWLIN)));
+                 () -> r.skill(new SkillActionInput(s, 2, BRAWLIN, ds)));
 
     assertEquals(1, s.getSd());
   }
@@ -227,7 +284,7 @@ public class RulesTest {
     r = new Rules();
 
     assertThrows(IllegalArgumentException.class,
-                 () -> r.skill(new SkillActionInput(s, -1, BRAWLIN)));
+                 () -> r.skill(new SkillActionInput(s, -1, BRAWLIN, ds)));
 
     assertEquals(5, s.getSd());
   }
@@ -238,7 +295,7 @@ public class RulesTest {
     s.setSd(7);
 
     assertThrows(IllegalArgumentException.class,
-                 () -> r.skill(new SkillActionInput(s, 7, BRAWLIN)));
+                 () -> r.skill(new SkillActionInput(s, 7, BRAWLIN, ds)));
 
     assertEquals(7, s.getSd());
   }

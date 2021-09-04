@@ -315,7 +315,7 @@ public class Engine {
         } else if (!skill.targetsSelf()) {
           throw new IllegalArgumentException("The chosen skill requires a target");
         }
-        input = new SkillActionInput(pStats, Integer.parseInt(command.get(1)), skill);
+        input = new SkillActionInput(pStats, Integer.parseInt(command.get(1)), skill, dStats);
         break;
       case "catch":
       case "c":
@@ -343,14 +343,14 @@ public class Engine {
     }
     String commandResult = output.formatResult();
 
-    // Alter stats if needed
+    // Replace stats if needed
     if (output instanceof SkillActionOutput) {
-      if (skill.targetsSelf()) {
-        pStats = skill.applyStatsFunction(pStats);
-        movingTeam.setMemberStats(p.getName(), pStats);
-      } else {
-        dStats = skill.applyStatsFunction(dStats);
-        dTeam.setMemberStats(dName, dStats);
+      SkillActionOutput saOutput = (SkillActionOutput) output;
+      if (saOutput.newStats != null) {
+        movingTeam.setMemberStats(p.getName(), saOutput.newStats);
+      }
+      if (saOutput.newDStats != null) {
+        dTeam.setMemberStats(dName, saOutput.newDStats);
       }
     }
 
