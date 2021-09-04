@@ -10,18 +10,18 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class StatsTest {
+public class BaseStatsTest {
 
-  private static final Skill FIGHTIN = new Skill("fightin", 2);
-  private static final Skill SMACKIN = new Skill("smackin", 3);
-  private static final Skill BRAWLIN = new Skill("brawlin", 4);
-  private static final Skill LOVIN = new Skill("lovin", 1);
+  private static final Skill FIGHTIN = new Skill("fightin", 2, false, null);
+  private static final Skill SMACKIN = new Skill("smackin", 3, false, null);
+  private static final Skill BRAWLIN = new Skill("brawlin", 4, false, null);
+  private static final Skill LOVIN = new Skill("lovin", 1, false, null);
 
-  private Stats s;
+  private BaseStats s;
 
   @BeforeEach
   public void setUp() {
-    s = Stats.builder()
+    s = BaseStats.builder()
         .skill(BRAWLIN, 2)
         .skill(SMACKIN, 3)
         .skill(FIGHTIN, 4)
@@ -118,11 +118,11 @@ public class StatsTest {
     assertEquals(3, s.getWounds());
     assertTrue(s.isOut());
 
-    s.heal(1);
+    s.wound(-1);
     assertEquals(2, s.getWounds());
     assertFalse(s.isOut());
 
-    s.heal(100);
+    s.wound(-100);
     assertEquals(0, s.getWounds());
     assertFalse(s.isOut());
   }

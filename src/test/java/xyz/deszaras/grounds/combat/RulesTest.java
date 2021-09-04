@@ -5,29 +5,30 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.List;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import xyz.deszaras.grounds.combat.Rules.CatchBreathOutcome;
-import xyz.deszaras.grounds.combat.Rules.ManeuverOutcome;
-import xyz.deszaras.grounds.combat.Rules.SkillActionOutcome;
-import xyz.deszaras.grounds.combat.Rules.StrikeOutcome;
+import xyz.deszaras.grounds.combat.Rules.CatchBreathInput;
+import xyz.deszaras.grounds.combat.Rules.CatchBreathOutput;
+import xyz.deszaras.grounds.combat.Rules.ManeuverInput;
+import xyz.deszaras.grounds.combat.Rules.ManeuverOutput;
+import xyz.deszaras.grounds.combat.Rules.SkillActionInput;
+import xyz.deszaras.grounds.combat.Rules.SkillActionOutput;
+import xyz.deszaras.grounds.combat.Rules.StrikeInput;
+import xyz.deszaras.grounds.combat.Rules.StrikeOutput;
 
 public class RulesTest {
 
-  private static final Skill FIGHTIN = new Skill("fightin", 2);
-  private static final Skill SMACKIN = new Skill("smackin", 3);
-  private static final Skill BRAWLIN = new Skill("brawlin", 4);
+  private static final Skill FIGHTIN = new Skill("fightin", 2, false, null);
+  private static final Skill SMACKIN = new Skill("smackin", 3, false, null);
+  private static final Skill BRAWLIN = new Skill("brawlin", 4, false, null);
 
-  private Stats s;
+  private BaseStats s;
   private Rules r;
-  private Skill sk;
 
   @BeforeEach
   public void setUp() {
-    s = Stats.builder()
+    s = BaseStats.builder()
         .skill(BRAWLIN, 2)
         .skill(SMACKIN, 3)
         .skill(FIGHTIN, 4)
@@ -47,7 +48,7 @@ public class RulesTest {
       }
     };
 
-    ManeuverOutcome o = r.maneuver(s, BRAWLIN, 3);
+    ManeuverOutput o = r.maneuver(new ManeuverInput(s, BRAWLIN, 3));
 
     assertTrue(o.success);
     assertEquals(3, o.adSpent);
@@ -63,7 +64,7 @@ public class RulesTest {
       }
     };
 
-    ManeuverOutcome o = r.maneuver(s, BRAWLIN, 3);
+    ManeuverOutput o = r.maneuver(new ManeuverInput(s, BRAWLIN, 3));
 
     assertFalse(o.success);
     assertEquals(0, o.adSpent);
@@ -81,7 +82,7 @@ public class RulesTest {
       }
     };
 
-    ManeuverOutcome o = r.maneuver(s, FIGHTIN, 2);
+    ManeuverOutput o = r.maneuver(new ManeuverInput(s, FIGHTIN, 2));
 
     assertTrue(o.success);
     assertEquals(2, o.adSpent);
@@ -98,7 +99,7 @@ public class RulesTest {
       }
     };
 
-    StrikeOutcome o = r.strike(s, 3, s);
+    StrikeOutput o = r.strike(new StrikeInput(s, 3, s));
 
     assertTrue(o.success);
     assertEquals(3, o.sdSpent);
@@ -116,7 +117,7 @@ public class RulesTest {
       }
     };
 
-    StrikeOutcome o = r.strike(s, 3, s);
+    StrikeOutput o = r.strike(new StrikeInput(s, 3, s));
 
     assertFalse(o.success);
     assertEquals(0, o.sdSpent);
@@ -135,7 +136,7 @@ public class RulesTest {
     };
     s.setSd(7);
 
-    StrikeOutcome o = r.strike(s, 6, s);
+    StrikeOutput o = r.strike(new StrikeInput(s, 6, s));
 
     assertTrue(o.success);
     assertEquals(6, o.sdSpent);
@@ -150,7 +151,7 @@ public class RulesTest {
     s.setSd(1);
 
     assertThrows(IllegalArgumentException.class,
-                 () -> r.strike(s, 2, s));
+                 () -> r.strike(new StrikeInput(s, 2, s)));
 
     assertEquals(1, s.getSd());
   }
@@ -160,7 +161,7 @@ public class RulesTest {
     r = new Rules();
 
     assertThrows(IllegalArgumentException.class,
-                 () -> r.strike(s, 0, s));
+                 () -> r.strike(new StrikeInput(s, 0, s)));
 
     assertEquals(5, s.getSd());
   }
@@ -171,7 +172,7 @@ public class RulesTest {
     s.setSd(7);
 
     assertThrows(IllegalArgumentException.class,
-                 () -> r.strike(s, 7, s));
+                 () -> r.strike(new StrikeInput(s, 7, s)));
 
     assertEquals(7, s.getSd());
   }
@@ -185,7 +186,7 @@ public class RulesTest {
       }
     };
 
-    SkillActionOutcome o = r.skill(s, 2, BRAWLIN);
+    SkillActionOutput o = r.skill(new SkillActionInput(s, 2, BRAWLIN));
 
     assertTrue(o.success);
     assertEquals(2, o.sdSpent);
@@ -202,7 +203,7 @@ public class RulesTest {
       }
     };
 
-    SkillActionOutcome o = r.skill(s, 2, BRAWLIN);
+    SkillActionOutput o = r.skill(new SkillActionInput(s, 2, BRAWLIN));
 
     assertFalse(o.success);
     assertEquals(0, o.sdSpent);
@@ -216,7 +217,7 @@ public class RulesTest {
     s.setSd(1);
 
     assertThrows(IllegalArgumentException.class,
-                 () -> r.skill(s, 2, BRAWLIN));
+                 () -> r.skill(new SkillActionInput(s, 2, BRAWLIN)));
 
     assertEquals(1, s.getSd());
   }
@@ -226,7 +227,7 @@ public class RulesTest {
     r = new Rules();
 
     assertThrows(IllegalArgumentException.class,
-                 () -> r.skill(s, -1, BRAWLIN));
+                 () -> r.skill(new SkillActionInput(s, -1, BRAWLIN)));
 
     assertEquals(5, s.getSd());
   }
@@ -237,7 +238,7 @@ public class RulesTest {
     s.setSd(7);
 
     assertThrows(IllegalArgumentException.class,
-                 () -> r.skill(s, 7, BRAWLIN));
+                 () -> r.skill(new SkillActionInput(s, 7, BRAWLIN)));
 
     assertEquals(7, s.getSd());
   }
@@ -247,10 +248,17 @@ public class RulesTest {
     r = new Rules();
     s.setAd(5);
 
-    CatchBreathOutcome o = r.catchBreath(s);
+    CatchBreathOutput o = r.catchBreath(new CatchBreathInput(s));
 
     assertEquals(2, o.adEarned);
     assertEquals(7, s.getAd());
   }
 
+  @Test
+  public void testSuccs() {
+    assertEquals(4, Rules.succs(new int[] {1, 2, 3, 4, 5, 6}));
+    assertEquals(0, Rules.succs(new int[] {1, 2, 1, 2, 1, 2}));
+    assertEquals(6, Rules.succs(new int[] {6, 5, 4, 3, 6, 5}));
+    assertEquals(0, Rules.succs(new int[0]));
+  }
 }
