@@ -136,8 +136,9 @@ public class Rules {
     public final Stats stats;
     public final int sd;
     public final Skill skill;
+    public final Stats dStats;
 
-    public SkillActionInput(Stats stats, int sd, Skill skill) {
+    public SkillActionInput(Stats stats, int sd, Skill skill, Stats dStats) {
       this.stats = Objects.requireNonNull(stats);
       Preconditions.checkArgument(sd >= 0 && sd <= 6,
                                   "sd must be between 0 and 6");
@@ -145,6 +146,11 @@ public class Rules {
                                   "Not enough strike dice");
       this.sd = sd;
       this.skill = Objects.requireNonNull(skill);
+      if (!skill.targetsSelf()) {
+        this.dStats = Objects.requireNonNull(dStats);
+      } else {
+        this.dStats = null;
+      }
     }
   }
 
@@ -152,11 +158,16 @@ public class Rules {
     public final boolean success;
     public final int sdSpent;
     public final int numSuccs;
+    public final Stats newStats;
+    public final Stats newDStats;
 
-    public SkillActionOutput(boolean success, int sdSpent, int numSuccs) {
+    public SkillActionOutput(boolean success, int sdSpent, int numSuccs,
+                             Stats newStats, Stats newDStats) {
       this.success = success;
       this.sdSpent = sdSpent;
       this.numSuccs = numSuccs;
+      this.newStats = newStats;
+      this.newDStats = newDStats;
     }
 
     @Override
@@ -176,11 +187,20 @@ public class Rules {
     int[] rolls = roll(nd);
     int attack = succs(rolls);
     boolean success = attack >= input.skill.getActionDifficulty();
+    Stats newStats = null;
+    Stats newDStats = null;
     if (success) {
       input.stats.addSd(-input.sd);
+
+      if (input.skill.targetsSelf()) {
+        newStats = input.skill.applyStatsFunction(input.stats);
+      } else {
+        newDStats = input.skill.applyStatsFunction(input.dStats);
+      }
     }
 
-    return new SkillActionOutput(success, success ? input.sd : 0, attack);
+    return new SkillActionOutput(success, success ? input.sd : 0, attack,
+                                 newStats, newDStats);
   }
 
   public static class CatchBreathInput implements Input {
