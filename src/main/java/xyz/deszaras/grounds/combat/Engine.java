@@ -201,6 +201,16 @@ public class Engine {
                                  "At least one team member is required");
         return new Team(name, members);
       }
+
+      public String status() {
+        StringBuilder b = new StringBuilder(name).append(":");
+        if (members.isEmpty()) {
+          b.append(" no members yet");
+        } else {
+          b.append(" ").append(members.keySet().toString());
+        }
+        return b.toString();
+      }
     }
   }
 
@@ -419,6 +429,19 @@ public class Engine {
       Preconditions.checkState(teams.size() >= 2,
                                "At least two teams are required");
       return new Engine(teams, rules);
+    }
+
+    public String status() {
+      if (teams.isEmpty()) {
+        return "No teams have been added yet.";
+      } else {
+        StringBuilder b = new StringBuilder("Teams so far:\n");
+        for (Team t : teams) {
+          b.append("- ").append(t.getName()).append(":\n");
+          b.append("  ").append(t.getMemberNames().toString()).append("\n");
+        }
+        return b.toString();
+      }
     }
   }
 
