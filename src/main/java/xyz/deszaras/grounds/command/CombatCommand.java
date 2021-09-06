@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import xyz.deszaras.grounds.command.combat.AddCombatPlayerCommand;
 import xyz.deszaras.grounds.command.combat.EndCombatCommand;
 import xyz.deszaras.grounds.command.combat.InitCombatCommand;
-// import xyz.deszaras.grounds.command.combat.MoveCombatCommand;
+import xyz.deszaras.grounds.command.combat.MoveCombatCommand;
 import xyz.deszaras.grounds.command.combat.RemoveCombatPlayerCommand;
 // import xyz.deszaras.grounds.command.combat.ResolveRoundCombatCommand;
 import xyz.deszaras.grounds.command.combat.StartCombatCommand;
@@ -94,7 +94,7 @@ public class CombatCommand extends Command<String> {
         .put("REMOVE", RemoveCombatPlayerCommand.class)
         .put("STATUS", StatusCombatCommand.class)
         .put("START", StartCombatCommand.class)
-        // .put("MOVE", MoveCombatCommand.class)
+        .put("MOVE", MoveCombatCommand.class)
         // .put("RESOLVE_ROUND", ResolveRoundCombatCommand.class)
         .build();
   }
