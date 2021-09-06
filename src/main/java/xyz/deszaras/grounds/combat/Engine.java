@@ -171,10 +171,22 @@ public class Engine {
        *
        * @param  player player to add as member
        * @return        this builder
-       * @throws IllegalArgumentException if the player is missing an attribute
+       * @throws IllegalArgumentException if the player is missing an attribute,
+       *         of if the player is already a member of this team
        */
       Builder member(Player player) {
+        if (members.containsKey(player.getName())) {
+          throw new IllegalArgumentException(player.getName() + " is already a member of team " +
+                                             name);
+        }
         members.put(player.getName(), buildStats(player));
+        return this;
+      }
+
+      Builder removeMember(Player player) {
+        if (members.containsKey(player.getName())) {
+          members.remove(player.getName());
+        }
         return this;
       }
 

@@ -97,4 +97,28 @@ public class TeamTest {
     assertThrows(IllegalArgumentException.class,
                  () -> team.setMemberStats(player3, newStats));
   }
+
+  @Test
+  public void testBuildSuccessRemovePlayer() {
+    team = Team.builder("teama")
+      .member(player1)
+      .member(player2)
+      .removeMember(player1)
+      .build();
+
+    assertTrue(team.isMember(player2));
+    assertTrue(team.isMember(player2.getName()));
+    assertFalse(team.isMember(player1));
+    assertFalse(team.isMember(player1.getName()));
+  }
+
+  @Test
+  public void testBuildFailureRepeatedPlayer() {
+    Team.Builder tb = Team.builder("teama")
+      .member(player1)
+      .member(player2);
+
+    assertThrows(IllegalArgumentException.class,
+                 () -> tb.member(player1));
+  }
 }
