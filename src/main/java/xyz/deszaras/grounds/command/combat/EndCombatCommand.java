@@ -36,6 +36,7 @@ public class EndCombatCommand extends Command<String> {
       return "You lack WRITE permission to the combat here, so you may not end it";
     }
 
+    CombatCommand.messageAllCombatants(combat, "Combat is over.");
     location.take(combat);
     Universe.getCurrent().removeThing(combat);
 

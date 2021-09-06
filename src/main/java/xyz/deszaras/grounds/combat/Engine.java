@@ -193,6 +193,15 @@ public class Engine {
       }
 
       /**
+       * Gets the current members of this team.
+       *
+       * @return team members
+       */
+      Set<Player> getMembers() {
+        return members.keySet();
+      }
+
+      /**
        * Builds a new team.
        *
        * @return new team
@@ -255,6 +264,10 @@ public class Engine {
   private Engine(List<Team> teams, Rules rules) {
     this.teams = ImmutableList.copyOf(teams);
     this.rules = rules;
+  }
+
+  public List<Team> getTeams() {
+    return ImmutableList.copyOf(teams);
   }
 
   public void start() {

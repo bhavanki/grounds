@@ -53,7 +53,10 @@ public class Message {
         new Style(AnsiUtils.color("! %s", Ansi.Color.RED, true));
     public static final Style EXECUTION_EXCEPTION =
         new Style(AnsiUtils.color("! %s", Ansi.Color.RED, true));
+
     public static final Style SCRIPT = new Style("* %s");
+    public static final Style COMBAT =
+        new Style(AnsiUtils.color("+ %s", Ansi.Color.MAGENTA, true));
 
     public static final Style POSE =
         new Style(AnsiUtils.color(": %s", Ansi.Color.WHITE, true));

@@ -39,6 +39,8 @@ public class RemoveCombatPlayerCommand extends Command<String> {
 
     try {
       combat.removePlayer(teamPlayer, teamName);
+      CombatCommand.messageAllCombatants(combat, player.getName() +
+                                         " is removed from team " + teamName);
       return "Removed " + teamPlayer.getName() + " from team " + teamName;
     } catch (IllegalStateException e) {
       throw new CommandException(e);

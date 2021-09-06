@@ -36,7 +36,9 @@ public class StartCombatCommand extends Command<String> {
     }
 
     combat.start();
-    return "Combat has started!\n\n" + combat.status();
+
+    CombatCommand.messageAllCombatants(combat, "Combat has started!");
+    return combat.status();
   }
 
   public static StartCombatCommand newCommand(Actor actor, Player player,
