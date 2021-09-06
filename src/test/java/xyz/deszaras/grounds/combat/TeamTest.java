@@ -55,12 +55,12 @@ public class TeamTest {
   @Test
   public void testMembership() {
     assertTrue(team.isMember(player1));
-    assertTrue(team.isMember(player1.getName()));
     assertFalse(team.isMember(player3));
-    assertFalse(team.isMember(player3.getName()));
 
-    assertEquals(Set.of(player1.getName(), player2.getName()),
-                        team.getMemberNames());
+    assertEquals(player1, team.getMemberByName(player1.getName()).get());
+    assertTrue(team.getMemberByName(player3.getName()).isEmpty());
+
+    assertEquals(Set.of(player1, player2), team.getMembers());
   }
 
   @Test
@@ -99,6 +99,17 @@ public class TeamTest {
   }
 
   @Test
+  public void testIsOut() {
+    assertFalse(team.isOut());
+
+    team.getMemberStats(player1).wound(4);
+    assertFalse(team.isOut());
+
+    team.getMemberStats(player2).wound(4);
+    assertTrue(team.isOut());
+  }
+
+  @Test
   public void testBuildSuccessRemovePlayer() {
     team = Team.builder("teama")
       .member(player1)
@@ -107,9 +118,7 @@ public class TeamTest {
       .build();
 
     assertTrue(team.isMember(player2));
-    assertTrue(team.isMember(player2.getName()));
     assertFalse(team.isMember(player1));
-    assertFalse(team.isMember(player1.getName()));
   }
 
   @Test

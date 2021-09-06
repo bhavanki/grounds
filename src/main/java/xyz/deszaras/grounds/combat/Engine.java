@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,9 +40,9 @@ public class Engine {
    */
   static class Team {
     private final String name;
-    private final Map<String, Stats> members;
+    private final Map<Player, Stats> members;
 
-    private Team(String name, Map<String, Stats> members) {
+    private Team(String name, Map<Player, Stats> members) {
       this.name = Objects.requireNonNull(name);
       this.members = new HashMap<>(members);
     }
@@ -62,25 +63,27 @@ public class Engine {
      * @return        true if player is a member of this team
      */
     boolean isMember(Player player) {
-      return isMember(player.getName());
+      return members.containsKey(player);
     }
 
     /**
-     * Determines if a player with the given name is a member of this team.
+     * Gets a team member by name.
      *
      * @param  playerName player name
-     * @return            true if player with that name is a member of this team
+     * @return            player on team, or empty if not present
      */
-    boolean isMember(String playerName) {
-      return members.containsKey(playerName);
+    Optional<Player> getMemberByName(String playerName) {
+      return members.keySet().stream()
+          .filter(p -> p.getName().equals(playerName))
+          .findFirst();
     }
 
     /**
-     * Gets the names of team members.
+     * Gets the team members.
      *
-     * @return team member names
+     * @return team members
      */
-    Set<String> getMemberNames() {
+    Set<Player> getMembers() {
       return ImmutableSet.copyOf(members.keySet());
     }
 
@@ -92,23 +95,12 @@ public class Engine {
      * @throws IllegalArgumentException if the player is not a member of this team
      */
     Stats getMemberStats(Player player) {
-      return getMemberStats(player.getName());
-    }
-
-    /**
-     * Gets the stats for the player with the given name.
-     *
-     * @param  playerName player name
-     * @return            stats
-     * @throws IllegalArgumentException if the player is not a member of this team
-     */
-    Stats getMemberStats(String playerName) {
-      if (!isMember(playerName)) {
-        throw new IllegalArgumentException("Player " + playerName +
+      if (!isMember(player)) {
+        throw new IllegalArgumentException("Player " + player.getName() +
                                            " is not a member of team " +
                                            name);
       }
-      return members.get(playerName);
+      return members.get(player);
     }
 
     /**
@@ -119,23 +111,21 @@ public class Engine {
      * @throws IllegalArgumentException if the player is not a member of this team
      */
     void setMemberStats(Player player, Stats stats) {
-      setMemberStats(player.getName(), stats);
-    }
-
-    /**
-     * Sets the stats for the player with the given name.
-     *
-     * @param  playerName player name
-     * @param  stats      stats
-     * @throws IllegalArgumentException if the player is not a member of this team
-     */
-    void setMemberStats(String playerName, Stats stats) {
-      if (!isMember(playerName)) {
-        throw new IllegalArgumentException("Player " + playerName +
+      if (!isMember(player)) {
+        throw new IllegalArgumentException("Player " + player.getName() +
                                            " is not a member of team " +
                                            name);
       }
-      members.put(playerName, stats);
+      members.put(player, stats);
+    }
+
+    /**
+     * Determines if all team members are out.
+     *
+     * @return true if all team members are out
+     */
+    boolean isOut() {
+      return members.values().stream().allMatch(Stats::isOut);
     }
 
     /**
@@ -153,7 +143,7 @@ public class Engine {
      */
     static class Builder {
       private String name;
-      private Map<String, Stats> members;
+      private Map<Player, Stats> members;
 
       private Builder(String name) {
         this.name = Objects.requireNonNull(name);
@@ -181,17 +171,23 @@ public class Engine {
        *         of if the player is already a member of this team
        */
       Builder member(Player player) {
-        if (members.containsKey(player.getName())) {
+        if (members.containsKey(player)) {
           throw new IllegalArgumentException(player.getName() + " is already a member of team " +
                                              name);
         }
-        members.put(player.getName(), buildStats(player));
+        members.put(player, buildStats(player));
         return this;
       }
 
+      /**
+       * Removes a player from this team.
+       *
+       * @param  player player to remove as member
+       * @return        this builder
+       */
       Builder removeMember(Player player) {
-        if (members.containsKey(player.getName())) {
-          members.remove(player.getName());
+        if (members.containsKey(player)) {
+          members.remove(player);
         }
         return this;
       }
@@ -213,7 +209,10 @@ public class Engine {
         if (members.isEmpty()) {
           b.append(" no members yet");
         } else {
-          b.append(" ").append(members.keySet().toString());
+          b.append(" ");
+          b.append(members.keySet().stream()
+                   .map(p -> p.getName())
+                   .collect(Collectors.joining(", ")));
         }
         return b.toString();
       }
@@ -251,7 +250,7 @@ public class Engine {
   private int round;
   private int movingTeamIndex;
   private Team movingTeam;
-  private Set<String> yetToMove;
+  private Set<Player> yetToMove;
 
   private Engine(List<Team> teams, Rules rules) {
     this.teams = ImmutableList.copyOf(teams);
@@ -262,7 +261,7 @@ public class Engine {
     round = 1;
     movingTeamIndex = 0;
     movingTeam = teams.get(movingTeamIndex);
-    yetToMove = new HashSet<>(movingTeam.getMemberNames());
+    yetToMove = new HashSet<>(movingTeam.getMembers());
   }
 
   public void stop() {
@@ -283,9 +282,10 @@ public class Engine {
           .defineColumn("DEF", "%3s")
           .defineColumn("WOUNDS", "%6s");
 
-      for (String playerName : team.getMemberNames()) {
-        Stats playerStats = team.getMemberStats(playerName);
-        if (isMovingTeam && yetToMove.contains(playerName)) {
+      for (Player player : team.getMembers()) {
+        Stats playerStats = team.getMemberStats(player);
+        String playerName = player.getName();
+        if (isMovingTeam && yetToMove.contains(player)) {
           playerName += " *";
         }
         table.addRow(playerName,
@@ -314,7 +314,7 @@ public class Engine {
                                          " is not on the moving team " +
                                          movingTeam.getName());
     }
-    if (!yetToMove.contains(p.getName())) {
+    if (!yetToMove.contains(p)) {
       throw new IllegalArgumentException("Player " + p.getName() +
                                          " has already moved");
     }
@@ -335,6 +335,7 @@ public class Engine {
     Rules.Input input;
     Skill skill = null;
     String dName = null;
+    Player dPlayer = null;
     Team dTeam = null;
     Stats dStats = null;
     switch (command.get(0)) {
@@ -354,7 +355,8 @@ public class Engine {
         }
         dName = command.get(2);
         dTeam = findDefenderTeam(dName);
-        dStats = dTeam.getMemberStats(dName);
+        dPlayer = dTeam.getMemberByName(dName).get();
+        dStats = dTeam.getMemberStats(dPlayer);
         input = new StrikeInput(pStats, Integer.parseInt(command.get(1)), dStats);
         break;
       case "skill":
@@ -369,7 +371,8 @@ public class Engine {
           }
           dName = command.get(3);
           dTeam = findDefenderTeam(dName);
-          dStats = dTeam.getMemberStats(dName);
+          dPlayer = dTeam.getMemberByName(dName).get();
+          dStats = dTeam.getMemberStats(dPlayer);
         } else if (!skill.targetsSelf()) {
           throw new IllegalArgumentException("The chosen skill requires a target");
         }
@@ -405,17 +408,17 @@ public class Engine {
     if (output instanceof SkillActionOutput) {
       SkillActionOutput saOutput = (SkillActionOutput) output;
       if (saOutput.newStats != null) {
-        movingTeam.setMemberStats(p.getName(), saOutput.newStats);
+        movingTeam.setMemberStats(p, saOutput.newStats);
       }
       if (saOutput.newDStats != null) {
-        dTeam.setMemberStats(dName, saOutput.newDStats);
+        dTeam.setMemberStats(dPlayer, saOutput.newDStats);
       }
     }
 
-    yetToMove.remove(p.getName());
+    yetToMove.remove(p);
     boolean newTeam = false;
     boolean newRound = false;
-    if (yetToMove.isEmpty() || allKnockedOut(movingTeam, yetToMove)) {
+    if (yetToMove.isEmpty() || remainingOut(movingTeam, yetToMove)) {
       newTeam = true;
       movingTeamIndex++;
       if (movingTeamIndex >= teams.size()) {
@@ -424,7 +427,7 @@ public class Engine {
         round++;
       }
       movingTeam = teams.get(movingTeamIndex);
-      yetToMove = new HashSet<>(movingTeam.getMemberNames());
+      yetToMove = new HashSet<>(movingTeam.getMembers());
     }
 
     return new MoveResult(commandResult,
@@ -472,7 +475,11 @@ public class Engine {
         StringBuilder b = new StringBuilder("Teams so far:\n");
         for (Team t : teams) {
           b.append("- ").append(t.getName()).append(":\n");
-          b.append("  ").append(t.getMemberNames().toString()).append("\n");
+          b.append("  ");
+          b.append(t.getMembers().stream()
+                   .map(p -> p.getName())
+                   .collect(Collectors.joining(", ")));
+          b.append("\n");
         }
         return b.toString();
       }
@@ -519,7 +526,10 @@ public class Engine {
 
   private Team findDefenderTeam(String defenderName) {
     for (Team t : teams) {
-      if (t.isMember(defenderName)) {
+      if (t.equals(movingTeam)) {
+        continue;
+      }
+      if (t.getMemberByName(defenderName).isPresent()) {
         return t;
       }
     }
@@ -527,9 +537,9 @@ public class Engine {
                                        " found on any team");
   }
 
-  private static boolean allKnockedOut(Team team, Set<String> playerNames) {
-    return playerNames.stream()
-        .map(n -> team.getMemberStats(n))
+  private static boolean remainingOut(Team team, Set<Player> players) {
+    return players.stream()
+        .map(p -> team.getMemberStats(p))
         .allMatch(s -> s.isOut());
   }
 }
