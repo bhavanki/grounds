@@ -99,6 +99,12 @@ public class Combat extends Thing {
     engine.start();
   }
 
+  public void end() {
+    LOG.debug("Ending combat");
+    failIfNotStarted();
+    engine.end();
+  }
+
   public String status() {
     if (engine == null) {
       if (teamBuilders.isEmpty()) {
