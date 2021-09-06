@@ -13,6 +13,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import xyz.deszaras.grounds.combat.Rules.CatchBreathInput;
 // import xyz.deszaras.grounds.combat.Rules.CatchBreathOutput;
 // import xyz.deszaras.grounds.combat.Rules.Input;
@@ -27,6 +30,8 @@ import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Player;
 
 public class Engine {
+
+  private static final Logger LOG = LoggerFactory.getLogger(Engine.class);
 
   /**
    * A team is a named set of players.
@@ -460,6 +465,7 @@ public class Engine {
   static final String ATTR_NAME_MAX_WOUNDS = "grapple_maxWounds";
 
   private static Stats buildStats(Player player) {
+    LOG.debug("Building stats for {}", player.getName());
     BaseStats stats = BaseStats.builder()
         .skill(Skills.forName(getAttr(player, ATTR_NAME_SKILL_4).getValue()), 4)
         .skill(Skills.forName(getAttr(player, ATTR_NAME_SKILL_3).getValue()), 3)
