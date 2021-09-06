@@ -85,6 +85,8 @@ public class Combat extends Thing {
   }
 
   public void start() {
+    LOG.debug("Starting combat");
+    failIfStarted();
     Engine.Builder engineBuilder = Engine.builder();
     for (Engine.Team.Builder tb : teamBuilders.values()) {
       engineBuilder.addTeam(tb.build());

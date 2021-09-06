@@ -12,7 +12,7 @@ import xyz.deszaras.grounds.command.combat.InitCombatCommand;
 // import xyz.deszaras.grounds.command.combat.MoveCombatCommand;
 import xyz.deszaras.grounds.command.combat.RemoveCombatPlayerCommand;
 // import xyz.deszaras.grounds.command.combat.ResolveRoundCombatCommand;
-// import xyz.deszaras.grounds.command.combat.StartCombatCommand;
+import xyz.deszaras.grounds.command.combat.StartCombatCommand;
 import xyz.deszaras.grounds.command.combat.StatusCombatCommand;
 import xyz.deszaras.grounds.combat.Combat;
 import xyz.deszaras.grounds.model.Place;
@@ -59,7 +59,7 @@ public class CombatCommand extends Command<String> {
         .put("ADD", AddCombatPlayerCommand.class)
         .put("REMOVE", RemoveCombatPlayerCommand.class)
         .put("STATUS", StatusCombatCommand.class)
-        // .put("START", StartCombatCommand.class)
+        .put("START", StartCombatCommand.class)
         // .put("MOVE", MoveCombatCommand.class)
         // .put("RESOLVE_ROUND", ResolveRoundCombatCommand.class)
         .build();
