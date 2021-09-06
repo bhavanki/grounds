@@ -52,8 +52,7 @@ public class EngineTest {
     player3 = makeTestPlayer("player3",
                              Skills.TACTICS, Skills.TAUNTING, Skills.TRICKSTER,
                              10, 3, 3, 6, 0);
-    team1 = Team.builder()
-        .name("team1")
+    team1 = Team.builder("team1")
         .member(player1)
         .member(player2)
         .member(player3)
@@ -67,8 +66,7 @@ public class EngineTest {
     monster2 = makeTestPlayer("monster2",
                               Skills.ENDURANCE, Skills.INTIMIDATION, Skills.SPEED,
                               6, 2, 2, 3, 0);
-    team2 = Team.builder()
-        .name("team2")
+    team2 = Team.builder("team2")
         .member(monster1)
         .member(monster2)
         .build();

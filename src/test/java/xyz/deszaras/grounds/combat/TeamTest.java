@@ -41,8 +41,7 @@ public class TeamTest {
     player2.setAttr(Engine.ATTR_NAME_AD, 3);
     player2.setAttr(Engine.ATTR_NAME_SD, 4);
     player3 = new Player("player3");
-    team = Team.builder()
-        .name("teama")
+    team = Team.builder("teama")
         .member(player1)
         .member(player2)
         .build();
