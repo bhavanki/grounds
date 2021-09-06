@@ -18,10 +18,12 @@ public class TabularOutput {
   private static class ColumnDef {
     private final String header;
     private final String formatString;
+    private final String dataFormatString;
 
-    private ColumnDef(String header, String formatString) {
+    private ColumnDef(String header, String formatString, String dataFormatString) {
       this.header = header;
       this.formatString = formatString;
+      this.dataFormatString = dataFormatString;
     }
   }
 
@@ -37,7 +39,7 @@ public class TabularOutput {
   }
 
   /**
-   * Define a new table column.
+   * Defines a new table column.
    *
    * @param  header       column header
    * @param  formatString format string for header and for column values
@@ -45,10 +47,25 @@ public class TabularOutput {
    * @throws IllegalStateException if any rows have already been added
    */
   public TabularOutput defineColumn(String header, String formatString) {
+    return defineColumn(header, formatString, formatString);
+  }
+
+
+  /**
+   * Defines a new table column.
+   *
+   * @param  header           column header
+   * @param  formatString     format string for header
+   * @param  dataFormatString format string for data in column
+   * @return                  this
+   * @throws IllegalStateException if any rows have already been added
+   */
+  public TabularOutput defineColumn(String header, String formatString,
+                                    String dataFormatString) {
     if (!rows.isEmpty()) {
       throw new IllegalStateException("Table already has rows in it");
     }
-    columnDefs.add(new ColumnDef(header, formatString));
+    columnDefs.add(new ColumnDef(header, formatString, dataFormatString));
     return this;
   }
 
@@ -121,7 +138,7 @@ public class TabularOutput {
           if (j != 0) {
             r.append(" ");
           }
-          r.append(String.format(columnDefs.get(j).formatString, row.get(j)));
+          r.append(String.format(columnDefs.get(j).dataFormatString, row.get(j)));
         }
         b.append(r.toString().stripTrailing());
         if (i < numRows - 1) {
