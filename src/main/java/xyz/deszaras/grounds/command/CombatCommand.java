@@ -1,10 +1,14 @@
 package xyz.deszaras.grounds.command;
 
 import com.google.common.collect.ImmutableMap;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import xyz.deszaras.grounds.command.combat.AddCombatPlayerCommand;
 import xyz.deszaras.grounds.command.combat.EndCombatCommand;
@@ -15,12 +19,15 @@ import xyz.deszaras.grounds.command.combat.RemoveCombatPlayerCommand;
 import xyz.deszaras.grounds.command.combat.StartCombatCommand;
 import xyz.deszaras.grounds.command.combat.StatusCombatCommand;
 import xyz.deszaras.grounds.combat.Combat;
+import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 import xyz.deszaras.grounds.model.Universe;
 
 public class CombatCommand extends Command<String> {
+
+  private static final Logger LOG = LoggerFactory.getLogger(CombatCommand.class);
 
   public CombatCommand(Actor actor, Player player) {
     super(actor, player);
@@ -48,6 +55,33 @@ public class CombatCommand extends Command<String> {
   public static Combat findCombatOrFail(Place location) throws CommandException {
     return findCombat(location)
         .orElseThrow(() -> new CommandException("No combat is present"));
+  }
+
+  public static void messageAllCombatants(Combat combat, String messageText) {
+    Player owner;
+    try {
+      Optional<Thing> ownerOpt = combat.getOwner();
+      if (!ownerOpt.isPresent()) {
+        LOG.error("Failed to send message to combatants in combat " +
+                  combat.getName() + ", no owner");
+        return;
+      }
+      if (!(ownerOpt.get() instanceof Player)) {
+        LOG.error("Failed to send message to combatants in combat " +
+                  combat.getName() + ", owner " + ownerOpt.get().getName() +
+                  " is not a player");
+        return;
+      }
+      owner = (Player) ownerOpt.get();
+    } catch (MissingThingException e) {
+      LOG.error("Failed to send message to combatants in combat " +
+                combat.getName() + ", owner is missing");
+      return;
+    }
+    Message message = new Message(owner, Message.Style.COMBAT, messageText);
+    for (Player player : combat.getAllCombatants()) {
+      player.sendMessage(message);
+    }
   }
 
   private static final Map<String, Class<? extends Command>> COMBAT_COMMANDS;

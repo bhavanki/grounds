@@ -5,8 +5,10 @@ import static com.google.common.base.Preconditions.checkArgument;
 import com.fasterxml.jackson.annotation.JsonCreator;
 // import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableSet;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import xyz.deszaras.grounds.auth.Policy;
+// TODO: See if the Team concept does not need to be leaked from Engine
+import xyz.deszaras.grounds.combat.Engine.Team;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
@@ -101,7 +105,7 @@ public class Combat extends Thing {
         return "Combat has not yet started. No players have been added yet.";
       }
       StringBuilder b = new StringBuilder("Players are still being added.");
-      for (Engine.Team.Builder tb : teamBuilders.values()) {
+      for (Team.Builder tb : teamBuilders.values()) {
         b.append("\n- ").append(tb.status());
       }
       return b.toString();
@@ -117,6 +121,20 @@ public class Combat extends Thing {
   public String resolveRound() {
     failIfNotStarted();
     return engine.resolveRound();
+  }
+
+  public Set<Player> getAllCombatants() {
+    Set<Player> allCombatants = new HashSet<>();
+    if (engine == null) {
+      for (Team.Builder tb : teamBuilders.values()) {
+        allCombatants.addAll(tb.getMembers());
+      }
+    } else {
+      for (Team team : engine.getTeams()) {
+        allCombatants.addAll(team.getMembers());
+      }
+    }
+    return ImmutableSet.copyOf(allCombatants);
   }
 
   public static Combat build(String name, List<String> buildArgs) {
