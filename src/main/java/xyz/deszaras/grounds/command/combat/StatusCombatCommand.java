@@ -1,7 +1,6 @@
 package xyz.deszaras.grounds.command.combat;
 
 import java.util.List;
-import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.combat.Combat;
 import xyz.deszaras.grounds.command.Actor;
@@ -12,7 +11,6 @@ import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.command.PermittedRoles;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
-import xyz.deszaras.grounds.model.Universe;
 
 /**
  * Reports the status of an existing combat in the player's current location.<p>
