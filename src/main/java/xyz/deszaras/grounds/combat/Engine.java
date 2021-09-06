@@ -260,6 +260,8 @@ public class Engine {
   private int movingTeamIndex;
   private Team movingTeam;
   private Set<Player> yetToMove;
+  private boolean over;
+  private Team winningTeam;
 
   private Engine(List<Team> teams, Rules rules) {
     this.teams = ImmutableList.copyOf(teams);
@@ -275,13 +277,25 @@ public class Engine {
     movingTeamIndex = 0;
     movingTeam = teams.get(movingTeamIndex);
     yetToMove = new HashSet<>(movingTeam.getMembers());
+    over = false;
+    winningTeam = null;
   }
 
-  public void stop() {
+  public void end() {
+    for (Team team : teams) {
+      for (Player player : team.getMembers()) {
+        Stats playerStats = team.getMemberStats(player);
+        drainStats(player, playerStats);
+      }
+    }
   }
 
   public String status() {
-    StringBuilder b = new StringBuilder("Round: ").append(round);
+    StringBuilder b = new StringBuilder();
+    if (over) {
+      b.append("Combat is over! These are the final results.\n\n");
+    }
+    b.append("Round: ").append(round);
     for (Team team : teams) {
       String teamName = team.getName();
       boolean isMovingTeam = team.equals(movingTeam);
@@ -322,6 +336,9 @@ public class Engine {
   }
 
   public String move(Player p, List<String> command) {
+    if (over) {
+      throw new IllegalStateException("Combat is over, so no one may move");
+    }
     if (!movingTeam.isMember(p)) {
       throw new IllegalArgumentException("Player " + p.getName() +
                                          " is not on the moving team " +
@@ -429,6 +446,13 @@ public class Engine {
     }
 
     yetToMove.remove(p);
+
+    checkIfOver();
+    if (over) {
+      // send a message that the team won, or something
+      return new MoveResult(commandResult, null, null).toString();
+    }
+
     boolean newTeam = false;
     boolean newRound = false;
     if (yetToMove.isEmpty() || remainingOut(movingTeam, yetToMove)) {
@@ -450,6 +474,23 @@ public class Engine {
 
   public String resolveRound() {
     return null;
+  }
+
+  private void checkIfOver() {
+    Team survivingTeam = null;
+    for (Team team : teams) {
+      if (team.isOut()) {
+        continue;
+      }
+      if (survivingTeam == null) {
+        survivingTeam = team;
+      } else {
+        return;
+      }
+    }
+
+    over = true;
+    winningTeam = survivingTeam;
   }
 
   public static Builder builder() {
@@ -535,6 +576,16 @@ public class Engine {
                                          " is missing attribute " + name);
     }
     return attrOpt.get();
+  }
+
+  private static void drainStats(Player player, Stats stats) {
+    int finalAd = stats.getAd() + (stats.getSd() + 1) / 2;
+    int apMaxSize = getAttr(player, ATTR_NAME_AP_MAX_SIZE).getIntValue();
+    if (finalAd > apMaxSize) {
+      finalAd = apMaxSize;
+    }
+    player.setAttr(ATTR_NAME_AD, finalAd);
+    player.setAttr(ATTR_NAME_SD, 0);
   }
 
   private Team findDefenderTeam(String defenderName) {
