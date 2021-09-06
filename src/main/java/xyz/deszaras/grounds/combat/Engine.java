@@ -28,6 +28,7 @@ import xyz.deszaras.grounds.combat.Rules.StrikeInput;
 // import xyz.deszaras.grounds.combat.Rules.StrikeOutput;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.util.TabularOutput;
 
 public class Engine {
 
@@ -268,7 +269,35 @@ public class Engine {
   }
 
   public String status() {
-    return null;
+    StringBuilder b = new StringBuilder("Round: ").append(round);
+    for (Team team : teams) {
+      String teamName = team.getName();
+      boolean isMovingTeam = team.equals(movingTeam);
+      if (isMovingTeam) {
+        teamName += " *";
+      }
+      TabularOutput table = new TabularOutput();
+      table.defineColumn(teamName, "%-20.20s")
+          .defineColumn("AD", "%2s")
+          .defineColumn("SD", "%2s")
+          .defineColumn("DEF", "%3s")
+          .defineColumn("WOUNDS", "%6s");
+
+      for (String playerName : team.getMemberNames()) {
+        Stats playerStats = team.getMemberStats(playerName);
+        if (isMovingTeam && yetToMove.contains(playerName)) {
+          playerName += " *";
+        }
+        table.addRow(playerName,
+                     Integer.toString(playerStats.getAd()),
+                     Integer.toString(playerStats.getSd()),
+                     Integer.toString(playerStats.getDefense()),
+                     "X".repeat(playerStats.getWounds()));
+      }
+
+      b.append("\n\n").append(table.toString());
+    }
+    return b.toString();
   }
 
   public int getRound() {
