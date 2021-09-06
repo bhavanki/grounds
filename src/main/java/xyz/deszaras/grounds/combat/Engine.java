@@ -135,10 +135,11 @@ public class Engine {
     /**
      * Gets a builder for a new team.
      *
+     * @param  name team name
      * @return builder
      */
-    static Builder builder() {
-      return new Builder();
+    static Builder builder(String name) {
+      return new Builder(name);
     }
 
     /**
@@ -148,7 +149,8 @@ public class Engine {
       private String name;
       private Map<String, Stats> members;
 
-      private Builder() {
+      private Builder(String name) {
+        this.name = Objects.requireNonNull(name);
         members = new HashMap<>();
       }
 
@@ -159,7 +161,7 @@ public class Engine {
        * @return      this builder
        */
       Builder name(String name) {
-        this.name = name;
+        this.name = Objects.requireNonNull(name);
         return this;
       }
 
