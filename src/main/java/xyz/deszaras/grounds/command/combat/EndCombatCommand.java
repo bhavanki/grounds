@@ -29,7 +29,7 @@ public class EndCombatCommand extends Command<String> {
 
   @Override
   protected String executeImpl() throws CommandException {
-    Place location = getPlayerLocation("initialize combat");
+    Place location = getPlayerLocation("end combat");
     Combat combat = CombatCommand.findCombatOrFail(location);
 
     if (!combat.passes(Category.WRITE, player)) {
