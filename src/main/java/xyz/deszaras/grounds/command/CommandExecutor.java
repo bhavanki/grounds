@@ -79,6 +79,7 @@ public class CommandExecutor {
         .put("ACTOR", ActorCommand.class)
         .put("MAIL", MailCommand.class)
         .put("COMBAT", CombatCommand.class)
+        .put("C", CombatCommand.class)
         .put("WHO", WhoCommand.class)
         .put("PREFERENCE", PreferenceCommand.class)
         .put("PREF", PreferenceCommand.class)
