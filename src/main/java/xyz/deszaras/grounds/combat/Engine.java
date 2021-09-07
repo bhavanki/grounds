@@ -236,20 +236,27 @@ public class Engine {
     private final String newMovingTeamName;
     private final Integer newRound;
     private final boolean over;
+    private final Team winningTeam;
 
     private MoveResult(String commandResult, String newMovingTeamName,
-                       Integer newRound, boolean over) {
+                       Integer newRound, boolean over, Team winningTeam) {
       this.commandResult = commandResult;
       this.newMovingTeamName = newMovingTeamName;
       this.newRound = newRound;
       this.over = over;
+      this.winningTeam = winningTeam;
     }
 
     @Override
     public String toString() {
       StringBuilder b = new StringBuilder(commandResult);
       if (over) {
-        b.append("\n  COMBAT IS OVER!");
+        b.append("\n  COMBAT IS OVER! Winning team: ");
+        if (winningTeam != null) {
+          b.append(winningTeam.getName());
+        } else {
+          b.append("none!");
+        }
       } else {
         if (newRound != null) {
           b.append("\n  New round:       ").append(newRound);
@@ -477,7 +484,8 @@ public class Engine {
     checkIfOver();
     if (over) {
       // send a message that the team won, or something
-      return new MoveResult(commandResult, null, null, true).toString();
+      return new MoveResult(commandResult, null, null, true, winningTeam)
+          .toString();
     }
 
     boolean newTeam = false;
@@ -497,7 +505,7 @@ public class Engine {
     return new MoveResult(commandResult,
                           newTeam ? movingTeam.getName() : null,
                           newRound ? Integer.valueOf(round) : null,
-                          false).toString();
+                          false, null).toString();
   }
 
   public String resolveRound() {
