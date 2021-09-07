@@ -95,6 +95,7 @@ public class CombatCommand extends Command<String> {
         .put("STATUS", StatusCombatCommand.class)
         .put("START", StartCombatCommand.class)
         .put("MOVE", MoveCombatCommand.class)
+        .put("M", MoveCombatCommand.class)
         // .put("RESOLVE_ROUND", ResolveRoundCombatCommand.class)
         .build();
   }
