@@ -3,7 +3,7 @@ package xyz.deszaras.grounds.combat;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-// import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
 
@@ -129,6 +129,7 @@ public class Combat extends Thing {
     return engine.resolveRound();
   }
 
+  @JsonIgnore
   public Set<Player> getAllCombatants() {
     Set<Player> allCombatants = new HashSet<>();
     if (engine == null) {

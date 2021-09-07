@@ -36,22 +36,32 @@ public class Rules {
 
   public static class ManeuverOutput implements Output {
     public final boolean success;
+    public final int numSuccs;
+    public final int numRolls;
     public final int adSpent;
+    public final int newAd;
     public final int sdEarned;
+    public final int newSd;
 
-    public ManeuverOutput(boolean success, int adSpent, int sdEarned) {
+    public ManeuverOutput(boolean success, int numSuccs, int numRolls,
+                          int adSpent, int newAd, int sdEarned, int newSd) {
       this.success = success;
+      this.numSuccs = numSuccs;
+      this.numRolls = numRolls;
       this.adSpent = adSpent;
+      this.newAd = newAd;
       this.sdEarned = sdEarned;
+      this.newSd = newSd;
     }
 
     @Override
     public String formatResult() {
       if (success) {
-        return String.format("The maneuver succeeds. AD spent: %d. SD earned: %d",
-                             adSpent, sdEarned);
+        return String.format("The maneuver succeeds (%d/%d): AD-%d=%d SD+%d=%d",
+                             numSuccs, numRolls, adSpent, newAd, sdEarned, newSd);
       } else {
-        return "The maneuver fails. No AD are spent, and no SD are earned.";
+        return String.format("The maneuver fails (%d/%d). No AD are spent, and no SD are earned.",
+                             numSuccs, numRolls);
       }
     }
   }
@@ -72,8 +82,9 @@ public class Rules {
       input.stats.addSd(sdEarned);
     }
 
-    return new ManeuverOutput(!totalFailure, totalFailure ? 0 : input.ad,
-                              sdEarned);
+    return new ManeuverOutput(!totalFailure, sdEarned, nd,
+                              totalFailure ? 0 : input.ad, input.stats.getAd(),
+                              sdEarned, input.stats.getSd());
   }
 
   public static class StrikeInput implements Input {
@@ -94,25 +105,32 @@ public class Rules {
 
   public static class StrikeOutput implements Output {
     public final boolean success;
-    public final int sdSpent;
     public final int numSuccs;
+    public final int numRolls;
+    public final int defense;
+    public final int sdSpent;
+    public final int newSd;
     public final int numWounds;
 
-    public StrikeOutput(boolean success, int sdSpent, int numSuccs,
-                          int numWounds) {
+    public StrikeOutput(boolean success, int numSuccs, int numRolls, int defense,
+                        int sdSpent, int newSd, int numWounds) {
       this.success = success;
-      this.sdSpent = sdSpent;
       this.numSuccs = numSuccs;
+      this.numRolls = numRolls;
+      this.defense = defense;
+      this.sdSpent = sdSpent;
+      this.newSd = newSd;
       this.numWounds = numWounds;
     }
 
     @Override
     public String formatResult() {
       if (success) {
-        return String.format("The strike succeeds. SD spent: %d. Successes: %d. Wounds: %d",
-                             sdSpent, numSuccs, numWounds);
+        return String.format("The strike succeeds (%d/%d vs. %d): SD-%d=%d Wounds=%d",
+                             numSuccs, numRolls, defense, sdSpent, newSd, numWounds);
       } else {
-        return "The strike fails. No SD are spent.";
+        return String.format("The strike fails (%d/%d vs. %d). No SD are spent.",
+                             numSuccs, numRolls, defense);
       }
     }
   }
@@ -122,14 +140,17 @@ public class Rules {
 
     int[] rolls = roll(nd);
     int attack = succs(rolls);
-    int numWounds = attack / input.defenderStats.getDefense();
+    int defense = input.defenderStats.getDefense();
+    int numWounds = attack / defense;
     boolean success = numWounds > 0;
     if (success) {
       input.stats.addSd(-input.sd);
       input.defenderStats.wound(numWounds);
     }
 
-    return new StrikeOutput(success, success ? input.sd : 0, attack, numWounds);
+    return new StrikeOutput(success, attack, nd, defense,
+                            success ? input.sd : 0, input.stats.getSd(),
+                            numWounds);
   }
 
   public static class SkillActionInput implements Input {
@@ -156,16 +177,23 @@ public class Rules {
 
   public static class SkillActionOutput implements Output {
     public final boolean success;
-    public final int sdSpent;
     public final int numSuccs;
+    public final int numRolls;
+    public final int difficulty;
+    public final int sdSpent;
+    public final int newSd;
     public final Stats newStats;
     public final Stats newDStats;
 
-    public SkillActionOutput(boolean success, int sdSpent, int numSuccs,
+    public SkillActionOutput(boolean success, int numSuccs, int numRolls,
+                             int difficulty, int sdSpent, int newSd,
                              Stats newStats, Stats newDStats) {
       this.success = success;
-      this.sdSpent = sdSpent;
       this.numSuccs = numSuccs;
+      this.numRolls = numRolls;
+      this.difficulty = difficulty;
+      this.sdSpent = sdSpent;
+      this.newSd = newSd;
       this.newStats = newStats;
       this.newDStats = newDStats;
     }
@@ -173,10 +201,11 @@ public class Rules {
     @Override
     public String formatResult() {
       if (success) {
-        return String.format("The skill action succeeds. SD spent: %d. Successes: %d",
-                             sdSpent, numSuccs);
+        return String.format("The skill action succeeds (%d/%d vs %d): SD-%d=%d",
+                             numSuccs, numRolls, difficulty, sdSpent, newSd);
       } else {
-        return "The skill action fails. No SD were spent.";
+        return String.format("The skill action fails (%d/%d vs %d). No SD were spent.",
+                             numSuccs, numRolls, difficulty);
       }
     }
   }
@@ -186,7 +215,8 @@ public class Rules {
 
     int[] rolls = roll(nd);
     int attack = succs(rolls);
-    boolean success = attack >= input.skill.getActionDifficulty();
+    int difficulty = input.skill.getActionDifficulty();
+    boolean success = attack >= difficulty;
     Stats newStats = null;
     Stats newDStats = null;
     if (success) {
@@ -199,7 +229,9 @@ public class Rules {
       }
     }
 
-    return new SkillActionOutput(success, success ? input.sd : 0, attack,
+    int newSd = newStats != null ? newStats.getSd() : input.stats.getSd();
+    return new SkillActionOutput(success, attack, nd, difficulty,
+                                 success ? input.sd : 0, newSd,
                                  newStats, newDStats);
   }
 
@@ -213,21 +245,23 @@ public class Rules {
 
   public static class CatchBreathOutput implements Output {
     public final int adEarned;
+    public final int newAd;
 
-    public CatchBreathOutput(int adEarned) {
+    public CatchBreathOutput(int adEarned, int newAd) {
       this.adEarned = adEarned;
+      this.newAd = newAd;
     }
 
     @Override
     public String formatResult() {
-      return String.format("Catching breath succeeds. AD earned: %d.", adEarned);
+      return String.format("Catching breath succeeds: AD+%d=%d", adEarned, newAd);
     }
   }
 
   public CatchBreathOutput catchBreath(CatchBreathInput input) {
     input.stats.addAd(2);
 
-    return new CatchBreathOutput(2);
+    return new CatchBreathOutput(2, input.stats.getAd());
   }
 
   @VisibleForTesting

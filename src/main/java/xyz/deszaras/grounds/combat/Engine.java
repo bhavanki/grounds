@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.fusesource.jansi.Ansi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,8 @@ import xyz.deszaras.grounds.combat.Rules.StrikeInput;
 // import xyz.deszaras.grounds.combat.Rules.StrikeOutput;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.util.AnsiUtils;
+import xyz.deszaras.grounds.util.LineOutput;
 import xyz.deszaras.grounds.util.TabularOutput;
 
 public class Engine {
@@ -232,22 +235,28 @@ public class Engine {
     private final String commandResult;
     private final String newMovingTeamName;
     private final Integer newRound;
+    private final boolean over;
 
     private MoveResult(String commandResult, String newMovingTeamName,
-                       Integer newRound) {
+                       Integer newRound, boolean over) {
       this.commandResult = commandResult;
       this.newMovingTeamName = newMovingTeamName;
       this.newRound = newRound;
+      this.over = over;
     }
 
     @Override
     public String toString() {
       StringBuilder b = new StringBuilder(commandResult);
-      if (newMovingTeamName != null) {
-        b.append("\n\nA new team is moving: ").append(newMovingTeamName);
-      }
-      if (newRound != null) {
-        b.append("\n\nNow starting round ").append(newRound);
+      if (over) {
+        b.append("\n  COMBAT IS OVER!");
+      } else {
+        if (newRound != null) {
+          b.append("\n  New round:       ").append(newRound);
+        }
+        if (newMovingTeamName != null) {
+          b.append("\n  New team moving: ").append(newMovingTeamName);
+        }
       }
       return b.toString();
     }
@@ -290,17 +299,24 @@ public class Engine {
     }
   }
 
+  private static final int STATUS_WIDTH = 37;
+
   public String status() {
-    StringBuilder b = new StringBuilder();
+    String border = new LineOutput(STATUS_WIDTH, "=", Ansi.Color.MAGENTA, true).toString();
+    String teamBorder = new LineOutput(STATUS_WIDTH, "- ", Ansi.Color.MAGENTA, true).toString();
+    StringBuilder b = new StringBuilder(border).append("\n");
+
     if (over) {
-      b.append("Combat is over! These are the final results.\n\n");
+      b.append(AnsiUtils.color("COMBAT IS OVER", Ansi.Color.RED, true));
+    } else {
+      b.append("Round: ").append(round);
     }
-    b.append("Round: ").append(round);
     for (Team team : teams) {
+      b.append("\n").append(teamBorder);
       String teamName = team.getName();
       boolean isMovingTeam = team.equals(movingTeam);
       if (isMovingTeam) {
-        teamName += " *";
+        teamName += " <-";
       }
       TabularOutput table = new TabularOutput();
       table.defineColumn(teamName, "%-20.20s")
@@ -312,18 +328,29 @@ public class Engine {
       for (Player player : team.getMembers()) {
         Stats playerStats = team.getMemberStats(player);
         String playerName = player.getName();
-        if (isMovingTeam && yetToMove.contains(player)) {
-          playerName += " *";
+        if (playerStats.isOut()) {
+          playerName = AnsiUtils.color(playerName, Ansi.Color.RED, false);
+        } else if (isMovingTeam && yetToMove.contains(player)) {
+          playerName += " <-";
+        }
+        String woundString;
+        int numWounds = playerStats.getWounds();
+        if (playerStats.isOut()) {
+          woundString = AnsiUtils.color("X".repeat(numWounds), Ansi.Color.RED, false);
+        } else {
+          woundString = "*".repeat(numWounds);
         }
         table.addRow(playerName,
                      Integer.toString(playerStats.getAd()),
                      Integer.toString(playerStats.getSd()),
                      Integer.toString(playerStats.getDefense()),
-                     "X".repeat(playerStats.getWounds()));
+                     woundString);
       }
 
-      b.append("\n\n").append(table.toString());
+      b.append("\n").append(table.toString());
     }
+
+    b.append("\n").append(border);
     return b.toString();
   }
 
@@ -450,7 +477,7 @@ public class Engine {
     checkIfOver();
     if (over) {
       // send a message that the team won, or something
-      return new MoveResult(commandResult, null, null).toString();
+      return new MoveResult(commandResult, null, null, true).toString();
     }
 
     boolean newTeam = false;
@@ -469,7 +496,8 @@ public class Engine {
 
     return new MoveResult(commandResult,
                           newTeam ? movingTeam.getName() : null,
-                          newRound ? Integer.valueOf(round) : null).toString();
+                          newRound ? Integer.valueOf(round) : null,
+                          false).toString();
   }
 
   public String resolveRound() {
