@@ -89,7 +89,7 @@ public class EngineTest {
   @Test
   public void testManeuver() {
     when(rules.maneuver(any(ManeuverInput.class)))
-        .thenReturn(new ManeuverOutput(true, 2, 4));
+        .thenReturn(new ManeuverOutput(true, 4, 5, 2, 4, 4, 7));
 
     moveResult = engine.move(player1, List.of("maneuver", "2", "courage"));
 
@@ -105,7 +105,7 @@ public class EngineTest {
   @Test
   public void testStrike() {
     when(rules.strike(any(StrikeInput.class)))
-        .thenReturn(new StrikeOutput(true, 3, 2, 1));
+        .thenReturn(new StrikeOutput(true, 2, 3, 1, 3, 0, 1));
 
     moveResult = engine.move(player1, List.of("strike", "3", "monster1"));
 
@@ -134,7 +134,7 @@ public class EngineTest {
       }
     };
     when(rules.skill(any(SkillActionInput.class)))
-        .thenReturn(new SkillActionOutput(true, 3, 2, newP1Stats, null));
+        .thenReturn(new SkillActionOutput(true, 2, 3, 2, 3, 0, newP1Stats, null));
 
     moveResult = engine.move(player1, List.of("skill", "3", "endurance"));
 
@@ -160,7 +160,7 @@ public class EngineTest {
       }
     };
     when(rules.skill(any(SkillActionInput.class)))
-        .thenReturn(new SkillActionOutput(true, 3, 2, null, newM1Stats));
+        .thenReturn(new SkillActionOutput(true, 2, 3, 2, 3, 0, null, newM1Stats));
 
     moveResult = engine.move(player1, List.of("skill", "3", "accuracy", "monster1"));
 
@@ -191,7 +191,7 @@ public class EngineTest {
   @Test
   public void testCatchBreath() {
     when(rules.catchBreath(any(CatchBreathInput.class)))
-        .thenReturn(new CatchBreathOutput(2));
+        .thenReturn(new CatchBreathOutput(2, 8));
 
     moveResult = engine.move(player1, List.of("catch", "breath"));
 
@@ -211,7 +211,7 @@ public class EngineTest {
   @Test
   public void testAlreadyMoved() {
     when(rules.maneuver(any(ManeuverInput.class)))
-        .thenReturn(new ManeuverOutput(true, 2, 4));
+        .thenReturn(new ManeuverOutput(true, 4, 5, 2, 4, 4, 7));
     engine.move(player1, List.of("maneuver", "2", "courage"));
 
     assertThrows(IllegalArgumentException.class,
@@ -239,24 +239,24 @@ public class EngineTest {
   @Test
   public void testNextTeamAndRound() {
     when(rules.maneuver(any(ManeuverInput.class)))
-        .thenReturn(new ManeuverOutput(true, 2, 4));
+        .thenReturn(new ManeuverOutput(true, 4, 5, 2, 4, 4, 7));
 
     moveResult = engine.move(player1, List.of("maneuver", "2", "courage"));
-    assertFalse(moveResult.contains("A new team is moving"));
-    assertFalse(moveResult.contains("Now starting round"));
+    assertFalse(moveResult.contains("New team moving"));
+    assertFalse(moveResult.contains("New round"));
 
     moveResult = engine.move(player2, List.of("maneuver", "2", "speed"));
     // player3 is knocked out
-    assertTrue(moveResult.contains("A new team is moving: team2"));
-    assertFalse(moveResult.contains("Now starting round"));
+    assertTrue(moveResult.contains("New team moving: team2"));
+    assertFalse(moveResult.contains("New round"));
 
     moveResult = engine.move(monster1, List.of("maneuver", "2", "speed"));
-    assertFalse(moveResult.contains("A new team is moving"));
-    assertFalse(moveResult.contains("Now starting round"));
+    assertFalse(moveResult.contains("New team moving"));
+    assertFalse(moveResult.contains("New round"));
 
     moveResult = engine.move(monster2, List.of("maneuver", "2", "speed"));
-    assertTrue(moveResult.contains("A new team is moving: team1"));
-    assertTrue(moveResult.contains("Now starting round 2"));
+    assertTrue(moveResult.contains("New team moving: team1"));
+    assertTrue(moveResult.contains("New round:       2"));
   }
 
   private static Player makeTestPlayer(String name,

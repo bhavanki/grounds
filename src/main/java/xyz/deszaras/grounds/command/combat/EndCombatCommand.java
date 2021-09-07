@@ -37,7 +37,7 @@ public class EndCombatCommand extends Command<String> {
     }
 
     combat.end();
-    CombatCommand.messageAllCombatants(combat, "Combat is over.");
+    CombatCommand.messageAllCombatants(combat, "Combat has ended.");
 
     location.take(combat);
     Universe.getCurrent().removeThing(combat);
