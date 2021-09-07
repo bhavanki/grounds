@@ -314,7 +314,9 @@ public class Engine {
     StringBuilder b = new StringBuilder(border).append("\n");
 
     if (over) {
-      b.append(AnsiUtils.color("COMBAT IS OVER", Ansi.Color.RED, true));
+      b.append(AnsiUtils.color("COMBAT IS OVER! Winning team: " +
+                               (winningTeam != null ? winningTeam.getName() : "none!"),
+                               Ansi.Color.RED, true));
     } else {
       b.append("Round: ").append(round);
     }
