@@ -50,10 +50,7 @@ public class AnsiUtils {
       }
     }
     a.a(s);
-    if (bgColor != null) {
-      a.bgDefault();
-    }
-    return a.fgDefault().toString();
+    return a.reset().toString();
   }
 
   /**

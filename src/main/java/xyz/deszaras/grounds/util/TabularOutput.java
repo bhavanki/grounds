@@ -1,10 +1,9 @@
 package xyz.deszaras.grounds.util;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.fusesource.jansi.Ansi;
 
@@ -28,7 +27,7 @@ public class TabularOutput {
   }
 
   private List<ColumnDef> columnDefs;
-  private List<List<String>> rows;
+  private List<List<CharSequence>> rows;
 
   /**
    * Start a new table.
@@ -83,7 +82,9 @@ public class TabularOutput {
         String.format("The table has %d columns, but this row has %d values",
                       columnDefs.size(), values.length));
     }
-    rows.add(Arrays.asList(values));
+    rows.add(Arrays.stream(values)
+             .map(s -> new AnsiString(s))
+             .collect(Collectors.toList()));
     return this;
   }
 
@@ -101,7 +102,9 @@ public class TabularOutput {
         String.format("The table has %d columns, but this row has %d values",
                       columnDefs.size(), values.size()));
     }
-    rows.add(ImmutableList.copyOf(values));
+    rows.add(values.stream()
+             .map(s -> new AnsiString(s))
+             .collect(Collectors.toList()));
     return this;
   }
 
@@ -132,7 +135,7 @@ public class TabularOutput {
     } else {
       int numRows = rows.size();
       for (int i = 0; i < numRows; i++) {
-        List<String> row = rows.get(i);
+        List<CharSequence> row = rows.get(i);
         StringBuilder r = new StringBuilder();
         for (int j = 0; j < numColumns; j++) {
           if (j != 0) {
