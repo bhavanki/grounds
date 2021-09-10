@@ -88,6 +88,15 @@ public class Combat extends Thing {
     }
   }
 
+  public void removePlayer(String playerName, String teamName) {
+    LOG.debug("Removing player {} from {}", playerName, teamName);
+    failIfStarted();
+    if (teamBuilders.containsKey(teamName)) {
+      Engine.Team.Builder teamBuilder = teamBuilders.get(teamName);
+      teamBuilder.removeMember(playerName);
+    }
+  }
+
   public void start() {
     LOG.debug("Starting combat");
     failIfStarted();

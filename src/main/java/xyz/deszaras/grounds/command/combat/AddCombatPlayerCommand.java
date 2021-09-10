@@ -39,7 +39,7 @@ public class AddCombatPlayerCommand extends Command<String> {
 
     try {
       combat.addPlayer(teamPlayer, teamName);
-      CombatCommand.messageAllCombatants(combat, player.getName() +
+      CombatCommand.messageAllCombatants(combat, teamPlayer.getName() +
                                          " is added to team " + teamName);
       return "Added " + teamPlayer.getName() + " to team " + teamName;
     } catch (IllegalStateException e) {
