@@ -259,9 +259,9 @@ public class Rules {
   }
 
   public CatchBreathOutput catchBreath(CatchBreathInput input) {
-    input.stats.addAd(2);
+    input.stats.addAd(3);
 
-    return new CatchBreathOutput(2, input.stats.getAd());
+    return new CatchBreathOutput(3, input.stats.getAd());
   }
 
   @VisibleForTesting

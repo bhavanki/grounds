@@ -307,8 +307,8 @@ public class RulesTest {
 
     CatchBreathOutput o = r.catchBreath(new CatchBreathInput(s));
 
-    assertEquals(2, o.adEarned);
-    assertEquals(7, s.getAd());
+    assertEquals(3, o.adEarned);
+    assertEquals(8, s.getAd());
   }
 
   @Test
