@@ -21,7 +21,7 @@ import xyz.deszaras.grounds.model.Player;
  * Arguments: move command to be passed to engine
  */
 @PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
-public class MoveCombatCommand extends Command<String> {
+public class MoveCombatCommand extends Command<Boolean> {
 
   private final List<String> moveCommand;
 
@@ -31,7 +31,7 @@ public class MoveCombatCommand extends Command<String> {
   }
 
   @Override
-  protected String executeImpl() throws CommandException {
+  protected Boolean executeImpl() throws CommandException {
     Place location = getPlayerLocation("move in combat");
     Combat combat = CombatCommand.findCombatOrFail(location);
 
@@ -41,7 +41,7 @@ public class MoveCombatCommand extends Command<String> {
     b.append("\n\n").append(combat.status());
     CombatCommand.messageAllCombatants(combat, b.toString());
 
-    return moveResult;
+    return true;
   }
 
   public static MoveCombatCommand newCommand(Actor actor, Player player,
