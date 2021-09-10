@@ -155,6 +155,7 @@ public class BaseStats implements Stats {
     private int apMaxSize;
     private int defense;
     private int maxWounds;
+    private boolean npc;
 
     public Builder skill(Skill skill, int rating) {
       Preconditions.checkArgument(rating >= 2 && rating <= 4,
@@ -184,6 +185,11 @@ public class BaseStats implements Stats {
       return this;
     }
 
+    public Builder npc() {
+      this.npc = true;
+      return this;
+    }
+
     public BaseStats build() {
       validateSkills();
       Preconditions.checkState(apMaxSize > 0, "apMaxSize must be positive");
@@ -196,13 +202,15 @@ public class BaseStats implements Stats {
       if (skills == null) {
         throw new IllegalStateException("No skills are set");
       }
-      Collection<Integer> values = skills.values();
-      if (values.size() != 3) {
-        throw new IllegalStateException("Exactly 3 skills are required");
-      }
-      for (int i = 2; i <= 4; i++) {
-        if (!values.contains(i)) {
-          throw new IllegalStateException("No skill with rating " + i + " is set");
+      if (!npc) {
+        Collection<Integer> values = skills.values();
+        if (values.size() != 3) {
+          throw new IllegalStateException("Exactly 3 skills are required");
+        }
+        for (int i = 2; i <= 4; i++) {
+          if (!values.contains(i)) {
+            throw new IllegalStateException("No skill with rating " + i + " is set");
+          }
         }
       }
     }

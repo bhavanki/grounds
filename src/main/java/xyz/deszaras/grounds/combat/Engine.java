@@ -196,6 +196,19 @@ public class Engine {
       }
 
       /**
+       * Removes a player from this team.
+       *
+       * @param  playerName name of player to remove as member
+       * @return            this builder
+       */
+      Builder removeMember(String playerName) {
+        members.keySet().stream()
+            .filter(p -> p.getName().equals(playerName))
+            .findFirst().ifPresent(p -> members.remove(p));
+        return this;
+      }
+
+      /**
        * Gets the current members of this team.
        *
        * @return team members
@@ -594,20 +607,41 @@ public class Engine {
 
   private static Stats buildStats(Player player) {
     LOG.debug("Building stats for {}", player.getName());
-    BaseStats stats = BaseStats.builder()
-        .skill(Skills.forName(getAttr(player, ATTR_NAME_SKILL_4).getValue()), 4)
-        .skill(Skills.forName(getAttr(player, ATTR_NAME_SKILL_3).getValue()), 3)
-        .skill(Skills.forName(getAttr(player, ATTR_NAME_SKILL_2).getValue()), 2)
-        .apMaxSize(getAttr(player, ATTR_NAME_AP_MAX_SIZE).getIntValue())
-        .defense(getAttr(player, ATTR_NAME_DEFENSE).getIntValue())
-        .maxWounds(getAttr(player, ATTR_NAME_MAX_WOUNDS).getIntValue())
-        .build();
-    stats.init(getAttr(player, ATTR_NAME_AD).getIntValue(),
-               getAttr(player, ATTR_NAME_SD).getIntValue());
+    BaseStats.Builder statsBuilder = BaseStats.builder()
+        .apMaxSize(getRequiredAttr(player, ATTR_NAME_AP_MAX_SIZE).getIntValue())
+        .defense(getRequiredAttr(player, ATTR_NAME_DEFENSE).getIntValue())
+        .maxWounds(getRequiredAttr(player, ATTR_NAME_MAX_WOUNDS).getIntValue());
+    Optional<Attr> skill4Attr = getAttr(player, ATTR_NAME_SKILL_4);
+    if (skill4Attr.isPresent()) {
+      statsBuilder.skill(Skills.forName(skill4Attr.get().getValue()), 4);
+    }
+    Optional<Attr> skill3Attr = getAttr(player, ATTR_NAME_SKILL_3);
+    if (skill3Attr.isPresent()) {
+      statsBuilder.skill(Skills.forName(skill3Attr.get().getValue()), 3);
+    }
+    Optional<Attr> skill2Attr = getAttr(player, ATTR_NAME_SKILL_2);
+    if (skill2Attr.isPresent()) {
+      statsBuilder.skill(Skills.forName(skill2Attr.get().getValue()), 2);
+    }
+    if (player instanceof Npc) {
+      statsBuilder.npc();
+    }
+    BaseStats stats = statsBuilder.build();
+    stats.init(getRequiredAttr(player, ATTR_NAME_AD).getIntValue(),
+               getRequiredAttr(player, ATTR_NAME_SD).getIntValue());
     return stats;
   }
 
-  private static Attr getAttr(Player player, String name) {
+  private static Optional<Attr> getAttr(Player player, String name) {
+    Optional<Attr> attrOpt = player.getAttr(name);
+    if (attrOpt.isEmpty() && !(player instanceof Npc)) {
+      throw new IllegalArgumentException("Player " + player.getName() +
+                                         " is missing attribute " + name);
+    }
+    return attrOpt;
+  }
+
+  private static Attr getRequiredAttr(Player player, String name) {
     Optional<Attr> attrOpt = player.getAttr(name);
     if (attrOpt.isEmpty()) {
       throw new IllegalArgumentException("Player " + player.getName() +
@@ -618,7 +652,7 @@ public class Engine {
 
   private static void drainStats(Player player, Stats stats) {
     int finalAd = stats.getAd() + (stats.getSd() + 1) / 2;
-    int apMaxSize = getAttr(player, ATTR_NAME_AP_MAX_SIZE).getIntValue();
+    int apMaxSize = getRequiredAttr(player, ATTR_NAME_AP_MAX_SIZE).getIntValue();
     if (finalAd > apMaxSize) {
       finalAd = apMaxSize;
     }

@@ -10,10 +10,13 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import xyz.deszaras.grounds.command.combat.AddCombatNpcCommand;
 import xyz.deszaras.grounds.command.combat.AddCombatPlayerCommand;
 import xyz.deszaras.grounds.command.combat.EndCombatCommand;
 import xyz.deszaras.grounds.command.combat.InitCombatCommand;
 import xyz.deszaras.grounds.command.combat.MoveCombatCommand;
+// import xyz.deszaras.grounds.command.combat.MoveNpcCombatCommand;
+import xyz.deszaras.grounds.command.combat.RemoveCombatNpcCommand;
 import xyz.deszaras.grounds.command.combat.RemoveCombatPlayerCommand;
 // import xyz.deszaras.grounds.command.combat.ResolveRoundCombatCommand;
 import xyz.deszaras.grounds.command.combat.StartCombatCommand;
@@ -91,11 +94,15 @@ public class CombatCommand extends Command<String> {
         .put("INIT", InitCombatCommand.class)
         .put("END", EndCombatCommand.class)
         .put("ADD", AddCombatPlayerCommand.class)
+        .put("ADD_NPC", AddCombatNpcCommand.class)
         .put("REMOVE", RemoveCombatPlayerCommand.class)
+        .put("REMOVE_NPC", RemoveCombatNpcCommand.class)
         .put("STATUS", StatusCombatCommand.class)
         .put("START", StartCombatCommand.class)
         .put("MOVE", MoveCombatCommand.class)
+        // .put("MOVE_NPC", MoveNpcCombatCommand.class)
         .put("M", MoveCombatCommand.class)
+        // .put("MN", MoveNpcCombatCommand.class)
         // .put("RESOLVE_ROUND", ResolveRoundCombatCommand.class)
         .build();
   }
