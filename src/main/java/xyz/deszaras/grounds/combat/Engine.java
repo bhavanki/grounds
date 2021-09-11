@@ -342,6 +342,9 @@ public class Engine {
       }
       TabularOutput table = new TabularOutput();
       table.defineColumn(teamName, "%-20.20s")
+          .defineColumn("S4", "%2s")
+          .defineColumn("S3", "%2s")
+          .defineColumn("S2", "%2s")
           .defineColumn("AD", "%2s")
           .defineColumn("SD", "%2s")
           .defineColumn("DEF", "%3s")
@@ -355,6 +358,24 @@ public class Engine {
         } else if (isMovingTeam && yetToMove.contains(player)) {
           playerName += " <-";
         }
+        Map<Skill, Integer> skills = playerStats.getSkills();
+        String skill4Abbrev = "";
+        String skill3Abbrev = "";
+        String skill2Abbrev = "";
+        for (Map.Entry<Skill, Integer> e : skills.entrySet()) {
+          String abbrev = e.getKey().getAbbrev();
+          switch (e.getValue().intValue()) {
+            case 4:
+              skill4Abbrev = abbrev;
+              break;
+            case 3:
+              skill3Abbrev = abbrev;
+              break;
+            case 2:
+              skill2Abbrev = abbrev;
+              break;
+          }
+        }
         String woundString;
         int numWounds = playerStats.getWounds();
         if (playerStats.isOut()) {
@@ -363,6 +384,9 @@ public class Engine {
           woundString = "*".repeat(numWounds);
         }
         table.addRow(playerName,
+                     skill4Abbrev,
+                     skill3Abbrev,
+                     skill2Abbrev,
                      Integer.toString(playerStats.getAd()),
                      Integer.toString(playerStats.getSd()),
                      Integer.toString(playerStats.getDefense()),

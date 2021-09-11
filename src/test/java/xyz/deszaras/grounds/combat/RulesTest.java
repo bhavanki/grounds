@@ -39,9 +39,9 @@ public class RulesTest {
       }
     };
 
-  private static final Skill FIGHTIN = new Skill("fightin", 2, true, RAISE_DEF);
-  private static final Skill SMACKIN = new Skill("smackin", 3, false, null);
-  private static final Skill BRAWLIN = new Skill("brawlin", 4, false, DROP_DEF);
+  private static final Skill FIGHTIN = new Skill("fightin", "ft", 2, true, RAISE_DEF);
+  private static final Skill SMACKIN = new Skill("smackin", "sm", 3, false, null);
+  private static final Skill BRAWLIN = new Skill("brawlin", "br", 4, false, DROP_DEF);
 
   private BaseStats s;
   private BaseStats ds;

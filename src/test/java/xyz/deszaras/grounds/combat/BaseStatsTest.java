@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test;
 
 public class BaseStatsTest {
 
-  private static final Skill FIGHTIN = new Skill("fightin", 2, false, null);
-  private static final Skill SMACKIN = new Skill("smackin", 3, false, null);
-  private static final Skill BRAWLIN = new Skill("brawlin", 4, false, null);
-  private static final Skill LOVIN = new Skill("lovin", 1, false, null);
+  private static final Skill FIGHTIN = new Skill("fightin", "ft", 2, false, null);
+  private static final Skill SMACKIN = new Skill("smackin", "sm", 3, false, null);
+  private static final Skill BRAWLIN = new Skill("brawlin", "br", 4, false, null);
+  private static final Skill LOVIN = new Skill("lovin", "lv", 1, false, null);
 
   private BaseStats s;
 
