@@ -11,6 +11,7 @@ import java.util.function.Function;
 public class Skill {
 
   private final String name;
+  private final String abbrev;
   private final int actionDifficulty;
   private final boolean targetsSelf;
   private final Function<Stats, Stats> statsFunction;
@@ -19,13 +20,15 @@ public class Skill {
    * Creates a new skill.
    *
    * @param  name             name
+   * @param  abbrev           abbreviated (2-character) name
    * @param  actionDifficulty difficulty for skill action (number of succs)
    * @param  targetsSelf      true if skill action targets self
    * @param  statsFunction    function to apply to target stats on action success
    */
-  public Skill(String name, int actionDifficulty, boolean targetsSelf,
+  public Skill(String name, String abbrev, int actionDifficulty, boolean targetsSelf,
                Function<Stats, Stats> statsFunction) {
     this.name = Objects.requireNonNull(name, "name must not be null");
+    this.abbrev = Objects.requireNonNull(abbrev, "abbrev must not be null");
     Preconditions.checkArgument(actionDifficulty > 0,
                                 "actionDifficulty must be positive");
     this.actionDifficulty = actionDifficulty;
@@ -44,6 +47,15 @@ public class Skill {
    */
   public String getName() {
     return name;
+  }
+
+  /**
+   * Gets the abbreviated skill name.
+   *
+   * @return abbreviated skill name
+   */
+  public String getAbbrev() {
+    return abbrev;
   }
 
   /**

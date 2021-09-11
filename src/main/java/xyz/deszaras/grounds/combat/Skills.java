@@ -11,47 +11,47 @@ public class Skills {
   }
 
   public static final Skill ACCURACY =
-      new Skill("Accuracy", 3, false, s -> new DefenseBonus(s, -1));
+      new Skill("Accuracy", "ac", 3, false, s -> new DefenseBonus(s, -1));
   public static final Skill COURAGE =
-      new Skill("Courage", 2, true, s -> {
+      new Skill("Courage", "co", 2, true, s -> {
         s.addAd(6);
         return s;
       });
   public static final Skill ENDURANCE =
-      new Skill("Endurance", 2, true, s -> new DefenseBonus(s, 1));
+      new Skill("Endurance", "en", 2, true, s -> new DefenseBonus(s, 1));
   public static final Skill INTIMIDATION =
-      new Skill("Intimidation", 2, false, s -> {
+      new Skill("Intimidation", "in", 2, false, s -> {
         s.addAd(-4);
         return s;
       });
   public static final Skill LEADERSHIP =
-      new Skill("Leadership", 2, false, s -> {
+      new Skill("Leadership", "ld", 2, false, s -> {
         s.addAd(3);
         return s;
       });
   public static final Skill MEDICAL =
-      new Skill("Medical", 4, false, s -> {
+      new Skill("Medical", "md", 4, false, s -> {
         s.wound(-1);
         return s;
       });
   public static final Skill SPEED =
-      new Skill("Speed", 2, true, s -> new ManeuverBonus(s, 1));
+      new Skill("Speed", "sp", 2, true, s -> new ManeuverBonus(s, 1));
   public static final Skill SPIRIT =
-      new Skill("Spirit", 4, true, s -> new StrikeBonus(s, 1));
+      new Skill("Spirit", "sr", 4, true, s -> new StrikeBonus(s, 1));
   public static final Skill STRATEGY =
-      new Skill("Strategy", 3, true, s -> new ApMaxSizeBonus(s, 4));
+      new Skill("Strategy", "sy", 3, true, s -> new ApMaxSizeBonus(s, 4));
   public static final Skill TACTICS =
-      new Skill("Tactics", 2, false, s -> {
+      new Skill("Tactics", "tc", 2, false, s -> {
         s.addSd(2);
         return s;
       });
   public static final Skill TAUNTING =
-      new Skill("Taunting", 2, false, s -> {
+      new Skill("Taunting", "tt", 2, false, s -> {
         s.addSd(-2);
         return s;
       });
   public static final Skill TRICKSTER =
-      new Skill("Trickster", 4, false, s -> {
+      new Skill("Trickster", "tr", 4, false, s -> {
         s.setSd(0);
         return s;
       });
@@ -72,7 +72,7 @@ public class Skills {
   );
 
   /**
-   * Gets the skill with the given name.
+   * Gets the skill with the given name or abbreviation.
    *
    * @param  name skill name
    * @return      skill
@@ -81,6 +81,9 @@ public class Skills {
   public static Skill forName(String name) {
     for (Skill sk : ALL_SKILLS) {
       if (sk.getName().equalsIgnoreCase(name)) {
+        return sk;
+      }
+      if (sk.getAbbrev().equalsIgnoreCase(name)) {
         return sk;
       }
     }

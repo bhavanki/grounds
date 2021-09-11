@@ -16,7 +16,7 @@ public class SkillTest {
 
   @BeforeEach
   public void setUp() {
-    skill = new Skill("Dancing", 2, true, s -> {
+    skill = new Skill("Dancing", "DA", 2, true, s -> {
       s.setAd(10);
       return s;
     });
@@ -25,6 +25,7 @@ public class SkillTest {
   @Test
   public void testGetters() {
     assertEquals("Dancing", skill.getName());
+    assertEquals("DA", skill.getAbbrev());
     assertEquals(2, skill.getActionDifficulty());
     assertTrue(skill.targetsSelf());
   }
