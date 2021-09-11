@@ -128,6 +128,11 @@ public class Combat extends Thing {
     return engine.status();
   }
 
+  public String move(String playerName, List<String> command) {
+    failIfNotStarted();
+    return engine.move(playerName, command);
+  }
+
   public String move(Player player, List<String> command) {
     failIfNotStarted();
     return engine.move(player, command);

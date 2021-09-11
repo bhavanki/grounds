@@ -15,7 +15,7 @@ import xyz.deszaras.grounds.command.combat.AddCombatPlayerCommand;
 import xyz.deszaras.grounds.command.combat.EndCombatCommand;
 import xyz.deszaras.grounds.command.combat.InitCombatCommand;
 import xyz.deszaras.grounds.command.combat.MoveCombatCommand;
-// import xyz.deszaras.grounds.command.combat.MoveNpcCombatCommand;
+import xyz.deszaras.grounds.command.combat.MoveNpcCombatCommand;
 import xyz.deszaras.grounds.command.combat.RemoveCombatNpcCommand;
 import xyz.deszaras.grounds.command.combat.RemoveCombatPlayerCommand;
 // import xyz.deszaras.grounds.command.combat.ResolveRoundCombatCommand;
@@ -100,9 +100,9 @@ public class CombatCommand extends Command<String> {
         .put("STATUS", StatusCombatCommand.class)
         .put("START", StartCombatCommand.class)
         .put("MOVE", MoveCombatCommand.class)
-        // .put("MOVE_NPC", MoveNpcCombatCommand.class)
+        .put("MOVE_NPC", MoveNpcCombatCommand.class)
         .put("M", MoveCombatCommand.class)
-        // .put("MN", MoveNpcCombatCommand.class)
+        .put("MN", MoveNpcCombatCommand.class)
         // .put("RESOLVE_ROUND", ResolveRoundCombatCommand.class)
         .build();
   }
