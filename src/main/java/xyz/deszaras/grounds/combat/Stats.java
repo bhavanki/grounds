@@ -7,6 +7,12 @@ public interface Stats {
   Map<Skill, Integer> getSkills();
   int getRating(Skill sk);
 
+  Map<Skill, Boolean> getSkillUses();
+  void useSkill(Skill sk);
+  boolean isUsed(Skill sk);
+  boolean allSkillsUsed();
+  void resetSkillUses();
+
   int getApMaxSize();
   int getAd();
   int addAd(int amt);

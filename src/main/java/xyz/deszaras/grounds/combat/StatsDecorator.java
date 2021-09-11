@@ -21,6 +21,27 @@ public abstract class StatsDecorator implements Stats {
   }
 
   @Override
+  public Map<Skill, Boolean> getSkillUses() {
+    return delegate.getSkillUses();
+  }
+  @Override
+  public void useSkill(Skill sk) {
+    delegate.useSkill(sk);
+  }
+  @Override
+  public boolean isUsed(Skill sk) {
+    return delegate.isUsed(sk);
+  }
+  @Override
+  public boolean allSkillsUsed() {
+    return delegate.allSkillsUsed();
+  }
+  @Override
+  public void resetSkillUses() {
+    delegate.resetSkillUses();
+  }
+
+  @Override
   public int getApMaxSize() {
     return delegate.getApMaxSize();
   }

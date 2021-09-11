@@ -41,27 +41,30 @@ public class Rules {
     public final int adSpent;
     public final int newAd;
     public final int sdEarned;
+    public final int sdFromSkillUse;
     public final int newSd;
 
     public ManeuverOutput(boolean success, int numSuccs, int numRolls,
-                          int adSpent, int newAd, int sdEarned, int newSd) {
+                          int adSpent, int newAd, int sdEarned,
+                          int sdFromSkillUse, int newSd) {
       this.success = success;
       this.numSuccs = numSuccs;
       this.numRolls = numRolls;
       this.adSpent = adSpent;
       this.newAd = newAd;
       this.sdEarned = sdEarned;
+      this.sdFromSkillUse = sdFromSkillUse;
       this.newSd = newSd;
     }
 
     @Override
     public String formatResult() {
       if (success) {
-        return String.format("The maneuver succeeds (%d/%d): AD-%d=%d SD+%d=%d",
-                             numSuccs, numRolls, adSpent, newAd, sdEarned, newSd);
+        return String.format("The maneuver succeeds (%d/%d): AD-%d=%d SD+%d+%d=%d",
+                             numSuccs, numRolls, adSpent, newAd, sdEarned, sdFromSkillUse, newSd);
       } else {
-        return String.format("The maneuver fails (%d/%d). No AD are spent, and no SD are earned.",
-                             numSuccs, numRolls);
+        return String.format("The maneuver fails (%d/%d). No AD are spent. SD+%d=%d",
+                             numSuccs, numRolls, sdFromSkillUse, newSd);
       }
     }
   }
@@ -82,9 +85,18 @@ public class Rules {
       input.stats.addSd(sdEarned);
     }
 
+    int sdFromSkillUse = 0;
+    if (input.stats.getSkills().size() == 3 &&
+        input.stats.allSkillsUsed()) { // prior to maneuver start
+      sdFromSkillUse = 2;
+      input.stats.resetSkillUses();
+    }
+    input.stats.useSkill(input.skill);
+    input.stats.addSd(sdFromSkillUse);
+
     return new ManeuverOutput(!totalFailure, sdEarned, nd,
                               totalFailure ? 0 : input.ad, input.stats.getAd(),
-                              sdEarned, input.stats.getSd());
+                              sdEarned, sdFromSkillUse, input.stats.getSd());
   }
 
   public static class StrikeInput implements Input {
