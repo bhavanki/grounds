@@ -10,6 +10,7 @@ import java.util.Map;
 public class BaseStats implements Stats {
 
   private final Map<Skill, Integer> skills;
+  private final Map<Skill, Boolean> skillUses;
   private final int apMaxSize;
   private final int defense;
   private final int maxWounds;
@@ -21,6 +22,10 @@ public class BaseStats implements Stats {
   private BaseStats(Map<Skill, Integer> skills, int apMaxSize, int defense,
                     int maxWounds) {
     this.skills = ImmutableMap.copyOf(skills);
+    this.skillUses = new HashMap<>();
+    for (Skill sk : skills.keySet()) {
+      skillUses.put(sk, false);
+    }
     this.apMaxSize = apMaxSize;
     this.defense = defense;
     this.maxWounds = maxWounds;
@@ -52,6 +57,33 @@ public class BaseStats implements Stats {
       throw new IllegalArgumentException("Skill " + sk.getName() + " not present");
     }
     return skills.get(sk);
+  }
+
+  @Override
+  public Map<Skill, Boolean> getSkillUses() {
+    return ImmutableMap.copyOf(skillUses);
+  }
+
+  @Override
+  public void useSkill(Skill sk) {
+    skillUses.put(sk, true);
+  }
+
+  @Override
+  public boolean isUsed(Skill sk) {
+    return skillUses.get(sk);
+  }
+
+  @Override
+  public boolean allSkillsUsed() {
+    return skillUses.values().stream().allMatch(u -> u);
+  }
+
+  @Override
+  public void resetSkillUses() {
+    for (Skill sk : skillUses.keySet()) {
+      skillUses.put(sk, false);
+    }
   }
 
   @Override

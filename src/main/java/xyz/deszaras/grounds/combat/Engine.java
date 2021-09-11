@@ -364,6 +364,9 @@ public class Engine {
         String skill2Abbrev = "";
         for (Map.Entry<Skill, Integer> e : skills.entrySet()) {
           String abbrev = e.getKey().getAbbrev();
+          if (playerStats.isUsed(e.getKey())) {
+            abbrev = abbrev.toUpperCase();
+          }
           switch (e.getValue().intValue()) {
             case 4:
               skill4Abbrev = abbrev;

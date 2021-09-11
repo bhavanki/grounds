@@ -84,6 +84,9 @@ public class RulesTest {
     assertTrue(o.success);
     assertEquals(3, o.adSpent);
     assertEquals(2, o.sdEarned);
+    assertEquals(7, o.newSd);
+
+    assertTrue(s.isUsed(BRAWLIN));
   }
 
   @Test
@@ -100,6 +103,92 @@ public class RulesTest {
     assertFalse(o.success);
     assertEquals(0, o.adSpent);
     assertEquals(0, o.sdEarned);
+    assertEquals(0, o.sdFromSkillUse);
+    assertEquals(5, o.newSd);
+
+    assertTrue(s.isUsed(BRAWLIN));
+  }
+
+  @Test
+  public void testManeuverSuccessWithSkillUse() {
+    s.useSkill(FIGHTIN);
+    s.useSkill(SMACKIN);
+    s.useSkill(BRAWLIN);
+    r = new Rules() {
+      @Override
+      public int[] roll(int n) {
+        return new int[] { 1, 1, 5, 6, 1 };
+      }
+    };
+
+    ManeuverOutput o = r.maneuver(new ManeuverInput(s, BRAWLIN, 3));
+
+    assertTrue(o.success);
+    assertEquals(3, o.adSpent);
+    assertEquals(2, o.sdEarned);
+    assertEquals(2, o.sdFromSkillUse);
+    assertEquals(9, o.newSd);
+
+    assertFalse(s.isUsed(FIGHTIN));
+    assertFalse(s.isUsed(SMACKIN));
+    assertTrue(s.isUsed(BRAWLIN));
+  }
+
+  @Test
+  public void testManeuverSuccessWithDisabledSkillUse() {
+    s = BaseStats.builder().npc()
+        .skill(BRAWLIN, 2)
+        .skill(SMACKIN, 3)
+        .apMaxSize(10)
+        .defense(2)
+        .maxWounds(3)
+        .build();
+    s.init(9, 5, 0);
+
+    s.useSkill(SMACKIN);
+    s.useSkill(BRAWLIN);
+    r = new Rules() {
+      @Override
+      public int[] roll(int n) {
+        return new int[] { 1, 1, 5, 6, 1 };
+      }
+    };
+
+    ManeuverOutput o = r.maneuver(new ManeuverInput(s, BRAWLIN, 3));
+
+    assertTrue(o.success);
+    assertEquals(3, o.adSpent);
+    assertEquals(2, o.sdEarned);
+    assertEquals(0, o.sdFromSkillUse);
+    assertEquals(7, o.newSd);
+
+    assertTrue(s.isUsed(SMACKIN));
+    assertTrue(s.isUsed(BRAWLIN));
+  }
+
+  @Test
+  public void testManeuverFailureWithSkillUse() {
+    s.useSkill(FIGHTIN);
+    s.useSkill(SMACKIN);
+    s.useSkill(BRAWLIN);
+    r = new Rules() {
+      @Override
+      public int[] roll(int n) {
+        return new int[] { 1, 1, 1, 1, 1 };
+      }
+    };
+
+    ManeuverOutput o = r.maneuver(new ManeuverInput(s, BRAWLIN, 3));
+
+    assertFalse(o.success);
+    assertEquals(0, o.adSpent);
+    assertEquals(0, o.sdEarned);
+    assertEquals(2, o.sdFromSkillUse);
+    assertEquals(7, o.newSd);
+
+    assertFalse(s.isUsed(FIGHTIN));
+    assertFalse(s.isUsed(SMACKIN));
+    assertTrue(s.isUsed(BRAWLIN));
   }
 
   @Test

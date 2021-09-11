@@ -89,7 +89,7 @@ public class EngineTest {
   @Test
   public void testManeuver() {
     when(rules.maneuver(any(ManeuverInput.class)))
-        .thenReturn(new ManeuverOutput(true, 4, 5, 2, 4, 4, 7));
+        .thenReturn(new ManeuverOutput(true, 4, 5, 2, 4, 4, 0, 7));
 
     moveResult = engine.move(player1, List.of("maneuver", "2", "courage"));
 
@@ -211,7 +211,7 @@ public class EngineTest {
   @Test
   public void testAlreadyMoved() {
     when(rules.maneuver(any(ManeuverInput.class)))
-        .thenReturn(new ManeuverOutput(true, 4, 5, 2, 4, 4, 7));
+        .thenReturn(new ManeuverOutput(true, 4, 5, 2, 4, 4, 0, 7));
     engine.move(player1, List.of("maneuver", "2", "courage"));
 
     assertThrows(IllegalArgumentException.class,
@@ -239,7 +239,7 @@ public class EngineTest {
   @Test
   public void testNextTeamAndRound() {
     when(rules.maneuver(any(ManeuverInput.class)))
-        .thenReturn(new ManeuverOutput(true, 4, 5, 2, 4, 4, 7));
+        .thenReturn(new ManeuverOutput(true, 4, 5, 2, 4, 4, 0, 7));
 
     moveResult = engine.move(player1, List.of("maneuver", "2", "courage"));
     assertFalse(moveResult.contains("New team moving"));
