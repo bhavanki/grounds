@@ -384,6 +384,18 @@ public class Engine {
     return movingTeam.getName();
   }
 
+  public String move(String playerName, List<String> command) {
+    Optional<Player> player = teams.stream()
+        .flatMap(t -> t.getMembers().stream())
+        .filter(p -> p.getName().equals(playerName))
+        .findFirst();
+    if (player.isPresent()) {
+      return move(player.get(), command);
+    }
+    throw new IllegalArgumentException("No player " + playerName +
+                                       " is participating in combat");
+  }
+
   public String move(Player p, List<String> command) {
     if (over) {
       throw new IllegalStateException("Combat is over, so no one may move");

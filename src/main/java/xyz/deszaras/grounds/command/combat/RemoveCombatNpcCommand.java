@@ -2,6 +2,7 @@ package xyz.deszaras.grounds.command.combat;
 
 import java.util.List;
 import java.util.Objects;
+import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.combat.Combat;
 import xyz.deszaras.grounds.command.Actor;
@@ -35,6 +36,11 @@ public class RemoveCombatNpcCommand extends Command<String> {
   protected String executeImpl() throws CommandException {
     Place location = getPlayerLocation("remove an NPC from combat");
     Combat combat = CombatCommand.findCombatOrFail(location);
+
+    if (!combat.passes(Category.WRITE, player)) {
+      return "You lack WRITE permission to the combat here, so you may not " +
+          "remove an NPC from it";
+    }
 
     try {
       combat.removePlayer(npcName, teamName);
