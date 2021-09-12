@@ -123,8 +123,9 @@ public class Combat extends Thing {
 
   public void end() {
     LOG.debug("Ending combat");
-    failIfNotStarted();
-    engine.end();
+    if (engine != null) {
+      engine.end();
+    }
   }
 
   public String status() {
