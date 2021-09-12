@@ -493,6 +493,10 @@ public class Engine {
             throw new IllegalArgumentException("The chosen skill does not require a target");
           }
           dName = command.get(3);
+          // this probably should be in Rules
+          if (dName.equals(p.getName())) {
+            throw new IllegalArgumentException("The chosen skill cannot be targeted at yourself");
+          }
           dTeam = findDefenderTeam(dName);
           dPlayer = dTeam.getMemberByName(dName).get();
           dStats = dTeam.getMemberStats(dPlayer);
