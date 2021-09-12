@@ -97,13 +97,26 @@ public class Combat extends Thing {
     }
   }
 
-  public void start() {
+  public void start(List<String> teamNames) {
     LOG.debug("Starting combat");
     failIfStarted();
     Engine.Builder engineBuilder = Engine.builder();
-    for (Engine.Team.Builder tb : teamBuilders.values()) {
-      engineBuilder.addTeam(tb.build());
+
+    // Add teams in priority order.
+    teamNames.stream().forEach(teamName -> {
+      if (!teamBuilders.containsKey(teamName)) {
+        throw new IllegalArgumentException("Team " + teamName + " does not exist");
+      }
+      engineBuilder.addTeam(teamBuilders.get(teamName).build());
+    });
+
+    // Add any teams left that weren't in the list, in arbitrary order.
+    for (Map.Entry<String, Engine.Team.Builder> e : teamBuilders.entrySet()) {
+      if (!teamNames.contains(e.getKey())) {
+        engineBuilder.addTeam(e.getValue().build());
+      }
     }
+
     engine = engineBuilder.build();
     engine.start();
   }
