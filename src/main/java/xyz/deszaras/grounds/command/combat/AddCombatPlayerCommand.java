@@ -2,6 +2,8 @@ package xyz.deszaras.grounds.command.combat;
 
 import java.util.List;
 import java.util.Objects;
+
+import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.combat.Combat;
 import xyz.deszaras.grounds.command.Actor;
@@ -36,6 +38,12 @@ public class AddCombatPlayerCommand extends Command<String> {
   protected String executeImpl() throws CommandException {
     Place location = getPlayerLocation("add a player to combat");
     Combat combat = CombatCommand.findCombatOrFail(location);
+
+    if (!player.equals(teamPlayer) &&
+        !combat.passes(Category.WRITE, player)) {
+      return "You lack WRITE permission to the combat here, so you may not " +
+        "add a player besides yourself to it";
+    }
 
     try {
       combat.addPlayer(teamPlayer, teamName);
