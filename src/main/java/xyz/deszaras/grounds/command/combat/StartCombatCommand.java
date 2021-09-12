@@ -1,6 +1,9 @@
 package xyz.deszaras.grounds.command.combat;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.List;
+
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.combat.Combat;
@@ -17,13 +20,16 @@ import xyz.deszaras.grounds.model.Player;
  * Starts an existing combat in the player's current location. Only the combat
  * owner or a wizard can start combat.<p>
  *
- * Arguments: none
+ * Arguments: optional team names in moving order
  */
 @PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class StartCombatCommand extends Command<String> {
 
-  public StartCombatCommand(Actor actor, Player player) {
+  private final List<String> teamNames;
+
+  public StartCombatCommand(Actor actor, Player player, List<String> teamNames) {
     super(actor, player);
+    this.teamNames = ImmutableList.copyOf(teamNames);
   }
 
   @Override
@@ -35,16 +41,16 @@ public class StartCombatCommand extends Command<String> {
       return "You lack WRITE permission to the combat here, so you may not start it";
     }
 
-    combat.start();
+    combat.start(teamNames);
 
     CombatCommand.messageAllCombatants(combat, "Combat has started!");
     return combat.status();
   }
 
   public static StartCombatCommand newCommand(Actor actor, Player player,
-                                               List<String> commandArgs)
+                                              List<String> commandArgs)
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 0);
-    return new StartCombatCommand(actor, player);
+    return new StartCombatCommand(actor, player, commandArgs);
   }
 }
