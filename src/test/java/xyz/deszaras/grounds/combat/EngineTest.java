@@ -16,7 +16,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import xyz.deszaras.grounds.combat.Engine.Team;
 import xyz.deszaras.grounds.combat.Rules.CatchBreathInput;
 import xyz.deszaras.grounds.combat.Rules.CatchBreathOutput;
 import xyz.deszaras.grounds.combat.Rules.ManeuverInput;

@@ -10,7 +10,6 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import xyz.deszaras.grounds.combat.Engine.Team;
 import xyz.deszaras.grounds.model.Player;
 
 public class TeamTest {

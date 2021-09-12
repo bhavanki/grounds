@@ -18,8 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import xyz.deszaras.grounds.auth.Policy;
-// TODO: See if the Team concept does not need to be leaked from Engine
-import xyz.deszaras.grounds.combat.Engine.Team;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
@@ -28,7 +26,7 @@ public class Combat extends Thing {
 
   private static final Logger LOG = LoggerFactory.getLogger(Combat.class);
 
-  private Map<String, Engine.Team.Builder> teamBuilders;
+  private Map<String, Team.Builder> teamBuilders;
   private Engine engine;
 
   public Combat(String name) {
@@ -74,8 +72,8 @@ public class Combat extends Thing {
   public void addPlayer(Player player, String teamName) {
     LOG.debug("Adding player {} to {}", player.getName(), teamName);
     failIfStarted();
-    Engine.Team.Builder teamBuilder =
-        teamBuilders.computeIfAbsent(teamName, n -> Engine.Team.builder(n));
+    Team.Builder teamBuilder =
+        teamBuilders.computeIfAbsent(teamName, n -> Team.builder(n));
     teamBuilder.member(player);
   }
 
@@ -83,7 +81,7 @@ public class Combat extends Thing {
     LOG.debug("Removing player {} from {}", player.getName(), teamName);
     failIfStarted();
     if (teamBuilders.containsKey(teamName)) {
-      Engine.Team.Builder teamBuilder = teamBuilders.get(teamName);
+      Team.Builder teamBuilder = teamBuilders.get(teamName);
       teamBuilder.removeMember(player);
     }
   }
@@ -92,7 +90,7 @@ public class Combat extends Thing {
     LOG.debug("Removing player {} from {}", playerName, teamName);
     failIfStarted();
     if (teamBuilders.containsKey(teamName)) {
-      Engine.Team.Builder teamBuilder = teamBuilders.get(teamName);
+      Team.Builder teamBuilder = teamBuilders.get(teamName);
       teamBuilder.removeMember(playerName);
     }
   }
@@ -111,7 +109,7 @@ public class Combat extends Thing {
     });
 
     // Add any teams left that weren't in the list, in arbitrary order.
-    for (Map.Entry<String, Engine.Team.Builder> e : teamBuilders.entrySet()) {
+    for (Map.Entry<String, Team.Builder> e : teamBuilders.entrySet()) {
       if (!teamNames.contains(e.getKey())) {
         engineBuilder.addTeam(e.getValue().build());
       }
