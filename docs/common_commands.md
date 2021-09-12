@@ -219,3 +219,7 @@ When it's time to go, use the `exit` command to disconnect. This terminates your
 ```
 $ exit
 ```
+
+## Combat
+
+See [Combat](combat.md) for a description of the combat system and the commands for it.
