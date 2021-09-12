@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -345,12 +346,14 @@ public class Engine {
           .defineColumn("S4", "%2s")
           .defineColumn("S3", "%2s")
           .defineColumn("S2", "%2s")
-          .defineColumn("AD", "%2s")
+          .defineColumn("AD/AP", "%5s")
           .defineColumn("SD", "%2s")
           .defineColumn("DEF", "%3s")
           .defineColumn("WOUNDS", "%6s");
 
-      for (Player player : team.getMembers()) {
+      List<Player> memberList = new ArrayList<>(team.getMembers());
+      Collections.sort(memberList, (p1, p2) -> p1.getName().compareTo(p2.getName()));
+      for (Player player : memberList) {
         Stats playerStats = team.getMemberStats(player);
         String playerName = player.getName();
         if (playerStats.isOut()) {
@@ -379,6 +382,8 @@ public class Engine {
               break;
           }
         }
+        String adString = Integer.toString(playerStats.getAd()) + "/" +
+            Integer.toString(playerStats.getApMaxSize());
         String woundString;
         int numWounds = playerStats.getWounds();
         if (playerStats.isOut()) {
@@ -390,7 +395,7 @@ public class Engine {
                      skill4Abbrev,
                      skill3Abbrev,
                      skill2Abbrev,
-                     Integer.toString(playerStats.getAd()),
+                     adString,
                      Integer.toString(playerStats.getSd()),
                      Integer.toString(playerStats.getDefense()),
                      woundString);
