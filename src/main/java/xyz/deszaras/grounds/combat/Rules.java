@@ -223,22 +223,35 @@ public class Rules {
   }
 
   public SkillActionOutput skill(SkillActionInput input) {
+    // Check whether the skill action would result in legal stats before even
+    // attempting it. If not, don't perform it.
+    Stats newStats = null;
+    Stats newDStats = null;
+    if (input.skill.targetsSelf()) {
+      newStats = input.skill.applyStatsFunction(input.stats);
+      if (!newStats.isLegal()) {
+        throw new IllegalArgumentException("Success for this skill action " +
+                                           "would result in illegal stats");
+      }
+    } else {
+      newDStats = input.skill.applyStatsFunction(input.dStats);
+      if (!newDStats.isLegal()) {
+        throw new IllegalArgumentException("Success for this skill action " +
+                                           "would result in illegal stats");
+      }
+    }
+
     int nd = input.sd + input.stats.getRating(input.skill) - 2;
 
     int[] rolls = roll(nd);
     int attack = succs(rolls);
     int difficulty = input.skill.getActionDifficulty();
     boolean success = attack >= difficulty;
-    Stats newStats = null;
-    Stats newDStats = null;
     if (success) {
       input.stats.addSd(-input.sd);
-
-      if (input.skill.targetsSelf()) {
-        newStats = input.skill.applyStatsFunction(input.stats);
-      } else {
-        newDStats = input.skill.applyStatsFunction(input.dStats);
-      }
+    } else {
+      newStats = null;
+      newDStats = null;
     }
 
     int newSd = newStats != null ? newStats.getSd() : input.stats.getSd();

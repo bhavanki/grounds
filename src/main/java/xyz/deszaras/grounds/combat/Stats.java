@@ -32,4 +32,12 @@ public interface Stats {
 
   int getManeuverBonus();
   int getStrikeBonus();
+
+  /**
+   * Checks whether these stats are legal according to combat rules, e.g., that
+   * all stats are within required limits.
+   *
+   * @return          true if these stats are legal
+   */
+  boolean isLegal();
 }

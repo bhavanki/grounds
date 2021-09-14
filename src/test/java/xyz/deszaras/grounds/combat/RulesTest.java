@@ -29,6 +29,13 @@ public class RulesTest {
       public int getDefense() {
         return delegate.getDefense() - 1;
       }
+      @Override
+      public boolean isLegal() {
+        if (!super.isLegal()) {
+          return false;
+        }
+        return getDefense() >= Limits.MIN_DEFENSE;
+      }
     };
 
   private static final Function<Stats, Stats> RAISE_DEF =
@@ -36,6 +43,13 @@ public class RulesTest {
       @Override
       public int getDefense() {
         return delegate.getDefense() + 1;
+      }
+      @Override
+      public boolean isLegal() {
+        if (!super.isLegal()) {
+          return false;
+        }
+        return getDefense() <= Limits.MAX_DEFENSE;
       }
     };
 
@@ -358,6 +372,50 @@ public class RulesTest {
   }
 
   @Test
+  public void testSkillActionIllegalStatsSelf() {
+    s = BaseStats.builder()
+        .skill(BRAWLIN, 2)
+        .skill(SMACKIN, 3)
+        .skill(FIGHTIN, 4)
+        .apMaxSize(10)
+        .defense(Limits.MAX_DEFENSE)
+        .maxWounds(3)
+        .build();
+    s.init(9, 5, 0);
+    r = new Rules() {
+      @Override
+      public int[] roll(int n) {
+        return new int[] { 5, 5, 5, 5 };
+      }
+    };
+
+    assertThrows(IllegalArgumentException.class,
+                 () -> r.skill(new SkillActionInput(s, 2, FIGHTIN, null)));
+  }
+
+  @Test
+  public void testSkillActionIllegalStatsOther() {
+    ds = BaseStats.builder()
+        .skill(BRAWLIN, 2)
+        .skill(SMACKIN, 3)
+        .skill(FIGHTIN, 4)
+        .apMaxSize(10)
+        .defense(Limits.MIN_DEFENSE)
+        .maxWounds(3)
+        .build();
+    ds.init(9, 5, 0);
+    r = new Rules() {
+      @Override
+      public int[] roll(int n) {
+        return new int[] { 5, 5, 5, 5 };
+      }
+    };
+
+    assertThrows(IllegalArgumentException.class,
+                 () -> r.skill(new SkillActionInput(s, 2, BRAWLIN, ds)));
+  }
+
+  @Test
   public void testSkillActionNotEnoughStrikeDice() {
     r = new Rules();
     s.setSd(1);
@@ -369,7 +427,7 @@ public class RulesTest {
   }
 
   @Test
-  public void testAchieveNotEnoughStrikeDice2() {
+  public void testSkillActionNotEnoughStrikeDice2() {
     r = new Rules();
 
     assertThrows(IllegalArgumentException.class,
@@ -379,7 +437,7 @@ public class RulesTest {
   }
 
   @Test
-  public void testAchieveTooManyStrikeDice() {
+  public void testSkillActionTooManyStrikeDice() {
     r = new Rules();
     s.setSd(7);
 

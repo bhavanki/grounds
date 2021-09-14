@@ -100,6 +100,19 @@ public class Skills {
     public int getRating(Skill sk) {
       return delegate.getRating(sk) + delta;
     }
+    @Override
+    public boolean isLegal() {
+      if (!super.isLegal()) {
+        return false;
+      }
+      for (Skill sk : delegate.getSkills().keySet()) {
+        if (getRating(sk) < Limits.MIN_SKILL_RATING ||
+            getRating(sk) > Limits.MAX_SKILL_RATING) {
+          return false;
+        }
+      }
+      return true;
+    }
   }
 
   private static class ApMaxSizeBonus extends StatsDecorator {
@@ -111,6 +124,14 @@ public class Skills {
     @Override
     public int getApMaxSize() {
       return delegate.getApMaxSize() + delta;
+    }
+    @Override
+    public boolean isLegal() {
+      if (!super.isLegal()) {
+        return false;
+      }
+      return getApMaxSize() >= Limits.MIN_AP_MAX_SIZE &&
+          getApMaxSize() <= Limits.MAX_AP_MAX_SIZE;
     }
   }
 
@@ -124,6 +145,14 @@ public class Skills {
     public int getDefense() {
       return delegate.getDefense() + delta;
     }
+    @Override
+    public boolean isLegal() {
+      if (!super.isLegal()) {
+        return false;
+      }
+      return getDefense() >= Limits.MIN_DEFENSE &&
+          getDefense() <= Limits.MAX_DEFENSE;
+    }
   }
 
   private static class ManeuverBonus extends StatsDecorator {
@@ -136,6 +165,14 @@ public class Skills {
     public int getManeuverBonus() {
       return delegate.getManeuverBonus() + delta;
     }
+    @Override
+    public boolean isLegal() {
+      if (!super.isLegal()) {
+        return false;
+      }
+      return getManeuverBonus() >= Limits.MIN_MANEUVER_BONUS &&
+          getManeuverBonus() <= Limits.MAX_MANEUVER_BONUS;
+    }
   }
 
   private static class StrikeBonus extends StatsDecorator {
@@ -147,6 +184,14 @@ public class Skills {
     @Override
     public int getStrikeBonus() {
       return delegate.getStrikeBonus() + delta;
+    }
+    @Override
+    public boolean isLegal() {
+      if (!super.isLegal()) {
+        return false;
+      }
+      return getStrikeBonus() >= Limits.MIN_STRIKE_BONUS &&
+          getStrikeBonus() <= Limits.MAX_STRIKE_BONUS;
     }
   }
 }

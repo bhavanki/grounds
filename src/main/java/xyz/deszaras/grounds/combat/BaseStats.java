@@ -168,6 +168,12 @@ public class BaseStats implements Stats {
     return 0;
   }
 
+  @Override
+  public boolean isLegal() {
+    // The builder ensures only legal instances may be constructed.
+    return true;
+  }
+
   private static int bound(int n, int min, int max) {
     if (n < min) {
       return min;
@@ -184,9 +190,9 @@ public class BaseStats implements Stats {
 
   public static class Builder {
     private HashMap<Skill, Integer> skills;
-    private int apMaxSize;
-    private int defense;
-    private int maxWounds;
+    private int apMaxSize = Limits.MIN_AP_MAX_SIZE;
+    private int defense = Limits.MIN_DEFENSE;
+    private int maxWounds = Limits.MIN_MAX_WOUNDS;
     private boolean npc;
 
     public Builder skill(Skill skill, int rating) {
@@ -200,19 +206,34 @@ public class BaseStats implements Stats {
     }
 
     public Builder apMaxSize(int apMaxSize) {
-      Preconditions.checkArgument(apMaxSize > 0, "apMaxSize must be positive");
+      Preconditions.checkArgument(apMaxSize >= Limits.MIN_AP_MAX_SIZE,
+                                  "apMaxSize must be at least " +
+                                  Limits.MIN_AP_MAX_SIZE);
+      Preconditions.checkArgument(apMaxSize <= Limits.MAX_AP_MAX_SIZE,
+                                  "apMaxSize must be no more than " +
+                                  Limits.MAX_AP_MAX_SIZE);
       this.apMaxSize = apMaxSize;
       return this;
     }
 
     public Builder defense(int defense) {
-      Preconditions.checkArgument(defense > 0, "defense must be positive");
+      Preconditions.checkArgument(defense >= Limits.MIN_DEFENSE,
+                                  "defense must be at least " +
+                                  Limits.MIN_DEFENSE);
+      Preconditions.checkArgument(defense <= Limits.MAX_DEFENSE,
+                                  "defense must be no more than " +
+                                  Limits.MAX_DEFENSE);
       this.defense = defense;
       return this;
     }
 
     public Builder maxWounds(int maxWounds) {
-      Preconditions.checkArgument(maxWounds > 0, "maxWounds must be positive");
+      Preconditions.checkArgument(maxWounds >= Limits.MIN_MAX_WOUNDS,
+                                  "maxWounds must be at least " +
+                                  Limits.MIN_MAX_WOUNDS);
+      Preconditions.checkArgument(maxWounds <= Limits.MAX_MAX_WOUNDS,
+                                  "maxWounds must be no more than " +
+                                  Limits.MAX_MAX_WOUNDS);
       this.maxWounds = maxWounds;
       return this;
     }
@@ -224,9 +245,6 @@ public class BaseStats implements Stats {
 
     public BaseStats build() {
       validateSkills();
-      Preconditions.checkState(apMaxSize > 0, "apMaxSize must be positive");
-      Preconditions.checkState(defense > 0, "defense must be positive");
-      Preconditions.checkState(maxWounds > 0, "maxWounds must be positive");
       return new BaseStats(skills, apMaxSize, defense, maxWounds);
     }
 

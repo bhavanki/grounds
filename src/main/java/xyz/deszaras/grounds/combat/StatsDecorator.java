@@ -3,10 +3,21 @@ package xyz.deszaras.grounds.combat;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * A decorator around a {@link Stats} object (which may be yet another
+ * decorator) which alters stats. The default method implementations in this
+ * abstract base class pass through stats unchanged to the delegate. Subclasses
+ * should override at least one of the methods to have an effect.
+ */
 public abstract class StatsDecorator implements Stats {
 
   protected Stats delegate;
 
+  /**
+   * Creates a new decorator.
+   *
+   * @param  delegate stats to decorate
+   */
   protected StatsDecorator(Stats delegate) {
     this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");
   }
@@ -104,5 +115,10 @@ public abstract class StatsDecorator implements Stats {
   @Override
   public int getStrikeBonus() {
     return delegate.getStrikeBonus();
+  }
+
+  @Override
+  public boolean isLegal() {
+    return delegate.isLegal();
   }
 }
