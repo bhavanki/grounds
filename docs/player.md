@@ -26,7 +26,7 @@ Your IP address is 203.0.113.0
 Enjoy your stay.
 
 Permitted players:
-  Rehtaoh
+  1. Rehtaoh
 
 Auto-selecting initial player Rehtaoh
 Town Square
