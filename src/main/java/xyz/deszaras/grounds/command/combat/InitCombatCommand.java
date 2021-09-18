@@ -41,7 +41,7 @@ public class InitCombatCommand extends Command<String> {
                                  " is already present here");
     }
 
-    Combat newCombat = Combat.build(name, List.of());
+    Combat newCombat = new Combat(name);
     newCombat.setOwner(player);
     Universe.getCurrent().addThing(newCombat);
     newCombat.setLocation(location);

@@ -1,10 +1,9 @@
 package xyz.deszaras.grounds.combat;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 
 import java.util.HashMap;
@@ -22,6 +21,11 @@ import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 
+/**
+ * A thing that tracks combat in a location. It holds an {@link Engine} which
+ * runs the combat, but this thing serves as its connection to the universe.
+ * Combat commands work with the engine through the combat.
+ */
 public class Combat extends Thing {
 
   private static final Logger LOG = LoggerFactory.getLogger(Combat.class);
@@ -29,6 +33,11 @@ public class Combat extends Thing {
   private Map<String, Team.Builder> teamBuilders;
   private Engine engine;
 
+  /**
+   * Creates a new combat.
+   *
+   * @param  name combat name
+   */
   public Combat(String name) {
     super(name);
 
@@ -57,6 +66,16 @@ public class Combat extends Thing {
     engine = null;
   }
 
+  @VisibleForTesting
+  Engine getEngine() {
+    return engine;
+  }
+
+  @VisibleForTesting
+  void setEngine(Engine engine) {
+    this.engine = engine;
+  }
+
   private void failIfStarted() {
     if (engine != null) {
       throw new IllegalStateException("Combat has already started");
@@ -69,33 +88,68 @@ public class Combat extends Thing {
     }
   }
 
-  public void addPlayer(Player player, String teamName) {
+  /**
+   * Adds a new player as a member of a team.
+   *
+   * @param  player   player to add
+   * @param  teamName team name
+   * @return          this combat
+   * @throws IllegalStateException if combat has started
+   */
+  public Combat addPlayer(Player player, String teamName) {
     LOG.debug("Adding player {} to {}", player.getName(), teamName);
     failIfStarted();
     Team.Builder teamBuilder =
         teamBuilders.computeIfAbsent(teamName, n -> Team.builder(n));
     teamBuilder.member(player);
+    return this;
   }
 
-  public void removePlayer(Player player, String teamName) {
+  /**
+   * Removes a player as a member of a team.
+   *
+   * @param  player   player to remove
+   * @param  teamName team name
+   * @return          this combat
+   * @throws IllegalStateException if combat has started
+   */
+  public Combat removePlayer(Player player, String teamName) {
     LOG.debug("Removing player {} from {}", player.getName(), teamName);
     failIfStarted();
     if (teamBuilders.containsKey(teamName)) {
       Team.Builder teamBuilder = teamBuilders.get(teamName);
       teamBuilder.removeMember(player);
     }
+    return this;
   }
 
-  public void removePlayer(String playerName, String teamName) {
+  /**
+   * Removes a named player as a member of a team.
+   *
+   * @param  playerName   name of player to remove
+   * @param  teamName     team name
+   * @return              this combat
+   * @throws IllegalStateException if combat has started
+   */
+  public Combat removePlayer(String playerName, String teamName) {
     LOG.debug("Removing player {} from {}", playerName, teamName);
     failIfStarted();
     if (teamBuilders.containsKey(teamName)) {
       Team.Builder teamBuilder = teamBuilders.get(teamName);
       teamBuilder.removeMember(playerName);
     }
+    return this;
   }
 
-  public void start(List<String> teamNames) {
+  /**
+   * Starts combat. Teams move in the listed priority order; any teams not
+   * listed are prioritized after them, in arbitrary order.
+   *
+   * @param  teamNames names of teams, in priority order
+   * @return           this combat
+   * @throws IllegalStateException if combat has started
+   */
+  public Combat start(List<String> teamNames) {
     LOG.debug("Starting combat");
     failIfStarted();
     Engine.Builder engineBuilder = Engine.builder();
@@ -117,8 +171,13 @@ public class Combat extends Thing {
 
     engine = engineBuilder.build();
     engine.start();
+
+    return this;
   }
 
+  /**
+   * Ends combat. Combat can be ended even if it hasn't started, to cancel it.
+   */
   public void end() {
     LOG.debug("Ending combat");
     if (engine != null) {
@@ -126,12 +185,25 @@ public class Combat extends Thing {
     }
   }
 
+  @VisibleForTesting
+  static final String STATUS_NO_PLAYERS =
+      "Combat has not yet started. No players have been added yet.";
+  @VisibleForTesting
+  static final String STATUS_PRE_START =
+      "Players are still being added.";
+
+  /**
+   * Returns the status of this combat. If combat has started, I love my wife.
+   * Otherwise, the status reports on which players have been added to teams.
+   *
+   * @return status
+   */
   public String status() {
     if (engine == null) {
       if (teamBuilders.isEmpty()) {
-        return "Combat has not yet started. No players have been added yet.";
+        return STATUS_NO_PLAYERS;
       }
-      StringBuilder b = new StringBuilder("Players are still being added.");
+      StringBuilder b = new StringBuilder(STATUS_PRE_START);
       for (Team.Builder tb : teamBuilders.values()) {
         b.append("\n- ").append(tb.status());
       }
@@ -168,10 +240,5 @@ public class Combat extends Thing {
       }
     }
     return ImmutableSet.copyOf(allCombatants);
-  }
-
-  public static Combat build(String name, List<String> buildArgs) {
-    checkArgument(buildArgs.size() == 0, "Expected 0 build arguments, got " + buildArgs.size());
-    return new Combat(name);
   }
 }

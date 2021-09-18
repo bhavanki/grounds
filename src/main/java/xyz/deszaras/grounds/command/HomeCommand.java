@@ -17,10 +17,16 @@ import xyz.deszaras.grounds.model.Player;
 public class HomeCommand extends Command<String> {
 
   private final Place newHome;
+  private TeleportCommand testTeleportCommand;
 
   public HomeCommand(Actor actor, Player player, Place newHome) {
     super(actor, player);
     this.newHome = newHome;
+    testTeleportCommand = null;
+  }
+
+  protected void setTestTeleportCommand(TeleportCommand testTeleportCommand) {
+    this.testTeleportCommand = testTeleportCommand;
   }
 
   @Override
@@ -38,7 +44,10 @@ public class HomeCommand extends Command<String> {
         throw new CommandException("I cannot determine your current home location!");
       }
 
-      return new TeleportCommand(actor, player, currentHome).executeImpl();
+      TeleportCommand teleportCommand =
+        testTeleportCommand != null ? testTeleportCommand :
+        new TeleportCommand(actor, player, currentHome);
+      return teleportCommand.executeImpl();
     }
 
     // TBD: Check if newHome may be set as home

@@ -258,10 +258,10 @@ public class EngineTest {
     assertTrue(moveResult.contains("New round:       2"));
   }
 
-  private static Player makeTestPlayer(String name,
-                                       Skill sk4, Skill sk3, Skill sk2,
-                                       int apMaxSize, int def, int maxWounds,
-                                       int ad, int sd) {
+  static Player makeTestPlayer(String name,
+                               Skill sk4, Skill sk3, Skill sk2,
+                               int apMaxSize, int def, int maxWounds,
+                               int ad, int sd) {
     Player p = new Player(name);
     p.setAttr(Engine.ATTR_NAME_SKILL_4, sk4.getName());
     p.setAttr(Engine.ATTR_NAME_SKILL_3, sk3.getName());
