@@ -1,9 +1,10 @@
 package xyz.deszaras.grounds.combat;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,6 +14,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 
 import xyz.deszaras.grounds.model.Player;
 
@@ -25,28 +27,87 @@ public class CombatTest {
   private Player lou;
   private Player thelma;
   private Player louise;
+  private System mockSystem;
   private Combat combat;
+  private Team team1;
+  private Team team2;
+  private Team team3;
+  private Team.Builder mockTeamBuilder1;
+  private Team.Builder mockTeamBuilder2;
+  private Team.Builder mockTeamBuilder3;
   private Engine mockEngine;
+  private Engine.Builder mockEngineBuilder;
 
   @BeforeEach
   public void setUp() throws Exception {
-    bill = EngineTest.makeTestPlayer("bill",
-        Skills.ACCURACY, Skills.COURAGE, Skills.ENDURANCE, 10, 3, 3, 9, 5);
-    ted = EngineTest.makeTestPlayer("ted",
-        Skills.ACCURACY, Skills.COURAGE, Skills.ENDURANCE, 10, 3, 3, 9, 5);
+    bill = makeTestPlayer("bill");
+    ted = makeTestPlayer("ted");
+    bud = makeTestPlayer("bud");
+    lou = makeTestPlayer("lou");
+    thelma = makeTestPlayer("thelma");
+    louise = makeTestPlayer("louise");
 
-    bud = EngineTest.makeTestPlayer("bud",
-        Skills.ACCURACY, Skills.COURAGE, Skills.ENDURANCE, 10, 3, 3, 9, 5);
-    lou = EngineTest.makeTestPlayer("lou",
-        Skills.ACCURACY, Skills.COURAGE, Skills.ENDURANCE, 10, 3, 3, 9, 5);
+    mockSystem = mock(System.class);
+    combat = new Combat("fight", mockSystem);
 
-    thelma = EngineTest.makeTestPlayer("thelma",
-        Skills.ACCURACY, Skills.COURAGE, Skills.ENDURANCE, 10, 3, 3, 9, 5);
-    louise = EngineTest.makeTestPlayer("louise",
-        Skills.ACCURACY, Skills.COURAGE, Skills.ENDURANCE, 10, 3, 3, 9, 5);
+    team1 = mock(Team.class);
+    team2 = mock(Team.class);
+    team3 = mock(Team.class);
+    mockTeamBuilder1 = mock(Team.Builder.class);
+    when(mockTeamBuilder1.member(any(Player.class))).thenReturn(mockTeamBuilder1);
+    when(mockTeamBuilder1.removeMember(any(Player.class))).thenReturn(mockTeamBuilder1);
+    when(mockTeamBuilder1.removeMember(any(String.class))).thenReturn(mockTeamBuilder1);
+    when(mockTeamBuilder1.build()).thenReturn(team1);
+    mockTeamBuilder2 = mock(Team.Builder.class);
+    when(mockTeamBuilder2.member(any(Player.class))).thenReturn(mockTeamBuilder2);
+    when(mockTeamBuilder2.removeMember(any(Player.class))).thenReturn(mockTeamBuilder2);
+    when(mockTeamBuilder2.removeMember(any(String.class))).thenReturn(mockTeamBuilder2);
+    when(mockTeamBuilder2.build()).thenReturn(team2);
+    mockTeamBuilder3 = mock(Team.Builder.class);
+    when(mockTeamBuilder3.member(any(Player.class))).thenReturn(mockTeamBuilder3);
+    when(mockTeamBuilder3.removeMember(any(Player.class))).thenReturn(mockTeamBuilder3);
+    when(mockTeamBuilder3.removeMember(any(String.class))).thenReturn(mockTeamBuilder3);
+    when(mockTeamBuilder3.build()).thenReturn(team3);
 
-    combat = new Combat("fight");
+    when(mockSystem.getTeamBuilder("team1")).thenReturn(mockTeamBuilder1);
+    when(mockSystem.getTeamBuilder("team2")).thenReturn(mockTeamBuilder2);
+    when(mockSystem.getTeamBuilder("team3")).thenReturn(mockTeamBuilder3);
+
     mockEngine = mock(Engine.class);
+    mockEngineBuilder = mock(Engine.Builder.class);
+    when(mockEngineBuilder.build()).thenReturn(mockEngine);
+
+    when(mockSystem.getEngineBuilder()).thenReturn(mockEngineBuilder);
+  }
+
+  @Test
+  public void testAddPlayer() {
+    combat.addPlayer(bill, "team1")
+        .addPlayer(lou, "team2")
+        .addPlayer(bud, "team2")
+        .addPlayer(thelma, "team3")
+        .addPlayer(ted, "team1")
+        .addPlayer(louise, "team3");
+
+    verify(mockTeamBuilder1).member(bill);
+    verify(mockTeamBuilder1).member(ted);
+    verify(mockTeamBuilder2).member(lou);
+    verify(mockTeamBuilder2).member(bud);
+    verify(mockTeamBuilder3).member(thelma);
+    verify(mockTeamBuilder3).member(louise);
+  }
+
+  @Test
+  public void testRemovePlayer() {
+    combat.addPlayer(bill, "team1")
+        .addPlayer(lou, "team2")
+        .addPlayer(bud, "team2")
+        .removePlayer(lou, "team2")
+        .addPlayer(ted, "team1")
+        .removePlayer("bill", "team1");
+
+    verify(mockTeamBuilder2).removeMember(lou);
+    verify(mockTeamBuilder1).removeMember("bill");
   }
 
   @Test
@@ -59,43 +120,14 @@ public class CombatTest {
         .addPlayer(louise, "team3")
         .start(List.of("team1", "team2"));
 
-    Engine e = combat.getEngine();
-    assertNotNull(e);
+    assertEquals(mockEngine, combat.getEngine());
 
-    List<Team> teams = e.getTeams();
-    assertEquals(3, teams.size());
+    InOrder teamsInOrder = inOrder(mockEngineBuilder);
+    teamsInOrder.verify(mockEngineBuilder).addTeam(team1);
+    teamsInOrder.verify(mockEngineBuilder).addTeam(team2);
+    teamsInOrder.verify(mockEngineBuilder).addTeam(team3);
 
-    Team team1 = teams.get(0);
-    assertEquals("team1", team1.getName());
-    assertEquals(Set.of(bill, ted), team1.getMembers());
-
-    Team team2 = teams.get(1);
-    assertEquals("team2", team2.getName());
-    assertEquals(Set.of(bud, lou), team2.getMembers());
-
-    Team team3 = teams.get(2);
-    assertEquals("team3", team3.getName());
-    assertEquals(Set.of(thelma, louise), team3.getMembers());
-  }
-
-  @Test
-  public void testRemovePlayer() {
-    combat.addPlayer(bill, "team1")
-        .addPlayer(lou, "team2")
-        .addPlayer(bud, "team2")
-        .removePlayer(lou, "team2")
-        .addPlayer(ted, "team1")
-        .removePlayer("bill", "team1")
-        .start(List.of("team1", "team2"));
-
-    List<Team> teams = combat.getEngine().getTeams();
-    assertEquals(2, teams.size());
-
-    Team team1 = teams.get(0);
-    assertEquals(Set.of(ted), team1.getMembers());
-
-    Team team2 = teams.get(1);
-    assertEquals(Set.of(bud), team2.getMembers());
+    verify(mockEngine).start();
   }
 
   @Test
@@ -116,6 +148,10 @@ public class CombatTest {
 
   @Test
   public void testGetAllCombatantsPreStart() {
+    when(mockTeamBuilder1.getMembers()).thenReturn(Set.of(bill, ted));
+    when(mockTeamBuilder2.getMembers()).thenReturn(Set.of(lou, bud));
+    when(mockTeamBuilder3.getMembers()).thenReturn(Set.of(thelma, louise));
+
     combat.addPlayer(bill, "team1")
         .addPlayer(lou, "team2")
         .addPlayer(bud, "team2")
@@ -129,13 +165,12 @@ public class CombatTest {
 
   @Test
   public void testGetAllCombatantsPostStart() {
-    combat.addPlayer(bill, "team1")
-        .addPlayer(lou, "team2")
-        .addPlayer(bud, "team2")
-        .addPlayer(thelma, "team3")
-        .addPlayer(ted, "team1")
-        .addPlayer(louise, "team3")
-        .start(List.of());
+    when(mockEngine.getTeams()).thenReturn(List.of(team1, team2, team3));
+    combat.setEngine(mockEngine);
+
+    when(team1.getMembers()).thenReturn(Set.of(bill, ted));
+    when(team2.getMembers()).thenReturn(Set.of(lou, bud));
+    when(team3.getMembers()).thenReturn(Set.of(thelma, louise));
 
     Set<Player> combatants = combat.getAllCombatants();
     assertEquals(Set.of(bill, ted, bud, lou, thelma, louise), combatants);
@@ -148,16 +183,17 @@ public class CombatTest {
 
   @Test
   public void testStatusPreStartPlayers() {
+    when(mockTeamBuilder1.status()).thenReturn("Team 1 present");
+    when(mockTeamBuilder2.status()).thenReturn("Team 2 present");
+
     combat.addPlayer(bill, "team1")
         .addPlayer(lou, "team2");
 
     String status = combat.status();
 
     assertTrue(status.contains(Combat.STATUS_PRE_START));
-    assertTrue(status.contains("bill"));
-    assertTrue(status.contains("team1"));
-    assertTrue(status.contains("lou"));
-    assertTrue(status.contains("team2"));
+    assertTrue(status.contains("Team 1 present"));
+    assertTrue(status.contains("Team 2 present"));
   }
 
   @Test
@@ -217,5 +253,11 @@ public class CombatTest {
     combat.setEngine(mockEngine);
 
     assertEquals("OK", combat.resolveRound());
+  }
+
+  private Player makeTestPlayer(String name) {
+    Player p = mock(Player.class);
+    when(p.getName()).thenReturn(name);
+    return p;
   }
 }

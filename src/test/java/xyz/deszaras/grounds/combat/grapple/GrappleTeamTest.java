@@ -1,4 +1,4 @@
-package xyz.deszaras.grounds.combat;
+package xyz.deszaras.grounds.combat.grapple;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -12,35 +12,35 @@ import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.model.Player;
 
-public class TeamTest {
+public class GrappleTeamTest {
 
   private Player player1;
   private Player player2;
   private Player player3;
-  private Team team;
+  private GrappleTeam team;
 
   @BeforeEach
   public void setUp() {
     player1 = new Player("player1");
-    player1.setAttr(Engine.ATTR_NAME_SKILL_4, Skills.ACCURACY.getName());
-    player1.setAttr(Engine.ATTR_NAME_SKILL_3, Skills.COURAGE.getName());
-    player1.setAttr(Engine.ATTR_NAME_SKILL_2, Skills.ENDURANCE.getName());
-    player1.setAttr(Engine.ATTR_NAME_AP_MAX_SIZE, 10);
-    player1.setAttr(Engine.ATTR_NAME_DEFENSE, 3);
-    player1.setAttr(Engine.ATTR_NAME_MAX_WOUNDS, 4);
-    player1.setAttr(Engine.ATTR_NAME_AD, 1);
-    player1.setAttr(Engine.ATTR_NAME_SD, 2);
+    player1.setAttr(GrappleEngine.ATTR_NAME_SKILL_4, Skills.ACCURACY.getName());
+    player1.setAttr(GrappleEngine.ATTR_NAME_SKILL_3, Skills.COURAGE.getName());
+    player1.setAttr(GrappleEngine.ATTR_NAME_SKILL_2, Skills.ENDURANCE.getName());
+    player1.setAttr(GrappleEngine.ATTR_NAME_AP_MAX_SIZE, 10);
+    player1.setAttr(GrappleEngine.ATTR_NAME_DEFENSE, 3);
+    player1.setAttr(GrappleEngine.ATTR_NAME_MAX_WOUNDS, 4);
+    player1.setAttr(GrappleEngine.ATTR_NAME_AD, 1);
+    player1.setAttr(GrappleEngine.ATTR_NAME_SD, 2);
     player2 = new Player("player2");
-    player2.setAttr(Engine.ATTR_NAME_SKILL_4, Skills.INTIMIDATION.getName());
-    player2.setAttr(Engine.ATTR_NAME_SKILL_3, Skills.LEADERSHIP.getName());
-    player2.setAttr(Engine.ATTR_NAME_SKILL_2, Skills.MEDICAL.getName());
-    player2.setAttr(Engine.ATTR_NAME_AP_MAX_SIZE, 12);
-    player2.setAttr(Engine.ATTR_NAME_DEFENSE, 2);
-    player2.setAttr(Engine.ATTR_NAME_MAX_WOUNDS, 4);
-    player2.setAttr(Engine.ATTR_NAME_AD, 3);
-    player2.setAttr(Engine.ATTR_NAME_SD, 4);
+    player2.setAttr(GrappleEngine.ATTR_NAME_SKILL_4, Skills.INTIMIDATION.getName());
+    player2.setAttr(GrappleEngine.ATTR_NAME_SKILL_3, Skills.LEADERSHIP.getName());
+    player2.setAttr(GrappleEngine.ATTR_NAME_SKILL_2, Skills.MEDICAL.getName());
+    player2.setAttr(GrappleEngine.ATTR_NAME_AP_MAX_SIZE, 12);
+    player2.setAttr(GrappleEngine.ATTR_NAME_DEFENSE, 2);
+    player2.setAttr(GrappleEngine.ATTR_NAME_MAX_WOUNDS, 4);
+    player2.setAttr(GrappleEngine.ATTR_NAME_AD, 3);
+    player2.setAttr(GrappleEngine.ATTR_NAME_SD, 4);
     player3 = new Player("player3");
-    team = Team.builder("teama")
+    team = GrappleTeam.builder("teama")
         .member(player1)
         .member(player2)
         .build();
@@ -110,7 +110,7 @@ public class TeamTest {
 
   @Test
   public void testBuildSuccessRemovePlayer() {
-    team = Team.builder("teama")
+    team = GrappleTeam.builder("teama")
       .member(player1)
       .member(player2)
       .removeMember(player1)
@@ -122,7 +122,7 @@ public class TeamTest {
 
   @Test
   public void testBuildFailureRepeatedPlayer() {
-    Team.Builder tb = Team.builder("teama")
+    GrappleTeam.Builder tb = GrappleTeam.builder("teama")
       .member(player1)
       .member(player2);
 

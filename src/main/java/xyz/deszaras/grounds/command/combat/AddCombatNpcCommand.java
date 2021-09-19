@@ -6,6 +6,7 @@ import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.combat.Combat;
 import xyz.deszaras.grounds.combat.Npc;
+import xyz.deszaras.grounds.combat.grapple.GrappleSystem;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CombatCommand;
 import xyz.deszaras.grounds.command.Command;
@@ -56,7 +57,9 @@ public class AddCombatNpcCommand extends Command<String> {
                                                List<String> commandArgs)
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 3);
-    Npc npc = new Npc(commandArgs.get(0), commandArgs.get(1));
+    // FIXME get system from combat and build NPC then
+    Npc npc = new GrappleSystem().buildNpc(commandArgs.get(0),
+                                           List.of(commandArgs.get(1)));
     return new AddCombatNpcCommand(actor, player, npc, commandArgs.get(2));
   }
 }

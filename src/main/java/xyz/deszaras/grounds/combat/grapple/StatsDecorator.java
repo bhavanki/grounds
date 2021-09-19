@@ -1,4 +1,4 @@
-package xyz.deszaras.grounds.combat;
+package xyz.deszaras.grounds.combat.grapple;
 
 import java.util.Map;
 import java.util.Objects;

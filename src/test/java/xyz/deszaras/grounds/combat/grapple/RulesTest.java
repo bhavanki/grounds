@@ -1,4 +1,4 @@
-package xyz.deszaras.grounds.combat;
+package xyz.deszaras.grounds.combat.grapple;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -11,14 +11,14 @@ import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import xyz.deszaras.grounds.combat.Rules.CatchBreathInput;
-import xyz.deszaras.grounds.combat.Rules.CatchBreathOutput;
-import xyz.deszaras.grounds.combat.Rules.ManeuverInput;
-import xyz.deszaras.grounds.combat.Rules.ManeuverOutput;
-import xyz.deszaras.grounds.combat.Rules.SkillActionInput;
-import xyz.deszaras.grounds.combat.Rules.SkillActionOutput;
-import xyz.deszaras.grounds.combat.Rules.StrikeInput;
-import xyz.deszaras.grounds.combat.Rules.StrikeOutput;
+import xyz.deszaras.grounds.combat.grapple.Rules.CatchBreathInput;
+import xyz.deszaras.grounds.combat.grapple.Rules.CatchBreathOutput;
+import xyz.deszaras.grounds.combat.grapple.Rules.ManeuverInput;
+import xyz.deszaras.grounds.combat.grapple.Rules.ManeuverOutput;
+import xyz.deszaras.grounds.combat.grapple.Rules.SkillActionInput;
+import xyz.deszaras.grounds.combat.grapple.Rules.SkillActionOutput;
+import xyz.deszaras.grounds.combat.grapple.Rules.StrikeInput;
+import xyz.deszaras.grounds.combat.grapple.Rules.StrikeOutput;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
 public class RulesTest {

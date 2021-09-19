@@ -1,4 +1,4 @@
-package xyz.deszaras.grounds.combat;
+package xyz.deszaras.grounds.combat.grapple;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;

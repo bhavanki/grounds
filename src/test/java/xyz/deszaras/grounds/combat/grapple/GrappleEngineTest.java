@@ -1,4 +1,4 @@
-package xyz.deszaras.grounds.combat;
+package xyz.deszaras.grounds.combat.grapple;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -16,28 +16,28 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import xyz.deszaras.grounds.combat.Rules.CatchBreathInput;
-import xyz.deszaras.grounds.combat.Rules.CatchBreathOutput;
-import xyz.deszaras.grounds.combat.Rules.ManeuverInput;
-import xyz.deszaras.grounds.combat.Rules.ManeuverOutput;
-import xyz.deszaras.grounds.combat.Rules.SkillActionInput;
-import xyz.deszaras.grounds.combat.Rules.SkillActionOutput;
-import xyz.deszaras.grounds.combat.Rules.StrikeInput;
-import xyz.deszaras.grounds.combat.Rules.StrikeOutput;
+import xyz.deszaras.grounds.combat.grapple.Rules.CatchBreathInput;
+import xyz.deszaras.grounds.combat.grapple.Rules.CatchBreathOutput;
+import xyz.deszaras.grounds.combat.grapple.Rules.ManeuverInput;
+import xyz.deszaras.grounds.combat.grapple.Rules.ManeuverOutput;
+import xyz.deszaras.grounds.combat.grapple.Rules.SkillActionInput;
+import xyz.deszaras.grounds.combat.grapple.Rules.SkillActionOutput;
+import xyz.deszaras.grounds.combat.grapple.Rules.StrikeInput;
+import xyz.deszaras.grounds.combat.grapple.Rules.StrikeOutput;
 import xyz.deszaras.grounds.model.Player;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
-public class EngineTest {
+public class GrappleEngineTest {
 
   private Player player1;
   private Player player2;
   private Player player3;
   private Player monster1;
   private Player monster2;
-  private Team team1;
-  private Team team2;
+  private GrappleTeam team1;
+  private GrappleTeam team2;
   private Rules rules;
-  private Engine engine;
+  private GrappleEngine engine;
   private String moveResult;
 
   @BeforeEach
@@ -51,7 +51,7 @@ public class EngineTest {
     player3 = makeTestPlayer("player3",
                              Skills.TACTICS, Skills.TAUNTING, Skills.TRICKSTER,
                              10, 3, 3, 6, 0);
-    team1 = Team.builder("team1")
+    team1 = GrappleTeam.builder("team1")
         .member(player1)
         .member(player2)
         .member(player3)
@@ -65,13 +65,13 @@ public class EngineTest {
     monster2 = makeTestPlayer("monster2",
                               Skills.ENDURANCE, Skills.INTIMIDATION, Skills.SPEED,
                               6, 2, 2, 3, 0);
-    team2 = Team.builder("team2")
+    team2 = GrappleTeam.builder("team2")
         .member(monster1)
         .member(monster2)
         .build();
 
     rules = mock(Rules.class);
-    engine = Engine.builder()
+    engine = GrappleEngine.builder()
         .addTeam(team1)
         .addTeam(team2)
         .rules(rules)
@@ -263,14 +263,14 @@ public class EngineTest {
                                int apMaxSize, int def, int maxWounds,
                                int ad, int sd) {
     Player p = new Player(name);
-    p.setAttr(Engine.ATTR_NAME_SKILL_4, sk4.getName());
-    p.setAttr(Engine.ATTR_NAME_SKILL_3, sk3.getName());
-    p.setAttr(Engine.ATTR_NAME_SKILL_2, sk2.getName());
-    p.setAttr(Engine.ATTR_NAME_AP_MAX_SIZE, apMaxSize);
-    p.setAttr(Engine.ATTR_NAME_DEFENSE, def);
-    p.setAttr(Engine.ATTR_NAME_MAX_WOUNDS, maxWounds);
-    p.setAttr(Engine.ATTR_NAME_AD, ad);
-    p.setAttr(Engine.ATTR_NAME_SD, sd);
+    p.setAttr(GrappleEngine.ATTR_NAME_SKILL_4, sk4.getName());
+    p.setAttr(GrappleEngine.ATTR_NAME_SKILL_3, sk3.getName());
+    p.setAttr(GrappleEngine.ATTR_NAME_SKILL_2, sk2.getName());
+    p.setAttr(GrappleEngine.ATTR_NAME_AP_MAX_SIZE, apMaxSize);
+    p.setAttr(GrappleEngine.ATTR_NAME_DEFENSE, def);
+    p.setAttr(GrappleEngine.ATTR_NAME_MAX_WOUNDS, maxWounds);
+    p.setAttr(GrappleEngine.ATTR_NAME_AD, ad);
+    p.setAttr(GrappleEngine.ATTR_NAME_SD, sd);
     return p;
   }
 }

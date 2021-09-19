@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -17,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import xyz.deszaras.grounds.auth.Policy;
+import xyz.deszaras.grounds.combat.grapple.GrappleSystem;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
@@ -30,6 +32,8 @@ public class Combat extends Thing {
 
   private static final Logger LOG = LoggerFactory.getLogger(Combat.class);
 
+  private final System system;
+
   private Map<String, Team.Builder> teamBuilders;
   private Engine engine;
 
@@ -39,7 +43,13 @@ public class Combat extends Thing {
    * @param  name combat name
    */
   public Combat(String name) {
+    this(name, new GrappleSystem());
+  }
+
+  @VisibleForTesting
+  Combat(String name, System system) {
     super(name);
+    this.system = Objects.requireNonNull(system);
 
     teamBuilders = new HashMap<>();
     engine = null;
@@ -61,6 +71,7 @@ public class Combat extends Thing {
       @JsonProperty("contents") Set<UUID> contents,
       @JsonProperty("policy") Policy policy) {
     super(id, attrs, contents, policy);
+    system = new GrappleSystem();
 
     teamBuilders = new HashMap<>();
     engine = null;
@@ -100,7 +111,8 @@ public class Combat extends Thing {
     LOG.debug("Adding player {} to {}", player.getName(), teamName);
     failIfStarted();
     Team.Builder teamBuilder =
-        teamBuilders.computeIfAbsent(teamName, n -> Team.builder(n));
+        teamBuilders.computeIfAbsent(teamName,
+                                     n -> system.getTeamBuilder(n));
     teamBuilder.member(player);
     return this;
   }
@@ -152,7 +164,7 @@ public class Combat extends Thing {
   public Combat start(List<String> teamNames) {
     LOG.debug("Starting combat");
     failIfStarted();
-    Engine.Builder engineBuilder = Engine.builder();
+    Engine.Builder engineBuilder = system.getEngineBuilder();
 
     // Add teams in priority order.
     teamNames.stream().forEach(teamName -> {
