@@ -77,6 +77,15 @@ public class Combat extends Thing {
     engine = null;
   }
 
+  /**
+   * Gets the system being used for combat.
+   *
+   * @return combat system
+   */
+  public System getSystem() {
+    return system;
+  }
+
   @VisibleForTesting
   Engine getEngine() {
     return engine;

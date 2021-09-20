@@ -28,6 +28,7 @@ public interface System {
    * @param  name NPC (player) name
    * @param  args additional arguments for setting up NPC
    * @return      new NPC
+   * @throws IllegalArgumentException if any arguments are missing or incorrect
    */
   Npc buildNpc(String name, List<String> args);
 }

@@ -1,12 +1,15 @@
 package xyz.deszaras.grounds.command.combat;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.List;
 import java.util.Objects;
+
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.combat.Combat;
 import xyz.deszaras.grounds.combat.Npc;
-import xyz.deszaras.grounds.combat.grapple.GrappleSystem;
+import xyz.deszaras.grounds.combat.System;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CombatCommand;
 import xyz.deszaras.grounds.command.Command;
@@ -24,12 +27,15 @@ import xyz.deszaras.grounds.model.Player;
 @PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class AddCombatNpcCommand extends Command<String> {
 
-  private final Npc npc;
+  private final String npcName;
+  private final List<String> npcBuildArgs;
   private final String teamName;
 
-  public AddCombatNpcCommand(Actor actor, Player player, Npc npc, String teamName) {
+  public AddCombatNpcCommand(Actor actor, Player player, String npcName,
+                             List<String> npcBuildArgs, String teamName) {
     super(actor, player);
-    this.npc = Objects.requireNonNull(npc);
+    this.npcName = Objects.requireNonNull(npcName);
+    this.npcBuildArgs = ImmutableList.copyOf(npcBuildArgs);
     this.teamName = Objects.requireNonNull(teamName);
   }
 
@@ -44,22 +50,24 @@ public class AddCombatNpcCommand extends Command<String> {
     }
 
     try {
+      Npc npc = combat.getSystem().buildNpc(npcName, npcBuildArgs);
       combat.addPlayer(npc, teamName);
-      CombatCommand.messageAllCombatants(combat, npc.getName() +
+      CombatCommand.messageAllCombatants(combat, npcName +
                                          " is added to team " + teamName);
-      return "Added " + npc.getName() + " to team " + teamName;
-    } catch (IllegalStateException e) {
-      throw new CommandException(e);
+      return "Added " + npcName + " to team " + teamName;
+    } catch (IllegalArgumentException | IllegalStateException e) {
+      throw new CommandException(e.getMessage());
     }
   }
 
   public static AddCombatNpcCommand newCommand(Actor actor, Player player,
                                                List<String> commandArgs)
       throws CommandFactoryException {
-    ensureMinArgs(commandArgs, 3);
-    // FIXME get system from combat and build NPC then
-    Npc npc = new GrappleSystem().buildNpc(commandArgs.get(0),
-                                           List.of(commandArgs.get(1)));
-    return new AddCombatNpcCommand(actor, player, npc, commandArgs.get(2));
+    ensureMinArgs(commandArgs, 2);
+    String npcName = commandArgs.get(0);
+    String teamName = commandArgs.get(commandArgs.size() - 1);
+    List<String> npcBuildArgs = commandArgs.subList(1, commandArgs.size() - 1);
+    return new AddCombatNpcCommand(actor, player, npcName, npcBuildArgs,
+                                   teamName);
   }
 }
