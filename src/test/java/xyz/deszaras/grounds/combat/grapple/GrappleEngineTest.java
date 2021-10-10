@@ -25,10 +25,12 @@ import xyz.deszaras.grounds.combat.grapple.Rules.SkillActionOutput;
 import xyz.deszaras.grounds.combat.grapple.Rules.StrikeInput;
 import xyz.deszaras.grounds.combat.grapple.Rules.StrikeOutput;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.model.Universe;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
 public class GrappleEngineTest {
 
+  private Universe testUniverse;
   private Player player1;
   private Player player2;
   private Player player3;
@@ -42,15 +44,21 @@ public class GrappleEngineTest {
 
   @BeforeEach
   public void setUp() {
+    testUniverse = new Universe("test");
+    Universe.setCurrent(testUniverse);
+
     player1 = makeTestPlayer("player1",
                              Skills.ACCURACY, Skills.COURAGE, Skills.ENDURANCE,
                              10, 3, 3, 6, 3);
+    testUniverse.addThing(player1);
     player2 = makeTestPlayer("player2",
                              Skills.INTIMIDATION, Skills.LEADERSHIP, Skills.SPEED,
                              10, 3, 3, 6, 0);
+    testUniverse.addThing(player2);
     player3 = makeTestPlayer("player3",
                              Skills.TACTICS, Skills.TAUNTING, Skills.TRICKSTER,
                              10, 3, 3, 6, 0);
+    testUniverse.addThing(player3);
     team1 = GrappleTeam.builder("team1")
         .member(player1)
         .member(player2)
@@ -62,9 +70,11 @@ public class GrappleEngineTest {
     monster1 = makeTestPlayer("monster1",
                               Skills.ENDURANCE, Skills.INTIMIDATION, Skills.SPEED,
                               6, 2, 2, 3, 0);
+    testUniverse.addThing(monster1);
     monster2 = makeTestPlayer("monster2",
                               Skills.ENDURANCE, Skills.INTIMIDATION, Skills.SPEED,
                               6, 2, 2, 3, 0);
+    testUniverse.addThing(monster2);
     team2 = GrappleTeam.builder("team2")
         .member(monster1)
         .member(monster2)
@@ -256,6 +266,35 @@ public class GrappleEngineTest {
     moveResult = engine.move(monster2, List.of("maneuver", "2", "speed"));
     assertTrue(moveResult.contains("New team moving: team1"));
     assertTrue(moveResult.contains("New round:       2"));
+  }
+
+  @Test
+  public void testProto() {
+    ProtoModel.Engine pe = engine.toProto();
+
+    List<ProtoModel.Team> pts = pe.getTeamsList();
+    assertEquals(2, pts.size());
+    assertEquals(team1.getName(), pts.get(0).getName());
+    assertEquals(team2.getName(), pts.get(1).getName());
+
+    assertEquals(1, pe.getRound());
+    assertEquals(0, pe.getMovingTeamIndex());
+    assertEquals(3, pe.getYetToMoveCount());
+    List<String> yetToMove = pe.getYetToMoveList();
+    assertTrue(yetToMove.contains("player1"));
+    assertTrue(yetToMove.contains("player2"));
+    assertTrue(yetToMove.contains("player3"));
+    assertFalse(pe.getOver());
+    assertEquals("", pe.getWinningTeamName());
+
+    GrappleEngine engine2 = GrappleEngine.fromProto(pe);
+
+    assertEquals(engine.getTeams(), engine2.getTeams());
+    assertEquals(engine.getRound(), engine2.getRound());
+    assertEquals(engine.getMovingTeamName(), engine2.getMovingTeamName());
+    assertEquals(engine.getYetToMove(), engine2.getYetToMove());
+    assertEquals(engine.isOver(), engine2.isOver());
+    assertEquals(engine.getWinningTeam(), engine2.getWinningTeam());
   }
 
   static Player makeTestPlayer(String name,

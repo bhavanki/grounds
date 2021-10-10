@@ -162,4 +162,26 @@ public interface Stats {
    * @return          true if these stats are legal
    */
   boolean isLegal();
+
+  /**
+   * Converts these stats into protobuf.
+   *
+   * @return protobuf for these stats
+   */
+  ProtoModel.Stats toProto();
+
+  /**
+   * Converts the given protobuf to stats.
+   *
+   * @param  proto protobuf
+   * @return       stats
+   */
+  static Stats fromProto(ProtoModel.Stats proto) {
+    Stats s = BaseStats.fromProto(proto.getBaseStats());
+    for (ProtoModel.StatsDecorator decoratorProto : proto.getStatsDecoratorsList()) {
+      s = StatsDecorators.build(s, decoratorProto.getName(),
+                                decoratorProto.getBuildArgsList());
+    }
+    return s;
+  }
 }

@@ -7,10 +7,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import xyz.deszaras.grounds.combat.Team;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.model.Universe;
 
 /**
  * A team in the Grapple combat system.
@@ -114,11 +116,24 @@ public class GrappleTeam extends Team {
      */
     @Override
     public Builder member(Player player) {
+      return member(player, GrappleEngine.buildStats(player));
+    }
+
+    /**
+     * Adds a new player to this team.
+     *
+     * @param  player player to add as member
+     * @param  stats  player stats
+     * @return        this builder
+     * @throws IllegalArgumentException if the player is already a member of
+     *         this team
+     */
+    public Builder member(Player player, Stats stats) {
       if (members.containsKey(player)) {
         throw new IllegalArgumentException(player.getName() + " is already a member of team " +
                                            name);
       }
-      members.put(player, GrappleEngine.buildStats(player));
+      members.put(player, stats);
       return this;
     }
 
@@ -191,5 +206,46 @@ public class GrappleTeam extends Team {
       }
       return b.toString();
     }
+  }
+
+  public ProtoModel.Team toProto() {
+    return ProtoModel.Team.newBuilder()
+        .setName(getName())
+        .putAllMembers(members.entrySet().stream()
+                       .collect(Collectors.toMap(e -> e.getKey().getName(),
+                                                 e -> e.getValue().toProto())))
+        .addAllNpcs(members.keySet().stream()
+                   .filter(p -> p instanceof GrappleNpc)
+                   .map(p -> ((GrappleNpc) p).toProto())
+                   .collect(Collectors.toList()))
+        .build();
+  }
+
+  public static GrappleTeam fromProto(ProtoModel.Team proto) {
+    Universe universe = Universe.getCurrent();
+    GrappleTeam.Builder builder = GrappleTeam.builder(proto.getName());
+
+    Map<String, GrappleNpc> npcMap = proto.getNpcsList().stream()
+        .map(protoNpc -> GrappleNpc.fromProto(protoNpc))
+        .collect(Collectors.toMap(GrappleNpc::getName, Function.identity()));
+
+    for (Map.Entry<String, ProtoModel.Stats> e : proto.getMembersMap().entrySet()) {
+      String playerName = e.getKey();
+      Stats playerStats = Stats.fromProto(e.getValue());
+      if (npcMap.containsKey(playerName)) {
+        builder.member(npcMap.get(playerName), playerStats);
+      } else {
+        Optional<Player> player = universe.getThingByName(playerName, Player.class);
+        if (player.isPresent()) {
+          builder.member(player.get(), playerStats);
+        } else {
+          // Convert the player into an NPC.
+          GrappleNpc newNpc = new GrappleNpc(playerName, playerStats);
+          builder.member(newNpc, playerStats);
+        }
+      }
+    }
+
+    return builder.build();
   }
 }

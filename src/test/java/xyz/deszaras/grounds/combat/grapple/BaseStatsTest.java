@@ -126,4 +126,59 @@ public class BaseStatsTest {
     assertEquals(0, s.getWounds());
     assertFalse(s.isOut());
   }
+
+  @Test
+  public void testProto() {
+    // need to use real skills
+    s = BaseStats.builder()
+        .skill(Skills.ENDURANCE, 2)
+        .skill(Skills.COURAGE, 3)
+        .skill(Skills.ACCURACY, 4)
+        .apMaxSize(10)
+        .defense(2)
+        .maxWounds(3)
+        .build();
+    s.init(9, 5, 1);
+    s.useSkill(Skills.ACCURACY);
+
+    ProtoModel.Stats ps = s.toProto();
+    assertEquals(0, ps.getStatsDecoratorsCount());
+    ProtoModel.BaseStats pbs = ps.getBaseStats();
+
+    assertEquals(3, pbs.getSkillsCount());
+    Map<String, Integer> skillsMap = pbs.getSkillsMap();
+    assertEquals(4, skillsMap.get(Skills.ACCURACY.getName()));
+    assertEquals(3, skillsMap.get(Skills.COURAGE.getName()));
+    assertEquals(2, skillsMap.get(Skills.ENDURANCE.getName()));
+
+    assertEquals(3, pbs.getSkillUsesCount());
+    Map<String, Boolean> skillUsesMap = pbs.getSkillUsesMap();
+    assertEquals(true, skillUsesMap.get(Skills.ACCURACY.getName()));
+    assertEquals(false, skillUsesMap.get(Skills.COURAGE.getName()));
+    assertEquals(false, skillUsesMap.get(Skills.ENDURANCE.getName()));
+
+    assertEquals(10, pbs.getApMaxSize());
+    assertEquals(2, pbs.getDefense());
+    assertEquals(3, pbs.getMaxWounds());
+    assertEquals(9, pbs.getAd());
+    assertEquals(5, pbs.getSd());
+    assertEquals(1, pbs.getWounds());
+
+    BaseStats s2 = BaseStats.fromProto(pbs);
+
+    assertEquals(4, s2.getRating(Skills.ACCURACY));
+    assertEquals(3, s2.getRating(Skills.COURAGE));
+    assertEquals(2, s2.getRating(Skills.ENDURANCE));
+
+    assertEquals(true, s2.isUsed(Skills.ACCURACY));
+    assertEquals(false, s2.isUsed(Skills.COURAGE));
+    assertEquals(false, s2.isUsed(Skills.ENDURANCE));
+
+    assertEquals(10, s2.getApMaxSize());
+    assertEquals(2, s2.getDefense());
+    assertEquals(3, s2.getMaxWounds());
+    assertEquals(9, s2.getAd());
+    assertEquals(5, s2.getSd());
+    assertEquals(1, s2.getWounds());
+  }
 }

@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class BaseStats implements Stats {
 
@@ -67,6 +68,10 @@ public class BaseStats implements Stats {
   @Override
   public void useSkill(Skill sk) {
     skillUses.put(sk, true);
+  }
+
+  private void setSkillUse(Skill sk, boolean used) {
+    skillUses.put(sk, used);
   }
 
   @Override
@@ -264,5 +269,45 @@ public class BaseStats implements Stats {
         }
       }
     }
+  }
+
+  public ProtoModel.BaseStats toBaseStatsProto() {
+    return ProtoModel.BaseStats.newBuilder()
+        .putAllSkills(skills.entrySet().stream()
+                      .collect(Collectors.toMap(e -> e.getKey().getName(),
+                                                e -> e.getValue())))
+        .putAllSkillUses(skillUses.entrySet().stream()
+                         .collect(Collectors.toMap(e -> e.getKey().getName(),
+                                                   e -> e.getValue())))
+        .setApMaxSize(apMaxSize)
+        .setDefense(defense)
+        .setMaxWounds(maxWounds)
+        .setAd(ad)
+        .setSd(sd)
+        .setWounds(wounds)
+        .build();
+  }
+
+  @Override
+  public ProtoModel.Stats toProto() {
+    return ProtoModel.Stats.newBuilder()
+        .setBaseStats(toBaseStatsProto())
+        .build();
+  }
+
+  public static BaseStats fromProto(ProtoModel.BaseStats proto) {
+    Builder builder = BaseStats.builder()
+        .apMaxSize(proto.getApMaxSize())
+        .defense(proto.getDefense())
+        .maxWounds(proto.getMaxWounds());
+    for (Map.Entry<String, Integer> e : proto.getSkillsMap().entrySet()) {
+      builder.skill(Skills.forName(e.getKey()), e.getValue());
+    }
+    BaseStats baseStats = builder.build();
+    baseStats.init(proto.getAd(), proto.getSd(), proto.getWounds());
+    for (Map.Entry<String, Boolean> e : proto.getSkillUsesMap().entrySet()) {
+      baseStats.setSkillUse(Skills.forName(e.getKey()), e.getValue());
+    }
+    return baseStats;
   }
 }

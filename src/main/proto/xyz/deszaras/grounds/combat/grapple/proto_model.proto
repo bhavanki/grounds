@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package xyz.deszaras.grounds.combat.grapple;
+
+message BaseStats {
+  map<string, int32> skills = 1;
+  map<string, bool> skillUses = 2;
+  int32 apMaxSize = 3;
+  int32 defense = 4;
+  int32 maxWounds = 5;
+
+  int32 ad = 11;
+  int32 sd = 12;
+  int32 wounds = 13;
+}
+
+message StatsDecorator {
+  string name = 1;
+  repeated int32 buildArgs = 2;
+}
+
+message Stats {
+  BaseStats baseStats = 1;
+  repeated StatsDecorator statsDecorators = 2; // starting next to base
+}
+
+message Npc {
+  string name = 1;
+  string statsSpec = 2;
+}
+
+message Team {
+  string name = 1;
+  map<string, Stats> members = 2;
+  repeated Npc npcs = 3;
+}
+
+message Engine {
+  repeated Team teams = 1;
+
+  int32 round = 11;
+  int32 movingTeamIndex = 12;
+  repeated string yetToMove = 13;
+  bool over = 14;
+  string winningTeamName = 15;
+}

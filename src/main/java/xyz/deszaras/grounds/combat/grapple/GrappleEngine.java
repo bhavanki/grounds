@@ -1,9 +1,12 @@
 package xyz.deszaras.grounds.combat.grapple;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -32,6 +35,7 @@ import xyz.deszaras.grounds.combat.grapple.Rules.StrikeInput;
 // import xyz.deszaras.grounds.combat.grapple.Rules.StrikeOutput;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.model.Universe;
 import xyz.deszaras.grounds.util.AnsiUtils;
 import xyz.deszaras.grounds.util.LineOutput;
 import xyz.deszaras.grounds.util.TabularOutput;
@@ -39,6 +43,8 @@ import xyz.deszaras.grounds.util.TabularOutput;
 public class GrappleEngine extends Engine {
 
   private static final Logger LOG = LoggerFactory.getLogger(Engine.class);
+
+  public static final int ROUND_NOT_STARTED = 0;
 
   protected static class MoveResult {
     private final String commandResult;
@@ -88,14 +94,25 @@ public class GrappleEngine extends Engine {
   private boolean over;
   private GrappleTeam winningTeam;
 
-  private GrappleEngine(List<GrappleTeam> grappleTeams, Rules rules) {
+  private GrappleEngine(List<GrappleTeam> grappleTeams, Rules rules, int round,
+                        int movingTeamIndex, Set<Player> yetToMove,
+                        boolean over, GrappleTeam winningTeam) {
     super(grappleTeams);
     this.grappleTeams = ImmutableList.copyOf(grappleTeams);
     this.rules = rules;
+
+    this.round = round;
+    this.movingTeamIndex = movingTeamIndex;
+    this.movingTeam = grappleTeams.get(movingTeamIndex);
+    this.yetToMove = new HashSet<>(yetToMove);
+    this.over = over;
+    this.winningTeam = winningTeam;
   }
 
   @Override
   public void start() {
+    Preconditions.checkState(round == ROUND_NOT_STARTED,
+                             "Combat has already started");
     round = 1;
     movingTeamIndex = 0;
     movingTeam = grappleTeams.get(movingTeamIndex);
@@ -209,6 +226,21 @@ public class GrappleEngine extends Engine {
 
   public String getMovingTeamName() {
     return movingTeam.getName();
+  }
+
+  @VisibleForTesting
+  Set<Player> getYetToMove() {
+    return ImmutableSet.copyOf(yetToMove);
+  }
+
+  @VisibleForTesting
+  boolean isOver() {
+    return over;
+  }
+
+  @VisibleForTesting
+  Team getWinningTeam() {
+    return winningTeam;
   }
 
   @Override
@@ -384,10 +416,20 @@ public class GrappleEngine extends Engine {
   static class Builder extends Engine.Builder {
     private List<GrappleTeam> teams;
     private Rules rules;
+    private int round;
+    private int movingTeamIndex;
+    private Set<Player> yetToMove;
+    private boolean over;
+    private GrappleTeam winningTeam;
 
     private Builder() {
       teams = new ArrayList<>();
       rules = new Rules();
+      round = ROUND_NOT_STARTED;
+      movingTeamIndex = 0;
+      yetToMove = new HashSet<>();
+      over = false;
+      winningTeam = null;
     }
 
     @Override
@@ -399,8 +441,47 @@ public class GrappleEngine extends Engine {
       return this;
     }
 
+    Builder addTeams(Collection<GrappleTeam> teams) {
+      this.teams.addAll(teams);
+      return this;
+    }
+
     Builder rules(Rules rules) {
       this.rules = Objects.requireNonNull(rules);
+      return this;
+    }
+
+    Builder round(int round) {
+      Preconditions.checkArgument(round > 0, "round must be positive");
+      this.round = round;
+      return this;
+    }
+
+    Builder movingTeamIndex(int movingTeamIndex) {
+      Preconditions.checkArgument(movingTeamIndex >= 0, "movingTeamIndex must be non-negative");
+      this.movingTeamIndex = movingTeamIndex;
+      return this;
+    }
+
+    Builder addYetToMove(Player player) {
+      yetToMove.add(Objects.requireNonNull(player, "player may not be null"));
+      return this;
+    }
+
+    Builder addYetToMoves(Set<Player> players) {
+      for (Player p : players) {
+        yetToMove.add(p);
+      }
+      return this;
+    }
+
+    Builder over(boolean over) {
+      this.over = over;
+      return this;
+    }
+
+    Builder winningTeam(GrappleTeam winningTeam) {
+      this.winningTeam = winningTeam;
       return this;
     }
 
@@ -408,7 +489,23 @@ public class GrappleEngine extends Engine {
     public GrappleEngine build() {
       Preconditions.checkState(teams.size() >= 2,
                                "At least two teams are required");
-      return new GrappleEngine(teams, rules);
+      Preconditions.checkState(movingTeamIndex < teams.size(),
+                               "Moving team index may not exceed " + (teams.size() - 1));
+      GrappleTeam movingTeam = teams.get(movingTeamIndex);
+      Preconditions.checkState(round == ROUND_NOT_STARTED || over || !yetToMove.isEmpty(),
+                               "Since combat isn't over, at least one player must be yet to move");
+      Preconditions.checkState(yetToMove.stream()
+                               .allMatch(p -> movingTeam.isMember(p)),
+                               "Some yet-to-move players are not on the moving team");
+      Preconditions.checkState(winningTeam == null || over,
+                               "A winning team may not be provided when combat isn't over");
+      if (winningTeam != null) {
+        Preconditions.checkState(teams.stream()
+                                 .anyMatch(t -> t.getName().equals(winningTeam.getName())),
+                                 "The winning team is not a listed team");
+      }
+      return new GrappleEngine(teams, rules, round, movingTeamIndex, yetToMove,
+                               over, winningTeam);
     }
 
     @Override
@@ -516,5 +613,51 @@ public class GrappleEngine extends Engine {
     return players.stream()
         .map(p -> team.getMemberStats(p))
         .allMatch(s -> s.isOut());
+  }
+
+  public ProtoModel.Engine toProto() {
+    return ProtoModel.Engine.newBuilder()
+        .addAllTeams(grappleTeams.stream()
+                     .map(GrappleTeam::toProto)
+                     .collect(Collectors.toList()))
+        .setRound(round)
+        .setMovingTeamIndex(movingTeamIndex)
+        .addAllYetToMove(yetToMove.stream()
+                         .map(Player::getName)
+                         .collect(Collectors.toList()))
+        .setOver(over)
+        .setWinningTeamName(winningTeam != null ? winningTeam.getName() : "")
+        .build();
+  }
+
+  public static GrappleEngine fromProto(ProtoModel.Engine proto) {
+    Universe universe = Universe.getCurrent();
+
+    List<GrappleTeam> teams = proto.getTeamsList().stream()
+        .map(teamProto -> GrappleTeam.fromProto(teamProto))
+        .collect(Collectors.toList());
+
+    Set<Player> yetToMove = proto.getYetToMoveList().stream()
+        .map(playerName -> universe.getThingByName(playerName, Player.class)
+                .orElseThrow(() -> new IllegalArgumentException("Player " + playerName + " not found")))
+        .collect(Collectors.toSet());
+
+    String winningTeamName = proto.getWinningTeamName();
+    GrappleTeam winningTeam = null;
+    if (!winningTeamName.isEmpty()) {
+      winningTeam = teams.stream()
+          .filter(t -> t.getName().equals(winningTeamName))
+          .findFirst()
+          .orElseThrow(() -> new IllegalArgumentException("The winning team is not a listed team"));
+    }
+
+    return GrappleEngine.builder()
+        .addTeams(teams)
+        .round(proto.getRound())
+        .movingTeamIndex(proto.getMovingTeamIndex())
+        .addYetToMoves(yetToMove)
+        .over(proto.getOver())
+        .winningTeam(winningTeam)
+        .build();
   }
 }
