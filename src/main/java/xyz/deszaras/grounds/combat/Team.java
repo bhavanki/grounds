@@ -49,6 +49,27 @@ public abstract class Team {
    */
   public abstract Set<Player> getMembers();
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    Team that = (Team) o;
+    if (!name.equals(that.name)) {
+      return false;
+    }
+    if (!getMembers().equals(that.getMembers())) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, getMembers());
+  }
+
   /**
    * A builder for {@link Team} objects.
    */

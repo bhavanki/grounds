@@ -1,5 +1,6 @@
 package xyz.deszaras.grounds.combat;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import xyz.deszaras.grounds.command.Actor;
@@ -47,5 +48,19 @@ public abstract class Npc extends Player {
   @Override
   public Message getNextMessage() {
     throw THIS_IS_AN_NPC;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    Npc that = (Npc) o;
+    return getName().equals(that.getName());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getName());
   }
 }
