@@ -22,6 +22,15 @@ public abstract class StatsDecorator implements Stats {
     this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");
   }
 
+  /**
+   * Gets the stats this decorator wraps.
+   *
+   * @return decorated stats
+   */
+  Stats getDelegate() {
+    return delegate;
+  }
+
   @Override
   public Map<Skill, Integer> getSkills() {
     return delegate.getSkills();
