@@ -16,6 +16,7 @@ Grounds is under active development, so features are all new and/or still being 
 * **Reaction to events.** Extensions can also listen for events, such as players arriving or leaving locations, or saying things, and react by running scripts to respond.
 * **Chat.** Players can message each other over OOC, named chat channels. *This feature is implemented completely in softcode!*
 * **Mail.** Players can communicate over an internal mail system.
+* **Combat.** The Grapple combat system lets players fight for victory against each other or NPCs.
 
 ## Requirements
 
@@ -63,7 +64,6 @@ $ mvn package
 ## Plans
 
 * Fleshed-out event systems
-* A combat system
 * More fun stuff
 
 ## License
