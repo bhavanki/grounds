@@ -23,6 +23,18 @@ public interface System {
   Engine.Builder getEngineBuilder();
 
   /**
+   * Constructs an engine from saved state. Optional operation; an
+   * implementation which does not support saved state should throw
+   * {@code UnsupportedOperationException}.
+   *
+   * @param state state
+   * @return engine
+   * @throws IllegalArgumentException if the state is invalid
+   * @throws UnsupportedOperationException if this sytem does not save state
+   */
+  Engine restore(byte[] state);
+
+  /**
    * Builds an NPC.
    *
    * @param  name NPC (player) name

@@ -2,6 +2,8 @@ package xyz.deszaras.grounds.combat.grapple;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+
 import java.util.List;
 
 import xyz.deszaras.grounds.combat.Engine;
@@ -22,6 +24,15 @@ public class GrappleSystem implements System {
   @Override
   public Engine.Builder getEngineBuilder() {
     return GrappleEngine.builder();
+  }
+
+  @Override
+  public GrappleEngine restore(byte[] state) {
+    try {
+      return GrappleEngine.fromProto(ProtoModel.Engine.parseFrom(state));
+    } catch (InvalidProtocolBufferException e) {
+      throw new IllegalArgumentException(e);
+    }
   }
 
   @Override

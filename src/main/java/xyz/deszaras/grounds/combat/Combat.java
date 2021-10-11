@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,6 +32,11 @@ import xyz.deszaras.grounds.model.Thing;
 public class Combat extends Thing {
 
   private static final Logger LOG = LoggerFactory.getLogger(Combat.class);
+
+  /**
+   * The attribute for saved combat state.
+   */
+  public static final String ATTR_NAME_STATE = "state";
 
   private final System system;
 
@@ -78,21 +84,55 @@ public class Combat extends Thing {
   }
 
   /**
+   * Gets this combat's state.
+   *
+   * @return state
+   */
+  @JsonIgnore
+  public Optional<String> getState() {
+    return getAttr(ATTR_NAME_STATE).map(a -> a.getValue());
+  }
+
+  /**
+   * Sets this combat's state. Pass a null state to remove it.
+   *
+   * @param state state
+   */
+  public void setState(String state) {
+    if (state != null) {
+      setAttr(ATTR_NAME_STATE, state);
+    } else {
+      removeAttr(ATTR_NAME_STATE);
+    }
+  }
+
+  /**
    * Gets the system being used for combat.
    *
    * @return combat system
    */
+  @JsonIgnore
   public System getSystem() {
     return system;
   }
 
-  @VisibleForTesting
-  Engine getEngine() {
+  /**
+   * Gets the underlying engine for this combat.
+   *
+   * @return engine
+   */
+  @JsonIgnore
+  public Engine getEngine() {
     return engine;
   }
 
-  @VisibleForTesting
-  void setEngine(Engine engine) {
+  /**
+   * Sets the underlying engine for this combat. Note that this starts combat
+   * if it hasn't already been started.
+   *
+   * @param engine engine
+   */
+  public void setEngine(Engine engine) {
     this.engine = engine;
   }
 
@@ -163,8 +203,8 @@ public class Combat extends Thing {
   }
 
   /**
-   * Starts combat. Teams move in the listed priority order; any teams not
-   * listed are prioritized after them, in arbitrary order.
+   * Starts combat. Listed teams are added to the underlying engine in order,
+   * followed by any remaining teams in arbitrary order.
    *
    * @param  teamNames names of teams, in priority order
    * @return           this combat
@@ -214,8 +254,9 @@ public class Combat extends Thing {
       "Players are still being added.";
 
   /**
-   * Returns the status of this combat. If combat has started, I love my wife.
-   * Otherwise, the status reports on which players have been added to teams.
+   * Returns the status of this combat. If combat has started, returns the
+   * underlying engine status. Otherwise, the status reports on which players
+   * have been added to teams.
    *
    * @return status
    */

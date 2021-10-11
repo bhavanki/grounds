@@ -35,11 +35,13 @@ import xyz.deszaras.grounds.combat.grapple.Rules.StrikeInput;
 // import xyz.deszaras.grounds.combat.grapple.Rules.StrikeOutput;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Player;
-import xyz.deszaras.grounds.model.Universe;
 import xyz.deszaras.grounds.util.AnsiUtils;
 import xyz.deszaras.grounds.util.LineOutput;
 import xyz.deszaras.grounds.util.TabularOutput;
 
+/**
+ * The engine for the Grapple combat system.
+ */
 public class GrappleEngine extends Engine {
 
   private static final Logger LOG = LoggerFactory.getLogger(Engine.class);
@@ -615,6 +617,11 @@ public class GrappleEngine extends Engine {
         .allMatch(s -> s.isOut());
   }
 
+  @Override
+  public byte[] getState() {
+    return toProto().toByteArray();
+  }
+
   public ProtoModel.Engine toProto() {
     return ProtoModel.Engine.newBuilder()
         .addAllTeams(grappleTeams.stream()
@@ -631,14 +638,14 @@ public class GrappleEngine extends Engine {
   }
 
   public static GrappleEngine fromProto(ProtoModel.Engine proto) {
-    Universe universe = Universe.getCurrent();
-
     List<GrappleTeam> teams = proto.getTeamsList().stream()
         .map(teamProto -> GrappleTeam.fromProto(teamProto))
         .collect(Collectors.toList());
+    int movingTeamIndex = proto.getMovingTeamIndex();
+    GrappleTeam movingTeam = teams.get(movingTeamIndex);
 
     Set<Player> yetToMove = proto.getYetToMoveList().stream()
-        .map(playerName -> universe.getThingByName(playerName, Player.class)
+        .map(playerName -> movingTeam.getMemberByName(playerName)
                 .orElseThrow(() -> new IllegalArgumentException("Player " + playerName + " not found")))
         .collect(Collectors.toSet());
 
@@ -654,7 +661,7 @@ public class GrappleEngine extends Engine {
     return GrappleEngine.builder()
         .addTeams(teams)
         .round(proto.getRound())
-        .movingTeamIndex(proto.getMovingTeamIndex())
+        .movingTeamIndex(movingTeamIndex)
         .addYetToMoves(yetToMove)
         .over(proto.getOver())
         .winningTeam(winningTeam)

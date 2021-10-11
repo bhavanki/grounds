@@ -19,6 +19,8 @@ import xyz.deszaras.grounds.command.combat.MoveNpcCombatCommand;
 import xyz.deszaras.grounds.command.combat.RemoveCombatNpcCommand;
 import xyz.deszaras.grounds.command.combat.RemoveCombatPlayerCommand;
 // import xyz.deszaras.grounds.command.combat.ResolveRoundCombatCommand;
+import xyz.deszaras.grounds.command.combat.RestoreCombatCommand;
+import xyz.deszaras.grounds.command.combat.SaveCombatCommand;
 import xyz.deszaras.grounds.command.combat.StartCombatCommand;
 import xyz.deszaras.grounds.command.combat.StatusCombatCommand;
 import xyz.deszaras.grounds.combat.Combat;
@@ -97,6 +99,9 @@ public class CombatCommand extends Command<String> {
         .put("ADD_NPC", AddCombatNpcCommand.class)
         .put("REMOVE", RemoveCombatPlayerCommand.class)
         .put("REMOVE_NPC", RemoveCombatNpcCommand.class)
+        .put("RESTORE", RestoreCombatCommand.class)
+        .put("LOAD", RestoreCombatCommand.class)
+        .put("SAVE", SaveCombatCommand.class)
         .put("STATUS", StatusCombatCommand.class)
         .put("START", StartCombatCommand.class)
         .put("MOVE", MoveCombatCommand.class)

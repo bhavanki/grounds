@@ -452,6 +452,20 @@ Examples:
 * `combat move_npc strike 3 Ahalish` => `c mn a 3 Ahalish`
 * `combat move catch breath` => `c m c`
 
+## Saving and Restoring Combat
+
+The ongoing state of combat is not automatically persisted, so if there is a server failure, it may be lost. After combat has started, the combat owner can save the state of combat so that it can be restored later. State is saved as an attribute of the combat itself.
+
+```
+$ combat save
+Combat saved
+$ combat restore
++ Combat has been restored to a prior state
+Combat restored
+```
+
+For proper restoration, ensure that all (non-NPC) players participating in combat are active. Any who are not are converted into NPCs within the combat.
+
 ## Ending Combat
 
 Combat is *over* when there is no more than one team with players that are not knocked out. Usually, this means there is one team left standing.
