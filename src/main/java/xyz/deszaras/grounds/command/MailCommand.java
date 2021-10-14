@@ -56,7 +56,7 @@ public class MailCommand extends Command<Boolean> {
     return newMailbox;
   }
 
-  private static final Map<String, Class<? extends Command>> MAIL_COMMANDS;
+  static final Map<String, Class<? extends Command>> MAIL_COMMANDS;
 
   static {
     MAIL_COMMANDS = ImmutableMap.<String, Class<? extends Command>>builder()

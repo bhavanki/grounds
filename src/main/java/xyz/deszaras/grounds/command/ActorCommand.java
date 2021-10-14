@@ -50,7 +50,7 @@ public class ActorCommand extends ServerCommand<Boolean> {
     }
   }
 
-  private static final Map<String, Class<? extends Command>> ACTOR_COMMANDS;
+  static final Map<String, Class<? extends Command>> ACTOR_COMMANDS;
 
   static {
     ACTOR_COMMANDS = ImmutableMap.<String, Class<? extends Command>>builder()

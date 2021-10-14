@@ -31,7 +31,7 @@ import xyz.deszaras.grounds.server.Server;
  */
 public class CommandExecutor {
 
-  private static final Map<String, Class<? extends Command>> COMMANDS;
+  static final Map<String, Class<? extends Command>> COMMANDS;
   private static final List<BiFunction<List<String>, Player, List<String>>> TRANSFORMS;
 
   static {

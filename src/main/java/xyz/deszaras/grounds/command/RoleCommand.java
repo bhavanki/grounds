@@ -27,7 +27,7 @@ public class RoleCommand extends Command<Boolean> {
                          newRoles.toString());
   }
 
-  private static final Map<String, Class<? extends Command>> ROLE_COMMANDS;
+  static final Map<String, Class<? extends Command>> ROLE_COMMANDS;
 
   static {
     ROLE_COMMANDS = ImmutableMap.<String, Class<? extends Command>>builder()

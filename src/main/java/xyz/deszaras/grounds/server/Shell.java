@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.Command;
+import xyz.deszaras.grounds.command.CommandCompleter;
 import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.command.CommandFactoryException;
@@ -80,6 +81,8 @@ public class Shell implements Runnable {
         .parser(new DefaultParser()
                 .eofOnEscapedNewLine(true)
                 .eofOnUnclosedQuote(true))
+        .completer(new CommandCompleter())
+        .option(LineReader.Option.CASE_INSENSITIVE, true)
         .build();
   }
 

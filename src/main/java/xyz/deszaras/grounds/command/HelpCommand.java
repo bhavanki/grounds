@@ -1,13 +1,15 @@
 package xyz.deszaras.grounds.command;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
+
 import org.fusesource.jansi.Ansi;
+
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.script.Script;
@@ -20,22 +22,33 @@ public class HelpCommand extends Command<String> {
   private static final ResourceBundle helpResource =
       ResourceBundle.getBundle("bundles.help.Help", Locale.getDefault());
 
-  private final String commandName;
+  private final List<String> args;
 
-  public HelpCommand(Actor actor, Player player, String commandName) {
+  public HelpCommand(Actor actor, Player player, List<String> args) {
     super(actor, player);
-    this.commandName = Objects.requireNonNull(commandName);
+    this.args = ImmutableList.copyOf(args);
+  }
+
+  private static final String COMMANDS_LIST;
+
+  static {
+    List<String> commandNames =
+      new ArrayList<>(CommandExecutor.COMMANDS.keySet());
+    Collections.sort(commandNames);
+    COMMANDS_LIST = String.join("\n", commandNames);
   }
 
   private static final String HELP_FORMAT = "%s\n\n%s\n\n%s";
 
   @Override
   protected String executeImpl() throws CommandException {
+    if (args.isEmpty()) {
+      return helpResource.getString("_MAIN.content");
+    }
+
+    String commandName = String.join("_", args);
     if (commandName.equalsIgnoreCase("commands")) {
-      List<String> commandNames =
-          new ArrayList<>(CommandExecutor.getInstance().getCommandFactory().getCommandNames());
-      Collections.sort(commandNames);
-      return commandNames.stream().collect(Collectors.joining("\n"));
+      return COMMANDS_LIST;
     }
 
     String upperCommandName = commandName.toUpperCase();
@@ -73,8 +86,6 @@ public class HelpCommand extends Command<String> {
   public static HelpCommand newCommand(Actor actor, Player player,
                                        List<String> commandArgs)
       throws CommandFactoryException {
-    ensureMinArgs(commandArgs, 1);
-    String commandName = String.join("_", commandArgs);
-    return new HelpCommand(actor, player, commandName);
+    return new HelpCommand(actor, player, commandArgs);
   }
 }

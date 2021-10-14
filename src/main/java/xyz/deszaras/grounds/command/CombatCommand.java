@@ -89,7 +89,7 @@ public class CombatCommand extends Command<String> {
     }
   }
 
-  private static final Map<String, Class<? extends Command>> COMBAT_COMMANDS;
+  static final Map<String, Class<? extends Command>> COMBAT_COMMANDS;
 
   static {
     COMBAT_COMMANDS = ImmutableMap.<String, Class<? extends Command>>builder()
