@@ -222,7 +222,7 @@ public class Shell implements Runnable {
 
         List<String> tokens = lineReader.getParsedLine().words();
         prePrompt = AnsiUtils.color("√ ", Ansi.Color.GREEN, true);
-        if (!tokens.isEmpty()) {
+        if (!tokens.isEmpty() && !String.join("", tokens).isEmpty()) {
 
           Future<CommandResult> commandFuture =
               CommandExecutor.getInstance().submit(actor, player, tokens);
