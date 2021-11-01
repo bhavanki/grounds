@@ -1,6 +1,5 @@
 package xyz.deszaras.grounds.server;
 
-import java.io.PrintWriter;
 import java.util.Objects;
 
 import org.jline.reader.LineReader;
@@ -8,6 +7,7 @@ import org.jline.terminal.Terminal;
 
 import xyz.deszaras.grounds.command.Message;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.util.AnsiString;
 
 /**
  * A runnable that simply gets messages for a player and emits them
@@ -40,20 +40,15 @@ public class MessageEmitter implements Runnable {
 
   @Override
   public void run() {
-    PrintWriter out = terminal.writer();
     player.clearMessages();
 
     try {
       while (true) {
         Message nextMessage = player.getNextMessage();
         LineBreaker lineBreaker = new LineBreaker(terminal.getWidth());
-        String message = lineBreaker.insertLineBreaks(nextMessage.getMessage());
-        String styledMessage = nextMessage.getStyle().format(message);
-        if (lineReader != null) {
-          lineReader.printAbove(styledMessage);
-        } else {
-          out.printf("%s\n", styledMessage);
-        }
+        AnsiString styledMessage = nextMessage.getStyledMessage();
+        AnsiString emitMessage = lineBreaker.insertLineBreaks(styledMessage);
+        lineReader.printAbove(emitMessage.toString());
       }
     } catch (InterruptedException e) { // NOPMD
       // exit the thread

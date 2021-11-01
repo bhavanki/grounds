@@ -1,10 +1,13 @@
 package xyz.deszaras.grounds.server;
 
 import com.google.common.base.Joiner;
+
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import xyz.deszaras.grounds.util.AnsiString;
 
 /**
  * A helper class that breaks a long string into lines of a given width.
@@ -32,8 +35,8 @@ public class LineBreaker {
    * @param s string to break
    * @return string with line breaks inserted
    */
-  public String insertLineBreaks(String s) {
-    return LINE_JOINER.join(lineBreak(s));
+  public AnsiString insertLineBreaks(AnsiString s) {
+    return new AnsiString(LINE_JOINER.join(lineBreak(s)));
   }
 
   /**
@@ -43,25 +46,27 @@ public class LineBreaker {
    * @return list of lines
    */
   @SuppressWarnings("PMD.UselessParentheses")
-  public List<String> lineBreak(String s) {
+  public List<String> lineBreak(AnsiString s) {
     if (s.isEmpty()) {
-      return Collections.singletonList(s);
+      return Collections.singletonList(s.toString());
     }
     List<String> lines = new ArrayList<>();
-    breakIterator.setText(s);
+    breakIterator.setText(s.toStrippedString());
 
     // Use a string builder to accumulate line content.
-    StringBuilder line = new StringBuilder();
+    StringBuilder lineBuilder = new StringBuilder();
+    AnsiString currLine = new AnsiString("");
+
     // Iterate over substrings as returned by the iterator.
     int start = breakIterator.first();
     for (int end = breakIterator.next(); end != BreakIterator.DONE;
            start = end, end = breakIterator.next()) {
-      String subs = s.substring(start, end);
+      AnsiString subs = s.subSequence(start, end);
 
       // Handle substrings specially when they end with a space (very often) or
       // with an explicit newline.
-      boolean trailingSpace = subs.endsWith(" ");
-      boolean trailingNewline = subs.endsWith("\n");
+      boolean trailingSpace = subs.charAt(subs.length() - 1) == ' ';
+      boolean trailingNewline = subs.charAt(subs.length() - 1) == '\n';
 
       // See if the current substring shall be added to the line being built
       // now. It shall be if any of these conditions hold:
@@ -72,42 +77,54 @@ public class LineBreaker {
       //    newline fits into the line.
       // 4. The line is empty - in this case, the substring is longer but has to
       //    be put on anyway or we'll never progress.
-      if (line.length() + (end - start) <= terminalWidth ||
-          (trailingSpace && line.length() + (end - start - 1) <= terminalWidth) ||
-          (trailingNewline && line.length() + (end - start - 1) <= terminalWidth) ||
-          line.length() == 0) {
-        line.append(subs);
+      currLine = new AnsiString(lineBuilder.toString());
+      if (currLine.length() + (end - start) <= terminalWidth ||
+          (trailingSpace && currLine.length() + (end - start - 1) <= terminalWidth) ||
+          (trailingNewline && currLine.length() + (end - start - 1) <= terminalWidth) ||
+          currLine.length() == 0) {
+        lineBuilder.append(subs.toString());
+        currLine = new AnsiString(lineBuilder.toString());
       } else {
         // There is no room on the current line, so close it out and
-        // begin a new line with this substring.
-        lines.add(line.toString());
-        line = new StringBuilder(subs);
+        // begin a new line with this substring. If the current line ends with
+        // a space, trim it off.
+        lines.add(trimTrailingSpace(currLine).toString());
+        lineBuilder = new StringBuilder(subs.toString());
+        currLine = subs;
       }
 
       // If the substring added to the line has a trailing space and that makes
-      // the line length too long, chop the space off.
-      if (trailingSpace && line.length() > terminalWidth) {
-        line.deleteCharAt(line.length() - 1);
+      // the line length too long, chop the space off. (Condition 2)
+      if (trailingSpace && currLine.length() > terminalWidth) {
+        currLine = trimTrailingSpace(currLine);
+        lineBuilder = new StringBuilder(currLine.toString());
       }
 
-      // If the current line ends with a "natural" newline, respect it,
-      // and start a new blank line. This works even for the case when the
-      // "natural" newline extends beyond the maximum line width, i.e., when
-      // trailingNewline == true and the line's length is now one longers than
-      // the permitted maximum.
-      if (line.charAt(line.length() - 1) == '\n') {
-        line.deleteCharAt(line.length() - 1);
-        lines.add(line.toString());
-        line = new StringBuilder();
+      // If the substring added to the line ends with a "natural" newline,
+      // respect it, and start a new blank line. This works even for the case
+      // when the "natural" newline extends beyond the maximum line width.
+      // (Condition 3)
+      if (trailingNewline) {
+        lines.add(currLine.subSequence(0, currLine.length() - 1).toString());
+        lineBuilder = new StringBuilder();
       }
     }
 
     // The loop above ends with one last line under construction. Add it if it
-    // has content.
-    if (line.length() > 0) {
-      lines.add(line.toString());
+    // has content. If the last line ends with a space, trim it off.
+    AnsiString remains = new AnsiString(lineBuilder.toString());
+    if (remains.length() > 0) {
+      lines.add(trimTrailingSpace(remains).toString());
     }
 
     return Collections.unmodifiableList(lines);
+  }
+
+  private static AnsiString trimTrailingSpace(AnsiString s) {
+    if (s.length() > 0 && s.charAt(s.length() - 1) == ' ') {
+      return s.subSequence(0, s.length() - 1);
+    } else {
+      return s;
+    }
   }
 }

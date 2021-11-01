@@ -1,6 +1,7 @@
 package xyz.deszaras.grounds.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.fusesource.jansi.Ansi;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,22 @@ public class AnsiStringTest {
 
   private static final String EMPTY_CYAN =
       AnsiUtils.color("", Ansi.Color.CYAN, false);
+
+  @Test
+  public void testIsEmptyAnsi() {
+    String original = EMPTY_CYAN;
+    s = new AnsiString(original);
+
+    assertTrue(s.isEmpty());
+  }
+
+  @Test
+  public void testIsEmptyNoAnsi() {
+    String original = "";
+    s = new AnsiString(original);
+
+    assertTrue(s.isEmpty());
+  }
 
   @Test
   public void testSubSequenceAnsi() {

@@ -24,9 +24,9 @@ import org.fusesource.jansi.AnsiOutputStream;
  *     justification and precision are supported.</li>
  * <li>Streams from the character sequence omit escape codes.
  *     {@link #charAt(int)} ignores them.</li>
- * <li>{@link #subSequence(int, int)} ignores escape codes in its length
- *     calculations, but preserves them in the returned sequence, with the
- *     following caveats:<ul>
+ * <li>{@link #subSequence(int, int)} and {@link #substring(int, int)} ignore
+ *     escape codes in their length calculations, but preserve them in the
+ *     returned subsequence (substring), with the following caveats:<ul>
  *     <li>All escape codes are copied over into the subsequence, even those
  *         that are before start. This ensures that the initial state of the
  *         subsequence matches the original, even if some codes have already
@@ -82,6 +82,15 @@ public class AnsiString implements CharSequence, Formattable {
   @Override
   public IntStream codePoints() {
     return stripped.codePoints();
+  }
+
+  /**
+   * Returns true if, and only if, {@link #length()} is 0.
+   *
+   * @return true if {@link #length()} is 0, otherwise false
+   */
+  public boolean isEmpty() {
+    return stripped.length() == 0;
   }
 
   @Override
@@ -164,6 +173,18 @@ public class AnsiString implements CharSequence, Formattable {
     return new AnsiString(chars.toString());
   }
 
+  /**
+   * Returns a string that is a substring of this string. Alias for
+   * {@link #subSequence(int, int)}.
+   *
+   * @param  start the beginning index, inclusive
+   * @param  end   the ending index, exclusive
+   * @return       the specified substring
+   */
+  public AnsiString substring(int start, int end) {
+    return subSequence(start, end);
+  }
+
   private static void consume(StringBuilder b, char c, int idx, int start, boolean ansiCode) {
     if (idx >= start || ansiCode) {
       b.append(c);
@@ -171,8 +192,30 @@ public class AnsiString implements CharSequence, Formattable {
   }
 
   @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    return this.original.equals(((AnsiString) o).original);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(original);
+  }
+
+  @Override
   public String toString() {
     return original.toString();
+  }
+
+  /**
+   * Returns this string stripped of any ANSI codes.
+   *
+   * @return string with ANSI codes stripped out
+   */
+  public String toStrippedString() {
+    return stripped;
   }
 
   @Override

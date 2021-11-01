@@ -6,6 +6,7 @@ import java.util.Set;
 import org.fusesource.jansi.Ansi;
 
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.util.AnsiString;
 import xyz.deszaras.grounds.util.AnsiUtils;
 
 /**
@@ -104,5 +105,9 @@ public class Message {
 
   public String getMessage() {
     return message;
+  }
+
+  public AnsiString getStyledMessage() {
+    return new AnsiString(style.format(message));
   }
 }
