@@ -86,6 +86,20 @@ public class MessageEmitterTest {
   }
 
   @Test
+  public void testExpandHorizontalRules() throws Exception {
+    when(terminal.getWidth()).thenReturn(20);
+    when(player.getNextMessage())
+        .thenReturn(new Message(sender, Message.Style.INFO, "one\n{hr =}\ntwo"))
+        .thenThrow(new InterruptedException());
+
+    Future<?> future = emitterExecutorService.submit(emitter);
+    future.get();
+
+    verify(player).clearMessages();
+    verify(lineReader).printAbove("one\n====================\ntwo");
+  }
+
+  @Test
   public void testStyles() throws Exception {
     when(terminal.getWidth()).thenReturn(80);
     when(player.getNextMessage())

@@ -111,7 +111,7 @@ public class LineBreakerTest {
     assertEquals(brokenMessage, lb.insertLineBreaks(message));
   }
 
-  // This test is a bit deficient. The line breaker uses AnsiString.subSequence
+  // This test is a bit deficient. The line breaker uses AnsiString.substring
   // which intentionally populates a bunch of redundant escape codes and resets,
   // so even though the processed line will look the same color-wise, it will
   // have different byte content. So, this test just verifies that the content

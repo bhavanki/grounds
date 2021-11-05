@@ -45,6 +45,7 @@ public class MessageEmitter implements Runnable {
     try {
       while (true) {
         Message nextMessage = player.getNextMessage();
+        nextMessage = nextMessage.expandHorizontalRules(terminal.getWidth());
         LineBreaker lineBreaker = new LineBreaker(terminal.getWidth());
         AnsiString styledMessage = nextMessage.getStyledMessage();
         AnsiString emitMessage = lineBreaker.insertLineBreaks(styledMessage);

@@ -2,6 +2,8 @@ package xyz.deszaras.grounds.command;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.fusesource.jansi.Ansi;
 
@@ -109,5 +111,33 @@ public class Message {
 
   public AnsiString getStyledMessage() {
     return new AnsiString(style.format(message));
+  }
+
+  private static final Pattern HR_PATTERN = Pattern.compile("\\{hr ([^ }]+)( .*)?\\}");
+
+  public Message expandHorizontalRules(int terminalWidth) {
+    String msg = message;
+
+    // {hr <element> <optional title>}
+    for (Matcher matcher = HR_PATTERN.matcher(msg);
+         matcher.find();
+         matcher = HR_PATTERN.matcher(msg)) {
+      String element = matcher.group(1);
+      String rule = element.repeat(terminalWidth / element.length());
+
+      String title = matcher.group(2);
+      if (title != null && title.length() > 0) {
+        String ruleStart = title.trim() + " ";
+        rule = new StringBuilder(rule)
+            .replace(0, ruleStart.length(), ruleStart)
+            .toString();
+        if (rule.length() > terminalWidth) {
+          rule = rule.substring(0, terminalWidth);
+        }
+      }
+      msg = msg.substring(0, matcher.start()) + rule + msg.substring(matcher.end());
+    }
+
+    return new Message(sender, style, msg);
   }
 }

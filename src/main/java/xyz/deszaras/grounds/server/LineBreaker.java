@@ -61,7 +61,7 @@ public class LineBreaker {
     int start = breakIterator.first();
     for (int end = breakIterator.next(); end != BreakIterator.DONE;
            start = end, end = breakIterator.next()) {
-      AnsiString subs = s.subSequence(start, end);
+      AnsiString subs = s.substring(start, end);
 
       // Handle substrings specially when they end with a space (very often) or
       // with an explicit newline.
@@ -78,10 +78,11 @@ public class LineBreaker {
       // 4. The line is empty - in this case, the substring is longer but has to
       //    be put on anyway or we'll never progress.
       currLine = new AnsiString(lineBuilder.toString());
-      if (currLine.length() + (end - start) <= terminalWidth ||
-          (trailingSpace && currLine.length() + (end - start - 1) <= terminalWidth) ||
-          (trailingNewline && currLine.length() + (end - start - 1) <= terminalWidth) ||
-          currLine.length() == 0) {
+      int len = currLine.length();
+      if (len + (end - start) <= terminalWidth ||
+          (trailingSpace && len + (end - start - 1) <= terminalWidth) ||
+          (trailingNewline && len + (end - start - 1) <= terminalWidth) ||
+          len == 0) {
         lineBuilder.append(subs.toString());
         currLine = new AnsiString(lineBuilder.toString());
       } else {
@@ -92,10 +93,11 @@ public class LineBreaker {
         lineBuilder = new StringBuilder(subs.toString());
         currLine = subs;
       }
+      len = currLine.length();
 
       // If the substring added to the line has a trailing space and that makes
       // the line length too long, chop the space off. (Condition 2)
-      if (trailingSpace && currLine.length() > terminalWidth) {
+      if (trailingSpace && len > terminalWidth) {
         currLine = trimTrailingSpace(currLine);
         lineBuilder = new StringBuilder(currLine.toString());
       }
@@ -105,7 +107,7 @@ public class LineBreaker {
       // when the "natural" newline extends beyond the maximum line width.
       // (Condition 3)
       if (trailingNewline) {
-        lines.add(currLine.subSequence(0, currLine.length() - 1).toString());
+        lines.add(currLine.substring(0, len - 1).toString());
         lineBuilder = new StringBuilder();
       }
     }
@@ -122,7 +124,7 @@ public class LineBreaker {
 
   private static AnsiString trimTrailingSpace(AnsiString s) {
     if (s.length() > 0 && s.charAt(s.length() - 1) == ' ') {
-      return s.subSequence(0, s.length() - 1);
+      return s.substring(0, s.length() - 1);
     } else {
       return s;
     }

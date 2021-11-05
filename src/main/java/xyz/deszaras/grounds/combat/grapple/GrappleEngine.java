@@ -36,7 +36,6 @@ import xyz.deszaras.grounds.combat.grapple.Rules.StrikeInput;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.util.AnsiUtils;
-import xyz.deszaras.grounds.util.LineOutput;
 import xyz.deszaras.grounds.util.TabularOutput;
 
 /**
@@ -133,13 +132,12 @@ public class GrappleEngine extends Engine {
     }
   }
 
-  private static final int STATUS_WIDTH = 37;
-
   @Override
   public String status() {
-    String border = new LineOutput(STATUS_WIDTH, "=", Ansi.Color.MAGENTA, true).toString();
-    String teamBorder = new LineOutput(STATUS_WIDTH, "- ", Ansi.Color.MAGENTA, true).toString();
-    StringBuilder b = new StringBuilder(border).append("\n");
+    String topBorder = AnsiUtils.color("{hr = Combat status}", Ansi.Color.MAGENTA, true);
+    String bottomBorder = AnsiUtils.color("{hr =}", Ansi.Color.MAGENTA, true);
+    String teamBorder = AnsiUtils.color("{hr -}", Ansi.Color.MAGENTA, true);
+    StringBuilder b = new StringBuilder(topBorder).append("\n");
 
     if (over) {
       b.append(AnsiUtils.color("COMBAT IS OVER! Winning team: " +
@@ -218,7 +216,7 @@ public class GrappleEngine extends Engine {
       b.append("\n").append(table.toString());
     }
 
-    b.append("\n").append(border);
+    b.append("\n").append(bottomBorder);
     return b.toString();
   }
 
