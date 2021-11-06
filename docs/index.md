@@ -8,4 +8,5 @@ Grounds is a MUSH.
 * [Being a Guest](guest.md)
 * [Becoming a New Player](player.md)
 * [Common Commands](common_commands.md)
+* [Mail](mail.md)
 * [Combat](combat.md)
