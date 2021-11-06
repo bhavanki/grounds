@@ -49,6 +49,43 @@ The command takes a moment to complete, since Grounds uses a strong password has
 
 If you forget your password, a wizard can reset it for you.
 
+## Useful Preferences
+
+Your actor has a small set of preferences that customize your interactions with Grounds. These preferences apply to all of your players.
+
+### Timezone
+
+Some Grounds commands, like mail listings, show you timestamps. Your default timezone is UTC, but you can set one as your "tz" preference.
+
+```
+$ preference tz=America/New_York
+```
+
+A variety of timezone formats are supported. For best results, use a region-based zone ID from the [list of IDs in the IANA timezone database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Some common IDs are:
+
+* America/New_York = US Eastern
+* America/Los_Angeles = US Pacific
+* Europe/London
+* Europe/Berlin
+* Asia/Kolkata = India
+* Asia/Shanghai = China
+* Asia/Tokyo = Japan
+* Australia/Sydney
+
+Online tools like [What's My Time Zone?](http://www.timezoneconverter.com/cgi-bin/findzone.tzc) can help you determine the best setting for you.
+
+### Color
+
+Grounds can use [ANSI escape codes](https://en.wikipedia.org/wiki/ANSI_escape_code) to colorize text. By default, these codes are disabled, but you can enable them with your "ansi" preference.
+
+```
+$ preference ansi=true
+```
+
+Most modern terminal applications support ANSI escape codes, although those in Windows may require some configuration.
+
+While color can improve and enhance the appearance of Grounds, you do not need to enable it to fully access the game; non-color indicators, such as particular symbols, are always provided along with color indicators.
+
 ## Playing
 
 See [Common Commands](common_commands.md) for the most useful commands to use when playing a game.
