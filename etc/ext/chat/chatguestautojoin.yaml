@@ -27,6 +27,4 @@
         logDebug("No guest channel")
       }
 
-    } else {
-      logDebug("Yoinked thing is not a guest")
     }
