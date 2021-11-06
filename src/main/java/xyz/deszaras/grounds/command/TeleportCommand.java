@@ -65,7 +65,8 @@ public class TeleportCommand extends Command<String> {
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
     Place destination =
-        CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Place.class, player);
+        CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0), Place.class,
+                                                 player, true);
     return new TeleportCommand(actor, player, destination);
   }
 

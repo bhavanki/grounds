@@ -41,8 +41,9 @@ import xyz.deszaras.grounds.model.Universe;
  *     share the context things's location. Here, if the context thing is a
  *     player, then extensions may be resolved only if the player has a
  *     permitted role.</li>
- * <li>If no nearby things match, and the thing is the GOD player or is a
- *     wizard, then the resolver falls back to looking throughout the universe.
+ * <li>If no nearby things match, and either a) the thing is the GOD player or
+ *     is a wizard or b) global search is explicitly allowed, then the resolver
+ *     falls back to looking throughout the universe.
  * <li>If two things in a set have a matching name, the resolver picks
  *     an arbitrary one.</li>
  * </ul>
@@ -66,9 +67,10 @@ public class ArgumentResolver {
   private static final String ME = "me";
 
   /**
-   * Resolves a name or ID into a thing.
+   * Resolves an ID into a thing. Global search is disabled for non-wizard
+   * context things.
    *
-   * @param nameOrId name or UUID string for a thing
+   * @param id ID for a thing
    * @param type expected type of thing to resolve
    * @param context thing providing context for resolution
    * @return resolved thing
@@ -76,10 +78,28 @@ public class ArgumentResolver {
    */
   public <T extends Thing> T resolve(String nameOrId,
       Class<T> type, Thing context) throws ArgumentResolverException {
+    return resolve(nameOrId, type, context, false);
+  }
+
+  /**
+   * Resolves a name or ID into a thing.
+   *
+   * @param nameOrId name or UUID string for a thing
+   * @param type expected type of thing to resolve
+   * @param context thing providing context for resolution
+   * @param allowGlobalSearch always allow resolution across the universe
+   * @return resolved thing
+   * @throws ArgumentResolverException if the thing cannot be resolved
+   */
+  @SuppressWarnings("PMD.UselessParentheses")
+  public <T extends Thing> T resolve(String nameOrId,
+      Class<T> type, Thing context, boolean allowGlobalSearch)
+      throws ArgumentResolverException {
 
     // If the string is a UUID, resolve as a UUID.
     if (UUIDUtils.isUUID(nameOrId)) {
-      return resolve(UUIDUtils.getUUID(nameOrId), type, context);
+      return resolve(UUIDUtils.getUUID(nameOrId), type, context,
+                     allowGlobalSearch);
     }
     String name = nameOrId;
 
@@ -124,10 +144,11 @@ public class ArgumentResolver {
       }
     }
 
-    // If the context thing is a wizard (or GOD), then try to resolve among all
-    // things in the universe.
+    // If the context thing is a wizard (or GOD), or global search is allowed,
+    // then try to resolve among all things in the universe.
     // TBD: allow for wizard things, not just players
-    if (context instanceof Player && Role.isWizard((Player) context)) {
+    if (allowGlobalSearch ||
+      (context instanceof Player && Role.isWizard((Player) context))) {
       Optional<T> finalThing = Universe.getCurrent().getThingByName(name, type);
       if (finalThing.isPresent()) {
         LOG.debug("Resolved {} to {} {} in universe",
@@ -146,11 +167,13 @@ public class ArgumentResolver {
    * @param id ID for a thing
    * @param type expected type of thing to resolve
    * @param context thing providing context for resolution
+   * @param allowGlobalSearch always allow resolution across the universe
    * @return resolved thing
    * @throws ArgumentResolverException if the thing cannot be resolved
    */
+  @SuppressWarnings("PMD.UselessParentheses")
   public <T extends Thing> T resolve(UUID id, Class<T> type,
-        Thing context) throws ArgumentResolverException {
+        Thing context, boolean allowGlobalSearch) throws ArgumentResolverException {
 
     // the context thing's own ID (analogous to "me")
     // The context thing's class must be the same as or a superclass of the
@@ -193,10 +216,11 @@ public class ArgumentResolver {
       }
     }
 
-    // If the context thing is a wizard (or GOD), then try to resolve among all
-    // things in the universe.
+    // If the context thing is a wizard (or GOD), or global search is allowed,
+    // then try to resolve among all things in the universe.
     // TBD: allow for wizard things, not just players
-    if (context instanceof Player && Role.isWizard((Player) context)) {
+    if (allowGlobalSearch ||
+        (context instanceof Player && Role.isWizard((Player) context))) {
       Optional<T> finalThing = Universe.getCurrent().getThing(id, type);
       if (finalThing.isPresent()) {
         LOG.debug("Resolved {} to {} {} in universe",

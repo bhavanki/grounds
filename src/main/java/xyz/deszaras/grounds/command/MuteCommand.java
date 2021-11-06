@@ -37,6 +37,9 @@ public class MuteCommand extends Command<String> {
     if (Player.GOD.equals(mutee)) {
       throw new CommandException("You may not mute GOD");
     }
+    if (mutee.equals(player)) {
+      throw new CommandException("You may not mute yourself. Just be quiet.");
+    }
 
     if (player.mute(mutee)) {
       return "Muted " + mutee.getName();
@@ -51,7 +54,7 @@ public class MuteCommand extends Command<String> {
     Thing mutee;
     if (commandArgs.size() > 0) {
       mutee = CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0),
-                                                       Thing.class, player);
+                                                       Thing.class, player, true);
     } else {
       mutee = null;
     }

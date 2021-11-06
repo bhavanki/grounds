@@ -36,7 +36,7 @@ public class UnmuteCommand extends Command<String> {
     ensureMinArgs(commandArgs, 1);
 
     Thing mutee = CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0),
-                                                           Thing.class, player);
+                                                           Thing.class, player, true);
     return new UnmuteCommand(actor, player, mutee);
   }
 }

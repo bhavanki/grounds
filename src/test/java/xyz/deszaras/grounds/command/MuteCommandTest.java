@@ -60,6 +60,13 @@ public class MuteCommandTest extends AbstractCommandTest {
   }
 
   @Test
+  public void testFailureSelf() throws Exception {
+    command = new MuteCommand(actor, player, player);
+
+    assertThrows(CommandException.class, () -> command.execute());
+  }
+
+  @Test
   public void testMuteList() throws Exception {
     Player mutee1 = newTestPlayer("mutee1", Role.DENIZEN);
     Player mutee2 = newTestPlayer("mutee2", Role.DENIZEN);

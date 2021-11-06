@@ -2,12 +2,10 @@ package xyz.deszaras.grounds.command;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
-import xyz.deszaras.grounds.model.Universe;
 
 /**
  * Pages a player in any location with an OOC message.
@@ -44,14 +42,12 @@ public class PageCommand extends Command<Boolean> {
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 2);
 
-    Optional<Player> recipient =
-        Universe.getCurrent().getThingByName(commandArgs.get(0), Player.class);
-    if (recipient.isEmpty()) {
-      throw new CommandFactoryException("Unknown player: " + commandArgs.get(0));
-    }
+    Player recipient =
+        CommandArgumentResolver.INSTANCE.resolve(commandArgs.get(0),
+                                                 Player.class, player, true);
 
     String message = commandArgs.subList(1, commandArgs.size()).stream()
         .collect(Collectors.joining(" "));
-    return new PageCommand(actor, player, recipient.get(), message);
+    return new PageCommand(actor, player, recipient, message);
   }
 }
