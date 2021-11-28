@@ -14,7 +14,7 @@ import xyz.deszaras.grounds.util.AnsiString;
  * to their actor's terminal. This should be run in tandem with a {@link Shell}
  * that accepts and processes player inputs. The emitter uses a reference
  * to the shell's (or some other thing's) {@code LineReader} so that it
- * can emit message above the input line.
+ * can emit messages above the input line.
  *
  * @see Shell
  */
@@ -29,7 +29,7 @@ public class MessageEmitter implements Runnable {
    *
    * @param player target player for the emitter
    * @param terminal player's actor's terminal
-   * @param lineReader line reader used to gather input (may be null)
+   * @param lineReader line reader used to gather input
    * @throws NullPointerException if actor or terminal is null
    */
   public MessageEmitter(Player player, Terminal terminal, LineReader lineReader) {

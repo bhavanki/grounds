@@ -186,6 +186,8 @@ public class Shell implements Runnable {
       // The flag is an InheritedThreadLocal, so it only affects this shell.
       Ansi.setEnabled(false);
     }
+    String promptPref = actor.getPreference(Actor.PREFERENCE_HIDE_PROMPT).orElse("false");
+    boolean hidePrompt = "true".equals(promptPref);
 
     Future<?> emitterFuture = null;
 
@@ -218,7 +220,7 @@ public class Shell implements Runnable {
 
       while (true) {
         try {
-          lineReader.readLine(prePrompt + prompt);
+          lineReader.readLine(hidePrompt ? (String) null : prePrompt + prompt);
         } catch (UserInterruptException | EndOfFileException e) {
           break;
         }

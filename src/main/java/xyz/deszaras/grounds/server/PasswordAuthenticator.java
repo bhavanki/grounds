@@ -1,27 +1,25 @@
 package xyz.deszaras.grounds.server;
 
-import com.google.common.net.InetAddresses;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
-import org.apache.sshd.server.session.ServerSession;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.server.ActorDatabase.ActorRecord;
 import xyz.deszaras.grounds.util.Argon2Utils;
 
 /**
- * The server password authenticator implementation. Usernames and hashes
- * are read from a file; each line in the file contains a username and hash
- * separated by a colon.
+ * The core password authenticator implementation. Usernames and hashes are read
+ * from a file; each line in the file contains a username and hash separated by
+ * a colon.
  *
  * @see Argon2Utils
  */
-public class PasswordAuthenticator
-    implements org.apache.sshd.server.auth.password.PasswordAuthenticator {
+public class PasswordAuthenticator {
 
   private static final Logger LOG = LoggerFactory.getLogger(PasswordAuthenticator.class);
 
@@ -52,13 +50,21 @@ public class PasswordAuthenticator
   @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
   private static final String LOCALHOST = "127.0.0.1";
 
-  @Override
-  public boolean authenticate(String username, String password, ServerSession session) {
-    InetSocketAddress remoteAddress = (InetSocketAddress) session.getClientAddress();
-    String hostAddress = InetAddresses.toAddrString(remoteAddress.getAddress());
+  /**
+   * Authenticates a user (actor) with the given password, as long as they are
+   * not locked out. The root user may only be authenticated when connecting
+   * from 127.0.0.1.
+   *
+   * @param  username    username
+   * @param  password    password
+   * @param  hostAddress user address
+   * @return             true if authenticated, false if not
+   */
+  public boolean authenticate(String username, String password, String hostAddress) {
 
     // If actor is root, only permit connecting from 127.0.0.1.
-    if (username.equals(Actor.ROOT.getUsername()) && !(hostAddress.equals(LOCALHOST))) {
+    if (hostAddress != null &&
+        username.equals(Actor.ROOT.getUsername()) && !(hostAddress.equals(LOCALHOST))) {
       LOG.warn(String.format(ROOT_NOT_LOCALHOST_FORMAT, username, hostAddress));
       return false;
     }
@@ -88,15 +94,15 @@ public class PasswordAuthenticator
     return result;
   }
 
-  @Override
-  public boolean handleClientPasswordChangeRequest(ServerSession session,
-      String username, String oldPassword, String newPassword) {
+  /**
+   * Sets a new password.
+   *
+   * @param  username    username
+   * @param  newPassword new password
+   * @return             true if successfully changed
+   */
+  boolean setPassword(String username, String newPassword) {
     synchronized (actorDatabase) {
-      if (!authenticate(username, oldPassword, session)) {
-        LOG.info("Failed to verify old password for {}", username);
-        return false;
-      }
-
       String hash = Argon2Utils.hashPassword(newPassword);
       if (!actorDatabase.updateActorRecord(username, r -> r.setPassword(hash))) {
         return false;

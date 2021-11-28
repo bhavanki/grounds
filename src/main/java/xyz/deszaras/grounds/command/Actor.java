@@ -46,6 +46,13 @@ public class Actor {
   public static final String PREFERENCE_SHOW_IDS = "showIds";
 
   /**
+   * The actor preference controlling whether a prompt is shown for reading
+   * commands ("true") or not displayed ("false" / default). Enable this for
+   * MUSH clients with a dedicated input pane.
+   */
+  public static final String PREFERENCE_HIDE_PROMPT = "hidePrompt";
+
+  /**
    * The actor preference setting the preferred timezone.
    */
   public static final String PREFERENCE_TIMEZONE = "tz";

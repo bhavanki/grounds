@@ -5,13 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.google.common.net.InetAddresses;
-
-import java.net.InetSocketAddress;
 import java.time.Instant;
 import java.util.Optional;
 
-import org.apache.sshd.server.session.ServerSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,20 +18,15 @@ public class PasswordAuthenticatorTest {
   private static final String USERNAME = "username";
   private static final String PASSWORD = "test";
   private static final String HASH = Argon2Utils.hashPassword(PASSWORD);
+  @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
+  private static final String HOST_ADDRESS = "192.0.2.123";
 
-  private InetSocketAddress remoteAddress;
-  private ServerSession session;
   private ActorDatabase.ActorRecord actorRecord;
   private ActorDatabase actorDatabase;
   private PasswordAuthenticator a;
 
-  @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
   @BeforeEach
   public void setUp() {
-    remoteAddress = new InetSocketAddress(InetAddresses.forString("192.0.2.123"), 1234);
-    session = mock(ServerSession.class);
-    when(session.getClientAddress()).thenReturn(remoteAddress);
-
     actorDatabase = mock(ActorDatabase.class);
     a = new PasswordAuthenticator(actorDatabase);
   }
@@ -47,29 +38,25 @@ public class PasswordAuthenticatorTest {
     when(actorRecord.getPassword()).thenReturn(HASH);
     when(actorDatabase.getActorRecord(USERNAME)).thenReturn(Optional.of(actorRecord));
 
-    assertTrue(a.authenticate(USERNAME, PASSWORD, session));
+    assertTrue(a.authenticate(USERNAME, PASSWORD, HOST_ADDRESS));
   }
 
   @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
   @Test
   public void testSuccessRoot() {
-    remoteAddress = new InetSocketAddress(InetAddresses.forString("127.0.0.1"), 1234);
-    session = mock(ServerSession.class);
-    when(session.getClientAddress()).thenReturn(remoteAddress);
-
     actorRecord = mock(ActorDatabase.ActorRecord.class);
     when(actorRecord.getLockedUntil()).thenReturn(null);
     when(actorRecord.getPassword()).thenReturn(HASH);
     when(actorDatabase.getActorRecord("root")).thenReturn(Optional.of(actorRecord));
 
-    assertTrue(a.authenticate("root", PASSWORD, session));
+    assertTrue(a.authenticate("root", PASSWORD, "127.0.0.1"));
   }
 
   @Test
   public void testFailureUnknownUser() {
     when(actorDatabase.getActorRecord(USERNAME)).thenReturn(Optional.empty());
 
-    assertFalse(a.authenticate(USERNAME, PASSWORD, session));
+    assertFalse(a.authenticate(USERNAME, PASSWORD, HOST_ADDRESS));
   }
 
   @Test
@@ -79,7 +66,7 @@ public class PasswordAuthenticatorTest {
     when(actorRecord.getPassword()).thenReturn(HASH);
     when(actorDatabase.getActorRecord(USERNAME)).thenReturn(Optional.of(actorRecord));
 
-    assertFalse(a.authenticate(USERNAME, PASSWORD, session));
+    assertFalse(a.authenticate(USERNAME, PASSWORD, HOST_ADDRESS));
   }
 
   @Test
@@ -89,7 +76,7 @@ public class PasswordAuthenticatorTest {
     when(actorRecord.getPassword()).thenReturn(HASH);
     when(actorDatabase.getActorRecord(USERNAME)).thenReturn(Optional.of(actorRecord));
 
-    assertFalse(a.authenticate(USERNAME, PASSWORD + "xyz", session));
+    assertFalse(a.authenticate(USERNAME, PASSWORD + "xyz", HOST_ADDRESS));
   }
 
   @Test
@@ -99,7 +86,7 @@ public class PasswordAuthenticatorTest {
     when(actorRecord.getPassword()).thenReturn(HASH);
     when(actorDatabase.getActorRecord("root")).thenReturn(Optional.of(actorRecord));
 
-    assertFalse(a.authenticate("root", PASSWORD, session));
+    assertFalse(a.authenticate("root", PASSWORD, HOST_ADDRESS));
   }
 
 }
