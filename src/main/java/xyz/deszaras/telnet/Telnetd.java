@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.net.SocketException;
 import java.util.Objects;
 
 import org.jline.builtins.telnet.Connection;
@@ -17,6 +18,8 @@ import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.Terminal.Signal;
 import org.jline.terminal.TerminalBuilder;
+// import org.slf4j.Logger;
+// import org.slf4j.LoggerFactory;
 
 /*
  * Based heavily on org.jline.builtins.telnet.Telnet. Its license:
@@ -33,6 +36,8 @@ import org.jline.terminal.TerminalBuilder;
  * A telnet server.
  */
 public class Telnetd {
+
+  // private static final Logger LOG = LoggerFactory.getLogger(Telnetd.class);
 
   private final ShellRunner runner;
   private final int port;
@@ -233,7 +238,12 @@ public class Telnetd {
             InputStream in = new InputStream() {
               @Override
               public int read() throws IOException {
-                return telnetIO.read();
+                try {
+                  return telnetIO.read();
+                } catch (SocketException e) {
+                  // assume that the socket has closed
+                  return -1;
+                }
               }
               @Override
               public int read(byte[] b, int off, int len) throws IOException {

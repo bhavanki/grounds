@@ -125,10 +125,6 @@ public class TelnetServer extends Server {
         }
       } catch (InterruptedException e) {
         // return normally
-      } finally {
-        // TBD: try to avoid PosixPtyTerminal's input pump thread throwing a
-        // SocketException / figure out how to properly close the terminal.
-        terminal.pause();
       }
     }
 
