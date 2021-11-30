@@ -86,6 +86,14 @@ Most modern terminal applications support ANSI escape codes, although those in W
 
 While color can improve and enhance the appearance of Grounds, you do not need to enable it to fully access the game; non-color indicators, such as particular symbols, are always provided along with color indicators.
 
+### Prompt Hiding
+
+Normally Grounds presents an input prompt, but this can interfere with how some MUSH clients manipulate input to and output from the server. To disable the prompt, use the "hidePrompt" preference.
+
+```
+$ preference hidePrompt=true
+```
+
 ## Playing
 
 See [Common Commands](common_commands.md) for the most useful commands to use when playing a game.

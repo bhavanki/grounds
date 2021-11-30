@@ -158,7 +158,7 @@ Everything in the universe in Grounds has a unique identifier, or ID, associated
 To tell Grounds to show IDs to you, set your "showids" preference to true using the `preference` command. The `look` command, for example, will reveal IDs when your "showids" preference is true.
 
 ```
-$ pref showIds=true
+$ preference showIds=true
 {showIds=true}
 $ look
 Tavern [0f90601d-11d1-4d8b-9b94-1e34e3c3f0ad]

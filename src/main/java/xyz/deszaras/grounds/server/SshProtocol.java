@@ -54,7 +54,6 @@ public class SshProtocol implements Protocol {
 
   public static final String DEFAULT_PORT = "4768";
 
-
   static boolean isEnabled(Properties serverProperties) {
     return Boolean.valueOf(serverProperties.getProperty("enableSsh", "true"));
   }

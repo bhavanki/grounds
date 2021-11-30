@@ -68,8 +68,18 @@ The _ADEPT_ role is a wizard role for enforcing the rules of the game. An ADEPT 
 
 The _THAUMATURGE_ role combines the abilities of the BARD and the ADEPT, and more. There are very few actions a THAUMATURGE may not take: loading and saving the game and shutting down the server are some of them. Notably, a THAUMATURGE can fully administer actor accounts except removing them, and can change the roles of other players.
 
- The GOD player has no roles, but it may do anything. You should rarely play as GOD, but instead take on a player with more limited power. The THAUMATURGE role is appropriate for the core administrators of the server to hold. Staff who are focused on world-building can get by with the BARD role, while other staff who contribute to the smooth running of the game should play as ADEPTs.
+The GOD player has no roles, but it may do anything. You should rarely play as GOD, but instead take on a player with more limited power. The THAUMATURGE role is appropriate for the core administrators of the server to hold. Staff who are focused on world-building can get by with the BARD role, while other staff who contribute to the smooth running of the game should play as ADEPTs.
 
 ## Curtains Fall
 
 To stop the server, either interrupt the server process with Control-C, or issue the "shutdown" command as GOD (only GOD can shutdown the server this way). Shutting down ends the server process and all actors are disconnected, including you.
+
+## Encore: SSH and Telnet
+
+Grounds can serve connections over either SSH or telnet, or both if desired.
+
+To enable or disable SSH, set "enableSsh" in _server.properties_ to true (default) or false, respectively. Choose a port with the "sshPort" property, default 4768.
+
+To enable or disable telnet, set "enableTelnet" in _server.properties_ to true or false (default), respectively. Choose a port with the "telnetPort" property, default 4769.
+
+Obviously, you can't use the same port for both SSH and telnet. Also, at least one of them must be enabled.
