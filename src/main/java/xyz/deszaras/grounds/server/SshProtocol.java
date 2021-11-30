@@ -2,7 +2,6 @@ package xyz.deszaras.grounds.server;
 
 import com.google.common.io.Resources;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -39,38 +38,45 @@ import org.jline.terminal.TerminalBuilder;
 // import org.slf4j.LoggerFactory;
 
 import xyz.deszaras.grounds.command.Actor;
-import xyz.deszaras.grounds.command.CommandExecutor;
 
 /**
- * A server where connections happen over SSH, managed by Apache Mina
- * SSHD.<p>
+ * A protocol for connections over SSH, managed by Apache Mina SSHD.<p>
  *
  * Lots of SSH and terminal handling code was lifted from the JLine 3
  * project, particularly from {@code ShellFactoryImpl}.
  */
-public class SshServer extends Server {
+public class SshProtocol implements Protocol {
 
-  // private static final Logger LOG = LoggerFactory.getLogger(SshServer.class);
+  // private static final Logger LOG = LoggerFactory.getLogger(SshProtocol.class);
 
   private final org.apache.sshd.server.SshServer sshServer;
+  private final Server server;
+
+  public static final String DEFAULT_PORT = "4768";
+
+
+  static boolean isEnabled(Properties serverProperties) {
+    return Boolean.valueOf(serverProperties.getProperty("enableSsh", "true"));
+  }
 
   /**
-   * Creates a new server.
+   * Creates a new protocol.
    *
    * @param serverProperties server properties
-   * @throws IOException if the server cannot be created
+   * @param server           server
+   * @throws IOException if the protocol cannot be created
    * @throws IllegalStateException if a required server property is missing
    */
-  public SshServer(Properties serverProperties) throws IOException {
-    super(serverProperties);
+  public SshProtocol(Properties serverProperties, Server server) throws IOException {
     sshServer = buildSshServer(serverProperties);
+    this.server = server;
   }
 
   private org.apache.sshd.server.SshServer buildSshServer(Properties serverProperties) throws IOException {
     org.apache.sshd.server.SshServer s = org.apache.sshd.server.SshServer.setUpDefaultServer();
 
     s.setHost(serverProperties.getProperty("host", DEFAULT_HOST));
-    s.setPort(Integer.valueOf(serverProperties.getProperty("port", DEFAULT_PORT)));
+    s.setPort(Integer.valueOf(serverProperties.getProperty("sshPort", DEFAULT_PORT)));
 
     String hostKeyFileProperty = serverProperties.getProperty("hostKeyFile");
     if (hostKeyFileProperty == null) {
@@ -113,7 +119,7 @@ public class SshServer extends Server {
       InetSocketAddress remoteAddress =
           (InetSocketAddress) session.getSessionContext().getRemoteAddress();
       Instant loginTime = Instant.now();
-      updateActorUponLogin(actor, remoteAddress.getAddress(), loginTime);
+      server.updateActorUponLogin(actor, remoteAddress.getAddress(), loginTime);
 
       return new ServerShellCommand(actor);
     }
@@ -123,7 +129,7 @@ public class SshServer extends Server {
         throw new IllegalArgumentException("Session is not authenticated");
       }
       // Record must be there, or they couldn't have authenticated
-      return loadActor(session.getSessionContext().getUsername());
+      return server.loadActor(session.getSessionContext().getUsername());
     }
   }
 
@@ -190,7 +196,7 @@ public class SshServer extends Server {
           virtualTerminal.raise(Terminal.Signal.WINCH);
         }, Signal.WINCH);
 
-      shellFuture = startShell(actor, virtualTerminal, Optional.of(exitCallback), true);
+      shellFuture = server.startShell(actor, virtualTerminal, Optional.of(exitCallback), true);
     }
 
     /**
@@ -309,25 +315,12 @@ public class SshServer extends Server {
     }
   }
 
-  /**
-   * Starts the server.
-   *
-   * @throws IOException if the server fails to start
-   */
-  public void start(File universeFile) throws IOException {
-    startServer(universeFile);
+  @Override
+  public void start() throws IOException {
     sshServer.start();
   }
 
-  /**
-   * Stops the server.
-   *
-   * @throws IOException if the server fails to stop
-   * @throws InterruptedException if the wait for administrative tasks to
-   *                              complete is interrupted
-   */
-  public void shutdown() throws IOException, InterruptedException {
+  public void shutdown() throws IOException {
     sshServer.stop();
-    CommandExecutor.getInstance().shutdown();
   }
 }

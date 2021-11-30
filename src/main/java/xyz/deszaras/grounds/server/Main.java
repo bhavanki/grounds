@@ -21,9 +21,6 @@ public class Main {
     @Parameter(names = { "-s", "--single-user" },
                description = "Start in single-user mode")
     private boolean singleUser = false;
-    @Parameter(names = { "-t", "--telnet" },
-               description = "Serve over telnet instead of SSH")
-    private boolean telnet = false;
     @Parameter(names = { "-u", "--universe" },
                description = "Universe to load",
                converter = FileConverter.class)
@@ -44,12 +41,8 @@ public class Main {
 
     if (jcArgs.singleUser) {
       new SingleUser(properties).run();
-    } else if (jcArgs.telnet) {
-      TelnetServer server = new TelnetServer(properties);
-      server.start(jcArgs.universeFile);
-      server.shutdownOnCommand();
     } else {
-      SshServer server = new SshServer(properties);
+      Server server = new Server(properties);
       server.start(jcArgs.universeFile);
       server.shutdownOnCommand();
     }

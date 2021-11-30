@@ -2,6 +2,7 @@ package xyz.deszaras.grounds.server;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.net.InetAddresses;
@@ -16,9 +17,11 @@ import java.nio.file.Path;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -40,7 +43,7 @@ import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Universe;
 
 /**
- * The multi-user server for the game. Implementations of this class
+ * The multi-user server for the game. Protocols managed by this class
  * determine how connections are made.<p>
  *
  * The server is started through the {@link #start()} method, while
@@ -50,12 +53,10 @@ import xyz.deszaras.grounds.model.Universe;
  *
  * An internal executor service is responsible for running shells.
  */
-public abstract class Server {
+public class Server {
 
   private static final Logger LOG = LoggerFactory.getLogger(Server.class);
 
-  public static final String DEFAULT_HOST = "127.0.0.1"; // NOPMD
-  public static final String DEFAULT_PORT = "4768";
   public static final String DEFAULT_ADMIN_THREAD_COUNT = "2";
   public static final String DEFAULT_AUTOSAVE_PERIOD_SECONDS = "300";
 
@@ -66,6 +67,8 @@ public abstract class Server {
   private final ScheduledExecutorService adminExecutorService;
   private final long autosavePeriodSeconds;
   private final Multimap<Actor, Shell> openShells;
+
+  private final Set<Protocol> protocols;
 
   private ScheduledFuture<?> autosaveFuture;
 
@@ -100,6 +103,8 @@ public abstract class Server {
     openShells = Multimaps.synchronizedSetMultimap(HashMultimap.create());
 
     autosaveFuture = null;
+
+    protocols = createProtocols(serverProperties);
   }
 
   private String readLoginBannerContent(Properties serverProperties) throws IOException {
@@ -120,6 +125,27 @@ public abstract class Server {
     Path actorDatabaseFile = FileSystems.getDefault().getPath(actorDatabaseFileProperty);
     ActorDatabase.INSTANCE.setPath(actorDatabaseFile);
     ActorDatabase.INSTANCE.load(); // must be present, use SingleUser otherwise
+  }
+
+  private Set<Protocol> createProtocols(Properties serverProperties) throws IOException {
+    Set<Protocol> ps = new HashSet<>();
+
+    // Slightly naughty: This Server object isn't fully constructed yet but is
+    // being passed to protocol objects. This is OK because the protocols won't
+    // be used until after Server construction is complete.
+
+    if (SshProtocol.isEnabled(serverProperties)) {
+      SshProtocol ssh = new SshProtocol(serverProperties, this);
+      ps.add(ssh);
+    }
+    if (TelnetProtocol.isEnabled(serverProperties)) {
+      TelnetProtocol telnet = new TelnetProtocol(serverProperties, this);
+      ps.add(telnet);
+    }
+    if (ps.isEmpty()) {
+      throw new IllegalStateException("No protocols are enabled");
+    }
+    return ImmutableSet.copyOf(ps);
   }
 
   /**
@@ -248,15 +274,11 @@ public abstract class Server {
   }
 
   /**
-   * Starts the server. Implementations should delegate to
-   * {@link #startServer(File)} for loading the universe and establishing
-   * administrative tasks.
+   * Starts the server, including all enabled protocols.
    *
    * @throws IOException if the server fails to start
    */
-  public abstract void start(File universeFile) throws IOException;
-
-  protected void startServer(File universeFile) throws IOException {
+  public void start(File universeFile) throws IOException {
     CommandExecutor.create(this);
 
     if (universeFile != null) {
@@ -274,29 +296,26 @@ public abstract class Server {
     } else {
       LOG.warn("Autosave disabled");
     }
+
+    for (Protocol p : protocols) {
+      p.start();
+    }
   }
 
-  /**
-   * Stops the server. Implementations should delegate to
-   * {@link #shutdownServer()} to stop shells, administrative tasks, and
-   * commands.
-   *
-   * @throws IOException          if there is a problem shutting down the server
-   * @throws InterruptedException if the shutdown process is interrupted
-   */
-  public abstract void shutdown() throws IOException, InterruptedException;
 
   private static final long TIMEOUT_ADMIN_EXECUTOR_SERVICE = 10L;
 
   /**
-   * Stops the server, also shutting down execution of shells,
-   * administrative tasks, and commands.
+   * Stops the server, including all enabled protocols.
    *
-   * @throws IOException if the server fails to stop
-   * @throws InterruptedException if the wait for administrative tasks to
-   *                              complete is interrupted
+   * @throws IOException          if there is a problem shutting down the server
+   * @throws InterruptedException if the shutdown process is interrupted
    */
-  protected void shutdownServer() throws IOException, InterruptedException {
+  public void shutdown() throws IOException, InterruptedException {
+    for (Protocol p : protocols) {
+      p.shutdown();
+    }
+
     shellExecutorService.shutdownNow();
 
     if (autosaveFuture != null) {

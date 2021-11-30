@@ -3,7 +3,6 @@ package xyz.deszaras.grounds.server;
 import com.google.common.net.InetAddresses;
 import com.google.common.io.Resources;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
@@ -31,27 +30,34 @@ import xyz.deszaras.telnet.Telnetd;
 import xyz.deszaras.telnet.Telnetd.ShellRunner;
 
 /**
- * A server where connections happen over telnet.
+ * A protocol for connections over telnet.
  */
-public class TelnetServer extends Server {
+public class TelnetProtocol implements Protocol {
 
-  private static final Logger LOG = LoggerFactory.getLogger(TelnetServer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TelnetProtocol.class);
 
+  public static final String DEFAULT_PORT = "4769";
   public static final int DEFAULT_LOGIN_ATTEMPTS = 5;
 
+  static boolean isEnabled(Properties serverProperties) {
+    return Boolean.valueOf(serverProperties.getProperty("enableTelnet", "false"));
+  }
+
   private final Telnetd telnetServer;
+  private final Server server;
   private final String welcomeBanner;
 
   /**
-   * Creates a new server.
+   * Creates a new protocol.
    *
    * @param serverProperties server properties
-   * @throws IOException if the server cannot be created
+   * @param server           server
+   * @throws IOException if the protocol cannot be created
    * @throws IllegalStateException if a required server property is missing
    */
-  public TelnetServer(Properties serverProperties) throws IOException {
-    super(serverProperties);
+  public TelnetProtocol(Properties serverProperties, Server server) throws IOException {
     telnetServer = buildTelnetServer(serverProperties);
+    this.server = server;
 
     String welcomeBannerFileProperty = serverProperties.getProperty("welcomeBannerFile");
     if (welcomeBannerFileProperty != null) {
@@ -66,7 +72,7 @@ public class TelnetServer extends Server {
   private Telnetd buildTelnetServer(Properties serverProperties)
       throws IOException {
     String host = serverProperties.getProperty("host", DEFAULT_HOST);
-    int port = Integer.valueOf(serverProperties.getProperty("port", DEFAULT_PORT));
+    int port = Integer.valueOf(serverProperties.getProperty("telnetPort", DEFAULT_PORT));
     Telnetd.Config config = new Telnetd.Config()
         .ip(host)
         .port(port);
@@ -111,11 +117,11 @@ public class TelnetServer extends Server {
         }
 
         Instant loginTime = Instant.now();
-        updateActorUponLogin(actor, remoteAddress, loginTime);
+        server.updateActorUponLogin(actor, remoteAddress, loginTime);
 
       // processEnvPtyModes(env, virtualTerminal);
 
-        shellFuture = startShell(actor, terminal, Optional.empty(), false);
+        shellFuture = server.startShell(actor, terminal, Optional.empty(), false);
         try {
           shellFuture.get();
         } catch (InterruptedException e) {
@@ -164,37 +170,25 @@ public class TelnetServer extends Server {
       }
 
       // Record must be there, or they couldn't have authenticated
-      return loadActor(username);
+      return server.loadActor(username);
     }
   }
 
-  /**
-   * Starts the server.
-   *
-   * @throws IOException if the server fails to start
-   */
-  public void start(File universeFile) throws IOException {
-    startServer(universeFile);
+  @Override
+  public void start() throws IOException {
     try {
       telnetServer.start();
     } catch (Exception e) {
-      throw new IOException(e);
+      throw new IOException("Failed to start telnet", e);
     }
   }
 
-  /**
-   * Stops the server.
-   *
-   * @throws IOException if the server fails to stop
-   * @throws InterruptedException if the wait for administrative tasks to
-   *                              complete is interrupted
-   */
-  public void shutdown() throws IOException, InterruptedException {
+  @Override
+  public void shutdown() throws IOException {
     try {
       telnetServer.stop();
     } catch (Exception e) {
-      LOG.error("Failed to stop telnetd", e);
+      throw new IOException("Failed to stop telnet", e);
     }
-    shutdownServer();
   }
 }
