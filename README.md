@@ -70,6 +70,8 @@ $ mvn package
 
 [MIT License](LICENSE)
 
+See [the telnet package README](src/main/java/xyz/deszaras/telnet/README.md) for additional license information pertaining to telnet code in Grounds.
+
 ## Other Credits
 
 Default banner logo from www.patorjk.com, Ivrit font

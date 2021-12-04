@@ -18,7 +18,6 @@ import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jline.builtins.telnet.ConnectionData;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
@@ -26,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import xyz.deszaras.grounds.command.Actor;
+import xyz.deszaras.telnet.ConnectionData;
 import xyz.deszaras.telnet.Telnetd;
 import xyz.deszaras.telnet.Telnetd.ShellRunner;
 

@@ -7,13 +7,6 @@ import java.io.PrintStream;
 import java.net.SocketException;
 import java.util.Objects;
 
-import org.jline.builtins.telnet.Connection;
-import org.jline.builtins.telnet.ConnectionData;
-import org.jline.builtins.telnet.ConnectionEvent;
-import org.jline.builtins.telnet.ConnectionListener;
-import org.jline.builtins.telnet.ConnectionManager;
-import org.jline.builtins.telnet.PortListener;
-import org.jline.builtins.telnet.TelnetIO;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.Terminal.Signal;
@@ -225,8 +218,8 @@ public class Telnetd {
                                               null,
                                               false) {
       @Override
-      protected Connection createConnection(ThreadGroup threadGroup, ConnectionData newCD) {
-        return new Connection(threadGroup, newCD) {
+      protected Connection createConnection(ConnectionData newCD) {
+        return new Connection(newCD) {
           TelnetIO telnetIO;
 
           @Override
@@ -283,15 +276,11 @@ public class Telnetd {
                 terminal.raise(Signal.WINCH);
               }
             });
-            try {
-              runner.runShell(terminal, getConnectionData());
-            } finally {
-              close();
-            }
+            runner.runShell(terminal, getConnectionData());
           }
 
           @Override
-          protected void doClose() throws Exception {
+          protected void cleanup() {
             telnetIO.closeOutput();
             telnetIO.closeInput();
           }
@@ -300,7 +289,7 @@ public class Telnetd {
     };
     connectionManager.start();
 
-    // TBD: make flood protection (connection queue length) configurable
+    // TBD: make backlog length configurable
     portListener = new PortListener("telnetd", ip, port, 10);
     portListener.setConnectionManager(connectionManager);
     portListener.start();
