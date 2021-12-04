@@ -10,7 +10,7 @@ Grounds is under active development, so features are all new and/or still being 
 
 * **Arbitrary attributes.** Every thing has an unlimited set of named, typed attributes. Some are special, like "name" and "description". Make up any others you need.
 * **Role-based permissions.** Every thing in a universe has a security policy that permits categories of actions that affect it only by specified roles. For example, a player can't read another thing's attributes unless the player has a role with READ permission. Roles include a few wizardly ones plus ordinary ones.
-* **SSH connectivity.** The game server accepts connections over SSH, so that all traffic is encrypted.
+* **SSH and telnet connectivity.** The game server accepts connections over SSH, so that all traffic is encrypted, or telnet, or both.
 * **Command-line editing.** Grounds uses [JLine](https://github.com/jline/jline3) to deliver powerful command line editing features.
 * **Extensibility through softcode (scripted) commands.** Extensions in a universe can hold Groovy scripts that may be executed as commands.
 * **Reaction to events.** Extensions can also listen for events, such as players arriving or leaving locations, or saying things, and react by running scripts to respond.
@@ -43,10 +43,11 @@ Instructions on building a new universe are in the [documentation](https://bhava
 
 ## Connecting
 
-You can use a normal SSH client.
+You can use a normal SSH or telnet client.
 
 ```
-$ ssh -p 4768 <hostname-or-ip-address>
+$ ssh -p 4768 <username>@<hostname-or-ip-address>
+$ telnet -p 4769 <hostname-or-ip-address>
 ```
 
 After authenticating with your password, you can pick the player you want to use and go have fun.
