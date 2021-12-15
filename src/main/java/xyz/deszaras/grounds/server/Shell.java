@@ -83,6 +83,7 @@ public class Shell implements Runnable {
                 .eofOnUnclosedQuote(true))
         .completer(new CommandCompleter())
         .option(LineReader.Option.CASE_INSENSITIVE, true)
+        .option(LineReader.Option.DISABLE_EVENT_EXPANSION, true)
         .build();
   }
 
