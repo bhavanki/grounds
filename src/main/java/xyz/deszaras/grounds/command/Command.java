@@ -8,6 +8,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.MissingThingException;
@@ -22,6 +25,8 @@ import xyz.deszaras.grounds.model.Universe;
  * @param R type of command return value
  */
 public abstract class Command<R> {
+
+  private static final Logger LOG = LoggerFactory.getLogger(Command.class);
 
   protected final Actor actor;
   protected final Player player;
@@ -48,7 +53,12 @@ public abstract class Command<R> {
    */
   public R execute() throws CommandException {
     checkPermittedRoles();
-    return executeImpl();
+    try {
+      return executeImpl();
+    } catch (RuntimeException e) {
+      LOG.info("Unexpected command exception", e);
+      throw new CommandException(e);
+    }
   }
 
   /**
