@@ -26,8 +26,8 @@ public class Rules {
     public ManeuverInput(Stats stats, Skill skill, int ad) {
       this.stats = Objects.requireNonNull(stats);
       this.skill = Objects.requireNonNull(skill);
-      Preconditions.checkArgument(ad >= 1 && ad <= 3,
-                                  "ad must be between 1 and 3");
+      Preconditions.checkArgument(ad >= 1 && ad <= 4,
+                                  "ad must be between 1 and 4");
       Preconditions.checkArgument(stats.getAd() >= ad,
                                   "Not enough action dice");
       this.ad = ad;
