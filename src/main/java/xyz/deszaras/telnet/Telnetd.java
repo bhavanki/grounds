@@ -204,8 +204,9 @@ public class Telnetd {
    * Starts this server.
    *
    * @throws IllegalStateException if the server is already running
+   * @throws IOException if the port listener cannot be started
    */
-  public void start() {
+  public void start() throws IOException {
     if (isRunning()) {
       throw new IllegalStateException("telnetd is already running on port " + port);
     }

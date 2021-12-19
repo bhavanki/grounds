@@ -59,12 +59,10 @@ public class PortListener implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(PortListener.class);
 
   private final String name;
-  private final String ip;
-  private final int port;
-  private final int backlogLength;
   private final AtomicBoolean available;
 
   private Thread thread;
+  private ServerSocket serverSocket;
   private ConnectionManager connectionManager;
 
   /**
@@ -74,13 +72,18 @@ public class PortListener implements Runnable {
    * @param ip            IP address to bind to; null for all local addresses
    * @param port          listener port
    * @param backlogLength server socket backlog length
+   * @throws IOException if a server socket cannot be established
    */
-  public PortListener(String name, String ip, int port, int backlogLength) {
+  public PortListener(String name, String ip, int port, int backlogLength)
+      throws IOException {
     this.name = Objects.requireNonNull(name);
-    this.ip = ip;
-    this.port = port; // TODO range check
-    this.backlogLength = backlogLength; // TODO range check
     available = new AtomicBoolean(false);
+
+    // TODO port range check
+    // TODO backlogLength range check
+    serverSocket = new ServerSocket(port, backlogLength,
+                                    ip != null ? InetAddress.getByName(ip) : null);
+    LOG.info("Listening on port {} with backlog length {}", port, backlogLength);
   }
 
   /**
@@ -149,10 +152,15 @@ public class PortListener implements Runnable {
   /**
    * Stops this listener.
    */
-  public void stop() {
+  public synchronized void stop() {
     if (thread != null) {
       available.set(false);
-      thread.interrupt();
+      try {
+        serverSocket.close();
+      } catch (IOException e) {
+        LOG.error("Failed to close server socket", e);
+      }
+      // thread.interrupt();
       thread = null;
     }
   }
@@ -162,12 +170,7 @@ public class PortListener implements Runnable {
    * off to the connection manager.
    */
   public void run() {
-    ServerSocket serverSocket = null;
     try {
-      serverSocket = new ServerSocket(port, backlogLength,
-                                      ip != null ? InetAddress.getByName(ip) : null);
-      LOG.info("Listening on port {} with backlog length {}", port, backlogLength);
-
       while (true) {
         Socket s = null;
         try {
@@ -195,6 +198,7 @@ public class PortListener implements Runnable {
         } catch (SocketException e) {
           LOG.info("Server socket closed, shutting down");
           LOG.debug("Accept exception", e);
+          break;
         }
       }
     } catch (IOException e) {
