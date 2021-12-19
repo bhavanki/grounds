@@ -386,6 +386,29 @@ public class Thing {
     }
   }
 
+  /**
+   * Gets what this thing is doing.
+   *
+   * @return doing
+   */
+  @JsonIgnore
+  public Optional<String> getDoing() {
+    return getAttr(AttrNames.DOING).map(a -> a.getValue());
+  }
+
+  /**
+   * Sets what this thing is doing. Pass a null value to remove it.
+   *
+   * @param doing doing
+   */
+  public void setDoing(String doing) {
+    if (doing != null) {
+      setAttr(AttrNames.DOING, doing);
+    } else {
+      removeAttr(AttrNames.DOING);
+    }
+  }
+
   private final Object attrMonitor = new Object();
 
   /**

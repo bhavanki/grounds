@@ -41,12 +41,14 @@ public class WhoCommand extends ServerCommand<String> {
     boolean isWizard = Role.isWizard(player);
     TabularOutput table = new TabularOutput();
     if (isWizard) {
-      table.defineColumn("PLAYER", "%-20.20s")
+      table.defineColumn("PLAYER", "%-16.16s")
           .defineColumn("ACTOR", "%-12.12s")
-          .defineColumn("LOCATION", "%-20.20s")
+          .defineColumn("LOCATION", "%-16.16s")
+          .defineColumn("DOING", "%-20.20s")
           .defineColumn("CONNECTED", "%s");
     } else {
-      table.defineColumn("PLAYER", "%-20.20s")
+      table.defineColumn("PLAYER", "%-16.16s")
+          .defineColumn("DOING", "%-20.20s")
           .defineColumn("CONNECTED", "%s");
     }
 
@@ -66,9 +68,11 @@ public class WhoCommand extends ServerCommand<String> {
                      shellActor.getUsername(),
                      shellPlayerLocation.isPresent() ?
                          shellPlayerLocation.get().getName() : "<none>",
+                     shellPlayer.getDoing().orElse(""),
                      TimeUtils.toString(connectionDuration));
       } else {
         table.addRow(shellPlayer.getName(),
+                     shellPlayer.getDoing().orElse(""),
                      TimeUtils.toString(connectionDuration));
       }
     }

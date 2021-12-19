@@ -139,6 +139,26 @@ Looking tells you at least the name of the place where you are and its descripti
 
 The command `l` is a shortcut for `look`.
 
+### Who
+
+To see which players are around, regardless of location, use the `who` command.
+
+```
+$ who
+PLAYER           DOING                CONNECTED
+------           -----                ---------
+Ahalish          Vibing               1h2m34s
+Rehtaoh                               1h3m57s
+```
+
+Wizards can also see the name of each player's actor and their location.
+
+Set the "doing" attribute on your player to fill in the DOING column with your status.
+
+```
+$ set_attr me doing=Vibing
+```
+
 ### Moving
 
 Most locations in the universe should have at least one exit. To traverse an exit and move to another location, use the `go` command. Use the abbreviated name of the exit to indicate where you want your player to go.

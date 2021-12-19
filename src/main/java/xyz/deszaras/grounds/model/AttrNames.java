@@ -39,6 +39,11 @@ public final class AttrNames {
    * The attribute for the mailbox of a thing (usually a player).
    */
   public static final String MAILBOX = "mailbox";
+  /**
+   * The attribute for what a thing is doing (usually a player). This is not a
+   * protected attribute.
+   */
+  public static final String DOING = "doing";
 
   /**
    * The names of all protected attributes as a set. Only the GOD player may

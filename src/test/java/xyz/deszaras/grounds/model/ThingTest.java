@@ -180,6 +180,17 @@ public class ThingTest {
   }
 
   @Test
+  public void testDoing() {
+    assertTrue(thing.getDoing().isEmpty());
+
+    thing.setDoing("Gaming");
+    assertEquals("Gaming", thing.getDoing().get());
+
+    thing.setDoing(null);
+    assertTrue(thing.getDoing().isEmpty());
+  }
+
+  @Test
   public void testAttrStringValue() {
     thing.setAttr("a", "b");
     Optional<Attr> a = thing.getAttr("a", Attr.Type.STRING);
