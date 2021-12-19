@@ -31,7 +31,7 @@ public class SetAttrCommand extends Command<Boolean> {
 
   @Override
   protected Boolean executeImpl() throws CommandException {
-    if (AttrNames.ALL_NAMES.contains(attr.getName()) &&
+    if (AttrNames.PROTECTED.contains(attr.getName()) &&
         !player.equals(Player.GOD)) {
       throw new CommandException("Only GOD may set that attribute directly");
     }

@@ -28,7 +28,7 @@ public class RemoveAttrCommand extends Command<Boolean> {
 
   @Override
   protected Boolean executeImpl() throws CommandException {
-    if (AttrNames.ALL_NAMES.contains(attrName) &&
+    if (AttrNames.PROTECTED.contains(attrName) &&
         !player.equals(Player.GOD)) {
       throw new CommandException("Only GOD may remove that attribute directly");
     }

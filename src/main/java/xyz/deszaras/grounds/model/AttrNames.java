@@ -41,9 +41,11 @@ public final class AttrNames {
   public static final String MAILBOX = "mailbox";
 
   /**
-   * The names of all specially handled attributes as a set.
+   * The names of all protected attributes as a set. Only the GOD player may
+   * work directly with these attributes, although commands executed by players
+   * may as well, either directly or indirectly.
    */
-  public static final Set<String> ALL_NAMES = ImmutableSet.<String>builder()
+  public static final Set<String> PROTECTED = ImmutableSet.<String>builder()
       .add(NAME)
       .add(DESCRIPTION)
       .add(LOCATION)
