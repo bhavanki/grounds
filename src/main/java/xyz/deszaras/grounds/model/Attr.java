@@ -340,7 +340,7 @@ public final class Attr {
     Matcher m = ATTR_SPEC_PATTERN.matcher(attrSpec);
     if (m.matches()) {
       name = m.group(1);
-      type = Type.valueOf(m.group(2));
+      type = Type.valueOf(m.group(2).toUpperCase());
       value = m.group(3);
     } else {
       m = STRING_ATTR_SPEC_PATTERN.matcher(attrSpec);

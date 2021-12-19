@@ -118,6 +118,12 @@ public class AttrTest {
     assertEquals("a", attr.getName());
     assertEquals(Attr.Type.STRING, attr.getType());
     assertEquals("b", attr.getValue());
+
+    attrSpec = "a[string]=b";
+    attr = Attr.fromAttrSpec(attrSpec);
+    assertEquals("a", attr.getName());
+    assertEquals(Attr.Type.STRING, attr.getType());
+    assertEquals("b", attr.getValue());
   }
 
   @Test
