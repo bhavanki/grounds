@@ -394,8 +394,6 @@ public class Shell implements Runnable {
       if (!bringOutCommandResult.isSuccessful()) {
         ((Optional<CommandException>) bringOutCommandResult.getCommandException())
             .ifPresent(e -> LOG.error(e.getMessage()));
-      } else {
-        emitToAllPlayers(home, player.getName() + " arrives.");
       }
     } catch (ExecutionException e) {
       LOG.error("Bringing out player {} failed", player.getName(), e.getCause());
@@ -406,12 +404,6 @@ public class Shell implements Runnable {
     Place origin = Universe.getCurrent().getOriginPlace();
     LOG.debug("Stowing player {} at origin {}", player.getName(),
               origin.getName());
-    Optional<Place> currentLocation;
-    try {
-      currentLocation = player.getLocationAsPlace();
-    } catch (MissingThingException e) {
-      currentLocation = Optional.empty();
-    }
     Command stowCommand = new YoinkCommand(Actor.ROOT, Player.GOD, player, origin);
     Future<CommandResult> stowCommandFuture =
         CommandExecutor.getInstance().submit(stowCommand);
@@ -421,8 +413,6 @@ public class Shell implements Runnable {
       if (!stowCommandResult.isSuccessful()) {
         ((Optional<CommandException>) stowCommandResult.getCommandException())
             .ifPresent(e -> LOG.error(e.getMessage()));
-      } else {
-        emitToAllPlayers(currentLocation, player.getName() + " departs.");
       }
     } catch (ExecutionException e) {
       LOG.error("Stowing player {} failed", player.getName(), e.getCause());
@@ -527,18 +517,6 @@ public class Shell implements Runnable {
     } catch (ExecutionException e) {
       // oh well
     }
-  }
-
-  private void emitToAllPlayers(Optional<Place> location, String text) {
-    if (location.isEmpty()) {
-      return;
-    }
-    Message message = new Message(Player.GOD, Message.Style.INFO, text);
-    location.get().getContents().stream()
-        .map(id -> Universe.getCurrent().getThing(id))
-        .filter(t -> t.isPresent())
-        .filter(t -> t.get() instanceof Player)
-        .forEach(p -> ((Player) p.get()).sendMessage(message));
   }
 
   private static String getPrompt(Player player) {

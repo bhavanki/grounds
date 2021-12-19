@@ -46,7 +46,9 @@ public class TeleportCommand extends Command<String> {
       source.get().take(player);
       postEvent(new TeleportDepartureEvent(player, source.get()));
     }
+    emitToAllPlayers(source, player.getName() + " exits.");
 
+    emitToAllPlayers(Optional.of(destination), player.getName() + " enters.");
     destination.give(player);
     player.setLocation(destination);
     postEvent(new TeleportArrivalEvent(player, destination));

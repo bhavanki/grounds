@@ -214,4 +214,16 @@ public abstract class Command<R> {
   protected Message newInfoMessage(String message) {
     return new Message(player, Message.Style.INFO, message);
   }
+
+  protected void emitToAllPlayers(Optional<Place> location, String text) {
+    if (location.isEmpty()) {
+      return;
+    }
+    Message message = new Message(Player.GOD, Message.Style.INFO, text);
+    location.get().getContents().stream()
+        .map(id -> Universe.getCurrent().getThing(id))
+        .filter(t -> t.isPresent())
+        .filter(t -> t.get() instanceof Player)
+        .forEach(p -> ((Player) p.get()).sendMessage(message));
+  }
 }

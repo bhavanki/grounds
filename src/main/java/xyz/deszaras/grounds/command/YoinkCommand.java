@@ -40,10 +40,20 @@ public class YoinkCommand extends Command<Boolean> {
       source = Optional.empty();
     }
     if (source.isPresent()) {
-      source.get().take(yoinkedThing);
-      postEvent(new YoinkDepartureEvent(yoinkedThing, source.get()));
+      Thing sourceThing = source.get();
+      sourceThing.take(yoinkedThing);
+      postEvent(new YoinkDepartureEvent(yoinkedThing, sourceThing));
+      if (sourceThing instanceof Place &&
+          yoinkedThing instanceof Player) {
+        emitToAllPlayers(Optional.of((Place) sourceThing),
+                         ((Player) yoinkedThing).getName() + " departs.");
+      }
     }
 
+    if (yoinkedThing instanceof Player) {
+      emitToAllPlayers(Optional.of(destination),
+                       ((Player) yoinkedThing).getName() + " arrives.");
+    }
     destination.give(yoinkedThing);
     yoinkedThing.setLocation(destination);
     postEvent(new YoinkArrivalEvent(yoinkedThing, destination));
