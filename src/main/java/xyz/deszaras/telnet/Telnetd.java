@@ -49,7 +49,7 @@ public class Telnetd {
    */
   public static class Config {
 
-    public static final String DEFAULT_IP = "127.0.0.1"; // NOPMD
+    public static final String DEFAULT_IP = "0.0.0.0"; // NOPMD
     public static final int DEFAULT_PORT = 23;
     public static final int DEFAULT_MAX_CONNECTIONS = 100;
     public static final long DEFAULT_WARNING_TIMEOUT_MS = 300000L;  // 5 min

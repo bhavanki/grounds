@@ -7,7 +7,7 @@ import java.io.IOException;
  */
 public interface Protocol {
 
-  String DEFAULT_HOST = "127.0.0.1"; // NOPMD
+  String DEFAULT_HOST = "0.0.0.0"; // NOPMD
 
   /**
    * Starts the protocol.
