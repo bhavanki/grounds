@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.ActorCommand;
@@ -46,15 +48,22 @@ public class BootActorCommand extends ServerCommand<Boolean> {
       actorShells = Collections.emptySet();
     }
     return actorShells.stream()
-        .filter(shell -> shell.getPlayer().equals(bootedPlayer))
+        .filter(shell -> {
+          if (bootedPlayer == null) {
+            return true;
+          }
+          return shell.getPlayer().equals(Optional.of(bootedPlayer));
+        })
         .map(shell -> {
-          Player shellPlayer = shell.getPlayer();
+          Optional<Player> shellPlayer = shell.getPlayer();
+          String shellPlayerName = shellPlayer.isPresent() ?
+              shellPlayer.get().getName() : "<no player>";
           boolean terminated = shell.terminate();
           String messageText = terminated ?
               String.format("Terminated shell for actor %s playing as %s",
-                            username, shellPlayer.getName()) :
+                            username, shellPlayerName) :
               String.format("Failed to terminate shell for actor %s playing as %s",
-                            username, shellPlayer.getName());
+                            username, shellPlayerName);
           player.sendMessage(new Message(player, Message.Style.INFO, messageText));
           return terminated;
         })

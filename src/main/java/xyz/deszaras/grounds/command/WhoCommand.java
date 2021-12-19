@@ -34,7 +34,8 @@ public class WhoCommand extends ServerCommand<String> {
     Map<Actor, Collection<Shell>> openShells = server.getOpenShells();
     List<Shell> sortedConnectedShells = openShells.values().stream()
         .flatMap(Collection::stream)
-        .sorted((s1, s2) -> s1.getPlayer().getName().compareTo(s2.getPlayer().getName()))
+        .filter(s -> s.getPlayer().isPresent())
+        .sorted((s1, s2) -> s1.getPlayer().get().getName().compareTo(s2.getPlayer().get().getName()))
         .collect(Collectors.toList());
 
     boolean isWizard = Role.isWizard(player);
@@ -51,7 +52,7 @@ public class WhoCommand extends ServerCommand<String> {
 
     Instant now = Instant.now();
     for (Shell shell : sortedConnectedShells) {
-      Player shellPlayer = shell.getPlayer();
+      Player shellPlayer = shell.getPlayer().get();
       Duration connectionDuration = Duration.between(shell.getStartTime(), now);
       if (isWizard) {
         Actor shellActor = shell.getActor();

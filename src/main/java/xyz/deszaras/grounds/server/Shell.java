@@ -137,8 +137,8 @@ public class Shell implements Runnable {
    *
    * @return player
    */
-  public Player getPlayer() {
-    return player;
+  public Optional<Player> getPlayer() {
+    return Optional.ofNullable(player);
   }
 
   /**
