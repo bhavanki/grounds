@@ -42,7 +42,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>30.0-jre</version>
+      <version>31.0.1-jre</version>
     </dependency>
 
     <dependency>
@@ -102,7 +102,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.2.3</version>
+      <version>1.2.9</version>
       <scope>runtime</scope>
     </dependency>
 
