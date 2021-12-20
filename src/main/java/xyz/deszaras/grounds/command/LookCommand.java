@@ -65,10 +65,13 @@ public class LookCommand extends Command<String> {
       Optional<Thing> t = Universe.getCurrent().getThing(id);
       if (t.isPresent()) {
         Thing tt = t.get();
-        if (tt instanceof Player) {
+        if (tt instanceof Extension) {
+          if (checkIfAnyRole(Extension.PERMITTED_ROLES)) {
+            players.add((Player) tt);
+          }
+        } else if (tt instanceof Player) {
           players.add((Player) tt);
-        } else if (!(tt instanceof Extension) ||
-                   checkIfAnyRole(Extension.PERMITTED_ROLES)) {
+        } else {
           theRest.add(tt);
         }
       }
