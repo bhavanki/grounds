@@ -47,7 +47,7 @@ public class RunCommand extends Command<Boolean> {
         continue;
       }
       List<String> tokens = parser.parse(line, line.length()).words();
-      if (tokens.isEmpty()) {
+      if (tokens.isEmpty() || String.join("", tokens).isEmpty()) {
         continue;
       }
 
