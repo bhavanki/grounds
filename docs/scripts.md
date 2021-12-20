@@ -49,7 +49,7 @@ Beyond bound variables, Grounds offers scripts a limited API to gather informati
 
 The API is listed below.
 
-**exec(List<String>)**
+**exec(List&lt;String>)**
 
 Arguments: command line
 
@@ -99,7 +99,7 @@ Gets an attribute with the given name (third argument) from a list attribute wit
 
 Arguments: thing ID, not-found message
 
-Return type: `List<String>`
+Return type: `List&lt;String>`
 
 Lists the names of all attributes of the referenced thing. If the thing is not present, throws an exception with the given message.
 
@@ -195,7 +195,7 @@ Arguments: thing ID, attribute name, attribute value
 
 Sets a STRING attribute on the referenced thing.
 
-**setAttr(String,String,List<xyz.deszaras.grounds.model.Attr>)**
+**setAttr(String,String,List&lt;xyz.deszaras.grounds.model.Attr>)**
 
 Arguments: thing ID, attribute name, attribute value
 
