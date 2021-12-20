@@ -10,3 +10,7 @@ Grounds is a MUSH.
 * [Common Commands](common_commands.md)
 * [Mail](mail.md)
 * [Combat](combat.md)
+* [Attributes](attributes.md)
+* [Extensions](extensions.md)
+* [Scripts](scripts.md)
+* [Events](events.md)
