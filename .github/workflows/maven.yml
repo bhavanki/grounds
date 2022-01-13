@@ -24,6 +24,6 @@ jobs:
     - name: Install Protoc
       uses: arduino/setup-protoc@v1
       with:
-        version: '3.19.1'
+        version: '3.19.3'
     - name: Build with Maven
       run: mvn --batch-mode verify --file pom.xml
