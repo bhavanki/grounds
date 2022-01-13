@@ -22,6 +22,9 @@ Grounds is under active development, so features are all new and/or still being 
 
 * [JDK](https://adoptopenjdk.net/) 11 or higher
 * [Apache Maven](https://maven.apache.org) 3.6.0 or higher (building only)
+* [protoc](https://github.com/protocolbuffers/protobuf/) 3.19.1 or higher
+
+On macOS, Homebrew can install `protoc` via `brew install protobuf`.
 
 ## Running
 
