@@ -115,7 +115,8 @@ public class ArgumentResolver {
     Optional<Thing> location;
     try {
       location = context.getLocation();
-      if (name.equalsIgnoreCase(HERE) && location.isPresent()) {
+      if (name.equalsIgnoreCase(HERE) && location.isPresent() &&
+          type.isAssignableFrom(location.get().getClass())) {
         LOG.debug("Resolved {} to {} {}", name, type.getSimpleName(), location.get().getId());
         return type.cast(location.get());
       }
@@ -187,7 +188,8 @@ public class ArgumentResolver {
     Optional<Thing> location;
     try {
       location = context.getLocation();
-      if (location.isPresent() && id.equals(location.get().getId())) {
+      if (location.isPresent() && id.equals(location.get().getId()) &&
+          type.isAssignableFrom(location.get().getClass())) {
         LOG.debug("Resolved {} to {} {}", id, type.getSimpleName(), location.get().getId());
         return type.cast(location.get());
       }
