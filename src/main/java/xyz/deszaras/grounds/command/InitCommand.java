@@ -37,7 +37,7 @@ public class InitCommand extends Command<Boolean> {
 
     Place origin = updateOrigin(universe);
     updateLostAndFound(universe);
-    createGuestHome(universe);
+    updateGuestHome(universe);
 
     Universe.setCurrent(universe);
     Universe.setCurrentFile(null);
@@ -69,14 +69,10 @@ public class InitCommand extends Command<Boolean> {
     player.sendMessage(newInfoMessage("Updated lost+found place " + laf.getId()));
   }
 
-  private void createGuestHome(Universe universe) {
-    // This swaps out the place.
-    universe.removeThing(universe.getGuestHomePlace());
-    Place glounge = new Place("GUEST LOUNGE");
-    universe.addThing(glounge);
-    universe.setGuestHome(glounge);
+  private void updateGuestHome(Universe universe) {
+    Place ghome = universe.getGuestHomePlace();
 
-    glounge.setDescription(
+    ghome.setDescription(
         "Welcome, guests! This is the guest lounge, where you may talk with " +
         "players and other guests, and perhaps do a little exploring. Try " +
         "these commands to get started.\n\n" +
@@ -85,11 +81,11 @@ public class InitCommand extends Command<Boolean> {
         "- `help commands` to learn about other available commands\n" +
         "- `exit` to log out of the server");
 
-    Policy glPolicy = glounge.getPolicy();
-    glPolicy.setRoles(Policy.Category.GENERAL, Role.ALL_ROLES);
-    glPolicy.setRoles(Policy.Category.READ, Role.ALL_ROLES);
+    Policy ghPolicy = ghome.getPolicy();
+    ghPolicy.setRoles(Policy.Category.GENERAL, Role.ALL_ROLES);
+    ghPolicy.setRoles(Policy.Category.READ, Role.ALL_ROLES);
 
-    player.sendMessage(newInfoMessage("Created guest lounge place " + glounge.getId()));
+    player.sendMessage(newInfoMessage("Updated guest home place " + ghome.getId()));
   }
 
   public static InitCommand newCommand(Actor actor, Player player,

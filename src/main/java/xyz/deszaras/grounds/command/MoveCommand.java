@@ -24,10 +24,15 @@ import xyz.deszaras.grounds.model.Universe;
 public class MoveCommand extends Command<String> {
 
   private final String exitName;
+  private TeleportCommand testTeleportCommand;
 
   public MoveCommand(Actor actor, Player player, String exitName) {
     super(actor, player);
     this.exitName = Objects.requireNonNull(exitName);
+  }
+
+  protected void setTestTeleportCommand(TeleportCommand testTeleportCommand) {
+    this.testTeleportCommand = testTeleportCommand;
   }
 
   @Override
@@ -58,7 +63,9 @@ public class MoveCommand extends Command<String> {
     checkPermission(Category.USE, viaLink.get(),
                     "You are not permitted to traverse the exit to that place");
 
-    TeleportCommand teleportCommand = new TeleportCommand(actor, player, moveDestination.get());
+    TeleportCommand teleportCommand =
+        testTeleportCommand != null ? testTeleportCommand :
+          new TeleportCommand(actor, player, moveDestination.get());
     String result = teleportCommand.executeImpl();
 
     postEvents(teleportCommand.getEvents());

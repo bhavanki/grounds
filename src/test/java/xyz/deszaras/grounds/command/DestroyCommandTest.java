@@ -113,7 +113,7 @@ public class DestroyCommandTest extends AbstractCommandTest {
     Place place = newTestPlace("destroyme");
     Place place2 = newTestPlace("leavemealone");
 
-    newTestLink("linky", place, place2);
+    newTestLink("linky", place, "D", place2, "L");
 
     command = new DestroyCommand(actor, player, place);
 
@@ -129,7 +129,7 @@ public class DestroyCommandTest extends AbstractCommandTest {
     Place place1 = newTestPlace("leavemealone");
     Place place2 = newTestPlace("leavemealone2");
 
-    Link link = newTestLink("destroyme", place1, place2);
+    Link link = newTestLink("destroyme", place1, "L1", place2, "L2");
 
     command = new DestroyCommand(actor, player, link);
 

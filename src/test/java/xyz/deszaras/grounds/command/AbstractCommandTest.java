@@ -64,13 +64,16 @@ public abstract class AbstractCommandTest {
   /**
    * Creates a new test link.
    *
-   * @param  name   link name
-   * @param  place1 source place to link
-   * @param  place2 destination place to link
+   * @param  name       link name
+   * @param  place1     source place to link
+   * @param  place1Name name of exit leading to source
+   * @param  place2     destination place to link
+   * @param  place2Name name of exit leading to destination
    * @return      new link
    */
-  protected Link newTestLink(String name, Place place1, Place place2) {
-    Link link = new Link(name, place1, "source", place2, "destination");
+  protected Link newTestLink(String name, Place place1, String place1Name,
+                             Place place2, String place2Name) {
+    Link link = new Link(name, place1, place1Name, place2, place2Name);
     testUniverse.addThing(link);
     return link;
   }
