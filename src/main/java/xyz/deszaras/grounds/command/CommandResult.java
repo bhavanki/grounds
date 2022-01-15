@@ -1,6 +1,11 @@
 package xyz.deszaras.grounds.command;
 
+import com.google.common.base.Throwables;
+
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import xyz.deszaras.grounds.model.Player;
 
 /**
  * The result of running a command. If a command could not be
@@ -94,5 +99,36 @@ public class CommandResult<R> {
    */
   public Optional<Command> getCommand() {
     return Optional.ofNullable(command);
+  }
+
+  static final String ERROR_FORMAT = "ERROR: %s";
+  static final String SYNTAX_ERROR_FORMAT = "SYNTAX ERROR: %s";
+
+  /**
+   * Gets the message to send to the player that executed a command that
+   * failed.
+   *
+   * @param  player executing player
+   * @return        failure message
+   * @throws IllegalStateException if this result is successful
+   */
+  public Message getFailureMessage(Player player) {
+    if (isSuccessful()) {
+      throw new IllegalStateException("Command result is successful");
+    }
+    if (commandException != null) {
+      String errorMessage = String.format(ERROR_FORMAT, joinMessages(commandException));
+      return new Message(player, Message.Style.COMMAND_EXCEPTION, errorMessage);
+    }
+    String syntaxErrorMessage =
+        String.format(SYNTAX_ERROR_FORMAT, joinMessages(commandFactoryException));
+    return new Message(player, Message.Style.COMMAND_FACTORY_EXCEPTION,
+                       syntaxErrorMessage);
+  }
+
+  private static String joinMessages(Throwable e) {
+    return Throwables.getCausalChain(e).stream()
+        .map(t -> t.getMessage())
+        .collect(Collectors.joining(": "));
   }
 }

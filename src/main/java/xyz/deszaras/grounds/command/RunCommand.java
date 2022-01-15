@@ -10,8 +10,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.jline.reader.impl.DefaultParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import xyz.deszaras.grounds.model.Player;
 
@@ -22,8 +20,6 @@ import xyz.deszaras.grounds.model.Player;
  */
 @PermittedRoles(roles = {})
 public class RunCommand extends Command<Boolean> {
-
-  private static final Logger LOG = LoggerFactory.getLogger(RunCommand.class);
 
   private final File f;
 
@@ -57,30 +53,13 @@ public class RunCommand extends Command<Boolean> {
           new CommandCallable(actor, player, tokens, CommandExecutor.getInstance());
       CommandResult commandResult = commandCallable.call();
 
-      // TBD: refactor with Shell
       if (!commandResult.isSuccessful()) {
-        Optional<CommandException> commandException =
-            commandResult.getCommandException();
-        if (commandException.isPresent()) {
-          player.sendMessage(new Message(player, Message.Style.COMMAND_EXCEPTION,
-                                         commandException.get().getMessage()));
-          return false;
-        }
-        Optional<CommandFactoryException> commandFactoryException =
-            commandResult.getCommandFactoryException();
-        if (commandFactoryException.isPresent()) {
-          player.sendMessage(new Message(player, Message.Style.COMMAND_EXCEPTION,
-                                         commandFactoryException.get().getMessage()));
-          return false;
-        }
-
-        LOG.warn("Ran command which failed with exception: " + line);
+        player.sendMessage(commandResult.getFailureMessage(player));
         return false;
       } else {
         Object result = commandResult.getResult();
-        if (result != null && !(result instanceof Boolean)) {
-          player.sendMessage(new Message(player, Message.Style.INFO, result.toString()));
-        }
+        player.sendMessage(new Message(player, Message.Style.INFO,
+                                       result != null ? result.toString() : "<null>"));
         Optional<Command> command = commandResult.getCommand();
         if (command.isPresent() &&
           // Problem: Need to catch shutdown command before it's executed!

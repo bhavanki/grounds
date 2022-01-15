@@ -1,6 +1,5 @@
 package xyz.deszaras.grounds.server;
 
-import com.google.common.base.Throwables;
 import com.google.common.net.InetAddresses;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -27,7 +26,6 @@ import xyz.deszaras.grounds.command.Command;
 import xyz.deszaras.grounds.command.CommandCompleter;
 import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandExecutor;
-import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.command.CommandResult;
 import xyz.deszaras.grounds.command.DestroyCommand;
 import xyz.deszaras.grounds.command.ExitCommand;
@@ -235,36 +233,19 @@ public class Shell implements Runnable {
           CommandResult commandResult;
           try {
             commandResult = commandFuture.get();
-
-            if (!commandResult.isSuccessful()) {
-              Optional<CommandException> commandException =
-                  commandResult.getCommandException();
-              if (commandException.isPresent()) {
-                player.sendMessage(new Message(player, Message.Style.COMMAND_EXCEPTION,
-                                               commandException.get().getMessage()));
-              }
-
-              Optional<CommandFactoryException> commandFactoryException =
-                  commandResult.getCommandFactoryException();
-              if (commandFactoryException.isPresent()) {
-                String syntaxErrorMessage =
-                    String.format("SYNTAX ERROR: %s", joinMessages(commandFactoryException.get()));
-                player.sendMessage(new Message(player, Message.Style.COMMAND_FACTORY_EXCEPTION,
-                                               syntaxErrorMessage));
-                LOG.debug("Command build failed for actor {}", actor.getUsername(),
-                          commandFactoryException.get());
-              }
-            }
           } catch (ExecutionException e) {
-            String execErrorMessage = String.format("ERROR: %s", joinMessages(e.getCause()));
-            player.sendMessage(new Message(player, Message.Style.EXECUTION_EXCEPTION,
-                                           execErrorMessage));
             LOG.debug("Command execution failed for actor {}", actor.getUsername(),
                       e.getCause());
-            commandResult = new CommandResult(false, null);
+            commandResult = new CommandResult(new CommandException("Command failed", e.getCause()));
           }
 
-          if (commandResult.isSuccessful()) {
+          if (!commandResult.isSuccessful()) {
+            player.sendMessage(commandResult.getFailureMessage(player));
+            if (commandResult.getCommandFactoryException().isPresent()) {
+              LOG.debug("Command build failed for actor {}", actor.getUsername(),
+                        commandResult.getCommandFactoryException().get());
+            }
+          } else {
             Object result = commandResult.getResult();
             if (result != null && !(result instanceof Boolean)) {
               player.sendMessage(new Message(player, Message.Style.INFO, result.toString()));
@@ -525,12 +506,6 @@ public class Shell implements Runnable {
     } else {
       return AnsiUtils.color("$ ", Ansi.Color.WHITE, true);
     }
-  }
-
-  private static String joinMessages(Throwable e) {
-    return Throwables.getCausalChain(e).stream()
-        .map(t -> t.getMessage())
-        .collect(Collectors.joining(": "));
   }
 
   /**
