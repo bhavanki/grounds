@@ -1,5 +1,7 @@
 package xyz.deszaras.grounds.command;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,10 +24,16 @@ import xyz.deszaras.grounds.model.Player;
 public class RunCommand extends Command<Boolean> {
 
   private final File f;
+  private CommandExecutor commandExecutor;
 
   public RunCommand(Actor actor, Player player, File f) {
     super(actor, player);
     this.f = Objects.requireNonNull(f);
+  }
+
+  @VisibleForTesting
+  void setCommandExecutor(CommandExecutor commandExecutor) {
+    this.commandExecutor = commandExecutor;
   }
 
   @Override
@@ -50,7 +58,8 @@ public class RunCommand extends Command<Boolean> {
       player.sendMessage(new Message(player, Message.Style.INFO,
                                      String.format("Running command:\n%s", line)));
       CommandCallable commandCallable =
-          new CommandCallable(actor, player, tokens, CommandExecutor.getInstance());
+          new CommandCallable(actor, player, tokens,
+                              commandExecutor != null ? commandExecutor : CommandExecutor.getInstance());
       CommandResult commandResult = commandCallable.call();
 
       if (!commandResult.isSuccessful()) {
