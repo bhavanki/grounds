@@ -1,5 +1,7 @@
 package xyz.deszaras.grounds.command;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -42,6 +44,16 @@ public abstract class Command<R> {
     this.actor = Objects.requireNonNull(actor);
     this.player = Objects.requireNonNull(player);
     events = new HashSet<>();
+  }
+
+  @VisibleForTesting
+  Actor getActor() {
+    return actor;
+  }
+
+  @VisibleForTesting
+  Player getPlayer() {
+    return player;
   }
 
   /**
