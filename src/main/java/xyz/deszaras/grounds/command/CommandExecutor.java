@@ -32,8 +32,7 @@ import xyz.deszaras.grounds.server.Server;
 public class CommandExecutor {
 
   static final Map<String, Class<? extends Command>> COMMANDS;
-  @VisibleForTesting
-  static final List<BiFunction<List<String>, Player, List<String>>> TRANSFORMS;
+  private static final List<BiFunction<List<String>, Player, List<String>>> TRANSFORMS;
 
   static {
     COMMANDS = ImmutableMap.<String, Class<? extends Command>>builder()
