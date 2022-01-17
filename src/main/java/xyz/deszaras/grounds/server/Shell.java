@@ -1,6 +1,8 @@
 package xyz.deszaras.grounds.server;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.net.InetAddresses;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.Instant;
@@ -11,6 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
 import org.fusesource.jansi.Ansi;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
@@ -20,6 +23,7 @@ import org.jline.reader.impl.DefaultParser;
 import org.jline.terminal.Terminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.Command;
@@ -61,7 +65,7 @@ public class Shell implements Runnable {
   private Player player = null;
   private Instant startTime;
   private String loginBannerContent = null;
-  private Future<?> future = null;
+  private Future<Integer> future = null;
   private int exitCode = 0;
 
   /**
@@ -71,18 +75,29 @@ public class Shell implements Runnable {
    * @param terminal actor's terminal
    */
   public Shell(Actor actor, Terminal terminal, ExecutorService emitterExecutorService) {
+    this(actor, terminal, emitterExecutorService, null);
+  }
+
+  @VisibleForTesting
+  Shell(Actor actor, Terminal terminal, ExecutorService emitterExecutorService,
+       LineReader lineReader) {
     this.actor = actor;
     this.terminal = terminal;
     this.emitterExecutorService = emitterExecutorService;
-    lineReader = LineReaderBuilder.builder()
-        .terminal(terminal)
-        .parser(new DefaultParser()
-                .eofOnEscapedNewLine(true)
-                .eofOnUnclosedQuote(true))
-        .completer(new CommandCompleter())
-        .option(LineReader.Option.CASE_INSENSITIVE, true)
-        .option(LineReader.Option.DISABLE_EVENT_EXPANSION, true)
-        .build();
+
+    if (lineReader != null) {
+      this.lineReader = lineReader;
+    } else {
+      this.lineReader = LineReaderBuilder.builder()
+          .terminal(terminal)
+          .parser(new DefaultParser()
+                  .eofOnEscapedNewLine(true)
+                  .eofOnUnclosedQuote(true))
+          .completer(new CommandCompleter())
+          .option(LineReader.Option.CASE_INSENSITIVE, true)
+          .option(LineReader.Option.DISABLE_EVENT_EXPANSION, true)
+          .build();
+    }
   }
 
   /**
@@ -162,7 +177,7 @@ public class Shell implements Runnable {
    *
    * @param future future for this shell
    */
-  public void setFuture(Future<?> future) {
+  public void setFuture(Future<Integer> future) {
     this.future = future;
   }
 
