@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import xyz.deszaras.grounds.auth.Policy.Category;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Place;
+import xyz.deszaras.grounds.model.Thing;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
 public class LookCommandTest extends AbstractCommandTest {
@@ -36,6 +37,54 @@ public class LookCommandTest extends AbstractCommandTest {
     String lookResult = command.execute();
 
     assertTrue(lookResult.contains("somewhere"));
+  }
+
+  @Test
+  public void testLocationOptions() throws Exception {
+    location.give(player);
+    player.setLocation(location);
+
+    String previousPref = actor.getPreference(Actor.PREFERENCE_SHOW_IDS).orElse(null);
+    actor.setPreference(Actor.PREFERENCE_SHOW_IDS, "true");
+
+    location.setDescription("in a world");
+
+    try {
+      String lookResult = command.execute();
+
+      assertTrue(lookResult.contains("somewhere"));
+      assertTrue(lookResult.contains(location.getId().toString()));
+      assertTrue(lookResult.contains("in a world"));
+    } finally {
+      actor.setPreference(Actor.PREFERENCE_SHOW_IDS, previousPref);
+    }
+  }
+
+  @Test
+  public void testLocationContents() throws Exception {
+    location.give(player);
+    player.setLocation(location);
+
+    Thing importantThing = newTestThing("important");
+    location.give(importantThing);
+    importantThing.setLocation(location);
+
+    String lookResult = command.execute();
+    assertTrue(lookResult.contains("Players present"));
+    assertTrue(lookResult.contains("player"));
+    assertTrue(lookResult.contains("Contents"));
+    assertTrue(lookResult.contains("important"));
+  }
+
+  @Test
+  public void testFailureMissingLocation() throws Exception {
+    Place elsewhere = new Place("elsewhere");
+    elsewhere.give(player);
+    player.setLocation(elsewhere);
+
+    CommandException e = assertThrows(CommandException.class,
+                                      () -> command.execute());
+    assertTrue(e.getMessage().contains("I cannot determine your location"));
   }
 
   @Test
