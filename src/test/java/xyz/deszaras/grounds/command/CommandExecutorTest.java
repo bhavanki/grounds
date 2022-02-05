@@ -50,7 +50,7 @@ public class CommandExecutorTest {
     List<String> commandLine = List.of("go");
     when(factory.getCommand(actor, player, commandLine)).thenReturn(command);
 
-    Future<CommandResult> future = executor.submit(command);
+    Future<CommandResult<Integer>> future = executor.submit(command);
 
     assertEquals(42, future.get().getResult());
   }
@@ -60,7 +60,7 @@ public class CommandExecutorTest {
     Command<Integer> command = mock(Command.class);
     when(command.execute()).thenReturn(42);
 
-    Future<CommandResult> future = executor.submit(command);
+    Future<CommandResult<Integer>> future = executor.submit(command);
 
     assertEquals(42, future.get().getResult());
   }

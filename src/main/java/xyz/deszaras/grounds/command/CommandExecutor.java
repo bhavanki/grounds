@@ -262,7 +262,7 @@ public class CommandExecutor {
    * @param command command to run
    * @return future for the command result
    */
-  public Future<CommandResult> submit(Command command) {
+  public <R> Future<CommandResult<R>> submit(Command<R> command) {
     SecurityManager sm = System.getSecurityManager();
     if (sm != null) {
       sm.checkPermission(SUBMIT_PERMISSION);

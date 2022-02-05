@@ -18,12 +18,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.command.Actor;
+import xyz.deszaras.grounds.command.CommandExecutor;
 
 public class ShellTest {
 
   private Actor actor;
   private Terminal terminal;
   private ExecutorService ees;
+  private CommandExecutor ce;
   private LineReader lineReader;
   private Shell shell;
 
@@ -32,9 +34,10 @@ public class ShellTest {
     actor = new Actor("actor1");
     terminal = mock(Terminal.class);
     ees = Executors.newSingleThreadExecutor();
+    ce = mock(CommandExecutor.class);
     lineReader = mock(LineReader.class);
 
-    shell = new Shell(actor, terminal, ees, lineReader);
+    shell = new Shell(actor, terminal, ees, ce, lineReader);
   }
 
   @SuppressWarnings("PMD.AvoidUsingHardCodedIP")

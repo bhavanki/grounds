@@ -22,8 +22,8 @@ import org.jline.terminal.Terminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.Actor;
+import xyz.deszaras.grounds.command.BuildCommand;
 import xyz.deszaras.grounds.command.Command;
 import xyz.deszaras.grounds.command.CommandCompleter;
 import xyz.deszaras.grounds.command.CommandException;
@@ -58,6 +58,7 @@ public class Shell implements Runnable {
   private final Actor actor;
   private final Terminal terminal;
   private final ExecutorService emitterExecutorService;
+  private final CommandExecutor commandExecutor;
   private final LineReader lineReader;
 
   private Player player = null;
@@ -71,17 +72,21 @@ public class Shell implements Runnable {
    *
    * @param actor actor using the shell
    * @param terminal actor's terminal
+   * @param emitterExecutorService executor for submitting messages
+   * @param commandExecutor executor for commands run by the shell itself
    */
-  public Shell(Actor actor, Terminal terminal, ExecutorService emitterExecutorService) {
-    this(actor, terminal, emitterExecutorService, null);
+  public Shell(Actor actor, Terminal terminal, ExecutorService emitterExecutorService,
+               CommandExecutor commandExecutor) {
+    this(actor, terminal, emitterExecutorService, commandExecutor, null);
   }
 
   @VisibleForTesting
   Shell(Actor actor, Terminal terminal, ExecutorService emitterExecutorService,
-       LineReader lineReader) {
+        CommandExecutor commandExecutor, LineReader lineReader) {
     this.actor = actor;
     this.terminal = terminal;
     this.emitterExecutorService = emitterExecutorService;
+    this.commandExecutor = commandExecutor;
 
     if (lineReader != null) {
       this.lineReader = lineReader;
@@ -207,7 +212,7 @@ public class Shell implements Runnable {
       emitLoginBanner();
 
       if (actor.equals(Actor.GUEST)) {
-        player = createGuestPlayer();
+        player = buildGuestPlayer();
       }
 
       if (player == null) {
@@ -244,8 +249,7 @@ public class Shell implements Runnable {
         prePrompt = AnsiUtils.color("√ ", Ansi.Color.GREEN, true);
         if (!tokens.isEmpty() && !String.join("", tokens).isEmpty()) {
 
-          Future<CommandResult> commandFuture =
-              CommandExecutor.getInstance().submit(actor, player, tokens);
+          Future<CommandResult> commandFuture = commandExecutor.submit(actor, player, tokens);
           CommandResult commandResult;
           try {
             commandResult = commandFuture.get();
@@ -336,21 +340,39 @@ public class Shell implements Runnable {
     return String.format("guest%d", guestCounter.incrementAndGet());
   }
 
-  private Player createGuestPlayer() {
-    player = new Player(generateGuestName());
-    player.setCurrentActor(Actor.GUEST);
-    Universe universe = Universe.getCurrent();
-    universe.addRole(Role.GUEST, player);
-    universe.addThing(player);
-    player.setHome(universe.getGuestHomePlace());
-    return player;
+  private Player buildGuestPlayer() {
+    String guestName = generateGuestName();
+    Command<String> buildCommand = new BuildCommand(Actor.ROOT, Player.GOD, "player", guestName,
+                                                    List.of("guest"));
+    Future<CommandResult<String>> buildCommandFuture = commandExecutor.submit(buildCommand);
+    String guestPlayerId;
+    try {
+      CommandResult<String> buildCommandResult = buildCommandFuture.get();
+
+      if (!buildCommandResult.isSuccessful()) {
+        ((Optional<CommandException>) buildCommandResult.getCommandException())
+            .ifPresent(e -> LOG.error(e.getMessage()));
+        return null;
+      }
+      guestPlayerId = buildCommandResult.getResult();
+    } catch (ExecutionException e) {
+      LOG.error("Building of guest {} failed", guestName, e.getCause());
+      return null;
+    } catch (InterruptedException e) {
+      LOG.error("Interrupted while building guest {}", guestName);
+      return null;
+    }
+
+    Player guestPlayer = Universe.getCurrent().getThing(guestPlayerId, Player.class).get();
+    guestPlayer.setCurrentActor(Actor.GUEST);
+    guestPlayer.setHome(Universe.getCurrent().getGuestHomePlace());
+    return guestPlayer;
   }
 
   @SuppressWarnings("PMD.EmptyCatchBlock")
   private void destroyGuestPlayer(Player player) {
     Command destroyCommand = new DestroyCommand(Actor.ROOT, Player.GOD, player);
-    Future<CommandResult> destroyCommandFuture =
-        CommandExecutor.getInstance().submit(destroyCommand);
+    Future<CommandResult> destroyCommandFuture = commandExecutor.submit(destroyCommand);
     try {
       CommandResult destroyCommandResult = destroyCommandFuture.get();
 
@@ -379,8 +401,7 @@ public class Shell implements Runnable {
               home.get().getName());
     Command bringOutCommand = new YoinkCommand(Actor.ROOT, Player.GOD, player,
                                                home.get());
-    Future<CommandResult> bringOutCommandFuture =
-        CommandExecutor.getInstance().submit(bringOutCommand);
+    Future<CommandResult> bringOutCommandFuture = commandExecutor.submit(bringOutCommand);
     try {
       CommandResult bringOutCommandResult = bringOutCommandFuture.get();
 
@@ -398,8 +419,7 @@ public class Shell implements Runnable {
     LOG.debug("Stowing player {} at origin {}", player.getName(),
               origin.getName());
     Command stowCommand = new YoinkCommand(Actor.ROOT, Player.GOD, player, origin);
-    Future<CommandResult> stowCommandFuture =
-        CommandExecutor.getInstance().submit(stowCommand);
+    Future<CommandResult> stowCommandFuture = commandExecutor.submit(stowCommand);
     try {
       CommandResult stowCommandResult = stowCommandFuture.get();
 
@@ -414,13 +434,13 @@ public class Shell implements Runnable {
 
   @SuppressWarnings("PMD.EmptyCatchBlock")
   private void autoLook() throws InterruptedException {
-    Future<CommandResult> lookCommandFuture =
-        CommandExecutor.getInstance().submit(new LookCommand(actor, player));
+    Future<CommandResult<String>> lookCommandFuture =
+        commandExecutor.submit(new LookCommand(actor, player));
     try {
-      CommandResult lookCommandResult = lookCommandFuture.get();
+      CommandResult<String> lookCommandResult = lookCommandFuture.get();
       if (lookCommandResult.isSuccessful()) {
         player.sendMessage(new Message(player, Message.Style.INFO,
-                                       lookCommandResult.getResult().toString()));
+                                       lookCommandResult.getResult()));
       }
     } catch (ExecutionException e) {
       // oh well

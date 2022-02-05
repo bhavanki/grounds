@@ -231,7 +231,8 @@ public class Server {
   protected Future<Integer> startShell(Actor actor, Terminal virtualTerminal,
                                        Optional<ExitCallback> exitCallback,
                                        boolean closeTerminalOnShellExit) {
-    Shell shell = new Shell(actor, virtualTerminal, shellExecutorService);
+    Shell shell = new Shell(actor, virtualTerminal, shellExecutorService,
+                            CommandExecutor.getInstance());
     openShells.put(actor, shell);
     shell.setStartTime(actor.getLastLoginTime());
     shell.setLoginBannerContent(loginBannerContent);

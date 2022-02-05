@@ -72,11 +72,13 @@ public class BuildCommandTest extends AbstractCommandTest {
     command = new BuildCommand(actor, player, BuildCommand.BuiltInType.THING.name(),
                                "buildme", buildArgs);
 
-    assertTrue(command.execute());
+    String thingId = command.execute();
 
     Optional<Thing> builtOpt = testUniverse.getThingByName("buildme", Thing.class);
     assertTrue(builtOpt.isPresent());
     Thing built = builtOpt.get();
+
+    assertEquals(thingId, built.getId().toString());
 
     assertTrue(testUniverse.getThing(built.getId()).isPresent());
     assertSame(built, testUniverse.getThing(built.getId()).get());

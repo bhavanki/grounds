@@ -8,6 +8,7 @@ import java.util.Objects;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Link;
+import xyz.deszaras.grounds.model.MissingThingException;
 import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
@@ -22,7 +23,7 @@ import xyz.deszaras.grounds.model.Universe;
  */
 @PermittedRoles(roles = { Role.BARD, Role.THAUMATURGE },
                 failureMessage = "You are not a bard or thaumaturge, so you may not build")
-public class BuildCommand extends Command<Boolean> {
+public class BuildCommand extends Command<String> {
 
   public enum BuiltInType {
     THING,
@@ -45,7 +46,7 @@ public class BuildCommand extends Command<Boolean> {
   }
 
   @Override
-  protected Boolean executeImpl() throws CommandException {
+  protected String executeImpl() throws CommandException {
     BuiltInType thingType;
     try {
       thingType = BuiltInType.valueOf(type.toUpperCase());
@@ -56,7 +57,16 @@ public class BuildCommand extends Command<Boolean> {
       throw new CommandException("Building is not permitted in the VOID universe");
     }
 
-    Place location = getPlayerLocation("build anything");
+    Place location;
+    if (!(Player.GOD.equals(player))) {
+      location = getPlayerLocation("build anything");
+    } else {
+      try {
+        location = player.getLocationAsPlace().orElse(Universe.getCurrent().getOriginPlace());
+      } catch (MissingThingException e) {
+        location = Universe.getCurrent().getOriginPlace();
+      }
+    }
 
     Thing built;
 
@@ -92,7 +102,7 @@ public class BuildCommand extends Command<Boolean> {
         CommandExecutor.getInstance().getCommandEventBus().register(built);
       }
       player.sendMessage(newInfoMessage("Created " + built.getId()));
-      return true;
+      return built.getId().toString();
     } catch (IllegalArgumentException e) {
       // Future: Dynamic types
       throw new CommandException("Unsupported type " + type + ": " + e.getMessage());

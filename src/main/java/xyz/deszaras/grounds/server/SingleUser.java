@@ -87,7 +87,7 @@ public class SingleUser implements Runnable {
     }
 
     ExecutorService emitterExecutorService = Executors.newCachedThreadPool();
-    Shell shell = new Shell(actor, localTerminal, emitterExecutorService);
+    Shell shell = new Shell(actor, localTerminal, emitterExecutorService, CommandExecutor.getInstance());
     shell.setPlayer(Player.GOD);
     Universe.getCurrent().addThing(Player.GOD);
     Universe.getCurrent().getOriginPlace().give(Player.GOD);

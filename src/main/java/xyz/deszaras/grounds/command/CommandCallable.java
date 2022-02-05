@@ -10,13 +10,13 @@ import xyz.deszaras.grounds.model.Player;
  * class live on the queue within the command executor service.
  * The callable returns a {@link CommandResult}.
  */
-public class CommandCallable implements Callable<CommandResult> {
+public class CommandCallable<R> implements Callable<CommandResult<R>> {
 
   private final Actor actor;
   private final Player player;
   private final List<String> commandLine;
   private final CommandExecutor commandExecutor;
-  private final Command command;
+  private final Command<R> command;
 
   /**
    * Creates a new callable. The command is constructed by a command
@@ -43,7 +43,7 @@ public class CommandCallable implements Callable<CommandResult> {
    * @param command command to execute
    * @param commandExecutor command executor
    */
-  public CommandCallable(Command command, CommandExecutor commandExecutor) {
+  public CommandCallable(Command<R> command, CommandExecutor commandExecutor) {
     this.command = command;
     this.actor = null;
     this.player = null;
@@ -53,8 +53,8 @@ public class CommandCallable implements Callable<CommandResult> {
   }
 
   @Override
-  public CommandResult call() {
-    Command commandToExecute;
+  public CommandResult<R> call() {
+    Command<R> commandToExecute;
     if (command != null) {
       // Command is pre-built.
       commandToExecute = command;
@@ -69,12 +69,12 @@ public class CommandCallable implements Callable<CommandResult> {
     }
 
     // Execute the command!
-    CommandResult commandResult;
+    CommandResult<R> commandResult;
     try {
-      commandResult = new CommandResult(commandToExecute.execute(),
-                                        commandToExecute);
+      commandResult = new CommandResult<>(commandToExecute.execute(),
+                                          commandToExecute);
     } catch (CommandException e) {
-      return new CommandResult(e);
+      return new CommandResult<>(e);
     }
 
     // Post the events from the executed command to the event bus.
