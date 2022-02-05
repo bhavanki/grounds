@@ -3,7 +3,6 @@ package xyz.deszaras.grounds.server;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.net.InetAddresses;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.Instant;
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import org.fusesource.jansi.Ansi;
 import org.jline.reader.EndOfFileException;
@@ -213,8 +211,10 @@ public class Shell implements Runnable {
       }
 
       if (player == null) {
+        PlayerSelection playerSelection =
+            new PlayerSelection(lineReader, terminal.writer(), actor, Universe.getCurrent());
         try {
-          player = selectPlayer();
+          player = playerSelection.call();
         } catch (UserInterruptException | EndOfFileException e) {
           return;
         }
@@ -236,6 +236,7 @@ public class Shell implements Runnable {
         try {
           lineReader.readLine(hidePrompt ? (String) null : prePrompt + prompt);
         } catch (UserInterruptException | EndOfFileException e) {
+          exitCode = 1;
           break;
         }
 
@@ -296,10 +297,6 @@ public class Shell implements Runnable {
           }
         }
       }
-    } catch (IOException e) {
-      e.printStackTrace(err);
-      out.println("I/O exception! Exiting");
-      exitCode = 1;
     } catch (InterruptedException e) {
       e.printStackTrace(err);
       out.println("Interrupted! Exiting");
@@ -413,91 +410,6 @@ public class Shell implements Runnable {
     } catch (ExecutionException e) {
       LOG.error("Stowing player {} failed", player.getName(), e.getCause());
     }
-  }
-
-  private static final String OCCUPIED_FORMAT = "Someone is currently playing as %s.\n\n";
-
-  private Player selectPlayer() throws IOException {
-    List<Player> permittedPlayers =
-        ActorDatabase.INSTANCE.getActorRecord(actor.getUsername())
-        .get().getPlayers().stream()
-        .map(id -> Universe.getCurrent().getThing(id, Player.class))
-        .filter(p -> p.isPresent())
-        .map(p -> p.get())
-        .sorted((p1, p2) -> p1.getName().compareTo(p2.getName()))
-        .collect(Collectors.toList());
-    PrintWriter out = terminal.writer();
-    out.println("Permitted players:");
-    for (int i = 1; i <= permittedPlayers.size(); i++) {
-      out.printf("  %d. %s\n", i, permittedPlayers.get(i - 1).getName());
-    }
-    out.println("");
-
-    Player chosenPlayer = null;
-    if (permittedPlayers.size() == 1) {
-      chosenPlayer = permittedPlayers.get(0);
-      out.printf("Auto-selecting initial player %s\n", chosenPlayer.getName());
-
-      if (!chosenPlayer.trySetCurrentActor(actor)) {
-        String occupiedMessage = String.format(OCCUPIED_FORMAT, chosenPlayer.getName());
-        out.print(AnsiUtils.color(occupiedMessage, Ansi.Color.YELLOW, false));
-        chosenPlayer = null;
-      }
-    }
-    while (chosenPlayer == null) {
-      String line = lineReader.readLine("Select your initial player (exit to disconnect): ");
-      if (line == null) {
-        return null;
-      }
-      if (line.equals("exit")) {
-        return null;
-      }
-      if (line.isEmpty()) {
-        continue;
-      }
-
-      boolean numberEntered;
-      int spNum;
-      try {
-        spNum = Integer.parseInt(line);
-        numberEntered = true;
-      } catch (NumberFormatException e) {
-        spNum = 0;
-        numberEntered = false;
-      }
-      Player sp = null;
-      if (numberEntered) {
-        if (spNum >= 1 && spNum <= permittedPlayers.size()) {
-          sp = permittedPlayers.get(spNum - 1);
-        } else {
-          String invalidNMessage = String.format("Invalid player number %d\n\n", spNum);
-          out.print(AnsiUtils.color(invalidNMessage, Ansi.Color.RED, false));
-        }
-      } else {
-        for (Player p : permittedPlayers) {
-          if (p.getName().startsWith(line)) {
-            sp = p;
-            break;
-          }
-        }
-        if (sp == null) {
-          String invalidMessage = String.format("Invalid player name %s\n", line);
-          out.print(AnsiUtils.color(invalidMessage, Ansi.Color.RED, false));
-        }
-      }
-
-      if (sp != null) {
-        out.printf("Selecting player %s\n", sp.getName());
-        if (sp.trySetCurrentActor(actor)) {
-          chosenPlayer = sp;
-        } else {
-          String occupiedMessage = String.format(OCCUPIED_FORMAT, sp.getName());
-          out.print(AnsiUtils.color(occupiedMessage, Ansi.Color.RED, false));
-        }
-      }
-    }
-
-    return chosenPlayer;
   }
 
   @SuppressWarnings("PMD.EmptyCatchBlock")
