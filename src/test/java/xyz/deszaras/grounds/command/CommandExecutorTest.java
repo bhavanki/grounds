@@ -2,6 +2,7 @@ package xyz.deszaras.grounds.command;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +49,8 @@ public class CommandExecutorTest {
     Actor actor = mock(Actor.class);
     Player player = mock(Player.class);
     List<String> commandLine = List.of("go");
-    when(factory.getCommand(actor, player, commandLine)).thenReturn(command);
+    // generics, gotta love 'em
+    doReturn(command).when(factory).getCommand(actor, player, commandLine);
 
     Future<CommandResult<Integer>> future = executor.submit(command);
 

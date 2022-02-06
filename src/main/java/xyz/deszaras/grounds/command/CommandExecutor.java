@@ -246,14 +246,15 @@ public class CommandExecutor {
    * @param commandLine command line entered in the shell
    * @return future for the command result
    */
-  public Future<CommandResult> submit(Actor actor, Player player, List<String> commandLine) {
+  public Future<CommandResult<?>> submit(Actor actor, Player player, List<String> commandLine) {
     SecurityManager sm = System.getSecurityManager();
     if (sm != null) {
       sm.checkPermission(SUBMIT_PERMISSION);
     }
 
     try {
-      return submit(commandFactory.getCommand(actor, player, commandLine));
+      return (Future<CommandResult<?>>)
+          submit(commandFactory.getCommand(actor, player, commandLine));
     } catch (CommandFactoryException e) {
       return Futures.immediateFuture(new CommandResult(e));
     }

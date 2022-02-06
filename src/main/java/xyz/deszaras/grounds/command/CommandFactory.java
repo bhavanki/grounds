@@ -77,7 +77,7 @@ public class CommandFactory {
    * @return command
    * @throws CommandFactoryException if the command cannot be built
    */
-  public Command getCommand(Actor actor, Player player, List<String> line)
+  public Command<?> getCommand(Actor actor, Player player, List<String> line)
       throws CommandFactoryException {
     if (line.isEmpty()) {
       return new NoOpCommand(actor, player);
@@ -104,11 +104,11 @@ public class CommandFactory {
       if (ServerCommand.class.isAssignableFrom(commandClass)) {
         newCommandMethod =
             commandClass.getMethod("newCommand", Actor.class, Player.class, Server.class, List.class);
-        return (Command) newCommandMethod.invoke(null, actor, player, server, commandArgs);
+        return (Command<?>) newCommandMethod.invoke(null, actor, player, server, commandArgs);
       } else {
         newCommandMethod =
             commandClass.getMethod("newCommand", Actor.class, Player.class, List.class);
-        return (Command) newCommandMethod.invoke(null, actor, player, commandArgs);
+        return (Command<?>) newCommandMethod.invoke(null, actor, player, commandArgs);
       }
     } catch (NoSuchMethodException e) {
       throw new CommandFactoryException("Command class " + commandClass.getName() +

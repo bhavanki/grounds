@@ -249,14 +249,14 @@ public class Shell implements Runnable {
         prePrompt = AnsiUtils.color("√ ", Ansi.Color.GREEN, true);
         if (!tokens.isEmpty() && !String.join("", tokens).isEmpty()) {
 
-          Future<CommandResult> commandFuture = commandExecutor.submit(actor, player, tokens);
-          CommandResult commandResult;
+          Future<CommandResult<?>> commandFuture = commandExecutor.submit(actor, player, tokens);
+          CommandResult<?> commandResult;
           try {
             commandResult = commandFuture.get();
           } catch (ExecutionException e) {
             LOG.debug("Command execution failed for actor {}", actor.getUsername(),
                       e.getCause());
-            commandResult = new CommandResult(new CommandException("Command failed", e.getCause()));
+            commandResult = new CommandResult<>(new CommandException("Command failed", e.getCause()));
           }
 
           if (!commandResult.isSuccessful()) {
