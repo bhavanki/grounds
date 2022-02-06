@@ -116,12 +116,25 @@ public class Player extends Thing {
    * current actor. Use this method to have an actor occupy a player in a
    * thread-safe manner.
    *
-   * @param actor current actor
+   * @param actor new current actor
    * @return true if actor was set, false if player is already occupied
    */
   public boolean trySetCurrentActor(Actor actor) {
+    return trySetCurrentActor(actor, null);
+  }
+
+  /**
+   * Atomically set this player's current actor, but only if the current actor
+   * is the given one. Use this method to have an actor occupy a player in a
+   * thread-safe manner.
+   *
+   * @param newActor new current actor, or null to set the player to idle
+   * @param currentActor old current actor, or null to require no current actor
+   * @return true if actor was set, false otherwise
+   */
+  public boolean trySetCurrentActor(Actor actor, Actor current) {
     synchronized (actorMonitor) {
-      if (this.actor != null) {
+      if (current == null ? this.actor != null : !current.equals(this.actor)) {
         return false;
       }
       setCurrentActor(actor);

@@ -1,5 +1,6 @@
 package xyz.deszaras.grounds.command;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
@@ -43,6 +44,21 @@ public class BuildCommand extends Command<String> {
     this.type = Objects.requireNonNull(type);
     this.name = Objects.requireNonNull(name);
     this.buildArgs = ImmutableList.copyOf(Objects.requireNonNull(buildArgs));
+  }
+
+  @VisibleForTesting
+  public String getType() {
+    return type;
+  }
+
+  @VisibleForTesting
+  public String getName() {
+    return name;
+  }
+
+  @VisibleForTesting
+  public List<String> getBuildArgs() {
+    return buildArgs;
   }
 
   @Override

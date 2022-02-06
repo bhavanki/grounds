@@ -47,12 +47,12 @@ public abstract class Command<R> {
   }
 
   @VisibleForTesting
-  Actor getActor() {
+  public Actor getActor() {
     return actor;
   }
 
   @VisibleForTesting
-  Player getPlayer() {
+  public Player getPlayer() {
     return player;
   }
 

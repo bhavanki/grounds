@@ -10,7 +10,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.fusesource.jansi.Ansi;
 import org.jline.reader.EndOfFileException;
@@ -23,13 +22,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import xyz.deszaras.grounds.command.Actor;
-import xyz.deszaras.grounds.command.BuildCommand;
 import xyz.deszaras.grounds.command.Command;
 import xyz.deszaras.grounds.command.CommandCompleter;
 import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.command.CommandResult;
-import xyz.deszaras.grounds.command.DestroyCommand;
 import xyz.deszaras.grounds.command.ExitCommand;
 import xyz.deszaras.grounds.command.LookCommand;
 import xyz.deszaras.grounds.command.Message;
@@ -207,12 +204,13 @@ public class Shell implements Runnable {
     boolean hidePrompt = "true".equals(promptPref);
 
     Future<?> emitterFuture = null;
+    Concierge concierge = new Concierge(Universe.getCurrent(), commandExecutor);
 
     try {
       emitLoginBanner();
 
       if (actor.equals(Actor.GUEST)) {
-        player = buildGuestPlayer();
+        player = concierge.buildGuestPlayer();
       }
 
       if (player == null) {
@@ -309,10 +307,10 @@ public class Shell implements Runnable {
         emitterFuture.cancel(true);
       }
       if (player != null) {
-        player.setCurrentActor(null);
         if (actor.equals(Actor.GUEST)) {
-          destroyGuestPlayer(player);
+          concierge.destroyGuestPlayer(player);
         } else {
+          player.setCurrentActor(null);
           try {
             stowPlayer(player);
           } catch (InterruptedException e) {
@@ -332,59 +330,6 @@ public class Shell implements Runnable {
         .replaceAll("_username_", actor.getUsername())
         .replaceAll("_ipaddress_", getIPAddress());
     terminal.writer().println(loginBannerToEmit);
-  }
-
-  private static AtomicInteger guestCounter = new AtomicInteger();
-
-  private static String generateGuestName() {
-    return String.format("guest%d", guestCounter.incrementAndGet());
-  }
-
-  private Player buildGuestPlayer() {
-    String guestName = generateGuestName();
-    Command<String> buildCommand = new BuildCommand(Actor.ROOT, Player.GOD, "player", guestName,
-                                                    List.of("guest"));
-    Future<CommandResult<String>> buildCommandFuture = commandExecutor.submit(buildCommand);
-    String guestPlayerId;
-    try {
-      CommandResult<String> buildCommandResult = buildCommandFuture.get();
-
-      if (!buildCommandResult.isSuccessful()) {
-        ((Optional<CommandException>) buildCommandResult.getCommandException())
-            .ifPresent(e -> LOG.error(e.getMessage()));
-        return null;
-      }
-      guestPlayerId = buildCommandResult.getResult();
-    } catch (ExecutionException e) {
-      LOG.error("Building of guest {} failed", guestName, e.getCause());
-      return null;
-    } catch (InterruptedException e) {
-      LOG.error("Interrupted while building guest {}", guestName);
-      return null;
-    }
-
-    Player guestPlayer = Universe.getCurrent().getThing(guestPlayerId, Player.class).get();
-    guestPlayer.setCurrentActor(Actor.GUEST);
-    guestPlayer.setHome(Universe.getCurrent().getGuestHomePlace());
-    return guestPlayer;
-  }
-
-  @SuppressWarnings("PMD.EmptyCatchBlock")
-  private void destroyGuestPlayer(Player player) {
-    Command destroyCommand = new DestroyCommand(Actor.ROOT, Player.GOD, player);
-    Future<CommandResult> destroyCommandFuture = commandExecutor.submit(destroyCommand);
-    try {
-      CommandResult destroyCommandResult = destroyCommandFuture.get();
-
-      if (!destroyCommandResult.isSuccessful()) {
-        ((Optional<CommandException>) destroyCommandResult.getCommandException())
-            .ifPresent(e -> LOG.error(e.getMessage()));
-      }
-    } catch (ExecutionException e) {
-      LOG.error("Destruction of guest {} failed", player.getName(), e.getCause());
-    } catch (InterruptedException e) {
-      LOG.error("Interrupted while destroying guest {}", player.getName());
-    }
   }
 
   private void bringOutPlayer(Player player) throws InterruptedException {

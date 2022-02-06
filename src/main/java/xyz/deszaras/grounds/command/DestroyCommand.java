@@ -1,5 +1,7 @@
 package xyz.deszaras.grounds.command;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -28,6 +30,11 @@ public class DestroyCommand extends Command<Boolean> {
   public DestroyCommand(Actor actor, Player player, Thing thing) {
     super(actor, player);
     this.thing = Objects.requireNonNull(thing);
+  }
+
+  @VisibleForTesting
+  public Thing getThing() {
+    return thing;
   }
 
   @SuppressWarnings("PMD.EmptyCatchBlock")
