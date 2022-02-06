@@ -29,6 +29,7 @@ public class RunCommand extends Command<Boolean> {
   public RunCommand(Actor actor, Player player, File f) {
     super(actor, player);
     this.f = Objects.requireNonNull(f);
+    commandExecutor = null;
   }
 
   @VisibleForTesting
@@ -45,6 +46,10 @@ public class RunCommand extends Command<Boolean> {
       throw new CommandException("Failed to read command file: " + e.getMessage());
     }
 
+    if (commandExecutor == null) {
+      commandExecutor = CommandExecutor.getInstance();
+    }
+
     DefaultParser parser = new DefaultParser();
     for (String line : commandLines) {
       if (line.startsWith("#") || line.startsWith("//")) {
@@ -57,10 +62,16 @@ public class RunCommand extends Command<Boolean> {
 
       player.sendMessage(new Message(player, Message.Style.INFO,
                                      String.format("Running command:\n%s", line)));
-      CommandCallable commandCallable =
-          new CommandCallable(actor, player, tokens,
-                              commandExecutor != null ? commandExecutor : CommandExecutor.getInstance());
-      CommandResult commandResult = commandCallable.call();
+
+      CommandResult commandResult;
+      try {
+        Command commandToExecute =
+            commandExecutor.getCommandFactory().getCommand(actor, player, tokens);
+        CommandCallable commandCallable = new CommandCallable(commandToExecute, commandExecutor);
+        commandResult = commandCallable.call();
+      } catch (CommandFactoryException e) {
+        commandResult = new CommandResult(e);
+      }
 
       if (!commandResult.isSuccessful()) {
         player.sendMessage(commandResult.getFailureMessage(player));

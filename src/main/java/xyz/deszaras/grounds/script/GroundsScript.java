@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import xyz.deszaras.grounds.command.Actor;
+import xyz.deszaras.grounds.command.Command;
 import xyz.deszaras.grounds.command.CommandCallable;
 import xyz.deszaras.grounds.command.CommandException;
 import xyz.deszaras.grounds.command.CommandExecutor;
@@ -356,9 +357,15 @@ public abstract class GroundsScript extends groovy.lang.Script {
     return AccessController.doPrivileged(new PrivilegedAction<CommandResult>() {
       @Override
       public CommandResult run() {
-        CommandCallable callable =
-            new CommandCallable(actor, runner, commandLine, CommandExecutor.getInstance());
-        return callable.call();
+        try {
+          Command commandToExecute =
+              CommandExecutor.getInstance().getCommandFactory().getCommand(actor, runner, commandLine);
+          CommandCallable callable =
+              new CommandCallable(commandToExecute, CommandExecutor.getInstance());
+          return callable.call();
+        } catch (CommandFactoryException e) {
+          return new CommandResult(e);
+        }
       }
     });
   }

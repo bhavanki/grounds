@@ -92,6 +92,33 @@ public class RunCommandTest extends AbstractCommandTest {
   }
 
   @Test
+  public void testFailureCommandFactoryException() throws Exception {
+    File commandFile = new File(ClassLoader.getSystemResource("runcommand1.cmd").getFile());
+    command = new RunCommand(actor, Player.GOD, commandFile);
+    command.setCommandExecutor(commandExecutor);
+
+    Command[] commands = new Command[3];
+    for (int i = 0; i < 3; i++) {
+      if (i % 2 == 0) {
+        commands[i] = mockCommand(List.of("NOOP" + i), Boolean.TRUE);
+      } else {
+        when(commandExecutor.getCommandFactory().getCommand(actor, Player.GOD, List.of("NOOP" + i)))
+            .thenThrow(new CommandFactoryException("oops"));
+      }
+    }
+
+    assertFalse(command.execute());
+
+    verify(commands[0]).execute();
+    verifyMessages("NOOP0", "true");
+    Message m = Player.GOD.getNextMessage();
+    assertEquals("Running command:\nNOOP1", m.getMessage());
+    m = Player.GOD.getNextMessage();
+    assertTrue(m.getMessage().contains("oops"));
+    verify(commands[2], never()).execute();
+  }
+
+  @Test
   public void testFailureCommandException() throws Exception {
     File commandFile = new File(ClassLoader.getSystemResource("runcommand1.cmd").getFile());
     command = new RunCommand(actor, Player.GOD, commandFile);

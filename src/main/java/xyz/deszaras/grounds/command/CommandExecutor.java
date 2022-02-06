@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.eventbus.EventBus;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import java.util.List;
@@ -245,15 +246,17 @@ public class CommandExecutor {
    * @param commandLine command line entered in the shell
    * @return future for the command result
    */
-  public Future<CommandResult> submit(Actor actor, Player player,
-                                      List<String> commandLine) {
+  public Future<CommandResult> submit(Actor actor, Player player, List<String> commandLine) {
     SecurityManager sm = System.getSecurityManager();
     if (sm != null) {
       sm.checkPermission(SUBMIT_PERMISSION);
     }
 
-    CommandCallable callable = new CommandCallable(actor, player, commandLine, this);
-    return commandExecutorService.submit(callable);
+    try {
+      return submit(commandFactory.getCommand(actor, player, commandLine));
+    } catch (CommandFactoryException e) {
+      return Futures.immediateFuture(new CommandResult(e));
+    }
   }
 
   /**
