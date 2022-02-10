@@ -1,6 +1,10 @@
 package xyz.deszaras.grounds.command;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
@@ -15,16 +19,23 @@ import xyz.deszaras.grounds.server.ActorDatabase;
 public class PreferenceCommand extends Command<String> {
 
   private final String prefString;
+  private final boolean save;
 
   public PreferenceCommand(Actor actor, Player player, String prefString) {
+    this(actor, player, prefString, true);
+  }
+
+  @VisibleForTesting
+  public PreferenceCommand(Actor actor, Player player, String prefString, boolean save) {
     super(actor, player);
     this.prefString = prefString;
+    this.save = save;
   }
 
   @Override
   protected String executeImpl() throws CommandException {
     if (prefString == null) {
-      return actor.getPreferences().toString();
+      return format(actor.getPreferences());
     }
 
     if (!prefString.contains("=") || prefString.indexOf("=") == 0) {
@@ -47,7 +58,9 @@ public class PreferenceCommand extends Command<String> {
                                  actor.getUsername());
     }
 
-    ActorCommand.saveActorDatabase();
+    if (save) {
+      ActorCommand.saveActorDatabase();
+    }
 
     if (!prefValue.isEmpty()) {
       actor.setPreference(prefName, prefValue);
@@ -55,7 +68,14 @@ public class PreferenceCommand extends Command<String> {
       actor.setPreference(prefName, null);
     }
 
-    return actor.getPreferences().toString();
+    return format(actor.getPreferences());
+  }
+
+  private static String format(Map<String, String> prefs) {
+    return prefs.keySet().stream()
+        .sorted()
+        .map(k -> String.format("%s = %s", k, prefs.get(k)))
+        .collect(Collectors.joining(", "));
   }
 
   public static PreferenceCommand newCommand(Actor actor, Player player,
