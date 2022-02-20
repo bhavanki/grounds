@@ -105,6 +105,19 @@ public class CommandResult<R> {
   static final String SYNTAX_ERROR_FORMAT = "SYNTAX ERROR: %s";
 
   /**
+   * Gets failure message text for when command execution failed.
+   */
+  public String getFailureMessageText() {
+    if (isSuccessful()) {
+      throw new IllegalStateException("Command result is successful");
+    }
+    if (commandException != null) {
+      return String.format(ERROR_FORMAT, joinMessages(commandException));
+    }
+    return String.format(SYNTAX_ERROR_FORMAT, joinMessages(commandFactoryException));
+  }
+
+  /**
    * Gets the message to send to the player that executed a command that
    * failed.
    *

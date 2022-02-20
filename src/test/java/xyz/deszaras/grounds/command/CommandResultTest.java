@@ -59,6 +59,32 @@ public class CommandResultTest {
   }
 
   @Test
+  public void testFailureMessageTextCE() {
+    CommandException e = new CommandException("oopsie",
+                                              new IllegalArgumentException("daisy"));
+    r = new CommandResult<>(e);
+
+    assertEquals("ERROR: oopsie: daisy", r.getFailureMessageText());
+  }
+
+  @Test
+  public void testFailureMessageTextCFE() {
+    CommandFactoryException e = new CommandFactoryException("oopsie",
+                                                            new IllegalArgumentException("daisy"));
+    r = new CommandResult<>(e);
+
+    assertEquals("SYNTAX ERROR: oopsie: daisy", r.getFailureMessageText());
+  }
+
+  @Test
+  public void testFailureMessageTextSuccessful() {
+    r = new CommandResult<>("ok", command);
+
+    assertThrows(IllegalStateException.class,
+                 () -> r.getFailureMessageText());
+  }
+
+  @Test
   public void testFailureMessageCE() {
     CommandException e = new CommandException("oopsie",
                                               new IllegalArgumentException("daisy"));
