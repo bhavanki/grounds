@@ -26,10 +26,14 @@ class ExecCommand implements ApiMethod {
                                  request.getId());
     }
 
+    // Note that command execution occurs directly, and isn't submitted to the
+    // command executor. This is because there should already be a plugin
+    // command running, so this command needs to run as part of that, and cannot
+    // wait until the plugin command completes.
     CommandResult result;
     try {
       Command commandToExecute = ctx.getCommandExecutor()
-          .getCommandFactory().getCommand(ctx.getActor(), ctx.getRunner(),
+          .getCommandFactory().getCommand(ctx.getActor(), ctx.getCaller(),
                                           commandLine);
       CommandCallable callable =
           new CommandCallable(commandToExecute, ctx.getCommandExecutor());

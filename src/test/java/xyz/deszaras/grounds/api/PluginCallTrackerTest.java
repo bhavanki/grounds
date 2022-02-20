@@ -13,26 +13,26 @@ import xyz.deszaras.grounds.model.Player;
 public class PluginCallTrackerTest {
 
   private Actor actor;
-  private Player runner;
+  private Player caller;
   private PluginCallTracker tracker;
 
   @BeforeEach
   public void setUp() throws Exception {
     tracker = new PluginCallTracker();
     actor = new Actor("bob");
-    runner = new Player("jay");
+    caller = new Player("jay");
   }
 
   @Test
   public void testTracking() {
     assertTrue(tracker.getInfo("id").isEmpty());
 
-    PluginCallInfo info = new PluginCallInfo(actor, runner);
+    PluginCallInfo info = new PluginCallInfo(actor, caller);
     tracker.track("id", info);
 
     PluginCallInfo info2 = tracker.getInfo("id").get();
     assertEquals(actor, info2.getActor());
-    assertEquals(runner, info2.getRunner());
+    assertEquals(caller, info2.getCaller());
 
     tracker.untrack("id");
     assertTrue(tracker.getInfo("id").isEmpty());

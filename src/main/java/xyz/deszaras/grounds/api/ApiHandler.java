@@ -101,8 +101,8 @@ class ApiHandler implements Runnable {
         }
 
         Actor actor = callInfo.get().getActor();
-        Player runner = callInfo.get().getRunner();
-        ApiMethodContext ctx = new ApiMethodContext(actor, runner, commandExecutor);
+        Player caller = callInfo.get().getCaller();
+        ApiMethodContext ctx = new ApiMethodContext(actor, caller, commandExecutor);
 
         Optional<ApiMethod> apiMethodOpt =
             apiMethodFactory.getApiMethod(request.getMethod());

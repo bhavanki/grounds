@@ -35,7 +35,7 @@ public class ApiHandlerTest {
   private CommandExecutor commandExecutor;
 
   private Actor actor;
-  private Player runner;
+  private Player caller;
 
   private ApiHandler handler;
 
@@ -43,9 +43,9 @@ public class ApiHandlerTest {
   public void setUp() throws Exception {
     pluginCallTracker = new PluginCallTracker();
     actor = mock(Actor.class);
-    runner = mock(Player.class);
+    caller = mock(Player.class);
     pluginCallTracker.track(PLUGIN_CALL_ID,
-                            new PluginCallTracker.PluginCallInfo(actor, runner));
+                            new PluginCallTracker.PluginCallInfo(actor, caller));
 
     apiMethodFactory = mock(ApiMethodFactory.class);
     commandExecutor = mock(CommandExecutor.class);
@@ -91,7 +91,7 @@ public class ApiHandlerTest {
     assertEquals(REQUEST_ID, apiMethod.request.getId());
 
     assertEquals(actor, apiMethod.ctx.getActor());
-    assertEquals(runner, apiMethod.ctx.getRunner());
+    assertEquals(caller, apiMethod.ctx.getCaller());
     assertEquals(commandExecutor, apiMethod.ctx.getCommandExecutor());
 
     assertFalse(channel.isOpen());

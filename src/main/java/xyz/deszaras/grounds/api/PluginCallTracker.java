@@ -59,18 +59,18 @@ class PluginCallTracker {
    */
   static class PluginCallInfo {
     private final Actor actor;
-    private final Player runner;
+    private final Player caller;
     // TBD extension
 
     /**
      * Creates a new object.
      *
      * @param actor  actor
-     * @param runner runner
+     * @param caller caller
      */
-    PluginCallInfo(Actor actor, Player runner) {
+    PluginCallInfo(Actor actor, Player caller) {
       this.actor = actor;
-      this.runner = runner;
+      this.caller = caller;
     }
 
     /**
@@ -83,12 +83,12 @@ class PluginCallTracker {
     }
 
     /**
-     * Gets the runner.
+     * Gets the caller.
      *
-     * @return runner
+     * @return caller
      */
-    Player getRunner() {
-      return runner;
+    Player getCaller() {
+      return caller;
     }
   }
 }

@@ -13,12 +13,12 @@ import xyz.deszaras.grounds.model.Player;
 public class ApiMethodContext {
 
   private final Actor actor;
-  private final Player runner;
+  private final Player caller;
   private final CommandExecutor commandExecutor;
 
-  public ApiMethodContext(Actor actor, Player runner, CommandExecutor commandExecutor) {
+  public ApiMethodContext(Actor actor, Player caller, CommandExecutor commandExecutor) {
     this.actor = Objects.requireNonNull(actor);
-    this.runner = Objects.requireNonNull(runner);
+    this.caller = Objects.requireNonNull(caller);
     this.commandExecutor = Objects.requireNonNull(commandExecutor);
   }
 
@@ -26,8 +26,8 @@ public class ApiMethodContext {
     return actor;
   }
 
-  public Player getRunner() {
-    return runner;
+  public Player getCaller() {
+    return caller;
   }
 
   public CommandExecutor getCommandExecutor() {
