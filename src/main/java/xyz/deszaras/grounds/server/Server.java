@@ -36,6 +36,7 @@ import org.jline.terminal.Terminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import xyz.deszaras.grounds.api.ApiServer;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.command.LoadCommand;
@@ -69,6 +70,7 @@ public class Server {
   private final Multimap<Actor, Shell> openShells;
 
   private final Set<Protocol> protocols;
+  private final ApiServer apiServer;
 
   private ScheduledFuture<?> autosaveFuture;
 
@@ -105,6 +107,7 @@ public class Server {
     autosaveFuture = null;
 
     protocols = createProtocols(serverProperties);
+    apiServer = createApiServer(serverProperties);
   }
 
   private String readLoginBannerContent(Properties serverProperties) throws IOException {
@@ -146,6 +149,16 @@ public class Server {
       throw new IllegalStateException("No protocols are enabled");
     }
     return ImmutableSet.copyOf(ps);
+  }
+
+  private ApiServer createApiServer(Properties serverProperties) {
+    String apiSocketFile = serverProperties.getProperty("apiSocketFile");
+    if (apiSocketFile == null) {
+      return null;
+    }
+
+    Path apiSocketPath = FileSystems.getDefault().getPath(apiSocketFile);
+    return new ApiServer(apiSocketPath);
   }
 
   /**
@@ -301,6 +314,9 @@ public class Server {
     for (Protocol p : protocols) {
       p.start();
     }
+    if (apiServer != null) {
+      apiServer.start();
+    }
   }
 
 
@@ -313,6 +329,9 @@ public class Server {
    * @throws InterruptedException if the shutdown process is interrupted
    */
   public void shutdown() throws IOException, InterruptedException {
+    if (apiServer != null) {
+      apiServer.shutdown();
+    }
     for (Protocol p : protocols) {
       p.shutdown();
     }

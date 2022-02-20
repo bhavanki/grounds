@@ -22,7 +22,7 @@ public class Main {
                description = "Start in single-user mode")
     private boolean singleUser = false;
     @Parameter(names = { "-u", "--universe" },
-               description = "Universe to load",
+               description = "Universe to load (for multi-user mode)",
                converter = FileConverter.class)
     private File universeFile = null;
   }

@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
+import xyz.deszaras.grounds.api.ApiServer;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.model.Player;
@@ -66,9 +67,25 @@ public class SingleUser implements Runnable {
                      "Also created new guest actor with password 'guest'.\n");
     }
 
+    String apiSocketFile = serverProperties.getProperty("apiSocketFile");
+    ApiServer apiServer;
+    if (apiSocketFile != null) {
+      Path apiSocketPath = FileSystems.getDefault().getPath(apiSocketFile);
+      apiServer = new ApiServer(apiSocketPath);
+    } else {
+      apiServer = null;
+    }
+
     Universe.setCurrent(Universe.VOID);
     Universe.setCurrentFile(null);
     CommandExecutor.create(null);
+    try {
+      apiServer.start();
+    } catch (IOException e) {
+      console.printf("Failed to start API server");
+      e.printStackTrace();
+      return;
+    }
 
     console.printf("Welcome to Grounds.\n");
     console.printf("This is single-user mode. Use ^D or 'exit' to quit.\n\n");
@@ -102,6 +119,13 @@ public class SingleUser implements Runnable {
         localTerminal.close();
       } catch (IOException e) {
         console.printf("Failed to close local terminal", e);
+      }
+      try {
+        apiServer.shutdown();
+      } catch (InterruptedException e) {
+        console.printf("Interrupted while shutting down API server");
+      } catch (IOException e) {
+        console.printf("Failed to shut down API server", e);
       }
     }
     CommandExecutor.getInstance().shutdown();
