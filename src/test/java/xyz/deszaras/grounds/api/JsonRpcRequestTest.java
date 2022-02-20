@@ -1,6 +1,7 @@
 package xyz.deszaras.grounds.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
@@ -40,6 +41,15 @@ public class JsonRpcRequestTest {
     assertEquals("value1", params.get("key1"));
     assertEquals("value2", params.get("key2"));
     assertEquals(List.of("value3a", "value3b"), params.get("key3"));
+  }
+
+  @Test
+  public void testSimpleConstructor() {
+    req = new JsonRpcRequest("method",
+                             ImmutableMap.of("key1", "value1",
+                                             "key2", "value2",
+                                             "key3", List.of("value3a", "value3b")));
+    assertNotNull(req.getId());
   }
 
   @Test

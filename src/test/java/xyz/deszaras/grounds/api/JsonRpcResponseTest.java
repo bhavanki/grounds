@@ -1,8 +1,10 @@
 package xyz.deszaras.grounds.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import xyz.deszaras.grounds.api.JsonRpcResponse.ErrorObject;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 public class JsonRpcResponseTest {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -18,34 +21,36 @@ public class JsonRpcResponseTest {
 
   @Test
   public void testGettersNoError() {
-    res = new JsonRpcResponse("OK", null, "id1");
+    res = new JsonRpcResponse("OK", "id1");
 
     assertEquals("2.0", res.getJsonrpc());
     assertEquals("OK", res.getResult());
     assertEquals("id1", res.getId());
     assertNull(res.getError());
+    assertTrue(res.isSuccessful());
   }
 
   @Test
   public void testGettersError() {
-    res = new JsonRpcResponse(null, new ErrorObject(123, "oops"), "id1");
+    res = new JsonRpcResponse(new ErrorObject(123, "oops"), "id1");
 
     assertEquals("2.0", res.getJsonrpc());
     assertNull(res.getResult());
     assertEquals("id1", res.getId());
     assertEquals(123, res.getError().getCode());
     assertEquals("oops", res.getError().getMessage());
+    assertFalse(res.isSuccessful());
   }
 
   @Test
   public void testNotBothResultAndError() {
     assertThrows(IllegalArgumentException.class,
-                 () -> new JsonRpcResponse("OK", new ErrorObject(123, "oops"), "id1"));
+                 () -> new JsonRpcResponse("2.0", "OK", new ErrorObject(123, "oops"), "id1"));
   }
 
   @Test
   public void testJsonNoError() throws Exception {
-    res = new JsonRpcResponse("OK", null, "id1");
+    res = new JsonRpcResponse("OK", "id1");
     String json = OBJECT_MAPPER.writeValueAsString(res);
 
     JsonRpcResponse res2 = OBJECT_MAPPER.readValue(json, JsonRpcResponse.class);
@@ -57,7 +62,7 @@ public class JsonRpcResponseTest {
 
   @Test
   public void testJsonError() throws Exception {
-    res = new JsonRpcResponse(null, new ErrorObject(123, "oops"), "id1");
+    res = new JsonRpcResponse(new ErrorObject(123, "oops"), "id1");
     String json = OBJECT_MAPPER.writeValueAsString(res);
 
     JsonRpcResponse res2 = OBJECT_MAPPER.readValue(json, JsonRpcResponse.class);

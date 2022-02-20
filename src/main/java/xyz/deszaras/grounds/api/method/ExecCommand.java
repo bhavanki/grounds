@@ -22,8 +22,7 @@ class ExecCommand implements ApiMethod {
       commandLine = request.getStringListParameter("commandLine")
           .orElseThrow(() -> new IllegalArgumentException("Parameter commandLine missing"));
     } catch (IllegalArgumentException | ClassCastException e) {
-      return new JsonRpcResponse(null,
-                                 new ErrorObject(12345, e.getMessage()),
+      return new JsonRpcResponse(new ErrorObject(12345, e.getMessage()),
                                  request.getId());
     }
 
@@ -41,11 +40,9 @@ class ExecCommand implements ApiMethod {
 
     if (result.isSuccessful()) {
       return new JsonRpcResponse(result.getResult().toString(),
-                                 null,
                                  request.getId());
     } else {
-      return new JsonRpcResponse(null,
-                                 new ErrorObject(1234, result.getFailureMessageText()),
+      return new JsonRpcResponse(new ErrorObject(1234, result.getFailureMessageText()),
                                  request.getId());
     }
   }

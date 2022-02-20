@@ -1,6 +1,7 @@
 package xyz.deszaras.grounds.api;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 // https://www.jsonrpc.org/specification
@@ -41,14 +42,23 @@ public class JsonRpcResponse {
   }
 
   /**
-   * Creates a new response.
+   * Creates a new successful response.
    *
-   * @param  result  response result (optional if error is specified)
-   * @param  error   response error (optional if result is specified)
+   * @param  result  response result
    * @param  id      request ID (optional)
    */
-  public JsonRpcResponse(String result, ErrorObject error, String id) {
-    this(JSON_RPC_VERSION, result, error, id);
+  public JsonRpcResponse(String result, String id) {
+    this(JSON_RPC_VERSION, result, null, id);
+  }
+
+  /**
+   * Creates a new error response.
+   *
+   * @param  error   response error
+   * @param  id      request ID (optional)
+   */
+  public JsonRpcResponse(ErrorObject error, String id) {
+    this(JSON_RPC_VERSION, null, error, id);
   }
 
   /**
@@ -89,6 +99,16 @@ public class JsonRpcResponse {
   @JsonProperty
   public String getId() {
     return id;
+  }
+
+  /**
+   * Gets whether the response is successful, i.e., has a result.
+   *
+   * @return true for success
+   */
+  @JsonIgnore
+  public boolean isSuccessful() {
+    return result != null;
   }
 
   /**

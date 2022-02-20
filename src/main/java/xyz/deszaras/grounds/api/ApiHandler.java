@@ -68,8 +68,7 @@ class ApiHandler implements Runnable {
         try {
           request = OBJECT_MAPPER.readValue(readBuffer.array(), JsonRpcRequest.class);
         } catch (IOException e) {
-          response = new JsonRpcResponse(null,
-                                         new ErrorObject(JsonRpcErrorCodes.PARSE_ERROR,
+          response = new JsonRpcResponse(new ErrorObject(JsonRpcErrorCodes.PARSE_ERROR,
                                                          null),
                                          null);
           break handling;
@@ -77,8 +76,7 @@ class ApiHandler implements Runnable {
 
         String jsonRpcId = request.getId();
         if (jsonRpcId == null) {
-          response = new JsonRpcResponse(null,
-                                         new ErrorObject(JsonRpcErrorCodes.INVALID_REQUEST,
+          response = new JsonRpcResponse(new ErrorObject(JsonRpcErrorCodes.INVALID_REQUEST,
                                                          ERROR_MISSING_JSON_RPC_ID),
                                          null);
           break handling;
@@ -87,8 +85,7 @@ class ApiHandler implements Runnable {
         Optional<Object> pluginCallId =
             request.getParameter(ApiRequestParameters.PLUGIN_CALL_ID);
         if (pluginCallId.isEmpty()) {
-          response = new JsonRpcResponse(null,
-                                         new ErrorObject(JsonRpcErrorCodes.INVALID_PARAMETERS,
+          response = new JsonRpcResponse(new ErrorObject(JsonRpcErrorCodes.INVALID_PARAMETERS,
                                                          ERROR_MISSING_PLUGIN_CALL_ID),
                                          jsonRpcId);
           break handling;
@@ -97,8 +94,7 @@ class ApiHandler implements Runnable {
         Optional<PluginCallTracker.PluginCallInfo> callInfo =
             pluginCallTracker.getInfo(pluginCallId.get().toString());
         if (callInfo.isEmpty()) {
-          response = new JsonRpcResponse(null,
-                                         new ErrorObject(JsonRpcErrorCodes.INVALID_PARAMETERS,
+          response = new JsonRpcResponse(new ErrorObject(JsonRpcErrorCodes.INVALID_PARAMETERS,
                                                          String.format(ERROR_UNKNOWN_PLUGIN_CALL_ID_FORMAT, pluginCallId.get())),
                                          jsonRpcId);
           break handling;
@@ -111,8 +107,7 @@ class ApiHandler implements Runnable {
         Optional<ApiMethod> apiMethodOpt =
             apiMethodFactory.getApiMethod(request.getMethod());
         if (apiMethodOpt.isEmpty()) {
-          response = new JsonRpcResponse(null,
-                                         new ErrorObject(JsonRpcErrorCodes.METHOD_NOT_FOUND,
+          response = new JsonRpcResponse(new ErrorObject(JsonRpcErrorCodes.METHOD_NOT_FOUND,
                                                          String.format(ERROR_UNKNOWN_METHOD_FORMAT, request.getMethod())),
                                          jsonRpcId);
           break handling;

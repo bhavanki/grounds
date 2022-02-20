@@ -59,7 +59,7 @@ public class ApiHandlerTest {
     public JsonRpcResponse call(JsonRpcRequest request, ApiMethodContext ctx) {
       this.request = request;
       this.ctx = ctx;
-      return new JsonRpcResponse("pong", null, request.getId());
+      return new JsonRpcResponse("pong", request.getId());
     }
   }
 

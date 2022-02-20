@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 // https://www.jsonrpc.org/specification
 /**
@@ -58,6 +59,16 @@ public class JsonRpcRequest {
   public JsonRpcRequest(String method, Map<String, Object> parameters,
                         String id) {
     this(JSON_RPC_VERSION, method, parameters, id);
+  }
+
+  /**
+   * Creates a new request with a random, non-null request ID.
+   *
+   * @param  method     request method
+   * @param  parameters request parameters
+   */
+  public JsonRpcRequest(String method, Map<String, Object> parameters) {
+    this(method, parameters, UUID.randomUUID().toString());
   }
 
   /**
