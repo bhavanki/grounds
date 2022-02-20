@@ -72,7 +72,7 @@ public class MailCommand extends Command<Boolean> {
   }
 
   private static final CommandFactory MAIL_COMMAND_FACTORY =
-      new CommandFactory(null, MAIL_COMMANDS, null);
+      new CommandFactory(null, MAIL_COMMANDS, null, null);
 
   public static Command newCommand(Actor actor, Player player,
                                    List<String> commandArgs)

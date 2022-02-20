@@ -113,7 +113,7 @@ public class CombatCommand extends Command<String> {
   }
 
   private static final CommandFactory COMBAT_COMMAND_FACTORY =
-      new CommandFactory(null, COMBAT_COMMANDS, null);
+      new CommandFactory(null, COMBAT_COMMANDS, null, null);
 
   public static Command newCommand(Actor actor, Player player,
                                    List<String> commandArgs)

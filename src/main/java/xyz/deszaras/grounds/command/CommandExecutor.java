@@ -15,6 +15,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BiFunction;
 
+import xyz.deszaras.grounds.api.ApiServer;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.security.CommandExecutorPermission;
 import xyz.deszaras.grounds.server.Server;
@@ -171,10 +172,11 @@ public class CommandExecutor {
    * Creates the single command executor for the game, if it doesn't already
    * exist.
    *
-   * @param server server instance, if not in single-user mode
+   * @param apiServer API server instance, if running
+   * @param server    server instance, if not in single-user mode
    * @throws IllegalStateException if the executor was already created
    */
-  public static synchronized void create(Server server) {
+  public static synchronized void create(ApiServer apiServer, Server server) {
     SecurityManager sm = System.getSecurityManager();
     if (sm != null) {
       sm.checkPermission(CREATE_PERMISSION);
@@ -183,7 +185,7 @@ public class CommandExecutor {
     if (theExecutor != null) {
       throw new IllegalStateException("The command executor has already been created");
     }
-    theExecutor = new CommandExecutor(new CommandFactory(TRANSFORMS, COMMANDS, server),
+    theExecutor = new CommandExecutor(new CommandFactory(TRANSFORMS, COMMANDS, apiServer, server),
                                       new EventBus("commandEvents"));
   }
 

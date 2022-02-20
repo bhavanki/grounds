@@ -111,4 +111,13 @@ public class ApiServer implements Runnable {
     }
     shutdownLatch.countDown();
   }
+
+  /**
+   * Gets the plugin call tracker for this API server.
+   *
+   * @return plugin call tracker
+   */
+  public PluginCallTracker getPluginCallTracker() {
+    return pluginCallTracker;
+  }
 }

@@ -75,7 +75,7 @@ public class ActorCommand extends ServerCommand<Boolean> {
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
     CommandFactory actorCommandFactory =
-        new CommandFactory(null, ACTOR_COMMANDS, server);
+        new CommandFactory(null, ACTOR_COMMANDS, null, server);
     return actorCommandFactory.getCommand(actor, player, commandArgs);
   }
 }

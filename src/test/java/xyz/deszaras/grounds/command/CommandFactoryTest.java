@@ -54,7 +54,7 @@ public class CommandFactoryTest {
 
   @BeforeEach
   public void setUp() throws Exception {
-    f = new CommandFactory(TEST_TRANSFORMS, TEST_COMMANDS, null);
+    f = new CommandFactory(TEST_TRANSFORMS, TEST_COMMANDS, null, null);
 
     actor = mock(Actor.class);
     player = mock(Player.class);
@@ -83,7 +83,7 @@ public class CommandFactoryTest {
   @Test
   public void testServerNoArgs() throws Exception {
     Server server = mock(Server.class);
-    f = new CommandFactory(TEST_TRANSFORMS, TEST_COMMANDS, server);
+    f = new CommandFactory(TEST_TRANSFORMS, TEST_COMMANDS, null, server);
 
     c = f.getCommand(actor, player, List.of("WHO"));
 

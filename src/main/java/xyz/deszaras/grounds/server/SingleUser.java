@@ -78,7 +78,7 @@ public class SingleUser implements Runnable {
 
     Universe.setCurrent(Universe.VOID);
     Universe.setCurrentFile(null);
-    CommandExecutor.create(null);
+    CommandExecutor.create(apiServer, null);
     try {
       apiServer.start();
     } catch (IOException e) {

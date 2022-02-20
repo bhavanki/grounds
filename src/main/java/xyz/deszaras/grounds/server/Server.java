@@ -293,7 +293,7 @@ public class Server {
    * @throws IOException if the server fails to start
    */
   public void start(File universeFile) throws IOException {
-    CommandExecutor.create(this);
+    CommandExecutor.create(apiServer, this);
 
     if (universeFile != null) {
       CommandExecutor.getInstance()

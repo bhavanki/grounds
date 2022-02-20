@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
+import xyz.deszaras.grounds.api.ApiServer;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Player;
@@ -29,6 +30,7 @@ public class CommandFactory {
 
   private final List<BiFunction<List<String>, Player, List<String>>> transforms;
   private final Map<String, Class<? extends Command>> commands;
+  private final ApiServer apiServer;
   private final Server server;
 
   /**
@@ -36,14 +38,16 @@ public class CommandFactory {
    *
    * @param  transforms    functions to transform command lines
    * @param  commands      map of command classes to support, keyed by command name
+   * @param  apiServer     API server instance, if running
    * @param  server        server instance, if not in single-user mode
    */
   public CommandFactory(List<BiFunction<List<String>, Player, List<String>>> transforms,
                         Map<String, Class<? extends Command>> commands,
-                        Server server) {
+                        ApiServer apiServer, Server server) {
     this.transforms = transforms != null ?
         ImmutableList.copyOf(transforms) : ImmutableList.of();
     this.commands = ImmutableMap.copyOf(commands);
+    this.apiServer = apiServer;
     this.server = server;
   }
 
