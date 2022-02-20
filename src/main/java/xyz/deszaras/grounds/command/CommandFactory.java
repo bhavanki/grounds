@@ -10,6 +10,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import xyz.deszaras.grounds.api.ApiServer;
+import xyz.deszaras.grounds.api.PluginCall;
+import xyz.deszaras.grounds.api.PluginCallFactory;
+import xyz.deszaras.grounds.api.PluginCallFactoryException;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Player;
@@ -134,10 +137,21 @@ public class CommandFactory {
    * @return scripted command
    * @throws CommandFactoryException if the command cannot be built
    */
-  private ScriptedCommand newScriptedCommand(Actor actor, Player player, List<String> line)
+  private Command newScriptedCommand(Actor actor, Player player, List<String> line)
       throws CommandFactoryException {
     String commandName = line.get(0);
     List<String> scriptArguments = line.subList(1, line.size());
+
+    // In progress replacement of scripts with plugins.
+    try {
+      Optional<PluginCall> pluginCall = findPluginCall(commandName);
+      if (pluginCall.isPresent()) {
+        return PluginCallCommand.newCommand(actor, player, pluginCall.get(),
+                                            scriptArguments);
+      }
+    } catch (PluginCallFactoryException e) {
+      throw new CommandFactoryException("Failed to build plugin call for command " + commandName, e);
+    }
 
     Script script;
     try {
@@ -148,6 +162,46 @@ public class CommandFactory {
     }
 
     return ScriptedCommand.newCommand(actor, player, script, scriptArguments);
+  }
+
+  /**
+   * Finds a plugin call for the given command name among the extensions in the
+   * universe.
+   *
+   * @param  commandName command name
+   * @return             plugin call implementing the command
+   * @throws PluginCallFactoryException if the plugin call could not be constructed
+   */
+  public Optional<PluginCall> findPluginCall(String commandName)
+      throws PluginCallFactoryException {
+    if (apiServer == null) {
+      // FUTURE: Once script support is gone, return an error here instead
+      // because no plugin calls can work
+      return Optional.empty();
+    }
+
+    // Find the attribute defining the command. It must be attached
+    // to an extension and have an attribute list as a value.
+    Optional<Attr> pluginCallAttr = Optional.empty();
+    Extension pluginCallExtension = null;
+    // this is inefficient :(
+    for (Extension extension : Universe.getCurrent().getThings(Extension.class)) {
+      pluginCallAttr = extension.getAttr(commandName, Attr.Type.ATTRLIST);
+      if (pluginCallAttr.isPresent() &&
+          // temporary: look for "commandMethod" to distinguish this from a script
+          pluginCallAttr.get().getAttrInAttrListValue("commandMethod").isPresent()) {
+        pluginCallExtension = extension;
+        break;
+      }
+    }
+
+    if (pluginCallAttr.isEmpty()) {
+      return Optional.empty();
+    }
+
+    return Optional.of(new PluginCallFactory()
+                       .newPluginCall(pluginCallAttr.get(), pluginCallExtension,
+                                      apiServer.getPluginCallTracker()));
   }
 
   /**
