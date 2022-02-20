@@ -135,7 +135,7 @@ public class JsonRpcRequest {
             throw new ClassCastException("Value of parameter " + name + " is not a list");
           }
           ImmutableList.Builder<String> lb = ImmutableList.<String>builder();
-          for (Object e : ((List) o)) {
+          for (Object e : (List) o) {
             if (!(e instanceof String)) {
               throw new ClassCastException("Element of parameter " + name + " is not a string");
             }

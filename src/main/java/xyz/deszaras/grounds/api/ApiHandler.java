@@ -129,7 +129,7 @@ class ApiHandler implements Runnable {
       try {
         channel.close();
       } catch (IOException e) {
-        // oh well
+        LOG.info("Exception closing channel", e);
       }
     }
   }

@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 
-import java.nio.channels.ByteChannel;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;

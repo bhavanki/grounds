@@ -72,6 +72,7 @@ public class ApiServer implements Runnable {
     UnixDomainSocketAddress socketAddress = UnixDomainSocketAddress.of(socketPath);
     serverChannel = ServerSocketChannel.open(StandardProtocolFamily.UNIX);
     serverChannel.bind(socketAddress);
+    LOG.info("API server bound to domain socket {}", socketPath);
 
     serverFuture = serverExecutor.submit(this);
   }

@@ -31,8 +31,8 @@ public class PluginCallTrackerTest {
     tracker.track("id", info);
 
     PluginCallInfo info2 = tracker.getInfo("id").get();
-    assertEquals(actor, info.getActor());
-    assertEquals(runner, info.getRunner());
+    assertEquals(actor, info2.getActor());
+    assertEquals(runner, info2.getRunner());
 
     tracker.untrack("id");
     assertTrue(tracker.getInfo("id").isEmpty());
