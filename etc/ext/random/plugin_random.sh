@@ -70,7 +70,7 @@ parse_response() {
   fi
 }
 
-print_result() {
+respond_result() {
   local result=$1
   local request_id=$2
   cat <<EOF
@@ -80,10 +80,10 @@ print_result() {
   "id": "${request_id}"
 }
 EOF
-  return 0
+  exit 0
 }
 
-print_error() {
+respond_error() {
   local code=$1
   local message=$2
   local request_id=$3
@@ -97,7 +97,7 @@ print_error() {
   "id": "${request_id}"
 }
 EOF
-  return 1
+  exit 1
 }
 
 BALL_RESPONSES=(
@@ -132,7 +132,7 @@ REQUEST_ID=$(echo "$REQUEST" | jq -r '.id' -)
 CALLER_NAME_RESPONSE=$(jsonrpc "${PLUGIN_CALL_ID}" getCallerName)
 CALLER_NAME=$(echo "$CALLER_NAME_RESPONSE" | jq -r '.result')
 
-POSE_RESPONSE=
+POSE_CONTENT=
 
 case $METHOD in
   coinflip)
@@ -142,50 +142,42 @@ case $METHOD in
     else
       SIDE=tails
     fi
-    POSE_RESPONSE=$(jsonrpc "${PLUGIN_CALL_ID}" exec commandLine "pose|${CALLER_NAME}|flips|a|coin:|${SIDE}")
-
-    print_result "" "$REQUEST_ID"
+    POSE_CONTENT="${CALLER_NAME} flips a coin: ${SIDE}"
     ;;
   8ball)
     INDEX=$(( RANDOM % ${#BALL_RESPONSES[@]} ))
-    OUTCOME=${BALL_RESPONSES[$INDEX]}
-    POSE_RESPONSE=$(jsonrpc "${PLUGIN_CALL_ID}" exec commandLine "pose|${CALLER_NAME}|shakes|the|magic|eight|ball:|${OUTCOME}")
-    print_result "" "$REQUEST_ID"
+    POSE_CONTENT="${CALLER_NAME} shakes the magic eight ball: ${BALL_RESPONSES[$INDEX]}"
     ;;
   roll)
     readarray -t PLUGIN_CALL_ARGUMENTS < <(echo "$REQUEST" | jq -r '.parameters._plugin_call_arguments[]')
     if (( ${#PLUGIN_CALL_ARGUMENTS[@]} != 1 )); then
-      print_error "${INVALID_PARAMETERS}" "Missing roll-type argument"
-    else
-      ROLL_TYPE=${PLUGIN_CALL_ARGUMENTS[0]}
-      if [[ ! $ROLL_TYPE =~ [1-9][0-9]*d[1-9][0-9]* ]]; then
-        print_error "${INVALID_PARAMETERS}" "Invalid argument: $ROLL_TYPE" "$REQUEST_ID"
-      else
-        NUM_SIDES=${ROLL_TYPE##*d}
-        NUM_THROWS=${ROLL_TYPE%%d*}
-        ROLL_RESULTS=()
-        ROLL_TOTAL=0
-        for (( i = 0; i < NUM_THROWS; i++ )); do
-          ROLL=$(( (RANDOM % NUM_SIDES) + 1 ))
-          ROLL_RESULTS+=( "$ROLL" )
-          ROLL_TOTAL=$(( ROLL_TOTAL + ROLL ))
-        done
-        POSE_RESPONSE=$(jsonrpc "${PLUGIN_CALL_ID}" exec commandLine "pose|${CALLER_NAME}|rolls:|${ROLL_RESULTS[*]}|total:|${ROLL_TOTAL}")
-        print_result "" "$REQUEST_ID"
-      fi
+      respond_error "${INVALID_PARAMETERS}" "Missing roll-type argument" "$REQUEST_ID"
     fi
+    ROLL_TYPE=${PLUGIN_CALL_ARGUMENTS[0]}
+    if [[ ! $ROLL_TYPE =~ [1-9][0-9]*d[1-9][0-9]* ]]; then
+      respond_error "${INVALID_PARAMETERS}" "Invalid argument: $ROLL_TYPE" "$REQUEST_ID"
+    fi
+    NUM_SIDES=${ROLL_TYPE##*d}
+    NUM_THROWS=${ROLL_TYPE%%d*}
+    ROLL_RESULTS=()
+    ROLL_TOTAL=0
+    for (( i = 0; i < NUM_THROWS; i++ )); do
+      ROLL=$(( (RANDOM % NUM_SIDES) + 1 ))
+      ROLL_RESULTS+=( "$ROLL" )
+      ROLL_TOTAL=$(( ROLL_TOTAL + ROLL ))
+    done
+    POSE_CONTENT="${CALLER_NAME} rolls: [ ${ROLL_RESULTS[*]} ] total: ${ROLL_TOTAL}"
     ;;
   *)
-    print_error "$METHOD_NOT_FOUND" "Unrecognized method ${METHOD}"
+    respond_error "$METHOD_NOT_FOUND" "Unrecognized method ${METHOD}" "$REQUEST_ID"
     ;;
 esac
 
-if [[ -n $POSE_RESPONSE ]]; then
-  PARSED_RESPONSE=$(parse_response "$POSE_RESPONSE")
-  if [[ $PARSED_RESPONSE =~ ^r: ]]; then
-    print_result "${PARSED_RESPONSE:2}"
-  else
-    PARSED_ERROR=${PARSED_RESPONSE:2}
-    print_error "${INTERNAL_ERROR}" "POSE error: [${PARSED_ERROR%%:*}] ${PARSED_ERROR#*:}"
-  fi
+POSE_RESPONSE=$(jsonrpc "${PLUGIN_CALL_ID}" exec commandLine "pose|${POSE_CONTENT}")
+PARSED_RESPONSE=$(parse_response "$POSE_RESPONSE")
+if [[ $PARSED_RESPONSE =~ ^r: ]]; then
+  respond_result "" "$REQUEST_ID"
+else
+  PARSED_ERROR=${PARSED_RESPONSE:2}
+  respond_error "${INTERNAL_ERROR}" "POSE error: [${PARSED_ERROR%%:*}] ${PARSED_ERROR#*:}" "$REQUEST_ID"
 fi
