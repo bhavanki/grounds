@@ -1,14 +1,14 @@
+# This defines the listener attribute for the magic fiddle extension.
+
+- name: pluginPath
+  type: STRING
+  value: etc/ext/magicfiddle/plugin_magicfiddle.sh
+- name: pluginMethod
+  type: STRING
+  value: _listen
 - name: eventType
   type: STRING
   value: TeleportArrivalEvent
 - name: localized
   type: BOOLEAN
   value: true
-- name: scriptContent
-  type: STRING
-  value: |
-    payload = parseJson(arg0)
-
-    runAsExtension()
-    exec(["POSE", "The magic fiddle plays a ditty as ${payload.player} arrives."])
-    return null
