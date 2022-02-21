@@ -17,6 +17,7 @@ import xyz.deszaras.grounds.api.method.ApiMethodContext;
 import xyz.deszaras.grounds.api.method.ApiMethodFactory;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandExecutor;
+import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Player;
 
 /**
@@ -102,7 +103,8 @@ class ApiHandler implements Runnable {
 
         Actor actor = callInfo.get().getActor();
         Player caller = callInfo.get().getCaller();
-        ApiMethodContext ctx = new ApiMethodContext(actor, caller, commandExecutor);
+        Extension extension = callInfo.get().getExtension();
+        ApiMethodContext ctx = new ApiMethodContext(actor, caller, extension, commandExecutor);
 
         Optional<ApiMethod> apiMethodOpt =
             apiMethodFactory.getApiMethod(request.getMethod());

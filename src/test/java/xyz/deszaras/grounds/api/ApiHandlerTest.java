@@ -19,6 +19,7 @@ import xyz.deszaras.grounds.api.method.ApiMethodContext;
 import xyz.deszaras.grounds.api.method.ApiMethodFactory;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandExecutor;
+import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Player;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
@@ -36,6 +37,7 @@ public class ApiHandlerTest {
 
   private Actor actor;
   private Player caller;
+  private Extension extension;
 
   private ApiHandler handler;
 
@@ -44,8 +46,9 @@ public class ApiHandlerTest {
     pluginCallTracker = new PluginCallTracker();
     actor = mock(Actor.class);
     caller = mock(Player.class);
+    extension = mock(Extension.class);
     pluginCallTracker.track(PLUGIN_CALL_ID,
-                            new PluginCallTracker.PluginCallInfo(actor, caller));
+                            new PluginCallTracker.PluginCallInfo(actor, caller, extension));
 
     apiMethodFactory = mock(ApiMethodFactory.class);
     commandExecutor = mock(CommandExecutor.class);

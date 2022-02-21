@@ -78,7 +78,7 @@ public class PluginCallable implements Callable<String> {
 
     // Establish tracking for the call.
     PluginCallTracker.PluginCallInfo info =
-        new PluginCallTracker.PluginCallInfo(actor, player);
+        new PluginCallTracker.PluginCallInfo(actor, player, pluginCall.getExtension());
     // TBD: Include extension in tracked info?
     pluginCall.getPluginCallTracker().track(pluginCallId, info);
 

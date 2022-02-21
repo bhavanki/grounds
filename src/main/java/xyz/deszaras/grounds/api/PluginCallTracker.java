@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import xyz.deszaras.grounds.command.Actor;
+import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Player;
 
 /**
@@ -60,17 +61,19 @@ class PluginCallTracker {
   static class PluginCallInfo {
     private final Actor actor;
     private final Player caller;
-    // TBD extension
+    private final Extension extension;
 
     /**
      * Creates a new object.
      *
-     * @param actor  actor
-     * @param caller caller
+     * @param actor     actor
+     * @param caller    caller
+     * @param extension extension
      */
-    PluginCallInfo(Actor actor, Player caller) {
+    PluginCallInfo(Actor actor, Player caller, Extension extension) {
       this.actor = actor;
       this.caller = caller;
+      this.extension = extension;
     }
 
     /**
@@ -89,6 +92,15 @@ class PluginCallTracker {
      */
     Player getCaller() {
       return caller;
+    }
+
+    /**
+     * Gets the extension.
+     *
+     * @return extension
+     */
+    Extension getExtension() {
+      return extension;
     }
   }
 }
