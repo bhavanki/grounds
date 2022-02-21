@@ -81,4 +81,9 @@ public class PluginCall {
   public PluginCallTracker getPluginCallTracker() {
     return pluginCallTracker;
   }
+
+  @Override
+  public String toString() {
+    return String.format("%s::%s", pluginPath, method);
+  }
 }

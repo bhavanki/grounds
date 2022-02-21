@@ -101,23 +101,25 @@ public class PluginCallable implements Callable<String> {
       pluginExitCode = pluginProcess.waitFor();
       // TBD: timeout
     } catch (InterruptedException e) {
-      LOG.error("Interrupted waiting for plugin for {} in extension {}", player.getName(),
-                pluginCall.getExtension().getId(), e);
-      throw new CommandException("Interrupted waiting for plugin in extension " +
-                                 pluginCall.getExtension().getId().toString(), e);
+      LOG.error("Interrupted waiting for plugin call {} in extension {} for {}",
+                pluginCall.toString(), pluginCall.getExtension().getId(), player.getName(), e);
+      throw new CommandException("Interrupted waiting for plugin call " + pluginCall.toString() +
+                                 " in extension " +  pluginCall.getExtension().getId().toString(),
+                                 e);
     } catch (IOException e) {
-      LOG.error("Failed to run plugin for {} in extension {}", player.getName(),
-                pluginCall.getExtension().getId(), e);
-      throw new CommandException("Failed to run plugin in extension " +
-                                 pluginCall.getExtension().getId().toString(), e);
+      LOG.error("Failed to execute plugin call {} in extension {} for {}",
+                pluginCall.toString(), pluginCall.getExtension().getId(), player.getName(), e);
+      throw new CommandException("Failed to execute plugin call " + pluginCall.toString() +
+                                 " in extension " + pluginCall.getExtension().getId().toString(),
+                                 e);
     } finally {
       pluginCall.getPluginCallTracker().untrack(pluginCallId);
     }
 
     // Does this actually matter?
     if (pluginExitCode != 0) {
-      LOG.warn("Plugin for {} in extension {} returned exit code {}",
-               player.getName(), pluginCall.getExtension().getId(),
+      LOG.warn("Plugin call {} in extension {} for {} returned exit code {}",
+               pluginCall.toString(), pluginCall.getExtension().getId(), player.getName(),
                pluginExitCode);
     }
 
@@ -128,8 +130,8 @@ public class PluginCallable implements Callable<String> {
       }
       return result;
     }
-    LOG.error("Plugin for {} in extension {} returned an error: [{}] {}",
-              player.getName(), pluginCall.getExtension().getId(),
+    LOG.error("Plugin call {} in extension {} for {} returned an error: [{}] {}",
+              pluginCall.toString(), pluginCall.getExtension().getId(), player.getName(),
               response.getError().getCode(),
               response.getError().getMessage());
     throw new CommandException("Plugin error: " +
