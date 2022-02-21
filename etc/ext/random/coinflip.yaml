@@ -1,18 +1,10 @@
-- name: scriptContent
+- name: pluginPath
   type: STRING
-  value: |
-    result = new Random().nextInt(2)
-    callerName = getCallerName()
-    switch (result) {
-      case 0:
-        exec(["POSE", "${callerName} flips a coin: heads"])
-        break;
-      case 1:
-        exec(["POSE", "${callerName} flips a coin: tails"])
-        break;
-    }
-    return null
-- name: scriptHelp
+  value: etc/ext/random/plugin_random.sh
+- name: pluginMethod
+  type: STRING
+  value: coinflip
+- name: commandHelp
   type: ATTRLIST
   value: |
     - name: $COINFLIP
