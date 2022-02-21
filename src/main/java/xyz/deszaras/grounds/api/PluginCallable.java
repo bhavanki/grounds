@@ -71,10 +71,10 @@ public class PluginCallable implements Callable<String> {
     // Construct request parameters.
     String pluginCallId = UUID.randomUUID().toString();
     Map<String, Object> requestParameters = new HashMap<>();
-    requestParameters.put(ApiRequestParameters.PLUGIN_CALL_ID, pluginCallId);
-    requestParameters.put(ApiRequestParameters.EXTENSION_ID,
+    requestParameters.put(PluginCallRequestParameters.PLUGIN_CALL_ID, pluginCallId);
+    requestParameters.put(PluginCallRequestParameters.EXTENSION_ID,
                           pluginCall.getExtension().getId().toString());
-    requestParameters.put(ApiRequestParameters.PLUGIN_CALL_ARGUMENTS, arguments);
+    requestParameters.put(PluginCallRequestParameters.PLUGIN_CALL_ARGUMENTS, arguments);
 
     // Establish tracking for the call.
     PluginCallTracker.PluginCallInfo info =
