@@ -164,6 +164,21 @@ public class CommandFactory {
     return ScriptedCommand.newCommand(actor, player, script, scriptArguments);
   }
 
+  public PluginCallCommand newPluginCallCommand(Actor actor, Player player, Attr pluginCallAttr,
+                                                Extension extension, List<String> pluginCallArguments)
+      throws CommandFactoryException {
+    if (apiServer == null) {
+      throw new CommandFactoryException("API server is not available");
+    }
+    try {
+      PluginCall pluginCall = new PluginCallFactory()
+          .newPluginCall(pluginCallAttr, extension, apiServer.getPluginCallTracker());
+      return PluginCallCommand.newCommand(actor, player, pluginCall, pluginCallArguments);
+    } catch (PluginCallFactoryException e) {
+      throw new CommandFactoryException("Failed to create plugin call for command", e);
+    }
+  }
+
   /**
    * Finds a plugin call for the given command name among the extensions in the
    * universe.

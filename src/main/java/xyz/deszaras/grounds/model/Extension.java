@@ -18,7 +18,9 @@ import xyz.deszaras.grounds.auth.Policy;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandExecutor;
+import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.command.Event;
+import xyz.deszaras.grounds.command.PluginCallCommand;
 import xyz.deszaras.grounds.command.ScriptedCommand;
 import xyz.deszaras.grounds.script.Script;
 import xyz.deszaras.grounds.script.ScriptFactory;
@@ -72,9 +74,9 @@ public class Extension extends Player {
   /**
    * Handles an event sent from the command event bus.
    *
-   * @param event event to handle
-   * @param scriptFactory script factor used to build each listener attribute script
-   * @param commandExecutor command executor for resulting scripted commands
+   * @param event           event to handle
+   * @param scriptFactory   script factory used to build each listener attribute script
+   * @param commandExecutor command executor for resulting commands
    */
   @VisibleForTesting
   void handle(Event event, ScriptFactory scriptFactory, CommandExecutor commandExecutor) {
@@ -125,20 +127,34 @@ public class Extension extends Player {
         }
       }
 
-      // Create a scripted command for the listener attribute's script. Pass the
-      // augmented event payload JSON string as the sole argument. Then, submit
-      // the command to be run later. This is asynchronous, so this handler
-      // should return reasonably quickly.
-      try {
-        Script listenerScript = scriptFactory.newScript(a, this);
-        ScriptedCommand command =
-            new ScriptedCommand(Actor.INTERNAL, this, listenerScript,
-                                List.of(event.getAugmentedPayloadJsonString()));
-        LOG.debug("Submitting scripted command for listener {}", a.getName());
-        commandExecutor.submit(command);
-      } catch (ScriptFactoryException e) {
-        LOG.error("Failed to create script for listener attribute {} on {}",
-                  a.getName(), getName(), e);
+      // Create a plugin call command or scripted command for the listener
+      // attribute. Pass the augmented event payload JSON string as the sole
+      // argument. Then, submit the command to be run later. This is
+      // asynchronous, so this handler should return reasonably quickly.
+      // temporary: look for "pluginMethod" to distinguish this from a script
+      if (a.getAttrInAttrListValue("pluginMethod").isPresent()) {
+        try {
+          PluginCallCommand command = commandExecutor.getCommandFactory()
+              .newPluginCallCommand(Actor.INTERNAL, this, a, this,
+                                    List.of(event.getAugmentedPayloadJsonString()));
+          LOG.debug("Submitting plugin call command for listener {}", a.getName());
+          commandExecutor.submit(command);
+        } catch (CommandFactoryException e) {
+          LOG.error("Failed to create plugin call command for listener attribute {} on {}",
+                    a.getName(), getName(), e);
+        }
+      } else {
+        try {
+          Script listenerScript = scriptFactory.newScript(a, this);
+          ScriptedCommand command =
+              new ScriptedCommand(Actor.INTERNAL, this, listenerScript,
+                                  List.of(event.getAugmentedPayloadJsonString()));
+          LOG.debug("Submitting scripted command for listener {}", a.getName());
+          commandExecutor.submit(command);
+        } catch (ScriptFactoryException e) {
+          LOG.error("Failed to create script for listener attribute {} on {}",
+                    a.getName(), getName(), e);
+        }
       }
     }
   }
