@@ -186,10 +186,11 @@ public class CommandFactory {
     Extension pluginCallExtension = null;
     // this is inefficient :(
     for (Extension extension : Universe.getCurrent().getThings(Extension.class)) {
-      pluginCallAttr = extension.getAttr(commandName, Attr.Type.ATTRLIST);
-      if (pluginCallAttr.isPresent() &&
-          // temporary: look for "commandMethod" to distinguish this from a script
-          pluginCallAttr.get().getAttrInAttrListValue("commandMethod").isPresent()) {
+      Optional<Attr> extPluginCallAttr = extension.getAttr(commandName, Attr.Type.ATTRLIST);
+      if (extPluginCallAttr.isPresent() &&
+          // temporary: look for "pluginMethod" to distinguish this from a script
+          extPluginCallAttr.get().getAttrInAttrListValue("pluginMethod").isPresent()) {
+        pluginCallAttr = extPluginCallAttr;
         pluginCallExtension = extension;
         break;
       }
