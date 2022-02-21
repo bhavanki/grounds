@@ -157,6 +157,25 @@ public class JsonRpcRequest {
   }
 
   /**
+   * Gets a parameter value from this request as a Boolean.
+   *
+   * @param  name parameter name
+   * @return      parameter value
+   * @throws ClassCastException if the value is not a Boolean
+   */
+  @JsonIgnore
+  public Optional<Boolean> getBooleanParameter(String name) {
+    return Optional.ofNullable(parameters.get(name))
+        .map(o -> {
+          if (!(o instanceof Boolean)) {
+            throw new ClassCastException("Value of parameter " + name + " is not a Boolean");
+          }
+          return (Boolean) o;
+        });
+  }
+
+
+  /**
    * Gets this request's ID.
    *
    * @return request ID (may be null)

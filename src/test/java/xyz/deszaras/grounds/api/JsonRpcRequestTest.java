@@ -22,7 +22,8 @@ public class JsonRpcRequestTest {
     req = new JsonRpcRequest("method1",
                              ImmutableMap.of("key1", "value1",
                                              "key2", "value2",
-                                             "key3", List.of("value3a", "value3b")),
+                                             "key3", List.of("value3a", "value3b"),
+                                             "key4", true),
                              "id1");
 
     assertEquals("2.0", req.getJsonrpc());
@@ -32,15 +33,18 @@ public class JsonRpcRequestTest {
     assertEquals("value1", req.getParameter("key1").get());
     assertEquals("value2", req.getParameter("key2").get());
     assertEquals(List.of("value3a", "value3b"), req.getParameter("key3").get());
+    assertEquals(true, req.getParameter("key4").get());
 
     assertEquals("value1", req.getStringParameter("key1").get());
     assertEquals(List.of("value3a", "value3b"), req.getStringListParameter("key3").get());
+    assertEquals(true, req.getBooleanParameter("key4").get());
 
     Map params = req.getParameters();
-    assertEquals(3, params.size());
+    assertEquals(4, params.size());
     assertEquals("value1", params.get("key1"));
     assertEquals("value2", params.get("key2"));
     assertEquals(List.of("value3a", "value3b"), params.get("key3"));
+    assertEquals(true, params.get("key4"));
   }
 
   @Test
@@ -48,7 +52,8 @@ public class JsonRpcRequestTest {
     req = new JsonRpcRequest("method",
                              ImmutableMap.of("key1", "value1",
                                              "key2", "value2",
-                                             "key3", List.of("value3a", "value3b")));
+                                             "key3", List.of("value3a", "value3b"),
+                                             "key4", true));
     assertNotNull(req.getId());
   }
 
@@ -57,7 +62,8 @@ public class JsonRpcRequestTest {
     req = new JsonRpcRequest("method1",
                              ImmutableMap.of("key1", "value1",
                                              "key2", "value2",
-                                             "key3", List.of("value3a", "value3b")),
+                                             "key3", List.of("value3a", "value3b"),
+                                             "key4", true),
                              "id1");
     String json = OBJECT_MAPPER.writeValueAsString(req);
 
