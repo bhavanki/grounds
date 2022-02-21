@@ -26,6 +26,8 @@ class ExecCommand implements ApiMethod {
                                  request.getId());
     }
 
+    boolean asExtension = request.getBooleanParameter("asExtension").orElse(Boolean.FALSE);
+
     // Note that command execution occurs directly, and isn't submitted to the
     // command executor. This is because there should already be a plugin
     // command running, so this command needs to run as part of that, and cannot
@@ -33,7 +35,8 @@ class ExecCommand implements ApiMethod {
     CommandResult result;
     try {
       Command commandToExecute = ctx.getCommandExecutor()
-          .getCommandFactory().getCommand(ctx.getActor(), ctx.getCaller(),
+          .getCommandFactory().getCommand(ctx.getActor(),
+                                          asExtension ? ctx.getExtension() : ctx.getCaller(),
                                           commandLine);
       CommandCallable callable =
           new CommandCallable(commandToExecute, ctx.getCommandExecutor());
