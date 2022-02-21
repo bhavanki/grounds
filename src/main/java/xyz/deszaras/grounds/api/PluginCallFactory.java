@@ -19,7 +19,7 @@ public class PluginCallFactory {
 
   // FUTURE: plugin domain socket
 
-  private static final String METHOD = "commandMethod";
+  private static final String METHOD = "pluginMethod";
 
   private static final String HELP = "commandHelp";
 
@@ -28,7 +28,7 @@ public class PluginCallFactory {
    * attribute must be of type ATTRLIST. Valid attrs in the list value are:<p>
    * <ul>
    * <li>"pluginPath" (string) = path to plugin to run</li>
-   * <li>"commandMethod" (string) = JSON-RPC method to call</li>
+   * <li>"pluginMethod" (string) = JSON-RPC method to call</li>
    * <li>"commandHelp" (attrlist) = help text</li>
    * </ul>
    *
@@ -55,16 +55,16 @@ public class PluginCallFactory {
                      a.getType() == Attr.Type.STRING)
         .findFirst();
     if (pathAttr.isEmpty()) {
-      throw new PluginCallFactoryException("Plugin call attribute is missing pluginPath");
+      throw new PluginCallFactoryException("Plugin call attribute is missing " + PATH);
     }
 
-    // Get the method from the commandMethod attribute.
+    // Get the method from the pluginMethod attribute.
     Optional<Attr> methodAttr = attrs.stream()
         .filter(a -> a.getName().equals(METHOD) &&
                      a.getType() == Attr.Type.STRING)
         .findFirst();
     if (methodAttr.isEmpty()) {
-      throw new PluginCallFactoryException("Plugin call attribute is missing commandMethod");
+      throw new PluginCallFactoryException("Plugin call attribute is missing " + METHOD);
     }
 
     // Get the help text from the commandHelp attribute.
