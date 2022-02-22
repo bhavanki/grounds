@@ -90,7 +90,7 @@ public class ApiHandlerTest {
 
     assertEquals("ping", apiMethod.request.getMethod());
     assertEquals(Optional.of(PLUGIN_CALL_ID),
-                 apiMethod.request.getStringParameter(ApiRequestParameters.PLUGIN_CALL_ID));
+                 apiMethod.request.getStringParam(ApiRequestParameters.PLUGIN_CALL_ID));
     assertEquals(REQUEST_ID, apiMethod.request.getId());
 
     assertEquals(actor, apiMethod.ctx.getActor());

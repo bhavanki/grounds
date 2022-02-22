@@ -45,7 +45,7 @@ jsonrpc() {
 {
   "jsonrpc" : "2.0",
   "method" : "${method}",
-  "parameters" : {
+  "params" : {
 ${param_block}
     "_plugin_call_id" : "${plugin_call_id}"
   },
@@ -126,7 +126,7 @@ BALL_RESPONSES=(
 read -r -d '' REQUEST
 
 METHOD=$(echo "$REQUEST" | jq -r '.method' -)
-PLUGIN_CALL_ID=$(echo "$REQUEST" | jq -r '.parameters._plugin_call_id' -)
+PLUGIN_CALL_ID=$(echo "$REQUEST" | jq -r '.params._plugin_call_id' -)
 REQUEST_ID=$(echo "$REQUEST" | jq -r '.id' -)
 
 CALLER_NAME_RESPONSE=$(jsonrpc "${PLUGIN_CALL_ID}" getCallerName)
@@ -149,7 +149,7 @@ case $METHOD in
     POSE_CONTENT="${CALLER_NAME} shakes the magic eight ball: ${BALL_RESPONSES[$INDEX]}"
     ;;
   roll)
-    readarray -t PLUGIN_CALL_ARGUMENTS < <(echo "$REQUEST" | jq -r '.parameters._plugin_call_arguments[]')
+    readarray -t PLUGIN_CALL_ARGUMENTS < <(echo "$REQUEST" | jq -r '.params._plugin_call_arguments[]')
     if (( ${#PLUGIN_CALL_ARGUMENTS[@]} != 1 )); then
       respond_error "${INVALID_PARAMETERS}" "Missing roll-type argument" "$REQUEST_ID"
     fi

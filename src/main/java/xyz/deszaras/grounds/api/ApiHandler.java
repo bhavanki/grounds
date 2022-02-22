@@ -84,7 +84,7 @@ class ApiHandler implements Runnable {
         }
 
         Optional<Object> pluginCallId =
-            request.getParameter(ApiRequestParameters.PLUGIN_CALL_ID);
+            request.getParam(ApiRequestParameters.PLUGIN_CALL_ID);
         if (pluginCallId.isEmpty()) {
           response = new JsonRpcResponse(new ErrorObject(JsonRpcErrorCodes.INVALID_PARAMETERS,
                                                          ERROR_MISSING_PLUGIN_CALL_ID),

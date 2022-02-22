@@ -30,16 +30,16 @@ public class JsonRpcRequestTest {
     assertEquals("method1", req.getMethod());
     assertEquals("id1", req.getId());
 
-    assertEquals("value1", req.getParameter("key1").get());
-    assertEquals("value2", req.getParameter("key2").get());
-    assertEquals(List.of("value3a", "value3b"), req.getParameter("key3").get());
-    assertEquals(true, req.getParameter("key4").get());
+    assertEquals("value1", req.getParam("key1").get());
+    assertEquals("value2", req.getParam("key2").get());
+    assertEquals(List.of("value3a", "value3b"), req.getParam("key3").get());
+    assertEquals(true, req.getParam("key4").get());
 
-    assertEquals("value1", req.getStringParameter("key1").get());
-    assertEquals(List.of("value3a", "value3b"), req.getStringListParameter("key3").get());
-    assertEquals(true, req.getBooleanParameter("key4").get());
+    assertEquals("value1", req.getStringParam("key1").get());
+    assertEquals(List.of("value3a", "value3b"), req.getStringListParam("key3").get());
+    assertEquals(true, req.getBooleanParam("key4").get());
 
-    Map params = req.getParameters();
+    Map params = req.getParams();
     assertEquals(4, params.size());
     assertEquals("value1", params.get("key1"));
     assertEquals("value2", params.get("key2"));
@@ -70,7 +70,7 @@ public class JsonRpcRequestTest {
     JsonRpcRequest req2 = OBJECT_MAPPER.readValue(json, JsonRpcRequest.class);
 
     assertEquals(req.getMethod(), req2.getMethod());
-    assertEquals(req.getParameters(), req2.getParameters());
+    assertEquals(req.getParams(), req2.getParams());
     assertEquals(req.getId(), req2.getId());
   }
 }

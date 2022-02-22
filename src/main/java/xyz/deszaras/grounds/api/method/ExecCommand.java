@@ -19,14 +19,14 @@ class ExecCommand implements ApiMethod {
   public JsonRpcResponse call(JsonRpcRequest request, ApiMethodContext ctx) {
     List<String> commandLine;
     try {
-      commandLine = request.getStringListParameter("commandLine")
-          .orElseThrow(() -> new IllegalArgumentException("Parameter commandLine missing"));
+      commandLine = request.getStringListParam("commandLine")
+          .orElseThrow(() -> new IllegalArgumentException("Param commandLine missing"));
     } catch (IllegalArgumentException | ClassCastException e) {
       return new JsonRpcResponse(new ErrorObject(12345, e.getMessage()),
                                  request.getId());
     }
 
-    boolean asExtension = request.getBooleanParameter("asExtension").orElse(Boolean.FALSE);
+    boolean asExtension = request.getBooleanParam("asExtension").orElse(Boolean.FALSE);
 
     // Note that command execution occurs directly, and isn't submitted to the
     // command executor. This is because there should already be a plugin

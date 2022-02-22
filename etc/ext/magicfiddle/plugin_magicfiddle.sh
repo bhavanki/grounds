@@ -51,7 +51,7 @@ jsonrpc() {
 {
   "jsonrpc" : "2.0",
   "method" : "${method}",
-  "parameters" : {
+  "params" : {
 ${param_block}
     "_plugin_call_id" : "${plugin_call_id}"
   },
@@ -109,14 +109,14 @@ EOF
 read -r -d '' REQUEST
 
 METHOD=$(echo "$REQUEST" | jq -r '.method' -)
-PLUGIN_CALL_ID=$(echo "$REQUEST" | jq -r '.parameters._plugin_call_id' -)
+PLUGIN_CALL_ID=$(echo "$REQUEST" | jq -r '.params._plugin_call_id' -)
 REQUEST_ID=$(echo "$REQUEST" | jq -r '.id' -)
 
 if [[ $METHOD != "_listen" ]]; then
   respond_error "$METHOD_NOT_FOUND" "Unrecognized method ${METHOD}" "$REQUEST_ID"
 fi
 
-readarray -t PLUGIN_CALL_ARGUMENTS < <(echo "$REQUEST" | jq -r '.parameters._plugin_call_arguments[]')
+readarray -t PLUGIN_CALL_ARGUMENTS < <(echo "$REQUEST" | jq -r '.params._plugin_call_arguments[]')
 if (( ${#PLUGIN_CALL_ARGUMENTS[@]} != 1 )); then
   respond_error "${INVALID_PARAMETERS}" "Missing payload argument" "$REQUEST_ID"
 fi
