@@ -2,6 +2,7 @@ package xyz.deszaras.grounds.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
@@ -55,6 +56,22 @@ public class JsonRpcRequestTest {
                                              "key3", List.of("value3a", "value3b"),
                                              "key4", true));
     assertNotNull(req.getId());
+  }
+
+  @Test
+  public void testIntegerId() {
+    req = new JsonRpcRequest("method1",
+                             ImmutableMap.of("key1", "value1"),
+                             1234);
+    assertEquals(1234, ((Integer) req.getId()).intValue());
+  }
+
+  @Test
+  public void testInvalidId() {
+    assertThrows(IllegalArgumentException.class,
+                 () -> new JsonRpcRequest("method1",
+                                          ImmutableMap.of("key1", "value1"),
+                                          Boolean.TRUE));
   }
 
   @Test

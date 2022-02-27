@@ -7,6 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -49,6 +52,19 @@ public class JsonRpcResponseTest {
   }
 
   @Test
+  public void testIntegerId() {
+    res = new JsonRpcResponse("OK", 1234);
+
+    assertEquals(1234, ((Integer) res.getId()).intValue());
+  }
+
+  @Test
+  public void testInvalidId() {
+    assertThrows(IllegalArgumentException.class,
+                 () -> new JsonRpcResponse("OK", Boolean.TRUE));
+  }
+
+  @Test
   public void testJsonNoError() throws Exception {
     res = new JsonRpcResponse("OK", "id1");
     String json = OBJECT_MAPPER.writeValueAsString(res);
@@ -56,6 +72,19 @@ public class JsonRpcResponseTest {
     JsonRpcResponse res2 = OBJECT_MAPPER.readValue(json, JsonRpcResponse.class);
 
     assertEquals(res.getResult(), res2.getResult());
+    assertEquals(res.getId(), res2.getId());
+    assertNull(res.getError());
+  }
+
+  @Test
+  public void testJsonNoErrorWithMapResult() throws Exception {
+    Map<String, String> result = ImmutableMap.of("foo", "bar");
+    res = new JsonRpcResponse(result, "id1");
+    String json = OBJECT_MAPPER.writeValueAsString(res);
+
+    JsonRpcResponse res2 = OBJECT_MAPPER.readValue(json, JsonRpcResponse.class);
+
+    assertEquals(result, res2.getResult());
     assertEquals(res.getId(), res2.getId());
     assertNull(res.getError());
   }

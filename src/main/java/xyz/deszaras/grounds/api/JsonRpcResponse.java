@@ -1,20 +1,22 @@
 package xyz.deszaras.grounds.api;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 // https://www.jsonrpc.org/specification
 /**
- * A JSON RPC 2.0 response. Result values must be strings.
+ * A JSON RPC 2.0 response.
  */
 public class JsonRpcResponse {
 
   private static final String JSON_RPC_VERSION = "2.0";
 
-  private final String result;
+  private final Object result;
   private final ErrorObject error;
-  private final String id;
+  private final Object id;
 
   /**
    * Creates a new response.
@@ -27,9 +29,9 @@ public class JsonRpcResponse {
   @JsonCreator
   public JsonRpcResponse(
     @JsonProperty(value="jsonrpc", required=true) String jsonrpc,
-    @JsonProperty("result") String result,
+    @JsonProperty("result") Object result,
     @JsonProperty("error") ErrorObject error,
-    @JsonProperty("id") String id) {
+    @JsonProperty("id") Object id) {
     if (!JSON_RPC_VERSION.equals(jsonrpc)) {
       throw new IllegalArgumentException("Invalid jsonrpc value " + jsonrpc);
     }
@@ -37,6 +39,9 @@ public class JsonRpcResponse {
     this.error = error;
     if ((result == null) == (error == null)) {
       throw new IllegalArgumentException("Exactly one of result or error must be given");
+    }
+    if (id != null && !(id instanceof String || id instanceof Number)) {
+      throw new IllegalArgumentException("id must be string or number");
     }
     this.id = id;
   }
@@ -47,7 +52,7 @@ public class JsonRpcResponse {
    * @param  result  response result
    * @param  id      request ID (optional)
    */
-  public JsonRpcResponse(String result, String id) {
+  public JsonRpcResponse(Object result, Object id) {
     this(JSON_RPC_VERSION, result, null, id);
   }
 
@@ -57,7 +62,7 @@ public class JsonRpcResponse {
    * @param  error   response error
    * @param  id      request ID (optional)
    */
-  public JsonRpcResponse(ErrorObject error, String id) {
+  public JsonRpcResponse(ErrorObject error, Object id) {
     this(JSON_RPC_VERSION, null, error, id);
   }
 
@@ -77,7 +82,8 @@ public class JsonRpcResponse {
    * @return response result
    */
   @JsonProperty
-  public String getResult() {
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public Object getResult() {
     return result;
   }
 
@@ -87,6 +93,7 @@ public class JsonRpcResponse {
    * @return response error
    */
   @JsonProperty
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   public ErrorObject getError() {
     return error;
   }
@@ -97,7 +104,7 @@ public class JsonRpcResponse {
    * @return response id
    */
   @JsonProperty
-  public String getId() {
+  public Object getId() {
     return id;
   }
 
@@ -114,6 +121,7 @@ public class JsonRpcResponse {
   /**
    * Error information for a response.
    */
+  @JsonIgnoreProperties(ignoreUnknown=true) // for data
   public static class ErrorObject {
 
     private final int code;

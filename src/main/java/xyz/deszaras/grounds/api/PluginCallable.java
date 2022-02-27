@@ -124,7 +124,20 @@ public class PluginCallable implements Callable<String> {
     }
 
     if (response.isSuccessful()) {
-      String result = response.getResult();
+      Object resultObj = response.getResult();
+      if (resultObj == null) {
+        return null;
+      }
+      if (!(resultObj instanceof String)) {
+        LOG.error("Plugin call {} in extension {} for {} returned result of type {}",
+                  pluginCall.toString(), pluginCall.getExtension().getId(), player.getName(),
+                  resultObj.getClass().toString());
+        throw new CommandException("Plugin call " + pluginCall.toString() +
+                                   " in extension " + pluginCall.getExtension().getId() +
+                                   " returned result of type " + resultObj.getClass().toString());
+      }
+
+      String result = (String) resultObj;
       if (result.isEmpty()) {
         return null;
       }

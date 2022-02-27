@@ -75,7 +75,7 @@ class ApiHandler implements Runnable {
           break handling;
         }
 
-        String jsonRpcId = request.getId();
+        Object jsonRpcId = request.getId();
         if (jsonRpcId == null) {
           response = new JsonRpcResponse(new ErrorObject(JsonRpcErrorCodes.INVALID_REQUEST,
                                                          ERROR_MISSING_JSON_RPC_ID),

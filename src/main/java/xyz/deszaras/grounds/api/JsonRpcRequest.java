@@ -24,7 +24,7 @@ public class JsonRpcRequest {
 
   private final String method;
   private final Map<String, Object> params;
-  private final String id;
+  private final Object id;
 
   /**
    * Creates a new request.
@@ -39,13 +39,16 @@ public class JsonRpcRequest {
     @JsonProperty(value="jsonrpc", required=true) String jsonrpc,
     @JsonProperty(value="method", required=true) String method,
     @JsonProperty("params") Map<String, Object> params,
-    @JsonProperty("id") String id) {
+    @JsonProperty("id") Object id) {
     if (!JSON_RPC_VERSION.equals(jsonrpc)) {
       throw new IllegalArgumentException("Invalid jsonrpc value " + jsonrpc);
     }
     this.method = Objects.requireNonNull(method);
     this.params = params != null ?
         new HashMap<>(params) : new HashMap<>();
+    if (id != null && !(id instanceof String || id instanceof Number)) {
+      throw new IllegalArgumentException("id must be string or number");
+  }
     this.id = id;
   }
 
@@ -57,7 +60,7 @@ public class JsonRpcRequest {
    * @param  id     request ID (optional)
    */
   public JsonRpcRequest(String method, Map<String, Object> params,
-                        String id) {
+                        Object id) {
     this(JSON_RPC_VERSION, method, params, id);
   }
 
@@ -181,7 +184,7 @@ public class JsonRpcRequest {
    * @return request ID (may be null)
    */
   @JsonProperty
-  public String getId() {
+  public Object getId() {
     return id;
   }
 }
