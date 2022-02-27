@@ -6,6 +6,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -63,6 +64,8 @@ class ApiHandler implements Runnable {
         return;
       }
 
+      LOG.debug("API request: {}", new String(readBuffer.array(), StandardCharsets.UTF_8));
+
       JsonRpcResponse response;
       handling: { // https://docs.oracle.com/javase/specs/jls/se7/html/jls-14.html#jls-14.15
         JsonRpcRequest request;
@@ -119,6 +122,7 @@ class ApiHandler implements Runnable {
       } // end handling block
 
       byte[] responseBytes = OBJECT_MAPPER.writeValueAsBytes(response);
+      LOG.debug("API response: {}", new String(responseBytes, StandardCharsets.UTF_8));
       channel.write(ByteBuffer.wrap(responseBytes));
     } catch (IOException e) {
       LOG.error("Failed to process API call", e);
