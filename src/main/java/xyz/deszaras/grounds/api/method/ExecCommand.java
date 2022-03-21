@@ -2,6 +2,7 @@ package xyz.deszaras.grounds.api.method;
 
 import java.util.List;
 
+import xyz.deszaras.grounds.api.JsonRpcErrorCodes;
 import xyz.deszaras.grounds.api.JsonRpcRequest;
 import xyz.deszaras.grounds.api.JsonRpcResponse;
 import xyz.deszaras.grounds.api.JsonRpcResponse.ErrorObject;
@@ -18,15 +19,16 @@ class ExecCommand implements ApiMethod {
   @Override
   public JsonRpcResponse call(JsonRpcRequest request, ApiMethodContext ctx) {
     List<String> commandLine;
+    boolean asExtension;
     try {
-      commandLine = request.getStringListParam("commandLine")
-          .orElseThrow(() -> new IllegalArgumentException("Param commandLine missing"));
-    } catch (IllegalArgumentException | ClassCastException e) {
-      return new JsonRpcResponse(new ErrorObject(12345, e.getMessage()),
+      commandLine = ApiMethodUtils.getRequiredStringListParam(request, "commandLine");
+      asExtension = ApiMethodUtils.getBooleanParam(request, "asExtension", false);
+    } catch (IllegalArgumentException e) {
+      return new JsonRpcResponse(new ErrorObject(JsonRpcErrorCodes.INVALID_PARAMETERS,
+                                                 e.getMessage()),
                                  request.getId());
     }
 
-    boolean asExtension = request.getBooleanParam("asExtension").orElse(Boolean.FALSE);
 
     // Note that command execution occurs directly, and isn't submitted to the
     // command executor. This is because there should already be a plugin
