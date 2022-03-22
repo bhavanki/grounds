@@ -29,30 +29,45 @@ class ExecMethod implements ApiMethod {
                                  request.getId());
     }
 
+    CommandResult result = exec(commandLine, asExtension, ctx);
 
-    // Note that command execution occurs directly, and isn't submitted to the
-    // command executor. This is because there should already be a plugin
-    // command running, so this command needs to run as part of that, and cannot
-    // wait until the plugin command completes.
-    CommandResult result;
+    if (result.isSuccessful()) {
+      return new JsonRpcResponse(result.getResult().toString(),
+                                 request.getId());
+    } else {
+      return new JsonRpcResponse(new ErrorObject(JsonRpcErrorCodes.INTERNAL_ERROR,
+                                                 result.getFailureMessageText()),
+                                 request.getId());
+    }
+  }
+
+  /**
+   * Executes a command, returning its result. Note that command execution
+   * occurs directly, and isn't submitted to the command executor. This is
+   * because there should already be a plugin command running, so this command
+   * needs to run as part of that, and cannot wait until the plugin command
+   * completes.<p>
+   *
+   * This method is broken out so that other API commands can use it easily.
+   *
+   * @param  commandLine command line to execute
+   * @param  asExtension whether to execute the command as an extension
+   * @param  ctx         API method contest
+   * @return command result
+   */
+  public static CommandResult exec(List<String> commandLine, boolean asExtension,
+                                   ApiMethodContext ctx) {
     try {
+      // FIXME add type safety
       Command commandToExecute = ctx.getCommandExecutor()
           .getCommandFactory().getCommand(ctx.getActor(),
                                           asExtension ? ctx.getExtension() : ctx.getCaller(),
                                           commandLine);
       CommandCallable callable =
           new CommandCallable(commandToExecute, ctx.getCommandExecutor());
-      result = callable.call();
+      return callable.call();
     } catch (CommandFactoryException e) {
-      result = new CommandResult(e);
-    }
-
-    if (result.isSuccessful()) {
-      return new JsonRpcResponse(result.getResult().toString(),
-                                 request.getId());
-    } else {
-      return new JsonRpcResponse(new ErrorObject(1234, result.getFailureMessageText()),
-                                 request.getId());
+      return new CommandResult(e);
     }
   }
 }
