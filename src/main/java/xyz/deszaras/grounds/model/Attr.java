@@ -51,7 +51,7 @@ public final class Attr {
   private final Type type;
 
   @JsonCreator
-  private Attr(
+  public Attr(
       @JsonProperty("name") String name,
       @JsonProperty("value") String value,
       @JsonProperty("type") Type type) {

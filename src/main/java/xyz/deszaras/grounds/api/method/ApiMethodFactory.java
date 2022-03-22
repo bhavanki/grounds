@@ -15,7 +15,12 @@ public class ApiMethodFactory {
   static {
     METHODS = ImmutableMap.<String, ApiMethod>builder()
         .put("exec", new ExecMethod())
+        .put("getAttr", new GetAttrMethod())
+        .put("getAttrNames", new GetAttrNamesMethod())
         .put("getCallerName", new GetCallerNameMethod())
+        .put("getCallerTimezone", new GetCallerTimezoneMethod())
+        .put("removeAttr", new RemoveAttrMethod())
+        .put("setAttr", new SetAttrMethod())
         .build();
   }
 
