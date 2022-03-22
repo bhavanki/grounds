@@ -14,8 +14,8 @@ public class ApiMethodFactory {
 
   static {
     METHODS = ImmutableMap.<String, ApiMethod>builder()
-        .put("exec", new ExecCommand())
-        .put("getCallerName", new GetCallerNameCommand())
+        .put("exec", new ExecMethod())
+        .put("getCallerName", new GetCallerNameMethod())
         .build();
   }
 

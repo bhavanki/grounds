@@ -12,9 +12,9 @@ import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.command.CommandResult;
 
 /**
- * An API command that executes a Grounds command.
+ * An API method that executes a Grounds command.
  */
-class ExecCommand implements ApiMethod {
+class ExecMethod implements ApiMethod {
 
   @Override
   public JsonRpcResponse call(JsonRpcRequest request, ApiMethodContext ctx) {
