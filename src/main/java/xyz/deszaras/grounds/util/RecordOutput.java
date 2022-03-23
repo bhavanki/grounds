@@ -2,6 +2,7 @@ package xyz.deszaras.grounds.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -89,5 +90,49 @@ public class RecordOutput {
     }
 
     return b.toString();
+  }
+
+  /**
+   * Creates an output from a map, instead of building it piecemeal. The map
+   * must have a "keys" row for the list of keys and a "values" row for the list
+   * of values (so the lists must have the same size). Use an empty string in
+   * the "keys" list for a null record key.
+   *
+   * @param  m map of keys and values
+   * @return   new output
+   * @throws IllegalArgumentException if keys or values are missing, or if the
+   *                                  lists are different sizes
+   */
+  public static RecordOutput from(Map<String, List<String>> m) {
+    RecordOutput rec = new RecordOutput();
+    if (m == null) {
+      return rec;
+    }
+
+    if (!m.containsKey("keys")) {
+      throw new IllegalArgumentException("Map must contain a keys list");
+    }
+    if (!m.containsKey("values")) {
+      throw new IllegalArgumentException("Map must contain a values list");
+    }
+
+    List<String> keys = m.get("keys");
+    List<String> values = m.get("values");
+    if (keys.size() != values.size()) {
+      throw new IllegalArgumentException("Spec has " + keys.size() +
+                                         " keys but " + values.size() +
+                                         " values");
+    }
+
+    for (int i = 0; i < keys.size(); i++) {
+      String key = keys.get(i);
+      String value = values.get(i);
+      if (!key.isEmpty()) {
+        rec.addField(key, value);
+      } else {
+        rec.addField(null, value);
+      }
+    }
+    return rec;
   }
 }

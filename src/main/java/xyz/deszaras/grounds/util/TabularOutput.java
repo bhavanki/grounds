@@ -3,6 +3,8 @@ package xyz.deszaras.grounds.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.fusesource.jansi.Ansi;
@@ -20,9 +22,9 @@ public class TabularOutput {
     private final String dataFormatString;
 
     private ColumnDef(String header, String formatString, String dataFormatString) {
-      this.header = header;
-      this.formatString = formatString;
-      this.dataFormatString = dataFormatString;
+      this.header = Objects.requireNonNull(header);
+      this.formatString = Objects.requireNonNull(formatString);
+      this.dataFormatString = Objects.requireNonNull(dataFormatString);
     }
   }
 
@@ -48,7 +50,6 @@ public class TabularOutput {
   public TabularOutput defineColumn(String header, String formatString) {
     return defineColumn(header, formatString, formatString);
   }
-
 
   /**
    * Defines a new table column.
@@ -155,5 +156,50 @@ public class TabularOutput {
 
   private static String lineFor(String s) {
     return "-".repeat(s.length());
+  }
+
+  /**
+   * Creates an output from a map, instead of building it piecemeal. The map
+   * must have a "columns" row for the list of column definitions and a
+   * "rows" row for the list of rows (so the lists must have the same size).
+   * Each element in the "columns" list is itself a list of strings defining a
+   * column definition (see the {@code defineColumn} methods). Each element in
+   * the "rows" list is itself a list of strings for each value in that row.
+   *
+   * @param  m map of keys and values
+   * @return   new output
+   * @throws IllegalArgumentException if keys or values are missing, or if the
+   *                                  lists are different sizes
+   */
+  public static TabularOutput from(Map<String, List<List<String>>> m) {
+    TabularOutput tab = new TabularOutput();
+    if (m == null) {
+      return tab;
+    }
+
+    if (!m.containsKey("columns")) {
+      throw new IllegalArgumentException("Map must contain a columns list");
+    }
+    if (!m.containsKey("rows")) {
+      throw new IllegalArgumentException("Map must contain a rows list");
+    }
+
+    for (List<String> column : m.get("columns")) {
+      int len = column.size();
+      if (len == 2) {
+        tab.defineColumn(column.get(0), column.get(1));
+      } else if (len == 3) {
+        tab.defineColumn(column.get(0), column.get(1), column.get(2));
+      } else {
+        throw new IllegalArgumentException("Column found with size " + len +
+                                           ", must be 2 or 3");
+      }
+    }
+
+    for (List<String> row : m.get("rows")) {
+      tab.addRow(row);
+    }
+
+    return tab;
   }
 }
