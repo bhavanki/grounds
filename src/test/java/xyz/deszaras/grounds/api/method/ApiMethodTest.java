@@ -7,6 +7,7 @@ import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -42,7 +43,7 @@ class ApiMethodTest {
     Universe.setCurrent(testUniverse);
 
     actor = new Actor("actor1");
-    caller = new Player("caller");
+    caller = spy(new Player("caller")); // to verify calls made to the player
     testUniverse.addThing(caller);
     extension = new Extension("extension1");
     testUniverse.addThing(extension);
