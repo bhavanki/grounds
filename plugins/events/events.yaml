@@ -1,0 +1,61 @@
+- name: pluginPath
+  type: STRING
+  value: plugins/events/grounds-events
+- name: pluginMethod
+  type: STRING
+  value: event
+- name: commandHelp
+  type: ATTRLIST
+  value: |
+    - name: $EVENT
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $EVENT <subcommand> [<arguments>]
+        - name: summary
+          value: Manages the event calendar
+        - name: description
+          value: |
+            Available subcommands:
+            - create
+            - delete
+            - get
+            - list
+    - name: $EVENT_CREATE
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $EVENT CREATE <name> <description> <start-time> <location>
+        - name: summary
+          value: Creates a new event
+        - name: description
+          value: >
+            Each event must have a unique name. The creator of an event becomes
+            its owner / organizer.
+    - name: $EVENT_DELETE
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $EVENT DELETE <name>
+        - name: summary
+          value: Deletes (cancels) an event
+        - name: description
+          value: Only an event's owner / organizer may delete it.
+    - name: $EVENT_LIST
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $EVENT LIST
+        - name: summary
+          value: Lists all events
+        - name: description
+          value: Use this command to see upcoming events.
+    - name: $EVENT_GET
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $EVENT GET <name>
+        - name: summary
+          value: Gets an event by name
+        - name: description
+          value: All of the details for the event are presented.

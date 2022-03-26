@@ -1,5 +1,7 @@
 # Scripts
 
+**WARNING: Scripts are deprecated in favor of plugins. Documentation is on its way.***
+
 [Extensions](extensions.md) can hold scripts written in [Groovy](https://groovy-lang.org/) to implement scripted commands and listener attributes. First learn about how extensions work before getting into the reference details here about what scripts can do.
 
 ## Elements of a Scripted Command

@@ -1,0 +1,110 @@
+package api
+
+import (
+	"context"
+)
+
+func HasAttr(ctx context.Context, thingId string, name string, asExtension bool) (bool, error) {
+	params := map[string]interface{}{
+		"thingId":     thingId,
+		"name":        name,
+		"asExtension": asExtension,
+	}
+	var a Attr
+	err := Call(ctx, "getAttr", params, &a)
+	if err != nil {
+		if ErrorCode(err) == ErrCodeNotFound {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+func GetAttr(ctx context.Context, thingId string, name string, asExtension bool) (Attr, error) {
+	params := map[string]interface{}{
+		"thingId":     thingId,
+		"name":        name,
+		"asExtension": asExtension,
+	}
+	var a Attr
+	err := Call(ctx, "getAttr", params, &a)
+	if err != nil {
+		return Attr{}, err
+	}
+	return a, nil
+}
+
+func GetAttrNames(ctx context.Context, thingId string, asExtension bool) ([]string, error) {
+	params := map[string]interface{}{
+		"thingId":     thingId,
+		"asExtension": asExtension,
+	}
+	var names []string
+	err := Call(ctx, "getAttrNames", params, &names)
+	if err != nil {
+		return nil, err
+	}
+	return names, nil
+}
+
+func GetCallerName(ctx context.Context) (string, error) {
+	var n string
+	err := Call(ctx, "getCallerName", nil, &n)
+	if err != nil {
+		return "", err
+	}
+	return n, nil
+}
+
+func GetCallerTZ(ctx context.Context) (string, error) {
+	var tz string
+	err := Call(ctx, "getCallerTimezone", nil, &tz)
+	if err != nil {
+		return "", err
+	}
+	return tz, nil
+}
+
+func SendMessageToCaller(ctx context.Context, message string) error {
+	params := map[string]interface{}{
+		"message": message,
+	}
+	return Call(ctx, "sendMessageToCaller", params, nil)
+}
+
+func SendRecordToCaller(ctx context.Context, record map[string][]string, header string) error {
+	params := map[string]interface{}{
+		"record": record,
+		"header": header,
+	}
+	return Call(ctx, "sendMessageToCaller", params, nil)
+}
+
+func SendTableToCaller(ctx context.Context, table map[string][][]string, header string) error {
+	params := map[string]interface{}{
+		"table":  table,
+		"header": header,
+	}
+	return Call(ctx, "sendMessageToCaller", params, nil)
+}
+
+func RemoveAttr(ctx context.Context, thingId string, name string, asExtension bool) error {
+	params := map[string]interface{}{
+		"thingId":     thingId,
+		"name":        name,
+		"asExtension": asExtension,
+	}
+	return Call(ctx, "removeAttr", params, nil)
+}
+
+func SetAttr(ctx context.Context, thingId string, a Attr, asExtension bool) error {
+	params := map[string]interface{}{
+		"thingId":     thingId,
+		"name":        a.Name,
+		"value":       a.Value,
+		"type":        a.Type,
+		"asExtension": asExtension,
+	}
+	return Call(ctx, "setAttr", params, nil)
+}
