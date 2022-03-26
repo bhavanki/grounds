@@ -1,6 +1,7 @@
 package xyz.deszaras.grounds.api.method;
 
 import java.util.List;
+import java.util.Optional;
 
 import xyz.deszaras.grounds.api.JsonRpcRequest;
 
@@ -10,6 +11,29 @@ import xyz.deszaras.grounds.api.JsonRpcRequest;
 public final class ApiMethodUtils {
 
   private ApiMethodUtils() {
+  }
+
+  /**
+   * Gets a request param as a specified type. This is not type safe when T is
+   * a generic type, so be careful.
+   *
+   * @param  request      request
+   * @param  name         param name
+   * @param  type         expected type of value
+   * @param  defaultValue value if param is not present
+   * @return              param value
+   * @throws IllegalArgumentException if the param is not of the specified type
+   */
+  public static <T> T getParam(JsonRpcRequest request, String name, Class<T> type, T defaultValue) {
+    Optional<Object> p = request.getParam(name);
+    if (p.isEmpty()) {
+      return defaultValue;
+    }
+    try {
+      return type.cast(p.get());
+    } catch (ClassCastException e) {
+      throw new IllegalArgumentException("Parameter " + name + " is not of type " + type);
+    }
   }
 
   /**
