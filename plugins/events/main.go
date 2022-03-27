@@ -25,11 +25,11 @@ func getEventName(n string) string {
 }
 
 type event struct {
-	name string
-	owner string
+	name        string
+	owner       string
 	description string
-	startTime time.Time
-	location string
+	startTime   time.Time
+	location    string
 }
 
 func (e *event) fillFromAttr(eventAttr api.Attr, tzLocation *time.Location) error {
@@ -86,11 +86,11 @@ func handleCreateEvent(ctx context.Context, call *api.PluginCall) (interface{}, 
 	}
 
 	newEvent := event{
-		name: eventName,
-		owner: callerName,
+		name:        eventName,
+		owner:       callerName,
 		description: call.Arguments[2],
-		startTime: startTime,
-		location: call.Arguments[4],  // fixme should be Place / Thing
+		startTime:   startTime,
+		location:    call.Arguments[4], // fixme should be Place / Thing
 	}
 	eventAttr, err := api.NewAttrListAttr(
 		newEvent.name,
@@ -286,7 +286,6 @@ func handleDeleteEvent(ctx context.Context, call *api.PluginCall) (interface{}, 
 	}
 	return "", nil
 }
-
 
 func main() {
 	go func() {
