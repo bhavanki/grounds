@@ -43,10 +43,18 @@ func Call(ctx context.Context, method string, params map[string]interface{},
 }
 
 func ErrorCode(err error) int64 {
+	// err should be of type *jsonrpc2.wireError
 	errType := reflect.TypeOf(err)
-	codeField, ok := errType.FieldByName("Code")
+	if errType.Kind() != reflect.Ptr {
+		return -2
+	}
+	derefType := errType.Elem()
+	if derefType.Kind() != reflect.Struct {
+		return -1
+	}
+	codeField, ok := derefType.FieldByName("Code")
 	if !ok || codeField.Type.Kind() != reflect.Int64 {
 		return 0
 	}
-	return reflect.ValueOf(err).FieldByName("Code").Int()
+	return reflect.ValueOf(err).Elem().FieldByName("Code").Int()
 }
