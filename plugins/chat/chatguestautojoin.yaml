@@ -1,0 +1,9 @@
+- name: eventType
+  type: STRING
+  value: YoinkArrivalEvent
+- name: pluginPath
+  type: STRING
+  value: plugins/chat/grounds-chat
+- name: pluginMethod
+  type: STRING
+  value: chatguestautojoin

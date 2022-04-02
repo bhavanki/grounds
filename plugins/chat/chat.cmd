@@ -12,7 +12,7 @@ change_policy chat_system w-dBA
 change_policy chat_system u+g
 set_attr chat_system $chat[ATTRLIST]=@plugins/chat/chat.yaml
 set_attr chat_system $chatadmin[ATTRLIST]=@plugins/chat/chatadmin.yaml
-# set_attr chat_system ^chatguestautojoin[ATTRLIST]=@etc/ext/chat/chatguestautojoin.yaml
+set_attr chat_system ^chatguestautojoin[ATTRLIST]=@plugins/chat/chatguestautojoin.yaml
 role add adept chat_system
 
 say Chat system installed.

@@ -17,6 +17,12 @@ import (
 	"golang.org/x/exp/jsonrpc2"
 )
 
+const (
+	chatMethod              = "chat"
+	chatAdminMethod         = "chatadmin"
+	chatGuestAutojoinMethod = "chatguestautojoin"
+)
+
 type channel struct {
 	name      string
 	members   []string
@@ -469,6 +475,39 @@ func handleRemoveMember(ctx context.Context, call *api.PluginCall) (interface{},
 
 // TBD: setVisibility, setJoinability
 
+// --- GUESTAUTOJOIN COMMANDS ---
+
+func handleGuestAutojoin(ctx context.Context, call *api.PluginCall) (interface{}, error) {
+	if argErr := api.CheckArgumentCount(call, 1); argErr != nil {
+		return nil, argErr
+	}
+
+	payload := make(map[string]interface{})
+	err := api.UnmarshalEventPayload(call.Arguments[0], &payload)
+	if err != nil {
+		return nil, err
+	}
+
+	yoinkedThingName := payload["yoinkedThingName"].(string)
+	if !strings.HasPrefix(yoinkedThingName, "guest") || payload["yoinkedThingType"] != "Player" {
+		return "", nil
+	}
+
+	guestChannel, err := getChannel(ctx, "#guest", call.ExtensionId)
+	if err != nil {
+		return nil, err
+	}
+	if !guestChannel.isMember(yoinkedThingName) {
+		err = guestChannel.addMember(ctx, yoinkedThingName, call.ExtensionId, true)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return "", nil
+}
+
+// TBD: guestautoleave
+
 func main() {
 	go func() {
 		sigs := make(chan os.Signal, 1)
@@ -488,7 +527,7 @@ func main() {
 		Usage: "A Grounds plugin for a chat system",
 		Action: func(c *cli.Context) error {
 			chatHandler := api.PluginHandler{
-				Method: "chat",
+				Method: chatMethod,
 				Dispatcher: func(ctx context.Context, call api.PluginCall) api.SubcommandHandler {
 					subcommand := call.Arguments[0]
 					switch subcommand {
@@ -510,7 +549,7 @@ func main() {
 				},
 			}
 			chatadminHandler := api.PluginHandler{
-				Method: "chatadmin",
+				Method: chatAdminMethod,
 				Dispatcher: func(ctx context.Context, call api.PluginCall) api.SubcommandHandler {
 					subcommand := call.Arguments[0]
 					switch subcommand {
@@ -522,17 +561,15 @@ func main() {
 						return handleAddMember
 					case "remove_member":
 						return handleRemoveMember
-					// case "leave":
-					// 	return handleGetEvent
-					// case "list":
-					// 	return handleDeleteEvent
-					// case "mine":
-					// 	return handleDeleteEvent
-					// case "members":
-					// 	return handleDeleteEvent
 					default:
 						return nil
 					}
+				},
+			}
+			chatguestautojoinHandler := api.PluginHandler{
+				Method: chatGuestAutojoinMethod,
+				Dispatcher: func(ctx context.Context, call api.PluginCall) api.SubcommandHandler {
+					return handleGuestAutojoin
 				},
 			}
 
@@ -549,7 +586,9 @@ func main() {
 
 			var res *jsonrpc2.Response
 			switch req.Method {
-			case "chatadmin":
+			case chatGuestAutojoinMethod:
+				res = chatguestautojoinHandler.Handle(ctx, req)
+			case chatAdminMethod:
 				res = chatadminHandler.Handle(ctx, req)
 			default:
 				res = chatHandler.Handle(ctx, req)
