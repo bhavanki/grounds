@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/araddon/dateparse"
-	"github.com/bhavanki/grounds-events/pkg/api"
+	api "github.com/bhavanki/groundsapi"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/exp/jsonrpc2"
 )
