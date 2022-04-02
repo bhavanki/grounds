@@ -1,0 +1,72 @@
+- name: pluginPath
+  type: STRING
+  value: plugins/chat/grounds-chat
+- name: pluginMethod
+  type: STRING
+  value: chat
+- name: commandHelp
+  type: ATTRLIST
+  value: |
+    - name: $CHAT
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $CHAT <subcommand> [<arguments>]
+        - name: summary
+          value: Interacts with the chat system
+        - name: description
+          value: "Available subcommands: say, join, leave, list, mine, members"
+    - name: $CHAT_SAY
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $CHAT SAY <channel> <message>
+        - name: summary
+          value: Emits a message to all players in a channel
+        - name: description
+          value: Your player name is prepended to the message.
+    - name: $CHAT_JOIN
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $CHAT JOIN <channel>
+        - name: summary
+          value: Joins a chat channel
+        - name: description
+          value: After joining a channel, you can say messages and see others' messages on it.
+    - name: $CHAT_LEAVE
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $CHAT LEAVE <channel>
+        - name: summary
+          value: Leaves a chat channel
+        - name: description
+          value: After leaving a channel, you can no longer say messages or see others' messages on it.
+    - name: $CHAT_LIST
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $CHAT LIST
+        - name: summary
+          value: List all chat channels
+        - name: description
+          value: Use this command to find channels to join.
+    - name: $CHAT_MINE
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $CHAT MINE
+        - name: summary
+          value: List all chat channels you have joined
+        - name: description
+          value: These are channels you can say messages on and see others' messages on.
+    - name: $CHAT_MEMBERS
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $CHAT MEMBERS <channel>
+        - name: summary
+          value: List the membership of a chat channel
+        - name: description
+          value: You must be a member of a channel to list its members.
