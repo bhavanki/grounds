@@ -66,9 +66,25 @@ func GetCallerTZ(ctx context.Context) (string, error) {
 	return tz, nil
 }
 
+func SendMessage(ctx context.Context, playerName string, message string) error {
+	params := map[string]interface{}{
+		"playerName": playerName,
+		"message":    message,
+	}
+	return Call(ctx, "sendMessage", params, nil)
+}
+
 func SendMessageToCaller(ctx context.Context, message string) error {
 	params := map[string]interface{}{
 		"message": message,
+	}
+	return Call(ctx, "sendMessageToCaller", params, nil)
+}
+
+func SendMessageWithHeaderToCaller(ctx context.Context, message string, header string) error {
+	params := map[string]interface{}{
+		"message": message,
+		"header":  header,
 	}
 	return Call(ctx, "sendMessageToCaller", params, nil)
 }
@@ -107,4 +123,23 @@ func SetAttr(ctx context.Context, thingId string, a Attr, asExtension bool) erro
 		"asExtension": asExtension,
 	}
 	return Call(ctx, "setAttr", params, nil)
+}
+
+func SetAttrInAttrListValue(ctx context.Context, thingId string, name string, subAttr Attr, asExtension bool) error {
+	a, err := GetAttr(ctx, thingId, name, asExtension)
+	if err != nil {
+		return err
+	}
+	attrList, err := a.GetAttrListValue()
+	if err != nil {
+		return err
+	}
+
+	attrList[subAttr.Name] = subAttr
+
+	newa, err := NewAttrListAttrFromMap(name, attrList)
+	if err != nil {
+		return err
+	}
+	return SetAttr(ctx, thingId, newa, asExtension)
 }
