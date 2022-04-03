@@ -2,7 +2,7 @@
 
 - name: pluginPath
   type: STRING
-  value: etc/ext/magicfiddle/plugin_magicfiddle.sh
+  value: plugins/magicfiddle/plugin_magicfiddle.sh
 - name: pluginMethod
   type: STRING
   value: _listen

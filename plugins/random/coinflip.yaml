@@ -1,6 +1,6 @@
 - name: pluginPath
   type: STRING
-  value: etc/ext/random/plugin_random.sh
+  value: plugins/random/plugin_random.sh
 - name: pluginMethod
   type: STRING
   value: coinflip

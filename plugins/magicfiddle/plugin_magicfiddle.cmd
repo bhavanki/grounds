@@ -9,7 +9,7 @@
 
 build extension pg_magic_fiddle_ext
 yoink pg_magic_fiddle_ext here
-set_attr pg_magic_fiddle_ext ^welcome[ATTRLIST]=@etc/ext/magicfiddle/magicfiddle.yaml
+set_attr pg_magic_fiddle_ext ^welcome[ATTRLIST]=@plugins/magicfiddle/magicfiddle.yaml
 role add bard pg_magic_fiddle_ext
 
 build thing "pg magic fiddle"

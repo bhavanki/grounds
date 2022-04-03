@@ -106,6 +106,10 @@ EOF
   exit 1
 }
 
+if ! command -v jq > /dev/null; then
+  respond_error "${INTERNAL_ERROR}" "Install jq to use this plugin" "$REQUEST_ID"
+fi
+
 read -r -d '' REQUEST
 
 METHOD=$(echo "$REQUEST" | jq -r '.method' -)
