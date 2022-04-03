@@ -1,5 +1,6 @@
 package xyz.deszaras.grounds.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 
@@ -85,6 +86,14 @@ public class PluginCallable implements Callable<String> {
     // Send the request and receive a response.
     JsonRpcRequest request = new JsonRpcRequest(pluginCall.getMethod(),
                                                 requestParameters);
+    if (LOG.isDebugEnabled()) {
+      try {
+        LOG.debug("JSON RPC request: {}",
+                 OBJECT_MAPPER.writeValueAsString(request));
+      } catch (JsonProcessingException e) {
+        LOG.debug("JSON RPC request could not be serialized for logging");
+      }
+    }
     JsonRpcResponse response;
     int pluginExitCode;
     try {
