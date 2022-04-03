@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
 import org.fusesource.jansi.Ansi;
@@ -15,8 +14,6 @@ import xyz.deszaras.grounds.api.PluginCall;
 import xyz.deszaras.grounds.api.PluginCallFactoryException;
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Player;
-import xyz.deszaras.grounds.script.Script;
-import xyz.deszaras.grounds.script.ScriptFactoryException;
 import xyz.deszaras.grounds.util.AnsiUtils;
 
 @PermittedRoles(roles = { Role.GUEST, Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
@@ -60,30 +57,15 @@ public class HelpCommand extends Command<String> {
     if (commandName.startsWith("$")) {
       String baseCommandName = commandName.replaceAll("_.*", "");
 
-      // In progress replacement of scripts with plugins.
       try {
-        Optional<PluginCall> pluginCall =
-            CommandExecutor.getInstance().getCommandFactory().findPluginCall(baseCommandName);
-        if (pluginCall.isPresent()) {
-          bundle = pluginCall.get().getHelpBundle();
-        }
+        PluginCall pluginCall =
+            CommandExecutor.getInstance().getCommandFactory().findPluginCall(baseCommandName)
+            .orElseThrow(() -> new CommandException("Plugin call command " + baseCommandName +
+                                                    " not found"));
+        bundle = pluginCall.getHelpBundle();
       } catch (PluginCallFactoryException e) {
         throw new CommandException("Could not build plugin call for command " + baseCommandName +
                                    " in order to get help text", e);
-      }
-
-      if (bundle == null) {
-        try {
-          Script commandScript =
-              CommandExecutor.getInstance().getCommandFactory().findScript(baseCommandName)
-              .orElseThrow(() -> new CommandException("Scripted command " + baseCommandName +
-                                                      " not found"));
-
-          bundle = commandScript.getHelpBundle();
-        } catch (ScriptFactoryException e) {
-          throw new CommandException("Could not build script for command " + baseCommandName +
-                                     " in order to get help text", e);
-        }
       }
     } else {
       bundle = helpResource;

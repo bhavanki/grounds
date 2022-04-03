@@ -1,7 +1,9 @@
-/**/package xyz.deszaras.grounds.model;
+package xyz.deszaras.grounds.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -12,12 +14,12 @@ import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
+import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.command.Event;
-import xyz.deszaras.grounds.command.ScriptedCommand;
-import xyz.deszaras.grounds.script.Script;
-import xyz.deszaras.grounds.script.ScriptFactory;
+import xyz.deszaras.grounds.command.PluginCallCommand;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
 public class ExtensionTest {
@@ -50,79 +52,79 @@ public class ExtensionTest {
   @Test
   public void testHandle() throws Exception {
     Attr listenerAttr = new Attr("^listener1",
-        List.of(new Attr("scriptContent", "script")));
+        List.of(new Attr("pluginMethod", "doit")));
     e.setAttr(listenerAttr);
-
-    ScriptFactory scriptFactory = mock(ScriptFactory.class);
-    Script script = mock(Script.class);
-    when(scriptFactory.newScript(listenerAttr, e)).thenReturn(script);
-    when(script.getExtension()).thenReturn(e);
 
     Place place = new Place("there");
     Event event = new TestEvent(Player.GOD, place);
 
-    CommandExecutor commandExecutor = mock(CommandExecutor.class);
+    PluginCallCommand pluginCallCommand = mock(PluginCallCommand.class);
+    CommandExecutor commandExecutor =
+        mock(CommandExecutor.class, RETURNS_DEEP_STUBS);
+    when(commandExecutor.getCommandFactory()
+         .newPluginCallCommand(eq(Actor.INTERNAL), eq(e),
+                               eq(listenerAttr), eq(e), any(List.class)))
+        .thenReturn(pluginCallCommand);
 
-    e.handle(event, scriptFactory, commandExecutor);
+    e.handle(event, commandExecutor);
 
-    verify(commandExecutor).submit(any(ScriptedCommand.class));
+    verify(commandExecutor).submit(pluginCallCommand);
+    ArgumentCaptor<List> pluginArgumentsCaptor = ArgumentCaptor.forClass(List.class);
+    verify(commandExecutor.getCommandFactory())
+        .newPluginCallCommand(eq(Actor.INTERNAL), eq(e),
+                              eq(listenerAttr), eq(e), pluginArgumentsCaptor.capture());
+    List<String> pluginArguments = pluginArgumentsCaptor.getValue();
+    assertEquals(1, pluginArguments.size());
+    assertEquals(event.getAugmentedPayloadJsonString(), pluginArguments.get(0));
   }
 
   @Test
   public void testHandleSelectingEventType() throws Exception {
     Attr listenerAttr = new Attr("^listener1",
-        List.of(new Attr("scriptContent", "script"),
+        List.of(new Attr("pluginMethod", "doit"),
                 new Attr("eventType", "TestEvent")));
     e.setAttr(listenerAttr);
-
-    ScriptFactory scriptFactory = mock(ScriptFactory.class);
-    Script script = mock(Script.class);
-    when(scriptFactory.newScript(listenerAttr, e)).thenReturn(script);
-    when(script.getExtension()).thenReturn(e);
 
     Place place = new Place("there");
     Event event = new TestEvent(Player.GOD, place);
 
-    CommandExecutor commandExecutor = mock(CommandExecutor.class);
+    PluginCallCommand pluginCallCommand = mock(PluginCallCommand.class);
+    CommandExecutor commandExecutor =
+        mock(CommandExecutor.class, RETURNS_DEEP_STUBS);
+    when(commandExecutor.getCommandFactory()
+         .newPluginCallCommand(eq(Actor.INTERNAL), eq(e),
+                               eq(listenerAttr), eq(e), any(List.class)))
+        .thenReturn(pluginCallCommand);
 
-    e.handle(event, scriptFactory, commandExecutor);
+    e.handle(event, commandExecutor);
 
-    verify(commandExecutor).submit(any(ScriptedCommand.class));
+    verify(commandExecutor).submit(pluginCallCommand);
   }
 
   @Test
   public void testHandleSelectingEventTypeReject() throws Exception {
     Attr listenerAttr = new Attr("^listener1",
-        List.of(new Attr("scriptContent", "script"),
+        List.of(new Attr("pluginMethod", "doit"),
                 new Attr("eventType", "NotTestEvent")));
     e.setAttr(listenerAttr);
-
-    ScriptFactory scriptFactory = mock(ScriptFactory.class);
-    Script script = mock(Script.class);
-    when(scriptFactory.newScript(listenerAttr, e)).thenReturn(script);
-    when(script.getExtension()).thenReturn(e);
 
     Place place = new Place("there");
     Event event = new TestEvent(Player.GOD, place);
 
-    CommandExecutor commandExecutor = mock(CommandExecutor.class);
+    CommandExecutor commandExecutor =
+        mock(CommandExecutor.class, RETURNS_DEEP_STUBS);
 
-    e.handle(event, scriptFactory, commandExecutor);
+    e.handle(event, commandExecutor);
 
-    verify(commandExecutor, never()).submit(any(ScriptedCommand.class));
+    verify(commandExecutor, never()).submit(any(PluginCallCommand.class));
   }
 
   @Test
   public void testHandleLocalized() throws Exception {
     Attr listenerAttr = new Attr("^listener1",
-        List.of(new Attr("scriptContent", "script"),
+        List.of(new Attr("pluginMethod", "doit"),
                 new Attr("localized", true)));
     e.setAttr(listenerAttr);
-
-    ScriptFactory scriptFactory = mock(ScriptFactory.class);
-    Script script = mock(Script.class);
-    when(scriptFactory.newScript(listenerAttr, e)).thenReturn(script);
-    when(script.getExtension()).thenReturn(e);
 
     Place place = new Place("there");
     Event event = new TestEvent(Player.GOD, place);
@@ -131,24 +133,25 @@ public class ExtensionTest {
     universe.addThing(place);
     universe.addThing(e);
 
-    CommandExecutor commandExecutor = mock(CommandExecutor.class);
+    PluginCallCommand pluginCallCommand = mock(PluginCallCommand.class);
+    CommandExecutor commandExecutor =
+        mock(CommandExecutor.class, RETURNS_DEEP_STUBS);
+    when(commandExecutor.getCommandFactory()
+         .newPluginCallCommand(eq(Actor.INTERNAL), eq(e),
+                               eq(listenerAttr), eq(e), any(List.class)))
+        .thenReturn(pluginCallCommand);
 
-    e.handle(event, scriptFactory, commandExecutor);
+    e.handle(event, commandExecutor);
 
-    verify(commandExecutor).submit(any(ScriptedCommand.class));
+    verify(commandExecutor).submit(pluginCallCommand);
   }
 
   @Test
   public void testHandleLocalizedReject() throws Exception {
     Attr listenerAttr = new Attr("^listener1",
-        List.of(new Attr("scriptContent", "script"),
+        List.of(new Attr("pluginMethod", "doit"),
                 new Attr("localized", true)));
     e.setAttr(listenerAttr);
-
-    ScriptFactory scriptFactory = mock(ScriptFactory.class);
-    Script script = mock(Script.class);
-    when(scriptFactory.newScript(listenerAttr, e)).thenReturn(script);
-    when(script.getExtension()).thenReturn(e);
 
     Place place = new Place("there");
     Event event = new TestEvent(Player.GOD, place);
@@ -159,24 +162,20 @@ public class ExtensionTest {
     universe.addThing(notPlace);
     universe.addThing(e);
 
-    CommandExecutor commandExecutor = mock(CommandExecutor.class);
+    CommandExecutor commandExecutor =
+        mock(CommandExecutor.class, RETURNS_DEEP_STUBS);
 
-    e.handle(event, scriptFactory, commandExecutor);
+    e.handle(event, commandExecutor);
 
-    verify(commandExecutor, never()).submit(any(ScriptedCommand.class));
+    verify(commandExecutor, never()).submit(any(PluginCallCommand.class));
   }
 
   @Test
   public void testHandleNonLocalized() throws Exception {
     Attr listenerAttr = new Attr("^listener1",
-        List.of(new Attr("scriptContent", "script"),
+        List.of(new Attr("pluginMethod", "doit"),
                 new Attr("localized", false)));
     e.setAttr(listenerAttr);
-
-    ScriptFactory scriptFactory = mock(ScriptFactory.class);
-    Script script = mock(Script.class);
-    when(scriptFactory.newScript(listenerAttr, e)).thenReturn(script);
-    when(script.getExtension()).thenReturn(e);
 
     Place place = new Place("there");
     Event event = new TestEvent(Player.GOD, place);
@@ -187,16 +186,22 @@ public class ExtensionTest {
     universe.addThing(notPlace);
     universe.addThing(e);
 
-    CommandExecutor commandExecutor = mock(CommandExecutor.class);
+    PluginCallCommand pluginCallCommand = mock(PluginCallCommand.class);
+    CommandExecutor commandExecutor =
+        mock(CommandExecutor.class, RETURNS_DEEP_STUBS);
+    when(commandExecutor.getCommandFactory()
+         .newPluginCallCommand(eq(Actor.INTERNAL), eq(e),
+                               eq(listenerAttr), eq(e), any(List.class)))
+        .thenReturn(pluginCallCommand);
 
-    e.handle(event, scriptFactory, commandExecutor);
+    e.handle(event, commandExecutor);
 
-    verify(commandExecutor).submit(any(ScriptedCommand.class));
+    verify(commandExecutor).submit(pluginCallCommand);
   }
 
   @Test
   public void testGetListenerAttrs() {
-    Attr listenerAttr = new Attr("^listener1", List.of(new Attr("scriptContent", "script")));
+    Attr listenerAttr = new Attr("^listener1", List.of(new Attr("pluginMethod", "doit")));
     e.setAttr(listenerAttr);
 
     e.setAttr("notAListener", "hi");

@@ -21,10 +21,6 @@ import xyz.deszaras.grounds.command.CommandExecutor;
 import xyz.deszaras.grounds.command.CommandFactoryException;
 import xyz.deszaras.grounds.command.Event;
 import xyz.deszaras.grounds.command.PluginCallCommand;
-import xyz.deszaras.grounds.command.ScriptedCommand;
-import xyz.deszaras.grounds.script.Script;
-import xyz.deszaras.grounds.script.ScriptFactory;
-import xyz.deszaras.grounds.script.ScriptFactoryException;
 
 /**
  * A thing that houses extensions to the game.
@@ -68,26 +64,22 @@ public class Extension extends Player {
   @Subscribe
   public void handle(Event event) {
     LOG.debug("Extension {} handling event of type {}", getName(), event.getClass());
-    handle(event, new ScriptFactory(), CommandExecutor.getInstance());
+    handle(event, CommandExecutor.getInstance());
   }
 
   /**
    * Handles an event sent from the command event bus.
    *
    * @param event           event to handle
-   * @param scriptFactory   script factory used to build each listener attribute script
    * @param commandExecutor command executor for resulting commands
    */
   @VisibleForTesting
-  void handle(Event event, ScriptFactory scriptFactory, CommandExecutor commandExecutor) {
+  void handle(Event event, CommandExecutor commandExecutor) {
     Set<Attr> listenerAttrs = getListenerAttrs();
     for (Attr a : listenerAttrs) {
 
       // If the attribute has an "eventType" attribute in its list, check if the
-      // simple class name of the event matches it. If not, do nothing. This
-      // avoids needlessly parsing the listener attribute's script and
-      // submitting it as a command when the script doesn't care about the
-      // event.
+      // simple class name of the event matches it. If not, do nothing.
       Optional<Attr> eventTypeAttr = a.getAttrListValue().stream()
           .filter(la -> la.getName().equals("eventType") &&
                         la.getType() == Attr.Type.STRING)
@@ -101,9 +93,9 @@ public class Extension extends Player {
         continue;
       }
 
-      // For similar reasons, if the attribute has a "localized" attribute in
-      // its list, check if the event's place is the same as this extension's
-      // location, and do nothing if they don't match.
+      // If the attribute has a "localized" attribute in its list, check if the
+      // event's place is the same as this extension's location, and do nothing
+      // if they don't match.
       Optional<Attr> localizedAttr = a.getAttrListValue().stream()
           .filter(la -> la.getName().equals("localized") &&
                         la.getType() == Attr.Type.BOOLEAN)
@@ -127,42 +119,26 @@ public class Extension extends Player {
         }
       }
 
-      // Create a plugin call command or scripted command for the listener
-      // attribute. Pass the augmented event payload JSON string as the sole
-      // argument. Then, submit the command to be run later. This is
-      // asynchronous, so this handler should return reasonably quickly.
-      // temporary: look for "pluginMethod" to distinguish this from a script
-      if (a.getAttrInAttrListValue("pluginMethod").isPresent()) {
-        try {
-          PluginCallCommand command = commandExecutor.getCommandFactory()
-              .newPluginCallCommand(Actor.INTERNAL, this, a, this,
-                                    List.of(event.getAugmentedPayloadJsonString()));
-          LOG.debug("Submitting plugin call command for listener {}", a.getName());
-          commandExecutor.submit(command);
-        } catch (CommandFactoryException e) {
-          LOG.error("Failed to create plugin call command for listener attribute {} on {}",
-                    a.getName(), getName(), e);
-        }
-      } else {
-        try {
-          Script listenerScript = scriptFactory.newScript(a, this);
-          ScriptedCommand command =
-              new ScriptedCommand(Actor.INTERNAL, this, listenerScript,
+      // Create a plugin call command for the listener attribute. Pass the
+      // augmented event payload JSON string as the sole argument. Then, submit
+      // the command to be run later. This is asynchronous, so this handler
+      // should return reasonably quickly.
+      try {
+        PluginCallCommand command = commandExecutor.getCommandFactory()
+            .newPluginCallCommand(Actor.INTERNAL, this, a, this,
                                   List.of(event.getAugmentedPayloadJsonString()));
-          LOG.debug("Submitting scripted command for listener {}", a.getName());
-          commandExecutor.submit(command);
-        } catch (ScriptFactoryException e) {
-          LOG.error("Failed to create script for listener attribute {} on {}",
-                    a.getName(), getName(), e);
-        }
+        LOG.debug("Submitting plugin call command for listener {}", a.getName());
+        commandExecutor.submit(command);
+      } catch (CommandFactoryException e) {
+        LOG.error("Failed to create plugin call command for listener attribute {} on {}",
+                  a.getName(), getName(), e);
       }
     }
   }
 
   /**
    * Gets all of the listener attributes for this extension. A listener
-   * attribute has a name starting with a caret and is a list type. It must have
-   * a "scriptContent" attribute for what it should run when called.
+   * attribute has a name starting with a caret and is a list type.
    *
    * @return listener attributes for this extension
    */

@@ -17,9 +17,6 @@ import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Extension;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Universe;
-import xyz.deszaras.grounds.script.Script;
-import xyz.deszaras.grounds.script.ScriptFactory;
-import xyz.deszaras.grounds.script.ScriptFactoryException;
 import xyz.deszaras.grounds.server.Server;
 
 /**
@@ -67,7 +64,7 @@ public class CommandFactory {
 
   /**
    * Gets all of the command names supported by this factory. This does not
-   * include the names of scripted commands.
+   * include the names of plugin commands.
    *
    * @return supported command names
    */
@@ -97,7 +94,7 @@ public class CommandFactory {
     String commandName = line.get(0);
 
     if (commandName.startsWith("$")) {
-      return newScriptedCommand(actor, player, line);
+      return newPluginCallCommand(actor, player, line);
     }
 
     Class<? extends Command> commandClass = getCommandClass(commandName);
@@ -128,40 +125,29 @@ public class CommandFactory {
   }
 
   /**
-   * Gets a scripted command. This method hunts for the script attribute
+   * Gets a plugin call command. This method hunts for the plugin attribute
    * defining the command among all extensions in the universe.
    *
    * @param actor actor submitting the command
    * @param player player currently assumed by the actor
    * @param line command line entered in the shell
-   * @return scripted command
+   * @return plugin command
    * @throws CommandFactoryException if the command cannot be built
    */
-  private Command newScriptedCommand(Actor actor, Player player, List<String> line)
+  private Command newPluginCallCommand(Actor actor, Player player, List<String> line)
       throws CommandFactoryException {
     String commandName = line.get(0);
-    List<String> scriptArguments = line.subList(1, line.size());
+    List<String> pluginArguments = line.subList(1, line.size());
 
-    // In progress replacement of scripts with plugins.
+    PluginCall pluginCall;
     try {
-      Optional<PluginCall> pluginCall = findPluginCall(commandName);
-      if (pluginCall.isPresent()) {
-        return PluginCallCommand.newCommand(actor, player, pluginCall.get(),
-                                            scriptArguments);
-      }
+      pluginCall = findPluginCall(commandName).orElseThrow(() ->
+          new CommandFactoryException("Failed to locate plugin for command " + commandName));
     } catch (PluginCallFactoryException e) {
       throw new CommandFactoryException("Failed to build plugin call for command " + commandName, e);
     }
 
-    Script script;
-    try {
-      script = findScript(commandName).orElseThrow(() ->
-          new CommandFactoryException("Failed to locate script for command " + commandName));
-    } catch (ScriptFactoryException e) {
-      throw new CommandFactoryException("Failed to build script for command " + commandName, e);
-    }
-
-    return ScriptedCommand.newCommand(actor, player, script, scriptArguments);
+    return PluginCallCommand.newCommand(actor, player, pluginCall, pluginArguments);
   }
 
   public PluginCallCommand newPluginCallCommand(Actor actor, Player player, Attr pluginCallAttr,
@@ -190,9 +176,7 @@ public class CommandFactory {
   public Optional<PluginCall> findPluginCall(String commandName)
       throws PluginCallFactoryException {
     if (apiServer == null) {
-      // FUTURE: Once script support is gone, return an error here instead
-      // because no plugin calls can work
-      return Optional.empty();
+      throw new PluginCallFactoryException("API server is not available");
     }
 
     // Find the attribute defining the command. It must be attached
@@ -202,9 +186,7 @@ public class CommandFactory {
     // this is inefficient :(
     for (Extension extension : Universe.getCurrent().getThings(Extension.class)) {
       Optional<Attr> extPluginCallAttr = extension.getAttr(commandName, Attr.Type.ATTRLIST);
-      if (extPluginCallAttr.isPresent() &&
-          // temporary: look for "pluginMethod" to distinguish this from a script
-          extPluginCallAttr.get().getAttrInAttrListValue("pluginMethod").isPresent()) {
+      if (extPluginCallAttr.isPresent()) {
         pluginCallAttr = extPluginCallAttr;
         pluginCallExtension = extension;
         break;
@@ -218,34 +200,5 @@ public class CommandFactory {
     return Optional.of(new PluginCallFactory()
                        .newPluginCall(pluginCallAttr.get(), pluginCallExtension,
                                       apiServer.getPluginCallTracker()));
-  }
-
-  /**
-   * Finds a script for the given command name among the extensions in the
-   * universe.
-   *
-   * @param  commandName            command name
-   * @return                        script implementing the command
-   * @throws ScriptFactoryException if the script could not be constructed
-   */
-  public Optional<Script> findScript(String commandName) throws ScriptFactoryException {
-    // Find the attribute defining the command. It must be attached
-    // to an extension and have an attribute list as a value.
-    Optional<Attr> scriptAttr = Optional.empty();
-    Extension scriptExtension = null;
-    // this is inefficient :(
-    for (Extension extension : Universe.getCurrent().getThings(Extension.class)) {
-      scriptAttr = extension.getAttr(commandName, Attr.Type.ATTRLIST);
-      if (scriptAttr.isPresent()) {
-        scriptExtension = extension;
-        break;
-      }
-    }
-
-    if (scriptAttr.isEmpty()) {
-      return Optional.empty();
-    }
-
-    return Optional.of(new ScriptFactory().newScript(scriptAttr.get(), scriptExtension));
   }
 }
