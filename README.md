@@ -21,7 +21,7 @@ Grounds is under active development, so features are all new and/or still being 
 
 ## Requirements
 
-* [JDK](https://adoptopenjdk.net/) 11 or higher
+* [JDK](https://adoptopenjdk.net/) 17 or higher
 * [Apache Maven](https://maven.apache.org) 3.6.0 or higher (building only)
 * [protoc](https://github.com/protocolbuffers/protobuf/) 3.19.3 or higher
 
