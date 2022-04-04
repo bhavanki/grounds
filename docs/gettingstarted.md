@@ -10,6 +10,7 @@ The server needs a properties file for some configuration information. An exampl
 
 ```bash
 $ java -jar grounds.jar --properties etc/server.properties --single-user
+...
 Welcome to Grounds.
 This is single-user mode. Use ^D or 'exit' to quit.
 
@@ -49,8 +50,10 @@ You will need locations for adventures in this new universe, so start building t
 ```
 # build place "Town Square"
 Created 456b38c2-febf-4f21-8778-62d61d1a1dcc
+456b38c2-febf-4f21-8778-62d61d1a1dcc
 √ # build place "Tavern"
 Created 0f90601d-11d1-4d8b-9b94-1e34e3c3f0ad
+0f90601d-11d1-4d8b-9b94-1e34e3c3f0ad
 ```
 
 A couple of things you may have noticed.
@@ -90,6 +93,7 @@ Better. However, even though the tavern is in plain sight, you cannot move there
 ```
 # build link tsq2tvn 456b38c2-febf-4f21-8778-62d61d1a1dcc TS 0f90601d-11d1-4d8b-9b94-1e34e3c3f0ad TAV
 Created 2f4262e4-825a-41d1-8153-268beccecd23
+2f4262e4-825a-41d1-8153-268beccecd23
 √ # look
 Town Square
 
@@ -122,7 +126,7 @@ Now that the link is in place, you can use the "move" command to enter the taver
 ```
 # describe Tavern "Warm lighting suffuses the slightly smoky interior of the establishment. Mismatched tables and chairs provide ample accommodation, and a surprisingly clean and tidy bar stretches across the far wall across from the entrance. Stout kegs and shelves bearing bottles of potent liquids stand behind the bar."
 (the description is echoed back)
-√ # look
+√ # move tav
 Tavern
 
 Warm lighting suffuses the slightly smoky interior of the establishment.
@@ -148,8 +152,10 @@ Everything in a universe is, in fact, considered a "thing". There are some speci
 ```
 # build thing key
 Created f2b11fe8-c925-45aa-89ea-1dd4d544d182
+f2b11fe8-c925-45aa-89ea-1dd4d544d182
 √ # build thing tankard
 Created f182fcc1-0994-4834-b8ab-c81cb5d1d6e0
+f182fcc1-0994-4834-b8ab-c81cb5d1d6e0
 √ # look
 Tavern
 
@@ -178,8 +184,10 @@ Now that the universe has some mildly interesting contents, it's time to define 
 ```
 # build player Ahalish DENIZEN
 Created a14950c2-44a5-4933-bc5a-49538cd5f89b
+a14950c2-44a5-4933-bc5a-49538cd5f89b
 √ # build player Rehtaoh DENIZEN
 Created 9107e827-f890-4b42-afa0-60aec7359577
+9107e827-f890-4b42-afa0-60aec7359577
 √ # look
 Tavern
 
