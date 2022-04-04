@@ -48,7 +48,7 @@ public class ExecMethodTest extends ApiMethodTest {
     List<String> commandLine = List.of("SAY", "hello");
     request = new JsonRpcRequest("exec", Map.<String, Object>of(
         "commandLine", commandLine,
-        "asExtension", true
+        "_as_extension", true
     ));
 
     response = method.call(request, ctx);

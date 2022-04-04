@@ -50,7 +50,7 @@ public class RemoveAttrMethodTest extends ApiMethodTest {
     request = new JsonRpcRequest("removeAttr", Map.<String, Object>of(
         "thingId", "thingId",
         "name", "attrName",
-        "asExtension", true
+        "_as_extension", true
     ));
 
     response = method.call(request, ctx);

@@ -70,7 +70,7 @@ public class SendMessageMethodTest extends ApiMethodTest {
     request = new JsonRpcRequest("sendMessage", Map.<String, Object>of(
         "playerName", "caller",
         "message", "Hello there",
-        "asExtension", true
+        "_as_extension", true
     ));
 
     response = method.call(request, ctx);

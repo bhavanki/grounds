@@ -54,7 +54,7 @@ public class GetAttrMethodTest extends ApiMethodTest {
     request = new JsonRpcRequest("getAttr", Map.<String, Object>of(
         "thingId", "thingId",
         "name", "attrName",
-        "asExtension", true
+        "_as_extension", true
     ));
 
     response = method.call(request, ctx);

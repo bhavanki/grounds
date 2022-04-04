@@ -58,7 +58,7 @@ public class SetAttrMethodTest extends ApiMethodTest {
         "name", a.getName(),
         "value", a.getValue(),
         "type", a.getType().name(),
-        "asExtension", true
+        "_as_extension", true
     ));
 
     response = method.call(request, ctx);
