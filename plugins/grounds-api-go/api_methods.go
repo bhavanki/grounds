@@ -8,7 +8,7 @@ func HasAttr(ctx context.Context, thingId string, name string, asExtension bool)
 	params := map[string]interface{}{
 		"thingId":     thingId,
 		"name":        name,
-		"asExtension": asExtension,
+		"_as_extension": asExtension,
 	}
 	var a Attr
 	err := Call(ctx, "getAttr", params, &a)
@@ -25,7 +25,7 @@ func GetAttr(ctx context.Context, thingId string, name string, asExtension bool)
 	params := map[string]interface{}{
 		"thingId":     thingId,
 		"name":        name,
-		"asExtension": asExtension,
+		"_as_extension": asExtension,
 	}
 	var a Attr
 	err := Call(ctx, "getAttr", params, &a)
@@ -38,7 +38,7 @@ func GetAttr(ctx context.Context, thingId string, name string, asExtension bool)
 func GetAttrNames(ctx context.Context, thingId string, asExtension bool) ([]string, error) {
 	params := map[string]interface{}{
 		"thingId":     thingId,
-		"asExtension": asExtension,
+		"_as_extension": asExtension,
 	}
 	var names []string
 	err := Call(ctx, "getAttrNames", params, &names)
@@ -109,7 +109,7 @@ func RemoveAttr(ctx context.Context, thingId string, name string, asExtension bo
 	params := map[string]interface{}{
 		"thingId":     thingId,
 		"name":        name,
-		"asExtension": asExtension,
+		"_as_extension": asExtension,
 	}
 	return Call(ctx, "removeAttr", params, nil)
 }
@@ -120,7 +120,7 @@ func SetAttr(ctx context.Context, thingId string, a Attr, asExtension bool) erro
 		"name":        a.Name,
 		"value":       a.Value,
 		"type":        a.Type,
-		"asExtension": asExtension,
+		"_as_extension": asExtension,
 	}
 	return Call(ctx, "setAttr", params, nil)
 }

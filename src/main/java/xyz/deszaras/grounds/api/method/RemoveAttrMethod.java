@@ -15,13 +15,12 @@ class RemoveAttrMethod implements ApiMethod {
 
   @Override
   public JsonRpcResponse call(JsonRpcRequest request, ApiMethodContext ctx) {
+    boolean asExtension = ApiMethodUtils.asExtension(request);
     String thingId;
     String name;
-    boolean asExtension;
     try {
       thingId = ApiMethodUtils.getRequiredStringParam(request, "thingId");
       name = ApiMethodUtils.getRequiredStringParam(request, "name");
-      asExtension = ApiMethodUtils.getBooleanParam(request, "asExtension", false);
     } catch (IllegalArgumentException e) {
       return new JsonRpcResponse(new ErrorObject(JsonRpcErrorCodes.INVALID_PARAMETERS,
                                                  e.getMessage()),

@@ -3,6 +3,7 @@ package xyz.deszaras.grounds.api.method;
 import java.util.List;
 import java.util.Optional;
 
+import xyz.deszaras.grounds.api.ApiRequestParameters;
 import xyz.deszaras.grounds.api.JsonRpcRequest;
 
 /**
@@ -11,6 +12,22 @@ import xyz.deszaras.grounds.api.JsonRpcRequest;
 public final class ApiMethodUtils {
 
   private ApiMethodUtils() {
+  }
+
+  /**
+   * Gets whether the request indicates running as an extension.
+   *
+   * @param  request request
+   * @return         true if running as an extension, false otherwise
+   */
+  public static boolean asExtension(JsonRpcRequest request) {
+    try {
+      return ApiMethodUtils.getBooleanParam(request,
+                                            ApiRequestParameters.AS_EXTENSION,
+                                            false);
+    } catch (ClassCastException e) {
+      return false;
+    }
   }
 
   /**

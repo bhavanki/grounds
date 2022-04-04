@@ -18,11 +18,10 @@ class ExecMethod implements ApiMethod {
 
   @Override
   public JsonRpcResponse call(JsonRpcRequest request, ApiMethodContext ctx) {
+    boolean asExtension = ApiMethodUtils.asExtension(request);
     List<String> commandLine;
-    boolean asExtension;
     try {
       commandLine = ApiMethodUtils.getRequiredStringListParam(request, "commandLine");
-      asExtension = ApiMethodUtils.getBooleanParam(request, "asExtension", false);
     } catch (IllegalArgumentException e) {
       return new JsonRpcResponse(new ErrorObject(JsonRpcErrorCodes.INVALID_PARAMETERS,
                                                  e.getMessage()),
@@ -63,6 +62,7 @@ class ExecMethod implements ApiMethod {
           .getCommandFactory().getCommand(ctx.getActor(),
                                           asExtension ? ctx.getExtension() : ctx.getCaller(),
                                           commandLine);
+      // TBD: prohibit calling another plugin? What about loops?
       CommandCallable callable =
           new CommandCallable(commandToExecute, ctx.getCommandExecutor());
       return callable.call();

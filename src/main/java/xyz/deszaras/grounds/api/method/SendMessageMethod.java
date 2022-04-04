@@ -21,19 +21,18 @@ class SendMessageMethod implements ApiMethod {
 
   @Override
   public JsonRpcResponse call(JsonRpcRequest request, ApiMethodContext ctx) {
+    boolean asExtension = ApiMethodUtils.asExtension(request);
     String playerName;
     String message;
     Map<String, List<String>> recordMap;
     Map<String, List<List<String>>> tableMap;
     String header;
-    boolean asExtension;
     try {
       playerName = ApiMethodUtils.getRequiredStringParam(request, "playerName");
       message = ApiMethodUtils.getStringParam(request, "message", null);
       recordMap = ApiMethodUtils.getParam(request, "record", Map.class, null);
       tableMap = ApiMethodUtils.getParam(request, "table", Map.class, null);
       header = ApiMethodUtils.getStringParam(request, "header", null);
-      asExtension = ApiMethodUtils.getBooleanParam(request, "asExtension", false);
     } catch (IllegalArgumentException e) {
       return new JsonRpcResponse(new ErrorObject(JsonRpcErrorCodes.INVALID_PARAMETERS,
                                                  e.getMessage()),

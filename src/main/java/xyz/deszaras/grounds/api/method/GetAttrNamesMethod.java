@@ -19,11 +19,10 @@ class GetAttrNamesMethod implements ApiMethod {
 
   @Override
   public JsonRpcResponse call(JsonRpcRequest request, ApiMethodContext ctx) {
+    boolean asExtension = ApiMethodUtils.asExtension(request);
     String thingId;
-    boolean asExtension;
     try {
       thingId = ApiMethodUtils.getRequiredStringParam(request, "thingId");
-      asExtension = ApiMethodUtils.getBooleanParam(request, "asExtension", false);
     } catch (IllegalArgumentException e) {
       return new JsonRpcResponse(new ErrorObject(JsonRpcErrorCodes.INVALID_PARAMETERS,
                                                  e.getMessage()),

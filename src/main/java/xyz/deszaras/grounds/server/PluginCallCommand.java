@@ -19,8 +19,8 @@ import xyz.deszaras.grounds.model.Player;
  * A plugin call command is defined in an attribute of an extension.
  * The name of the attribute matches the name of the command and
  * must start with a '$' character. See
- * {@link PluginCallFactory#newScript(Attr)} for details on the
- * necessary attribute structure.<p>
+ * {@link PluginCallFactory#newPluginCall(Attr,Extension,xyz.deszaras.grounds.api.PluginCallTracker)}
+ * for details on the necessary attribute structure.<p>
  *
  * A player may call a plugin if they pass the USE category on
  * the extension where the plugin call is defined.

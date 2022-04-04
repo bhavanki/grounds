@@ -128,7 +128,7 @@ PAYLOAD=${PLUGIN_CALL_ARGUMENTS[0]}
 
 PLAYER=$(echo "$PAYLOAD" | jq -r '.player' -)
 POSE_CONTENT="The magic fiddle plays a ditty as ${PLAYER} arrives."
-POSE_RESPONSE=$(jsonrpc "${PLUGIN_CALL_ID}" exec commandLine stringlist "pose|${POSE_CONTENT}" asExtension boolean "true")
+POSE_RESPONSE=$(jsonrpc "${PLUGIN_CALL_ID}" exec commandLine stringlist "pose|${POSE_CONTENT}" _as_extension boolean "true")
 PARSED_RESPONSE=$(parse_response "$POSE_RESPONSE")
 if [[ $PARSED_RESPONSE =~ ^r: ]]; then
   respond_result "" "$REQUEST_ID"

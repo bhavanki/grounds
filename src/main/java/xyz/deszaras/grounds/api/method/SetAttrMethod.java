@@ -16,17 +16,16 @@ class SetAttrMethod implements ApiMethod {
 
   @Override
   public JsonRpcResponse call(JsonRpcRequest request, ApiMethodContext ctx) {
+    boolean asExtension = ApiMethodUtils.asExtension(request);
     String thingId;
     String name;
     String value;
     String type;
-    boolean asExtension;
     try {
       thingId = ApiMethodUtils.getRequiredStringParam(request, "thingId");
       name = ApiMethodUtils.getRequiredStringParam(request, "name");
       value = ApiMethodUtils.getRequiredStringParam(request, "value");
       type = ApiMethodUtils.getRequiredStringParam(request, "type");
-      asExtension = ApiMethodUtils.getBooleanParam(request, "asExtension", false);
     } catch (IllegalArgumentException e) {
       return new JsonRpcResponse(new ErrorObject(JsonRpcErrorCodes.INVALID_PARAMETERS,
                                                  e.getMessage()),
