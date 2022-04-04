@@ -1,6 +1,6 @@
 # Events
 
-Commands are what makes things happen in a Grounds universe, and many commands generate events describing what happens. Events on their own are invisible to players, but [listener attributes on extensions](extensions.md) can react to events by running their own scripts, which may in turn run more commands. This helps to make a universe feel more alive, beyond the players in it.
+Commands are what makes things happen in a Grounds universe, and many commands generate events describing what happens. Events on their own are invisible to players, but [listener attributes on extensions](extensions.md) can react to events by running plugins, which may in turn run more commands. This helps to make a universe feel more alive, beyond the players in it.
 
 ## Event Types
 

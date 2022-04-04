@@ -1,6 +1,6 @@
 # Grounds
 
-Grounds is a MUSH.
+Grounds is a MUSH server.
 
 * [Getting Started](gettingstarted.md)
 * [Managing Actors and Players](actor.md)
@@ -12,5 +12,6 @@ Grounds is a MUSH.
 * [Combat](combat.md)
 * [Attributes](attributes.md)
 * [Extensions](extensions.md)
-* [Scripts](scripts.md)
+* [Plugins](plugins.md)
+* [Grounds API](api.md)
 * [Events](events.md)

@@ -4,7 +4,7 @@ This guide assumes that you have already [gotten started](gettingstarted.md). He
 
 ## Actors vs. Players
 
-An actor is someone who is logged in to Grounds and playing the game; in other words, a real-life person. When you start Grounds in single-user mode, you automatically connect as the actor named "root", which is the only actor with access to the GOD player. When Grounds is running in its normal multi-user mode, you can log in as "root" or, much more often, as some other identity.
+An actor is someone who is logged in to Grounds and playing the game; in other words, a real-life person. When you start Grounds in single-user mode, you automatically connect as the actor named "root", who is the only actor with access to the GOD player. When Grounds is running in its normal multi-user mode, you can log in as "root" or, much more often, as some other identity.
 
 A player is a thing in the game universe that represents a character. When you log in to Grounds, you select the player you would like to inhabit, among those you have permissions to. Players are the avatars who interact directly with the game world.
 

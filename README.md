@@ -12,9 +12,10 @@ Grounds is under active development, so features are all new and/or still being 
 * **Role-based permissions.** Every thing in a universe has a security policy that permits categories of actions that affect it only by specified roles. For example, a player can't read another thing's attributes unless the player has a role with READ permission. Roles include a few wizardly ones plus ordinary ones.
 * **SSH and telnet connectivity.** The game server accepts connections over SSH, so that all traffic is encrypted, or telnet, or both.
 * **Command-line editing.** Grounds uses [JLine](https://github.com/jline/jline3) to deliver powerful command line editing features.
-* **Extensibility through softcode (scripted) commands.** Extensions in a universe can hold Groovy scripts that may be executed as commands.
-* **Reaction to events.** Extensions can also listen for events, such as players arriving or leaving locations, or saying things, and react by running scripts to respond.
-* **Chat.** Players can message each other over OOC, named chat channels. *This feature is implemented completely in softcode!*
+* **Extensibility through plugins.** Extensions in a universe can call on external plugins, written in any language, that may be executed as commands.
+* **Reaction to events.** Extensions can also listen for events, such as players arriving or leaving locations, or saying things, and react by running plugins to respond.
+* **Chat.** Players can message each other over OOC, named chat channels. *This feature is implemented completely in a plugin!*
+* **Events.** Players can maintain a list of upcoming events. *This feature is implemented completely in a plugin!*
 * **Mail.** Players can communicate over an internal mail system.
 * **Combat.** The Grapple combat system lets players fight for victory against each other or NPCs.
 
