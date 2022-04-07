@@ -157,6 +157,41 @@ Gets the timezone of the plugin caller, if their actor has set one. If the calle
   <tr><td colspan="3">none</td></tr>
 </table>
 
+### getRoles
+
+Lists the roles of the referenced player. Either the player's ID or name must be supplied.
+
+Remember that the GOD player has no roles, but a plugin should allow GOD to do anything.
+
+<table>
+  <tr><th colspan="3">params</th></tr>
+  <tr>
+    <td>thingId</td>
+    <td>string</td>
+    <td>player ID</td>
+  </tr>
+  <tr>
+    <td>playerName</td>
+    <td>string</td>
+    <td>player name</td>
+  </tr>
+  <tr><td colspan="3">may be run as an extension</td></tr>
+  <tr><th colspan="3">result</th></tr>
+  <tr>
+    <td colspan="3">roles as an array of strings</td>
+  </tr>
+  <tr><th colspan="3">error codes</th></tr>
+  <tr>
+    <td>-32004</td><td colspan="2">the player is not found</td>
+  </tr>
+  <tr>
+    <td>-32602</td><td colspan="2">a required param is missing, or a param is the wrong type</td>
+  </tr>
+  <tr>
+    <td>-32603</td><td colspan="2">getting the roles failed</td>
+  </tr>
+</table>
+
 ### removeAttr
 
 Removes an attribute with the given name from the referenced thing.

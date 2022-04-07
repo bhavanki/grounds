@@ -1,5 +1,6 @@
 package xyz.deszaras.grounds.command;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
@@ -21,10 +22,12 @@ public class RoleCommand extends Command<Boolean> {
     throw new UnsupportedOperationException("This is a composite command");
   }
 
+  private static final Joiner ROLE_JOINER = Joiner.on(",");
+
   public static String reportRoles(Actor actor, Player targetPlayer,
-                                 Set<Role> newRoles) {
+                                   Set<Role> newRoles) {
     return String.format("Roles for %s: %s", targetPlayer.getName(),
-                         newRoles.toString());
+                         ROLE_JOINER.join(newRoles));
   }
 
   static final Map<String, Class<? extends Command>> ROLE_COMMANDS;

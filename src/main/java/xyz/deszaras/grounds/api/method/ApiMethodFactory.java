@@ -19,6 +19,7 @@ public class ApiMethodFactory {
         .put("getAttrNames", new GetAttrNamesMethod())
         .put("getCallerName", new GetCallerNameMethod())
         .put("getCallerTimezone", new GetCallerTimezoneMethod())
+        .put("getRoles", new GetRolesMethod())
         .put("sendMessage", new SendMessageMethod())
         .put("sendMessageToCaller", new SendMessageToCallerMethod())
         .put("removeAttr", new RemoveAttrMethod())
