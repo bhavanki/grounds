@@ -24,10 +24,12 @@ const (
 )
 
 type channel struct {
-	name      string
-	members   []string
-	visRoles  []string
-	joinRoles []string
+	name        string
+	members     []string
+	visRoles    []string
+	joinRoles   []string
+	visPlayers  []string
+	joinPlayers []string
 }
 
 func (c *channel) fillFromAttr(channelAttr api.Attr) error {
@@ -55,6 +57,22 @@ func (c *channel) fillFromAttr(channelAttr api.Attr) error {
 		c.joinRoles = strings.Split(joinRolesAttr.Value, ",")
 	}
 
+	visPlayersAttr, err := channelAttr.GetAttrInAttrListValue("visPlayers")
+	if err != nil {
+		return err
+	}
+	if visPlayersAttr.Value != "" {
+		c.visPlayers = strings.Split(visPlayersAttr.Value, ",")
+	}
+
+	joinPlayersAttr, err := channelAttr.GetAttrInAttrListValue("joinPlayers")
+	if err != nil {
+		return err
+	}
+	if joinPlayersAttr.Value != "" {
+		c.joinPlayers = strings.Split(joinPlayersAttr.Value, ",")
+	}
+
 	return nil
 }
 
@@ -71,12 +89,16 @@ func (c channel) toAttr() (*api.Attr, error) {
 	membersAttr := api.NewStringAttr("members", strings.Join(c.members, ","))
 	visRolesAttr := api.NewStringAttr("visRoles", strings.Join(c.visRoles, ","))
 	joinRolesAttr := api.NewStringAttr("joinRoles", strings.Join(c.joinRoles, ","))
+	visPlayersAttr := api.NewStringAttr("visPlayers", strings.Join(c.visPlayers, ","))
+	joinPlayersAttr := api.NewStringAttr("joinPlayers", strings.Join(c.joinPlayers, ","))
 	channelAttr, err := api.NewAttrListAttr(
 		c.name,
 		[]api.Attr{
 			membersAttr,
 			visRolesAttr,
 			joinRolesAttr,
+			visPlayersAttr,
+			joinPlayersAttr,
 		},
 	)
 	if err != nil {
@@ -86,51 +108,89 @@ func (c channel) toAttr() (*api.Attr, error) {
 }
 
 func (c channel) maySee(ctx context.Context, name string) bool {
-	if len(c.visRoles) == 0 {
-		return true
-	}
 	if name == "GOD" {
 		return true
 	}
 
-	roles, err := api.GetRoles(ctx, name, true)
-	if err != nil {
-		return false
-	}
+	if len(c.visRoles) > 0 {
+		roles, err := api.GetRoles(ctx, name, true)
+		if err != nil {
+			return false
+		}
 
-	for _, role := range roles {
-		for _, channelRole := range c.visRoles {
-			if role == channelRole {
-				return true
+		visByRole := false
+		for _, role := range roles {
+			for _, channelRole := range c.visRoles {
+				if role == channelRole {
+					visByRole = true
+					break
+				}
 			}
+		}
+
+		if !visByRole {
+			return false
 		}
 	}
 
-	return false
+	if len(c.visPlayers) > 0 {
+		visByPlayer := false
+		for _, channelPlayer := range c.visPlayers {
+			if name == channelPlayer {
+				visByPlayer = true
+				break
+			}
+		}
+
+		if !visByPlayer {
+			return false
+		}
+	}
+
+	return true
 }
 
 func (c channel) mayJoin(ctx context.Context, name string) bool {
-	if len(c.joinRoles) == 0 {
-		return true
-	}
 	if name == "GOD" {
 		return true
 	}
 
-	roles, err := api.GetRoles(ctx, name, true)
-	if err != nil {
-		return false
-	}
+	if len(c.joinRoles) > 0 {
+		roles, err := api.GetRoles(ctx, name, true)
+		if err != nil {
+			return false
+		}
 
-	for _, role := range roles {
-		for _, channelRole := range c.joinRoles {
-			if role == channelRole {
-				return true
+		joinByRole := false
+		for _, role := range roles {
+			for _, channelRole := range c.joinRoles {
+				if role == channelRole {
+					joinByRole = true
+					break
+				}
 			}
+		}
+
+		if !joinByRole {
+			return false
 		}
 	}
 
-	return false
+	if len(c.joinPlayers) > 0 {
+		joinByPlayer := false
+		for _, channelPlayer := range c.joinPlayers {
+			if name == channelPlayer {
+				joinByPlayer = true
+				break
+			}
+		}
+
+		if !joinByPlayer {
+			return false
+		}
+	}
+
+	return true
 }
 
 func (c *channel) addMember(ctx context.Context, name string, extensionId string, asExtension bool) error {
@@ -440,12 +500,16 @@ func handleCreate(ctx context.Context, call *api.PluginCall) (interface{}, error
 	membersAttr := api.NewStringAttr("members", "")
 	visRolesAttr := api.NewStringAttr("visRoles", "")
 	joinRolesAttr := api.NewStringAttr("joinRoles", "")
+	visPlayersAttr := api.NewStringAttr("visPlayers", "")
+	joinPlayersAttr := api.NewStringAttr("joinPlayers", "")
 	channel, err := api.NewAttrListAttr(
 		channelName,
 		[]api.Attr{
 			membersAttr,
 			visRolesAttr,
 			joinRolesAttr,
+			visPlayersAttr,
+			joinPlayersAttr,
 		},
 	)
 	if err != nil {
@@ -498,12 +562,16 @@ func handleInspect(ctx context.Context, call *api.PluginCall) (interface{}, erro
 			"Members",
 			"Visible to roles",
 			"Joinable by roles",
+			"Visible to players",
+			"Joinable by players",
 		},
 		"values": []string{
 			call.Arguments[1],
 			strings.Join(channel.members, ","),
 			strings.Join(channel.visRoles, ","),
 			strings.Join(channel.joinRoles, ","),
+			strings.Join(channel.visPlayers, ","),
+			strings.Join(channel.joinPlayers, ","),
 		},
 	}
 	err = api.SendRecordToCaller(ctx, record, "Channel details:")
@@ -528,8 +596,11 @@ func handleSetVisibility(ctx context.Context, call *api.PluginCall) (interface{}
 	for _, arg := range call.Arguments[2:] {
 		switch {
 		case strings.HasPrefix(arg, "roles="):
-			rolesString := arg[strings.Index(arg, "=") + 1:]
+			rolesString := arg[strings.Index(arg, "=")+1:]
 			channel.visRoles = strings.Split(rolesString, ",")
+		case strings.HasPrefix(arg, "players="):
+			rolesString := arg[strings.Index(arg, "=")+1:]
+			channel.visPlayers = strings.Split(rolesString, ",")
 		default:
 			return nil, fmt.Errorf("Unsupported argument %s", arg)
 		}
@@ -562,8 +633,11 @@ func handleSetJoinability(ctx context.Context, call *api.PluginCall) (interface{
 	for _, arg := range call.Arguments[2:] {
 		switch {
 		case strings.HasPrefix(arg, "roles="):
-			rolesString := arg[strings.Index(arg, "=") + 1:]
+			rolesString := arg[strings.Index(arg, "=")+1:]
 			channel.joinRoles = strings.Split(rolesString, ",")
+		case strings.HasPrefix(arg, "players="):
+			rolesString := arg[strings.Index(arg, "=")+1:]
+			channel.joinPlayers = strings.Split(rolesString, ",")
 		default:
 			return nil, fmt.Errorf("Unsupported argument %s", arg)
 		}
