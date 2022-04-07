@@ -66,6 +66,19 @@ func GetCallerTZ(ctx context.Context) (string, error) {
 	return tz, nil
 }
 
+func GetRoles(ctx context.Context, playerName string, asExtension bool) ([]string, error) {
+	params := map[string]interface{} {
+		"playerName": playerName,
+		"_as_extension": asExtension,
+	}
+	var roles []string
+	err := Call(ctx, "getRoles", params, &roles)
+	if err != nil {
+		return nil, err
+	}
+	return roles, nil
+}
+
 func SendMessage(ctx context.Context, playerName string, message string) error {
 	params := map[string]interface{}{
 		"playerName": playerName,
