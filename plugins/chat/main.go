@@ -67,14 +67,70 @@ func (c channel) isMember(name string) bool {
 	return false
 }
 
-func (c channel) maySee(name string) bool {
-	// TBD: check player roles vs. channel visRoles
-	return true
+func (c channel) toAttr() (*api.Attr, error) {
+	membersAttr := api.NewStringAttr("members", strings.Join(c.members, ","))
+	visRolesAttr := api.NewStringAttr("visRoles", strings.Join(c.visRoles, ","))
+	joinRolesAttr := api.NewStringAttr("joinRoles", strings.Join(c.joinRoles, ","))
+	channelAttr, err := api.NewAttrListAttr(
+		c.name,
+		[]api.Attr{
+			membersAttr,
+			visRolesAttr,
+			joinRolesAttr,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &channelAttr, nil
 }
 
-func (c channel) mayJoin(name string) bool {
-	// TBD: check player roles vs. channel visRoles
-	return true
+func (c channel) maySee(ctx context.Context, name string) bool {
+	if len(c.visRoles) == 0 {
+		return true
+	}
+	if name == "GOD" {
+		return true
+	}
+
+	roles, err := api.GetRoles(ctx, name, true)
+	if err != nil {
+		return false
+	}
+
+	for _, role := range roles {
+		for _, channelRole := range c.visRoles {
+			if role == channelRole {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func (c channel) mayJoin(ctx context.Context, name string) bool {
+	if len(c.joinRoles) == 0 {
+		return true
+	}
+	if name == "GOD" {
+		return true
+	}
+
+	roles, err := api.GetRoles(ctx, name, true)
+	if err != nil {
+		return false
+	}
+
+	for _, role := range roles {
+		for _, channelRole := range c.joinRoles {
+			if role == channelRole {
+				return true
+			}
+		}
+	}
+
+	return false
 }
 
 func (c *channel) addMember(ctx context.Context, name string, extensionId string, asExtension bool) error {
@@ -159,7 +215,7 @@ func listVisibleChannelNames(ctx context.Context, callerName string, extensionId
 		if err != nil {
 			continue
 		}
-		if !channel.maySee(callerName) {
+		if !channel.maySee(ctx, callerName) {
 			continue
 		}
 		visibleChannelNames = append(visibleChannelNames, channelName)
@@ -183,7 +239,7 @@ func handleSay(ctx context.Context, call *api.PluginCall) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	if !channel.maySee(callerName) {
+	if !channel.maySee(ctx, callerName) {
 		return nil, channelNotFoundError(channelName)
 	}
 	if !channel.isMember(callerName) {
@@ -213,10 +269,10 @@ func handleJoin(ctx context.Context, call *api.PluginCall) (interface{}, error) 
 	if err != nil {
 		return nil, err
 	}
-	if !channel.maySee(callerName) {
+	if !channel.maySee(ctx, callerName) {
 		return nil, channelNotFoundError(channelName)
 	}
-	if !channel.mayJoin(callerName) {
+	if !channel.mayJoin(ctx, callerName) {
 		return nil, channelOffLimitsError(channelName)
 	}
 	if channel.isMember(callerName) {
@@ -246,7 +302,7 @@ func handleLeave(ctx context.Context, call *api.PluginCall) (interface{}, error)
 	if err != nil {
 		return nil, err
 	}
-	if !channel.maySee(callerName) {
+	if !channel.maySee(ctx, callerName) {
 		return nil, channelNotFoundError(channelName)
 	}
 	if !channel.isMember(callerName) {
@@ -345,7 +401,7 @@ func handleMembers(ctx context.Context, call *api.PluginCall) (interface{}, erro
 	if err != nil {
 		return nil, err
 	}
-	if !channel.maySee(callerName) {
+	if !channel.maySee(ctx, callerName) {
 		return nil, channelNotFoundError(channelName)
 	}
 	if !channel.isMember(callerName) {
@@ -422,6 +478,107 @@ func handleDelete(ctx context.Context, call *api.PluginCall) (interface{}, error
 		return nil, err
 	}
 	api.SendMessageToCaller(ctx, fmt.Sprintf("Deleted channel %s", channelName))
+	return "", nil
+}
+
+func handleInspect(ctx context.Context, call *api.PluginCall) (interface{}, error) {
+	if argErr := api.CheckArgumentCount(call, 2); argErr != nil {
+		return nil, argErr
+	}
+
+	channelName := call.Arguments[1]
+	channel, err := getChannel(ctx, channelName, call.ExtensionId)
+	if err != nil {
+		return nil, err
+	}
+
+	record := map[string][]string{
+		"keys": []string{
+			"Name",
+			"Members",
+			"Visible to roles",
+			"Joinable by roles",
+		},
+		"values": []string{
+			call.Arguments[1],
+			strings.Join(channel.members, ","),
+			strings.Join(channel.visRoles, ","),
+			strings.Join(channel.joinRoles, ","),
+		},
+	}
+	err = api.SendRecordToCaller(ctx, record, "Channel details:")
+	if err != nil {
+		return nil, err
+	}
+
+	return "", nil
+}
+
+func handleSetVisibility(ctx context.Context, call *api.PluginCall) (interface{}, error) {
+	if argErr := api.CheckArgumentCountAtLeast(call, 3); argErr != nil {
+		return nil, argErr
+	}
+
+	channelName := call.Arguments[1]
+	channel, err := getChannel(ctx, channelName, call.ExtensionId)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, arg := range call.Arguments[2:] {
+		switch {
+		case strings.HasPrefix(arg, "roles="):
+			rolesString := arg[strings.Index(arg, "=") + 1:]
+			channel.visRoles = strings.Split(rolesString, ",")
+		default:
+			return nil, fmt.Errorf("Unsupported argument %s", arg)
+		}
+	}
+
+	channelAttr, err := channel.toAttr()
+	if err != nil {
+		return nil, err
+	}
+
+	err = api.SetAttr(ctx, call.ExtensionId, *channelAttr, false)
+	if err != nil {
+		return nil, err
+	}
+	api.SendMessageToCaller(ctx, fmt.Sprintf("Updated channel %s", channelName))
+	return "", nil
+}
+
+func handleSetJoinability(ctx context.Context, call *api.PluginCall) (interface{}, error) {
+	if argErr := api.CheckArgumentCountAtLeast(call, 3); argErr != nil {
+		return nil, argErr
+	}
+
+	channelName := call.Arguments[1]
+	channel, err := getChannel(ctx, channelName, call.ExtensionId)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, arg := range call.Arguments[2:] {
+		switch {
+		case strings.HasPrefix(arg, "roles="):
+			rolesString := arg[strings.Index(arg, "=") + 1:]
+			channel.joinRoles = strings.Split(rolesString, ",")
+		default:
+			return nil, fmt.Errorf("Unsupported argument %s", arg)
+		}
+	}
+
+	channelAttr, err := channel.toAttr()
+	if err != nil {
+		return nil, err
+	}
+
+	err = api.SetAttr(ctx, call.ExtensionId, *channelAttr, false)
+	if err != nil {
+		return nil, err
+	}
+	api.SendMessageToCaller(ctx, fmt.Sprintf("Updated channel %s", channelName))
 	return "", nil
 }
 
@@ -557,6 +714,12 @@ func main() {
 						return handleCreate
 					case "delete":
 						return handleDelete
+					case "inspect":
+						return handleInspect
+					case "set_visibility":
+						return handleSetVisibility
+					case "set_joinability":
+						return handleSetJoinability
 					case "add_member":
 						return handleAddMember
 					case "remove_member":

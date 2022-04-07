@@ -38,9 +38,40 @@
         - name: syntax
           value: $CHATADMIN DELETE <channel>
         - name: summary
-          value: Deletes a new chat channel
+          value: Deletes a existing chat channel
         - name: description
           value: The membership of the channel is lost on deletion.
+    - name: $CHATADMIN_INSPECT
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $CHATADMIN INSPECT <channel>
+        - name: summary
+          value: Inspects an existing chat channel
+        - name: description
+          value: Members and all constraints are listed.
+    - name: $CHATADMIN_SET_VISIBILITY
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $CHATADMIN SET_VISIBILITY <channel> <expressions>
+        - name: summary
+          value: Sets visibility constraints on a channel
+        - name: description
+          value: |
+            Available expressions:
+            - roles=role1,role2,... => visible only to players with the listed roles
+    - name: $CHATADMIN_SET_JOINABILITY
+      type: ATTRLIST
+      value: |
+        - name: syntax
+          value: $CHATADMIN SET_JOINABILITY <channel> <expressions>
+        - name: summary
+          value: Sets joinability constraints on a channel
+        - name: description
+          value: |
+            Available expressions:
+            - roles=role1,role2,... => joinable only by players with the listed roles
     - name: $CHATADMIN_ADD_MEMBER
       type: ATTRLIST
       value: |
