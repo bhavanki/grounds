@@ -162,6 +162,14 @@ func CheckArgumentCount(call *PluginCall, expected int) error {
 	return nil
 }
 
+func CheckArgumentCountAtLeast(call *PluginCall, expected int) error {
+	if len(call.Arguments) < expected {
+		return fmt.Errorf("Expected at least %d plugin call arguments, got %d",
+			expected, len(call.Arguments))
+	}
+	return nil
+}
+
 func newJsonRpcErrorResponse(code int64, message string, id jsonrpc2.ID) *jsonrpc2.Response {
 	res, _ := jsonrpc2.NewResponse(id, nil, jsonrpc2.NewError(code, message))
 	return res
