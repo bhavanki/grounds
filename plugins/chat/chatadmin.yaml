@@ -4,6 +4,9 @@
 - name: pluginMethod
   type: STRING
   value: chatadmin
+- name: callerRoles
+  type: STRING
+  value: ADEPT,BARD,THAUMATURGE
 - name: commandHelp
   type: ATTRLIST
   value: |
