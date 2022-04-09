@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -67,6 +66,14 @@ public class RunCommand extends Command<Boolean> {
       try {
         Command commandToExecute =
             commandExecutor.getCommandFactory().getCommand(actor, player, tokens);
+        if (commandToExecute instanceof ShutdownCommand ||
+            commandToExecute instanceof ExitCommand ||
+            commandToExecute instanceof SwitchPlayerCommand) {
+          player.sendMessage(new Message(player, Message.Style.INFO,
+                                         "Ignoring command of type " +
+                                         commandToExecute.getClass().getSimpleName()));
+          continue; // to next line
+        }
         CommandCallable commandCallable = new CommandCallable(commandToExecute, commandExecutor);
         commandResult = commandCallable.call();
       } catch (CommandFactoryException e) {
@@ -80,15 +87,6 @@ public class RunCommand extends Command<Boolean> {
         Object result = commandResult.getResult();
         player.sendMessage(new Message(player, Message.Style.INFO,
                                        result != null ? result.toString() : "<null>"));
-        Optional<Command> command = commandResult.getCommand();
-        if (command.isPresent() &&
-          // Problem: Need to catch shutdown command before it's executed!
-            (command.get() instanceof ExitCommand) ||
-             command.get() instanceof SwitchPlayerCommand) {
-          player.sendMessage(new Message(player, Message.Style.INFO,
-                                         "Ignoring command of type " +
-                                         command.get().getClass().getSimpleName()));
-        }
       }
     }
 

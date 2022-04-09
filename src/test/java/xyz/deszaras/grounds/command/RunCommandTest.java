@@ -159,6 +159,12 @@ public class RunCommandTest extends AbstractCommandTest {
                SwitchPlayerCommand.class);
   }
 
+  @Test
+  public void testIgnoreShutdown() throws Exception {
+    testIgnore("runcommand5.cmd", List.of("SHUTDOWN"), ShutdownCommand.class);
+  }
+
+
   private void testIgnore(String commandFileName,
                           List<String> ignoredCommandLine,
                           Class<? extends Command> ignoredCommandClass)
@@ -174,13 +180,11 @@ public class RunCommandTest extends AbstractCommandTest {
 
     assertTrue(command.execute());
 
-    for (int i = 0; i < 3; i++) {
-      verify(commands[i]).execute();
-    }
+    verify(commands[0]).execute();
+    verify(commands[1], never()).execute();
+    verify(commands[2]).execute();
     verifyMessages("NOOP0", "true");
-    verifyMessages(String.join(" ", ignoredCommandLine), "true");
-    Message m = Player.GOD.getNextMessage();
-    assertTrue(m.getMessage().contains("Ignoring command of type"));
+    verifyIgnoringMessages(ignoredCommandLine.get(0));
     verifyMessages("NOOP1", "true");
   }
 
@@ -206,5 +210,13 @@ public class RunCommandTest extends AbstractCommandTest {
     assertEquals("Running command:\n" + command, m.getMessage());
     m = Player.GOD.getNextMessage();
     assertEquals(output, m.getMessage());
+  }
+
+  private void verifyIgnoringMessages(String command)
+      throws Exception {
+    Message m = Player.GOD.getNextMessage();
+    assertTrue(m.getMessage().startsWith("Running command:\n" + command));
+    m = Player.GOD.getNextMessage();
+    assertTrue(m.getMessage().contains("Ignoring command of type"));
   }
 }
