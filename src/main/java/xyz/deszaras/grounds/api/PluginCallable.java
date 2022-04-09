@@ -8,18 +8,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.CommandException;
+import xyz.deszaras.grounds.command.PermissionException;
 import xyz.deszaras.grounds.model.Player;
+import xyz.deszaras.grounds.model.Universe;
 
 /**
  * A callable for executing a {@link PluginCall}.
@@ -68,6 +73,15 @@ public class PluginCallable implements Callable<String> {
    */
   @Override
   public String call() throws CommandException {
+
+    // Check that the caller has a permitted role.
+    if (!(player.equals(Player.GOD))) {
+      Set<Role> playerRoles = new HashSet<>(Universe.getCurrent().getRoles(player));
+      playerRoles.retainAll(pluginCall.getCallerRoles());
+      if (playerRoles.isEmpty()) {
+        throw new PermissionException("Permission denied");
+      }
+    }
 
     // Construct request parameters.
     String pluginCallId = UUID.randomUUID().toString();

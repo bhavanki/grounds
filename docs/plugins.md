@@ -15,6 +15,9 @@ A _plugin command_ is a Grounds command that is implemented with a plugin. It is
     <td>pluginMethod</td><td>STRING</td><td>(required) JSON RPC request method</td>
   </tr>
   <tr>
+    <td>callerRoles</td><td>STRING</td><td>Comma-separated list of permitted roles for callers (default is all non-guest roles)</td>
+  </tr>
+  <tr>
     <td>commandHelp</td><td>ATTRLIST</td><td>Plugin command help</td>
   </tr>
 </table>

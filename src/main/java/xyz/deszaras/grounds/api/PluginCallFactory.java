@@ -1,12 +1,17 @@
 package xyz.deszaras.grounds.api;
 
+import com.google.common.base.Splitter;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListResourceBundle;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.model.Attr;
 import xyz.deszaras.grounds.model.Extension;
 
@@ -15,11 +20,17 @@ import xyz.deszaras.grounds.model.Extension;
  */
 public class PluginCallFactory {
 
+  private static final Splitter ROLE_SPLITTER = Splitter.on(",");
+
+  private static final Set<Role> DEFAULT_CALLER_ROLES = Role.NON_GUEST_ROLES;
+
   private static final String PATH = "pluginPath";
 
   // FUTURE: plugin domain socket
 
   private static final String METHOD = "pluginMethod";
+
+  private static final String CALLER_ROLES = "callerRoles";
 
   private static final String HELP = "commandHelp";
 
@@ -29,6 +40,7 @@ public class PluginCallFactory {
    * <ul>
    * <li>"pluginPath" (string) = path to plugin to run</li>
    * <li>"pluginMethod" (string) = JSON-RPC method to call</li>
+   * <li>"callerRoles" (string) = comma-separated list of allowed roles</li>
    * <li>"commandHelp" (attrlist) = help text</li>
    * </ul>
    *
@@ -67,6 +79,25 @@ public class PluginCallFactory {
       throw new PluginCallFactoryException("Plugin call attribute is missing " + METHOD);
     }
 
+    // Get the permitted caller roles from the callerRoles attribute.
+    Optional<Attr> callerRolesAttr = attrs.stream()
+        .filter(a -> a.getName().equals(CALLER_ROLES) &&
+                     a.getType() == Attr.Type.STRING)
+        .findFirst();
+    Set<Role> callerRoles;
+    if (callerRolesAttr.isPresent()) {
+      String callerRolesStr = callerRolesAttr.get().getValue();
+      try {
+        callerRoles = ROLE_SPLITTER.splitToList(callerRolesStr).stream()
+            .map(s -> Role.valueOf(s))
+            .collect(Collectors.toSet());
+      } catch (IllegalArgumentException e) {
+        throw new PluginCallFactoryException("At least one caller role is invalid: " + callerRolesStr);
+      }
+    } else {
+      callerRoles = DEFAULT_CALLER_ROLES;
+    }
+
     // Get the help text from the commandHelp attribute.
     Optional<Attr> helpAttr = attrs.stream()
         .filter(a -> a.getName().equals(HELP) &&
@@ -81,6 +112,7 @@ public class PluginCallFactory {
 
     return new PluginCall(pathAttr.get().getValue(),
                           methodAttr.get().getValue(),
+                          callerRoles,
                           helpBundle,
                           pluginExtension,
                           pluginCallTracker);
