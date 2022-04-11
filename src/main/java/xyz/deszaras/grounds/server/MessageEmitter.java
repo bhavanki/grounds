@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.jline.reader.LineReader;
 import org.jline.terminal.Terminal;
 
+import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.Message;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.util.AnsiString;
@@ -49,10 +50,21 @@ public class MessageEmitter implements Runnable {
         LineBreaker lineBreaker = new LineBreaker(terminal.getWidth());
         AnsiString styledMessage = nextMessage.getStyledMessage();
         AnsiString emitMessage = lineBreaker.insertLineBreaks(styledMessage);
-        lineReader.printAbove(emitMessage.toString());
+        if (isAnsiEnabled()) {
+          lineReader.printAbove(emitMessage.toString());
+        } else {
+          lineReader.printAbove(emitMessage.toStrippedString());
+        }
       }
     } catch (InterruptedException e) { // NOPMD
       // exit the thread
     }
+  }
+
+  private boolean isAnsiEnabled() {
+    return player.getCurrentActor()
+        .map(actor -> actor.getPreference(Actor.PREFERENCE_ANSI).orElse("false"))
+        .map(value -> "true".equals(value))
+        .orElse(false);
   }
 }

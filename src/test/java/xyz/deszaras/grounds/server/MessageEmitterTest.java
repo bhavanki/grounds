@@ -4,6 +4,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.Message;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.util.AnsiString;
@@ -23,6 +25,7 @@ public class MessageEmitterTest {
 
   private static ExecutorService emitterExecutorService;
 
+  private Actor actor;
   private Player player;
   private Terminal terminal;
   private LineReader lineReader;
@@ -43,17 +46,21 @@ public class MessageEmitterTest {
 
   @BeforeEach
   public void setUp() {
+    actor = mock(Actor.class);
     player = mock(Player.class);
     terminal = mock(Terminal.class);
     lineReader = mock(LineReader.class);
 
     emitter = new MessageEmitter(player, terminal, lineReader);
+    when(player.getCurrentActor()).thenReturn(Optional.of(actor));
 
     sender = new Player("jay");
   }
 
   @Test
   public void testRun() throws Exception {
+    when(actor.getPreference(Actor.PREFERENCE_ANSI))
+        .thenReturn(Optional.of("true"));
     when(terminal.getWidth()).thenReturn(80);
     when(player.getNextMessage())
         .thenReturn(new Message(sender, Message.Style.INFO, "one"))
@@ -72,6 +79,8 @@ public class MessageEmitterTest {
 
   @Test
   public void testLineBreaking() throws Exception {
+    when(actor.getPreference(Actor.PREFERENCE_ANSI))
+        .thenReturn(Optional.of("true"));
     when(terminal.getWidth()).thenReturn(20);
     when(player.getNextMessage())
         .thenReturn(new Message(sender, Message.Style.INFO,
@@ -87,6 +96,8 @@ public class MessageEmitterTest {
 
   @Test
   public void testExpandHorizontalRules() throws Exception {
+    when(actor.getPreference(Actor.PREFERENCE_ANSI))
+        .thenReturn(Optional.of("true"));
     when(terminal.getWidth()).thenReturn(20);
     when(player.getNextMessage())
         .thenReturn(new Message(sender, Message.Style.INFO, "one\n{hr =}\ntwo"))
@@ -101,6 +112,8 @@ public class MessageEmitterTest {
 
   @Test
   public void testStyles() throws Exception {
+    when(actor.getPreference(Actor.PREFERENCE_ANSI))
+        .thenReturn(Optional.of("true"));
     when(terminal.getWidth()).thenReturn(80);
     when(player.getNextMessage())
         .thenReturn(new Message(sender, Message.Style.POSE, "one"))
