@@ -162,6 +162,22 @@ public class Actor {
     this.preferences.putAll(preferences);
   }
 
+  /**
+   * Gets the given preference as a boolean. If the preference is not set or
+   * cannot be parsed as a boolean, returns false.
+   *
+   * @return preference as a boolean
+   */
+  public boolean getBooleanPreference(String name) {
+    return Boolean.valueOf(getPreference(name).orElse("false"));
+  }
+
+  /**
+   * Gets the timezone preference as a {@code ZoneId}. If the preference is not
+   * set or is unknown, returns UTC.
+   *
+   * @return timezone preference
+   */
   public ZoneId getTimezone() {
     Optional<String> tz = getPreference(PREFERENCE_TIMEZONE);
     if (tz.isEmpty()) {

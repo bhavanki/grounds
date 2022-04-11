@@ -59,8 +59,7 @@ public class MessageEmitterTest {
 
   @Test
   public void testRun() throws Exception {
-    when(actor.getPreference(Actor.PREFERENCE_ANSI))
-        .thenReturn(Optional.of("true"));
+    when(actor.getBooleanPreference(Actor.PREFERENCE_ANSI)).thenReturn(true);
     when(terminal.getWidth()).thenReturn(80);
     when(player.getNextMessage())
         .thenReturn(new Message(sender, Message.Style.INFO, "one"))
@@ -79,8 +78,7 @@ public class MessageEmitterTest {
 
   @Test
   public void testLineBreaking() throws Exception {
-    when(actor.getPreference(Actor.PREFERENCE_ANSI))
-        .thenReturn(Optional.of("true"));
+    when(actor.getBooleanPreference(Actor.PREFERENCE_ANSI)).thenReturn(true);
     when(terminal.getWidth()).thenReturn(20);
     when(player.getNextMessage())
         .thenReturn(new Message(sender, Message.Style.INFO,
@@ -96,8 +94,7 @@ public class MessageEmitterTest {
 
   @Test
   public void testExpandHorizontalRules() throws Exception {
-    when(actor.getPreference(Actor.PREFERENCE_ANSI))
-        .thenReturn(Optional.of("true"));
+    when(actor.getBooleanPreference(Actor.PREFERENCE_ANSI)).thenReturn(true);
     when(terminal.getWidth()).thenReturn(20);
     when(player.getNextMessage())
         .thenReturn(new Message(sender, Message.Style.INFO, "one\n{hr =}\ntwo"))
@@ -112,8 +109,7 @@ public class MessageEmitterTest {
 
   @Test
   public void testStyles() throws Exception {
-    when(actor.getPreference(Actor.PREFERENCE_ANSI))
-        .thenReturn(Optional.of("true"));
+    when(actor.getBooleanPreference(Actor.PREFERENCE_ANSI)).thenReturn(true);
     when(terminal.getWidth()).thenReturn(80);
     when(player.getNextMessage())
         .thenReturn(new Message(sender, Message.Style.POSE, "one"))

@@ -63,8 +63,7 @@ public class MessageEmitter implements Runnable {
 
   private boolean isAnsiEnabled() {
     return player.getCurrentActor()
-        .map(actor -> actor.getPreference(Actor.PREFERENCE_ANSI).orElse("false"))
-        .map(value -> "true".equals(value))
+        .map(actor -> actor.getBooleanPreference(Actor.PREFERENCE_ANSI))
         .orElse(false);
   }
 }

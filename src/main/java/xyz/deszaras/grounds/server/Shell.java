@@ -30,6 +30,7 @@ import xyz.deszaras.grounds.command.CommandResult;
 import xyz.deszaras.grounds.command.ExitCommand;
 import xyz.deszaras.grounds.command.LookCommand;
 import xyz.deszaras.grounds.command.Message;
+import xyz.deszaras.grounds.command.PreferenceCommand;
 import xyz.deszaras.grounds.command.SwitchPlayerCommand;
 import xyz.deszaras.grounds.command.YoinkCommand;
 import xyz.deszaras.grounds.model.MissingThingException;
@@ -195,13 +196,9 @@ public class Shell implements Runnable {
     PrintWriter out = terminal.writer();
     PrintWriter err = terminal.writer(); // sadly
 
-    String ansiPref = actor.getPreference(Actor.PREFERENCE_ANSI).orElse("false");
-    if (!("true".equals(ansiPref))) {
-      // The flag is an InheritedThreadLocal, so it only affects this shell.
-      Ansi.setEnabled(false);
-    }
-    String promptPref = actor.getPreference(Actor.PREFERENCE_HIDE_PROMPT).orElse("false");
-    boolean hidePrompt = "true".equals(promptPref);
+    // The flag is an InheritedThreadLocal, so it only affects this shell.
+    Ansi.setEnabled(actor.getBooleanPreference(Actor.PREFERENCE_ANSI));
+    boolean hidePrompt = actor.getBooleanPreference(Actor.PREFERENCE_HIDE_PROMPT);
 
     Future<?> emitterFuture = null;
     Concierge concierge = new Concierge(Universe.getCurrent(), commandExecutor);
@@ -244,7 +241,7 @@ public class Shell implements Runnable {
         }
 
         List<String> tokens = lineReader.getParsedLine().words();
-        prePrompt = AnsiUtils.color("√ ", Ansi.Color.GREEN, true);
+        boolean success = true;
         if (!tokens.isEmpty() && !String.join("", tokens).isEmpty()) {
 
           Future<CommandResult<?>> commandFuture = commandExecutor.submit(actor, player, tokens);
@@ -291,12 +288,19 @@ public class Shell implements Runnable {
                  new MessageEmitter(player, terminal, lineReader));
 
               autoLook();
+            } else if (command instanceof PreferenceCommand) {
+              // refresh shell based on updated preferences
+              Ansi.setEnabled(actor.getBooleanPreference(Actor.PREFERENCE_ANSI));
+              hidePrompt = actor.getBooleanPreference(Actor.PREFERENCE_HIDE_PROMPT);
             }
           }
+          success = commandResult.isSuccessful();
+        }
 
-          if (!commandResult.isSuccessful()) {
-            prePrompt = AnsiUtils.color("X ", Ansi.Color.RED, true);
-          }
+        if (success) {
+          prePrompt = AnsiUtils.color("√ ", Ansi.Color.GREEN, true);
+        } else {
+          prePrompt = AnsiUtils.color("X ", Ansi.Color.RED, true);
         }
       }
     } catch (InterruptedException e) {
