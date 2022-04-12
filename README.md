@@ -1,12 +1,12 @@
 # Grounds
 
-A [MUSH](https://en.wikipedia.org/wiki/MUSH).
+An extensible [MUSH](https://en.wikipedia.org/wiki/MUSH)/[MUD](https://en.wikipedia.org/wiki/MUD) server written in Java.
 
 ![Java CI with Maven](https://github.com/bhavanki/grounds/workflows/Java%20CI%20with%20Maven/badge.svg)
 
 ## Features
 
-Grounds is under active development, so features are all new and/or still being worked on to a large extent. There are definitely bugs and missing features, and some concepts are still subject to change.
+Grounds is under active development, so features are all new and/or still being worked on to a large extent. There are definitely bugs and missing features.
 
 * **Arbitrary attributes.** Every thing has an unlimited set of named, typed attributes. Some are special, like "name" and "description". Make up any others you need.
 * **Role-based permissions.** Every thing in a universe has a security policy that permits categories of actions that affect it only by specified roles. For example, a player can't read another thing's attributes unless the player has a role with READ permission. Roles include a few wizardly ones plus ordinary ones.
@@ -23,7 +23,7 @@ Grounds is under active development, so features are all new and/or still being 
 
 * [JDK](https://adoptopenjdk.net/) 17 or higher
 * [Apache Maven](https://maven.apache.org) 3.6.0 or higher (building only)
-* [protoc](https://github.com/protocolbuffers/protobuf/) 3.19.3 or higher
+* [protoc](https://github.com/protocolbuffers/protobuf/) 3.19.3 or higher (building only)
 
 On macOS, Homebrew can install `protoc` via `brew install protobuf`.
 
@@ -79,4 +79,4 @@ See [the telnet package README](src/main/java/xyz/deszaras/telnet/README.md) for
 
 ## Other Credits
 
-Default banner logo from www.patorjk.com, Ivrit font
+Default banner logo from www.patorjk.com, Ivrit / Standard font
