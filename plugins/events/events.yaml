@@ -4,6 +4,9 @@
 - name: pluginMethod
   type: STRING
   value: event
+- name: callerRoles
+  type: STRING
+  value: DENIZEN,ADEPT,BARD,THAUMATURGE
 - name: commandHelp
   type: ATTRLIST
   value: |
