@@ -243,3 +243,5 @@ $ exit
 ## Combat
 
 See [Combat](combat.md) for a description of the combat system and the commands for it.
+
+→ [Roles](roles.md)

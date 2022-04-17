@@ -71,30 +71,8 @@ After you select your player (or the player is selected for you), you are insert
 
 At this point, others may log in as their actors, pick their players, and start the world turning.
 
-## Roles and Wizards
-
-Each player in the game has one or more roles. A role helps to control what a player is allowed to do. Here are the roles available in the game, and their purposes.
-
-The _DENIZEN_ role is for ordinary player characters. Anyone not on the server staff who has been accepted into the game has this role. A DENIZEN has the ability to freely move around the universe and interact with it, but limited ability to make changes to it.
-
-The _BARD_ role is a wizard role focused on building the world. A BARD may do anything a DENIZEN can, but also has the ability to build and destroy things, and may circumvent some of the rules of the world in order to arrange it as needed for the story.
-
-The _ADEPT_ role is a wizard role for enforcing the rules of the game. An ADEPT cannot build or destroy things, but they have the ability to boot or lock actors and to police the game through extraordinary actions, such as taking things from other players.
-
-The _THAUMATURGE_ role combines the abilities of the BARD and the ADEPT, and more. There are very few actions a THAUMATURGE may not take: loading and saving the game and shutting down the server are some of them. Notably, a THAUMATURGE can fully administer actor accounts except removing them, and can change the roles of other players.
-
-The GOD player has no roles, but it may do anything. You should rarely play as GOD, but instead take on a player with more limited power. The THAUMATURGE role is appropriate for the core administrators of the server to hold. Staff who are focused on world-building can get by with the BARD role, while other staff who contribute to the smooth running of the game should play as ADEPTs.
-
 ## Curtains Fall
 
 To stop the server, either interrupt the server process with Control-C, or issue the "shutdown" command as GOD (only GOD can shutdown the server this way). Shutting down ends the server process and all actors are disconnected, including you.
 
-## Encore: SSH and Telnet
-
-Grounds can serve connections over either SSH or telnet, or both if desired.
-
-To enable or disable SSH, set "enableSsh" in _server.properties_ to true (default) or false, respectively. Choose a port with the "sshPort" property, default 4768.
-
-To enable or disable telnet, set "enableTelnet" in _server.properties_ to true or false (default), respectively. Choose a port with the "telnetPort" property, default 4769.
-
-Obviously, you can't use the same port for both SSH and telnet. Also, at least one of them must be enabled.
+→ [Connecting](connecting.md)

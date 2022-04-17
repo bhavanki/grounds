@@ -2,7 +2,7 @@
 
 If you are interesting in checking out a Grounds server, you can log in as a guest. A guest has limited capabilities, but can still interact with other players to get to know them and learn about the game.
 
-To log in to Grounds as a guest, connect as the "guest" user.
+To log in to Grounds as a guest, connect as the "guest" user. Depending on the server, you may need to connect using `ssh`, or you maybe be able to use `telnet` or a typical MU* client instead.
 
 ```
 $ ssh -p 4768 guest@grounds.example.com
@@ -47,6 +47,4 @@ When you are ready to go, use the `exit` command to leave. If you log back in, y
 
 See [Common Commands](common_commands.md) for some of the commands you can use while you are visiting. Not all of them may be available to you, depending on how the wizards have set up the guest experience.
 
-Once it is time to join the game as a player, see [Becoming a New Player](player.md) to continue.
-
-
+→ [Becoming a New Player](player.md)
