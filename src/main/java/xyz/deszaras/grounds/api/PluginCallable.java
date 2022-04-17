@@ -57,6 +57,10 @@ public class PluginCallable implements Callable<String> {
     this.arguments = ImmutableList.copyOf(arguments);
   }
 
+  protected Process buildProcess(String path) throws IOException {
+    return new ProcessBuilder(path).start();
+  }
+
   /**
    * Executes the plugin call.<p>
    *
@@ -111,8 +115,7 @@ public class PluginCallable implements Callable<String> {
     JsonRpcResponse response;
     int pluginExitCode;
     try {
-      Process pluginProcess = new ProcessBuilder(pluginCall.getPluginPath())
-          .start();
+      Process pluginProcess = buildProcess(pluginCall.getPluginPath());
 
       OutputStream stdin = pluginProcess.getOutputStream();
       stdin.write(OBJECT_MAPPER.writeValueAsBytes(request));
@@ -124,6 +127,7 @@ public class PluginCallable implements Callable<String> {
       pluginExitCode = pluginProcess.waitFor();
       // TBD: timeout
     } catch (InterruptedException e) {
+      // TBD: is this the right response?
       LOG.error("Interrupted waiting for plugin call {} in extension {} for {}",
                 pluginCall.toString(), pluginCall.getExtension().getId(), player.getName(), e);
       throw new CommandException("Interrupted waiting for plugin call " + pluginCall.toString() +
@@ -149,6 +153,7 @@ public class PluginCallable implements Callable<String> {
     if (response.isSuccessful()) {
       Object resultObj = response.getResult();
       if (resultObj == null) {
+        // Probably invalid, but can treat as a silent success
         return null;
       }
       if (!(resultObj instanceof String)) {

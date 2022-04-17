@@ -22,17 +22,17 @@ public class PluginCallFactory {
 
   private static final Splitter ROLE_SPLITTER = Splitter.on(",");
 
-  private static final Set<Role> DEFAULT_CALLER_ROLES = Role.NON_GUEST_ROLES;
+  static final Set<Role> DEFAULT_CALLER_ROLES = Role.NON_GUEST_ROLES;
 
-  private static final String PATH = "pluginPath";
+  public static final String PATH = "pluginPath";
 
   // FUTURE: plugin domain socket
 
-  private static final String METHOD = "pluginMethod";
+  public static final String METHOD = "pluginMethod";
 
-  private static final String CALLER_ROLES = "callerRoles";
+  public static final String CALLER_ROLES = "callerRoles";
 
-  private static final String HELP = "commandHelp";
+  public static final String HELP = "commandHelp";
 
   /**
    * Creates a new plugin call object from a plugin call attribute. The
