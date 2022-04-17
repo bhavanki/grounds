@@ -38,7 +38,13 @@ public class HelpCommand extends Command<String> {
     COMMANDS_LIST = String.join("\n", commandNames);
   }
 
-  private static final String HELP_FORMAT = "%s\n\n%s\n\n%s";
+  private static final String HELP_FORMAT =
+      AnsiUtils.color("%s", Ansi.Color.CYAN, false) + "\n\n" +
+      "%s\n" +
+      AnsiUtils.color("{hr -}", Ansi.Color.CYAN, false) + "\n\n" +
+      "%s\n\n" +
+      AnsiUtils.color("{hr -}", Ansi.Color.CYAN, false) + "\n" +
+      AnsiUtils.color("Roles: %s", Ansi.Color.CYAN, false);
 
   @Override
   protected String executeImpl() throws CommandException {
@@ -72,12 +78,32 @@ public class HelpCommand extends Command<String> {
     }
 
     if (bundle.containsKey(upperCommandName + ".syntax")) {
-      String syntax = AnsiUtils.color(bundle.getString(upperCommandName + ".syntax"),
-                                      Ansi.Color.CYAN, false);
+      String roles = "...";
+      if (bundle.containsKey(upperCommandName + ".roles")) {
+        roles = bundle.getString(upperCommandName + ".roles");
+        switch (roles) {
+        case "ALL":
+          roles = "GUEST, DENIZEN, BARD, ADEPT, THAUMATURGE";
+          break;
+        case "NONGUEST":
+          roles = "DENIZEN, BARD, ADEPT, THAUMATURGE";
+          break;
+        case "WIZARD":
+          roles = "BARD, ADEPT, THAUMATURGE";
+          break;
+        case "NONE":
+          roles = "GOD only";
+          break;
+        default:
+          roles = roles.replace(",", ", ");
+          break;
+        }
+      }
       return String.format(HELP_FORMAT,
-                           syntax,
+                           bundle.getString(upperCommandName + ".syntax"),
                            bundle.getString(upperCommandName + ".summary"),
-                           bundle.getString(upperCommandName + ".description"));
+                           bundle.getString(upperCommandName + ".description"),
+                           roles);
     }
 
     throw new CommandException("Help is not available for " + upperCommandName);
