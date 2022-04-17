@@ -37,7 +37,8 @@ public class ClaimCommand extends Command<Boolean> {
     try {
       owner = thing.getOwner();
     } catch (MissingThingException e) {
-      return; // missing owner => unowned
+      // return; // missing owner => unowned
+      throw new PermissionException("Cannot find the current owner!");
     }
     if (owner.isPresent()) {
       if (owner.get().equals(player)) {

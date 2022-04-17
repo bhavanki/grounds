@@ -31,7 +31,13 @@ public class AbandonCommand extends Command<Boolean> {
       owner = thing.getOwner().orElse(null);
     } catch (MissingThingException e) {
       // Whatever the owner is, it isn't the player
-      throw new CommandException("You do not own that");
+      // throw new CommandException("You do not own that");
+      throw new PermissionException("Cannot find the current owner!");
+    }
+
+    if (owner == null) {
+      player.sendMessage(newInfoMessage("No one owns that"));
+      return true;
     }
     if (!player.equals(owner)) {
       checkIfAnyRole("You do not own that", Role.ADEPT, Role.THAUMATURGE);
