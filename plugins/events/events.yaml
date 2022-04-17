@@ -21,6 +21,8 @@
             - delete
             - get
             - list
+        - name: roles
+          value: See subcommands
     - name: $EVENT_CREATE
       type: ATTRLIST
       value: |
@@ -32,6 +34,8 @@
           value: >
             Each event must have a unique name. The creator of an event becomes
             its owner / organizer.
+        - name: roles
+          value: NONGUEST
     - name: $EVENT_DELETE
       type: ATTRLIST
       value: |
@@ -41,6 +45,8 @@
           value: Deletes (cancels) an event
         - name: description
           value: Only an event's owner / organizer may delete it.
+        - name: roles
+          value: NONGUEST
     - name: $EVENT_LIST
       type: ATTRLIST
       value: |
@@ -50,6 +56,8 @@
           value: Lists all events
         - name: description
           value: Use this command to see upcoming events.
+        - name: roles
+          value: NONGUEST
     - name: $EVENT_GET
       type: ATTRLIST
       value: |
@@ -59,3 +67,5 @@
           value: Gets an event by name
         - name: description
           value: All of the details for the event are presented.
+        - name: roles
+          value: NONGUEST

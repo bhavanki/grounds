@@ -17,3 +17,5 @@
         - name: description
           value: |
             The outcome of the flip is posed by the command in the caller's name.
+        - name: roles
+          value: ALL

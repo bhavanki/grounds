@@ -20,3 +20,5 @@
             the number of rolls and y is the number of sides. For example, 2d20
             is two rolls of a 20-sided die. The outcome of each roll, and the
             total, is posed by the command in the caller's name.
+        - name: roles
+          value: ALL
