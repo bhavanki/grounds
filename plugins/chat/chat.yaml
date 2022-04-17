@@ -18,7 +18,14 @@
         - name: summary
           value: Interacts with the chat system
         - name: description
-          value: "Available subcommands: say, join, leave, list, mine, members"
+          value: |
+            Available subcommands:
+            - say
+            - join
+            - leave
+            - list
+            - mine
+            - members
         - name: roles
           value: See subcommands
     - name: $CHAT_SAY

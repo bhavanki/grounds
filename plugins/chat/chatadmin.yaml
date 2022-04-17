@@ -72,6 +72,7 @@
           value: |
             Available expressions:
             - roles=role1,role2,... => visible only to players with the listed roles
+            - players=player1,player2... => visible only to named players
         - name: roles
           value: BARD,ADEPT,THAUMATURGE
     - name: $CHATADMIN_SET_JOINABILITY
@@ -85,6 +86,7 @@
           value: |
             Available expressions:
             - roles=role1,role2,... => joinable only by players with the listed roles
+            - players=player1,player2... => joinable only by named players
         - name: roles
           value: BARD,ADEPT,THAUMATURGE
     - name: $CHATADMIN_ADD_MEMBER
@@ -95,7 +97,9 @@
         - name: summary
           value: Adds a player to a chat channel
         - name: description
-          value: This has the same effect as the player themself joining.
+          value: |
+            This has the same effect as the player themselves joining. It
+            circumvents visibility and joinability constraints.
         - name: roles
           value: BARD,ADEPT,THAUMATURGE
     - name: $CHATADMIN_REMOVE_MEMBER
@@ -106,6 +110,6 @@
         - name: summary
           value: Removes a player from a chat channel
         - name: description
-          value: This has the same effect as the player themself leaving.
+          value: This has the same effect as the player themselves leaving.
         - name: roles
           value: BARD,ADEPT,THAUMATURGE
