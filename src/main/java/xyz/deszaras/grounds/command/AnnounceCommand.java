@@ -33,7 +33,7 @@ public class AnnounceCommand extends Command<Boolean> {
   }
 
   public static AnnounceCommand newCommand(Actor actor, Player player,
-                                       List<String> commandArgs)
+                                           List<String> commandArgs)
       throws CommandFactoryException {
     ensureMinArgs(commandArgs, 1);
 
