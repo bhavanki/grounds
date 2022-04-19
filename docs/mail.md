@@ -24,6 +24,8 @@ dquote> -R"
 Sent to 1 recipients
 ```
 
+You may also use [markup](markup.md) to format your message text.
+
 When a mail message is sent, each recipient gets a message notifying them.
 
 ```

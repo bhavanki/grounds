@@ -83,6 +83,10 @@ $ :flexes her muscles
 : Rehtaoh flexes her muscles
 ```
 
+## Formatting Messages
+
+The `ooc`, `page`, `pose`, `say`, and `whisper` commands let you decorate your messages using a simple markup language. See [Markup](markup.md) for the syntax.
+
 ## Muting
 
 Every player has a mute list. Messages from a player on the mute list are not shown to the muting player. This applies to all of the communication commands described above, as well as other areas of Grounds. So, muting is a powerful and pervasive way to block interactions with other players.

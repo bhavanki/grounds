@@ -21,3 +21,4 @@ This manual covers both running a Grounds server and participating as a player. 
 * [Plugins](plugins.md)
 * [Grounds API](api.md)
 * [Events](events.md)
+* [Markup](markup.md)

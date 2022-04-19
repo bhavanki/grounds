@@ -24,6 +24,7 @@ import xyz.deszaras.grounds.mail.Mailbox;
 import xyz.deszaras.grounds.mail.Missive;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Universe;
+import xyz.deszaras.grounds.util.Markup;
 
 /**
  * Sends mail to a player's mailbox.
@@ -53,6 +54,7 @@ public class SendMailCommand extends Command<Boolean> {
         .map(Player::getName)
         .collect(Collectors.toList());
     Instant now = Instant.now();
+    String renderedBody = Markup.render(body);
 
     for (Player recipient : recipients) {
       // TBD: Don't create if doesn't already exist?
@@ -67,7 +69,7 @@ public class SendMailCommand extends Command<Boolean> {
 
       // Each player gets their own copy (thing) of the mail.
       Missive missive = new Missive(player.getName(), subject, recipientNames,
-                                    now, body);
+                                    now, renderedBody);
       Universe.getCurrent().addThing(missive.getThing());
       missive.getThing().setOwner(recipient);
       mailbox.deliver(missive);

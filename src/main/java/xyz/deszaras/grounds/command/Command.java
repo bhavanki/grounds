@@ -20,6 +20,7 @@ import xyz.deszaras.grounds.model.Place;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Thing;
 import xyz.deszaras.grounds.model.Universe;
+import xyz.deszaras.grounds.util.Markup;
 
 /**
  * A command to observe or make a change to a universe.
@@ -220,18 +221,20 @@ public abstract class Command<R> {
   }
 
   protected Message newMessage(Message.Style style, String message) {
-    return new Message(player, style, message);
+    String renderedMessage = Markup.render(message);
+    return new Message(player, style, renderedMessage);
   }
 
   protected Message newInfoMessage(String message) {
-    return new Message(player, Message.Style.INFO, message);
+    return newMessage(Message.Style.INFO, message);
   }
 
   protected void emitToAllPlayers(Optional<Place> location, String text) {
     if (location.isEmpty()) {
       return;
     }
-    Message message = new Message(Player.GOD, Message.Style.INFO, text);
+    String renderedMessage = Markup.render(text);
+    Message message = new Message(Player.GOD, Message.Style.INFO, renderedMessage);
     location.get().getContents().stream()
         .map(id -> Universe.getCurrent().getThing(id))
         .filter(t -> t.isPresent())
