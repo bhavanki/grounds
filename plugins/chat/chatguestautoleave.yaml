@@ -1,9 +1,9 @@
 - name: eventType
   type: STRING
-  value: ArrivalEvent
+  value: DepartureEvent
 - name: pluginPath
   type: STRING
   value: plugins/chat/grounds-chat
 - name: pluginMethod
   type: STRING
-  value: chatguestautojoin
+  value: chatguestautoleave

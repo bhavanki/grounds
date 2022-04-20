@@ -19,7 +19,7 @@ Chat messages are emitted as the chatting player, so anyone who has them muted d
 
 There are two commands in the plugin: `$chat` for ordinary system usage, and `$chatadmin` for maintaining channels. Any player can use the former, but only wizards may use the latter.
 
-The chat system also has a listener attribute for when a guest player is yoinked, which happens when they are created. The guest player is automatically added to the "#guest" channel, if it exists.
+The chat system also has listener attributes for when a guest player arrives, which happens when they are created, and when a guest player departs, which happens when they are destroyed. The guest player is automatically added to or removed from the "#guest" channel, respectively, if the channel exists.
 
 *This plugin is still in development.*
 

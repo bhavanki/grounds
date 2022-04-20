@@ -13,6 +13,7 @@ change_policy chat_system u+g
 set_attr chat_system $chat[ATTRLIST]=@plugins/chat/chat.yaml
 set_attr chat_system $chatadmin[ATTRLIST]=@plugins/chat/chatadmin.yaml
 set_attr chat_system ^chatguestautojoin[ATTRLIST]=@plugins/chat/chatguestautojoin.yaml
+set_attr chat_system ^chatguestautoleave[ATTRLIST]=@plugins/chat/chatguestautoleave.yaml
 role add adept chat_system
 
 say Chat system installed.

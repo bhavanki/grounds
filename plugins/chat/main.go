@@ -18,9 +18,10 @@ import (
 )
 
 const (
-	chatMethod              = "chat"
-	chatAdminMethod         = "chatadmin"
-	chatGuestAutojoinMethod = "chatguestautojoin"
+	chatMethod               = "chat"
+	chatAdminMethod          = "chatadmin"
+	chatGuestAutojoinMethod  = "chatguestautojoin"
+	chatGuestAutoleaveMethod = "chatguestautoleave"
 )
 
 type channel struct {
@@ -704,9 +705,7 @@ func handleRemoveMember(ctx context.Context, call *api.PluginCall) (interface{},
 	return "", nil
 }
 
-// TBD: setVisibility, setJoinability
-
-// --- GUESTAUTOJOIN COMMANDS ---
+// --- GUESTAUTO COMMANDS ---
 
 func handleGuestAutojoin(ctx context.Context, call *api.PluginCall) (interface{}, error) {
 	if argErr := api.CheckArgumentCount(call, 1); argErr != nil {
@@ -719,8 +718,8 @@ func handleGuestAutojoin(ctx context.Context, call *api.PluginCall) (interface{}
 		return nil, err
 	}
 
-	yoinkedThingName := payload["yoinkedThingName"].(string)
-	if !strings.HasPrefix(yoinkedThingName, "guest") || payload["yoinkedThingType"] != "Player" {
+	playerName := payload["player"].(string)
+	if !strings.HasPrefix(playerName, "guest") {
 		return "", nil
 	}
 
@@ -728,8 +727,8 @@ func handleGuestAutojoin(ctx context.Context, call *api.PluginCall) (interface{}
 	if err != nil {
 		return nil, err
 	}
-	if !guestChannel.isMember(yoinkedThingName) {
-		err = guestChannel.addMember(ctx, yoinkedThingName, call.ExtensionId, true)
+	if !guestChannel.isMember(playerName) {
+		err = guestChannel.addMember(ctx, playerName, call.ExtensionId, true)
 		if err != nil {
 			return nil, err
 		}
@@ -737,7 +736,34 @@ func handleGuestAutojoin(ctx context.Context, call *api.PluginCall) (interface{}
 	return "", nil
 }
 
-// TBD: guestautoleave
+func handleGuestAutoleave(ctx context.Context, call *api.PluginCall) (interface{}, error) {
+	if argErr := api.CheckArgumentCount(call, 1); argErr != nil {
+		return nil, argErr
+	}
+
+	payload := make(map[string]interface{})
+	err := api.UnmarshalEventPayload(call.Arguments[0], &payload)
+	if err != nil {
+		return nil, err
+	}
+
+	playerName := payload["player"].(string)
+	if !strings.HasPrefix(playerName, "guest") {
+		return "", nil
+	}
+
+	guestChannel, err := getChannel(ctx, "#guest", call.ExtensionId)
+	if err != nil {
+		return nil, err
+	}
+	if guestChannel.isMember(playerName) {
+		err = guestChannel.removeMember(ctx, playerName, call.ExtensionId, true)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return "", nil
+}
 
 func main() {
 	go func() {
@@ -809,6 +835,12 @@ func main() {
 					return handleGuestAutojoin
 				},
 			}
+			chatguestautoleaveHandler := api.PluginHandler{
+				Method: chatGuestAutoleaveMethod,
+				Dispatcher: func(ctx context.Context, call api.PluginCall) api.SubcommandHandler {
+					return handleGuestAutoleave
+				},
+			}
 
 			// future: server mode
 			// conn, err := newConn(ctx, handler)
@@ -825,6 +857,8 @@ func main() {
 			switch req.Method {
 			case chatGuestAutojoinMethod:
 				res = chatguestautojoinHandler.Handle(ctx, req)
+			case chatGuestAutoleaveMethod:
+				res = chatguestautoleaveHandler.Handle(ctx, req)
 			case chatAdminMethod:
 				res = chatadminHandler.Handle(ctx, req)
 			default:
