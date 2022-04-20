@@ -223,6 +223,7 @@ public class Shell implements Runnable {
         }
       }
       bringOutPlayer(player);
+      commandExecutor.getCommandEventBus().post(new ArrivalEvent(player));
 
       emitterFuture = emitterExecutorService.submit(
           new MessageEmitter(player, terminal, lineReader));
@@ -276,10 +277,12 @@ public class Shell implements Runnable {
             if (command instanceof ExitCommand) {
               break;
             } else if (command instanceof SwitchPlayerCommand) {
+              commandExecutor.getCommandEventBus().post(new DepartureEvent(player));
               stowPlayer(player);
 
               player = ((SwitchPlayerCommand) command).getNewPlayer();
               bringOutPlayer(player);
+              commandExecutor.getCommandEventBus().post(new ArrivalEvent(player));
 
               prompt = getPrompt(player);
 
@@ -311,6 +314,7 @@ public class Shell implements Runnable {
         emitterFuture.cancel(true);
       }
       if (player != null) {
+        commandExecutor.getCommandEventBus().post(new DepartureEvent(player));
         if (actor.equals(Actor.GUEST)) {
           concierge.destroyGuestPlayer(player);
         } else {

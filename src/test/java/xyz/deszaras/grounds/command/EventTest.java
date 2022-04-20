@@ -1,6 +1,7 @@
 package xyz.deszaras.grounds.command;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -32,15 +33,23 @@ public class EventTest {
     }
   }
 
+  private static class PayloadLessTestEvent extends Event<Void> {
+    private PayloadLessTestEvent(Player player, Thing location) {
+      super(player, location, null);
+    }
+  }
+
   private TestPayload payload;
   private Place place;
   private Event event;
+  private Event payloadlessEvent;
 
   @BeforeEach
   public void setUp() {
     place = new Place("there");
     payload = new TestPayload();
     event = new TestEvent(Player.GOD, place, payload);
+    payloadlessEvent = new PayloadLessTestEvent(Player.GOD, place);
   }
 
   @Test
@@ -48,6 +57,8 @@ public class EventTest {
     assertEquals(Player.GOD, event.getPlayer());
     assertEquals(place, event.getLocation());
     assertEquals(payload, event.getPayload());
+
+    assertNull(payloadlessEvent.getPayload());
   }
 
   @Test
@@ -60,6 +71,9 @@ public class EventTest {
   public void testGetAugmentedPayloadJsonStringWithNoPayload() throws Exception {
     event = new TestEvent(Player.GOD, place, null);
     String json = event.getAugmentedPayloadJsonString();
+    verifyJson(json, Player.GOD, place, null);
+
+    json = payloadlessEvent.getAugmentedPayloadJsonString();
     verifyJson(json, Player.GOD, place, null);
   }
 

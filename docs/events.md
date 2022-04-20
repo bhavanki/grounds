@@ -4,10 +4,16 @@ Commands are what makes things happen in a Grounds universe, and many commands g
 
 ## Event Types
 
-Every event has a type which describes what happened to trigger it. These are tied to the command that caused the event to be posted in the first place.
+Every event has a type which describes what happened to trigger it. These are usually tied to the command that caused the event to be posted in the first place, but some events are not tied to a command.
 
 <table>
   <tr><th>Type</th><th>Command</th><th>Cause</th></tr>
+  <tr>
+    <td>ArrivalEvent</td><td>n/a</td><td>A player arrived (logged in)</td>
+  </tr>
+  <tr>
+    <td>DepartureEvent</td><td>n/a</td><td>A player departed (logged out)</td>
+  </tr>
   <tr>
     <td>DroppedThingEvent</td><td>DROP</td><td>A thing was dropped by a player</td>
   </tr>
@@ -57,6 +63,12 @@ Here are the payload fields provided by the different event types.
 
 <table>
   <tr><th>Type</th><th>Player</th><th>Location</th><th>Other</th></tr>
+  <tr>
+    <td>ArrivalEvent</td><td>arriving player</td><td>n/a</td><td>n/a</td>
+  </tr>
+  <tr>
+    <td>DepartureEvent</td><td>departing player</td><td>n/a</td><td>n/a</td>
+  </tr>
   <tr>
     <td>DroppedThingEvent</td><td>dropping player</td><td>dropping location</td>
     <td>
