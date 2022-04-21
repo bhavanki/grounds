@@ -1,8 +1,9 @@
 package xyz.deszaras.grounds.command.mail;
 
 import com.google.common.annotations.VisibleForTesting;
+
 import java.util.List;
-import org.fusesource.jansi.Ansi;
+
 import xyz.deszaras.grounds.auth.Role;
 import xyz.deszaras.grounds.command.Actor;
 import xyz.deszaras.grounds.command.Command;
@@ -12,7 +13,6 @@ import xyz.deszaras.grounds.command.PermittedRoles;
 import xyz.deszaras.grounds.mail.Mailbox;
 import xyz.deszaras.grounds.mail.Missive;
 import xyz.deszaras.grounds.model.Player;
-import xyz.deszaras.grounds.util.AnsiUtils;
 import xyz.deszaras.grounds.util.TabularOutput;
 import xyz.deszaras.grounds.util.TimeUtils;
 
@@ -24,8 +24,7 @@ import xyz.deszaras.grounds.util.TimeUtils;
 @PermittedRoles(roles = { Role.DENIZEN, Role.BARD, Role.ADEPT, Role.THAUMATURGE })
 public class ListMailCommand extends Command<String> {
 
-  private static final String UNREAD =
-      AnsiUtils.color("*", Ansi.Color.GREEN, true);
+  private static final String UNREAD = "%fG*";
   private static final String SENT_COLUMN_FORMAT =
       "%-" + TimeUtils.getInstantShortStringLength() + "." +
       TimeUtils.getInstantShortStringLength() + "s";

@@ -40,7 +40,7 @@ public class RecordOutput {
     } else {
       keys.add(null);
     }
-    values.add(value);
+    values.add(Markup.render(value));
     return this;
   }
 

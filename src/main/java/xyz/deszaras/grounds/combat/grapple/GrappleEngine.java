@@ -169,7 +169,7 @@ public class GrappleEngine extends Engine {
         Stats playerStats = team.getMemberStats(player);
         String playerName = player.getName();
         if (playerStats.isOut()) {
-          playerName = AnsiUtils.color(playerName, Ansi.Color.RED, false);
+          playerName = "%fr" + playerName;
         } else if (isMovingTeam && yetToMove.contains(player)) {
           playerName += " <-";
         }
@@ -199,7 +199,7 @@ public class GrappleEngine extends Engine {
         String woundString;
         int numWounds = playerStats.getWounds();
         if (playerStats.isOut()) {
-          woundString = AnsiUtils.color("X".repeat(numWounds), Ansi.Color.RED, false);
+          woundString = "%fr" + "X".repeat(numWounds);
         } else {
           woundString = "*".repeat(numWounds);
         }

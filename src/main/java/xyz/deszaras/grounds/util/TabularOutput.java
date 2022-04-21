@@ -84,7 +84,7 @@ public class TabularOutput {
                       columnDefs.size(), values.length));
     }
     rows.add(Arrays.stream(values)
-             .map(s -> new AnsiString(s))
+             .map(s -> new AnsiString(Markup.render(s)))
              .collect(Collectors.toList()));
     return this;
   }
@@ -104,7 +104,7 @@ public class TabularOutput {
                       columnDefs.size(), values.size()));
     }
     rows.add(values.stream()
-             .map(s -> new AnsiString(s))
+             .map(s -> new AnsiString(Markup.render(s)))
              .collect(Collectors.toList()));
     return this;
   }
