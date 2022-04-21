@@ -11,6 +11,7 @@ import xyz.deszaras.grounds.api.JsonRpcResponse.ErrorObject;
 import xyz.deszaras.grounds.command.Message;
 import xyz.deszaras.grounds.model.Player;
 import xyz.deszaras.grounds.model.Universe;
+import xyz.deszaras.grounds.util.Markup;
 import xyz.deszaras.grounds.util.RecordOutput;
 import xyz.deszaras.grounds.util.TabularOutput;
 
@@ -65,9 +66,11 @@ class SendMessageMethod implements ApiMethod {
                                                      "Invalid record: " + e.getMessage()),
                                      request.getId());
         }
+      } else {
+        message = Markup.render(message);
       }
       if (header != null) {
-        message = header + "\n" + message;
+        message = Markup.render(header) + "\n" + message;
       }
       targetPlayer.get().sendMessage(new Message(sender, Message.Style.SCRIPT, message));
     }

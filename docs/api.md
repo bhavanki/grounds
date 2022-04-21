@@ -270,6 +270,11 @@ To format the message as a table, pass JSON under the `table` param. Here is an 
   ]
 }
 ```
+[Markup](markup.md) is supported for the following message pieces:
+
+* the entire string when `message` is used
+* elements of the "values" array when `record` is used
+* all elements of "rows" when `table` is used
 
 <table>
   <tr><th colspan="3">params</th></tr>
@@ -281,7 +286,7 @@ To format the message as a table, pass JSON under the `table` param. Here is an 
   <tr>
     <td>message</td>
     <td>string</td>
-    <td>plain message string</td>
+    <td>plain message string (may use markup)</td>
   </tr>
   <tr>
     <td>record</td>
@@ -296,7 +301,7 @@ To format the message as a table, pass JSON under the `table` param. Here is an 
   <tr>
     <td>header</td>
     <td>string</td>
-    <td>header line to emit before message</td>
+    <td>header line to emit before message (may use markup)</td>
   </tr>
   <tr><td colspan="3">may be run as an extension</td></tr>
   <tr><th colspan="3">result</th></tr>
@@ -318,7 +323,7 @@ Sends the given message from the caller to the caller. See `sendMessage` for det
   <tr>
     <td>message</td>
     <td>string</td>
-    <td>plain message string</td>
+    <td>plain message string (may use markup)</td>
   </tr>
   <tr>
     <td>record</td>
@@ -333,7 +338,7 @@ Sends the given message from the caller to the caller. See `sendMessage` for det
   <tr>
     <td>header</td>
     <td>string</td>
-    <td>header line to emit before message</td>
+    <td>header line to emit before message (may use markup)</td>
   </tr>
   <tr><td colspan="3">may be run as an extension</td></tr>
   <tr><th colspan="3">result</th></tr>
