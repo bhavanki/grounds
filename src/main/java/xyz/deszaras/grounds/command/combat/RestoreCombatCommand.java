@@ -32,7 +32,7 @@ public class RestoreCombatCommand extends Command<String> {
     Combat combat = CombatCommand.findCombatOrFail(location);
 
     if (!combat.passes(Category.WRITE, player)) {
-      return "You lack WRITE permission to the combat here, so you may not restore it";
+      throw new CommandException("You lack WRITE permission to the combat here, so you may not restore it");
     }
 
     Optional<String> stateString = combat.getState();
@@ -47,7 +47,6 @@ public class RestoreCombatCommand extends Command<String> {
                                          "Combat has been restored to a prior state");
       return "Combat restored";
     } catch (IllegalArgumentException | UnsupportedOperationException e) {
-      e.printStackTrace();
       throw new CommandException("Failed to restore combat state", e);
     }
   }

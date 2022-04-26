@@ -31,7 +31,7 @@ public class SaveCombatCommand extends Command<String> {
     Combat combat = CombatCommand.findCombatOrFail(location);
 
     if (!combat.passes(Category.WRITE, player)) {
-      return "You lack WRITE permission to the combat here, so you may not save it";
+      throw new CommandException("You lack WRITE permission to the combat here, so you may not save it");
     }
 
     if (combat.getEngine() == null) {

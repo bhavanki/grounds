@@ -33,7 +33,7 @@ public class EndCombatCommand extends Command<String> {
     Combat combat = CombatCommand.findCombatOrFail(location);
 
     if (!combat.passes(Category.WRITE, player)) {
-      return "You lack WRITE permission to the combat here, so you may not end it";
+      throw new CommandException("You lack WRITE permission to the combat here, so you may not end it");
     }
 
     combat.end();

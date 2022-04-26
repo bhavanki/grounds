@@ -34,11 +34,11 @@ public class StartCombatCommand extends Command<String> {
 
   @Override
   protected String executeImpl() throws CommandException {
-    Place location = getPlayerLocation("start");
+    Place location = getPlayerLocation("start combat");
     Combat combat = CombatCommand.findCombatOrFail(location);
 
     if (!combat.passes(Category.WRITE, player)) {
-      return "You lack WRITE permission to the combat here, so you may not start it";
+      throw new CommandException("You lack WRITE permission to the combat here, so you may not start it");
     }
 
     combat.start(teamNames);
